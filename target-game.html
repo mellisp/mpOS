@@ -5,13 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Target Shooting</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
+      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
+      font-size: 13px;
       margin: 0;
       overflow: hidden;
       width: 100vw;
       height: 100vh;
-      background: #87CEEB;
-      font-family: Arial, sans-serif;
+      background: #3a6ea5;
+      color: #000;
       cursor: crosshair;
     }
 
@@ -48,14 +52,14 @@
     }
 
     .label {
-      font-size: 18px;
+      font-size: 14px;
       font-weight: bold;
-      color: #1a3a5c;
+      color: #d4d0c8;
       text-transform: uppercase;
       letter-spacing: 2px;
       min-width: 80px;
       text-align: center;
-      min-height: 22px;
+      min-height: 18px;
     }
 
     .label.hit {
@@ -70,21 +74,53 @@
       position: fixed;
       top: 12px;
       left: 12px;
-      background: rgba(0, 0, 0, 0.65);
-      color: #fff;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      line-height: 1.6;
       z-index: 10;
       pointer-events: none;
       user-select: none;
+
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: inset 1px 1px 0 #d4d0c8, inset -1px -1px 0 #808080;
+    }
+
+    .hud-titlebar {
+      background: linear-gradient(to right, #0a246a, #a6caf0);
+      color: #fff;
+      font-weight: bold;
+      font-size: 12px;
+      padding: 3px 6px;
+      user-select: none;
+    }
+
+    .hud-body {
+      padding: 8px 12px;
+      font-size: 13px;
+      line-height: 1.6;
     }
 
     .hud .score {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: bold;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+    }
+
+    .hud-statusbar {
+      border-top: 2px solid #808080;
+      padding: 2px 6px;
+      font-size: 11px;
+      display: flex;
+    }
+
+    .hud-statusbar-section {
+      border-top: 1px solid #808080;
+      border-left: 1px solid #808080;
+      border-right: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+      padding: 1px 6px;
+      flex: 1;
     }
 
     .flash {
@@ -101,9 +137,15 @@
   <div class="flash" id="flash"></div>
 
   <div class="hud">
-    <div class="score">Score: <span id="score">0</span></div>
-    <div><strong>Player 1:</strong> Arrow keys to dodge</div>
-    <div><strong>Player 2:</strong> Shoot the target!</div>
+    <div class="hud-titlebar">Target Shooting</div>
+    <div class="hud-body">
+      <div class="score">Score: <span id="score">0</span></div>
+      <div><strong>Player 1:</strong> Arrow keys to dodge</div>
+      <div><strong>Player 2:</strong> Shoot the target!</div>
+    </div>
+    <div class="hud-statusbar">
+      <div class="hud-statusbar-section">Ready</div>
+    </div>
   </div>
 
   <div class="target-container" id="container">
@@ -117,6 +159,7 @@
     const scoreEl = document.getElementById("score");
     const container = document.getElementById("container");
     const flash = document.getElementById("flash");
+    const hudStatus = document.querySelector(".hud-statusbar-section");
 
     let score = 0;
     let isHit = false;
@@ -159,6 +202,7 @@
         status.textContent = "Hit! +" + points;
         status.className = "label hit";
         target.classList.add("hit");
+        hudStatus.textContent = "Hit! +" + points;
         isHit = true;
 
         clearTimeout(statusTimeout);
@@ -166,15 +210,18 @@
           target.classList.remove("hit");
           status.textContent = "";
           status.className = "label";
+          hudStatus.textContent = "Ready";
           isHit = false;
         }, 1000);
       } else {
         status.textContent = "Miss";
         status.className = "label miss";
+        hudStatus.textContent = "Miss";
         clearTimeout(statusTimeout);
         statusTimeout = setTimeout(() => {
           status.textContent = "";
           status.className = "label";
+          hudStatus.textContent = "Ready";
         }, 800);
       }
     });
