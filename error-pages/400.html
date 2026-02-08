@@ -4,14 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>400 Bad Request</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../css/theme.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
-            font-size: 13px;
-            color: #000;
-            background: #3a6ea5;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -19,112 +15,10 @@
             padding: 24px;
         }
 
-        .window {
-            background: #d4d0c8;
-            border-top: 2px solid #fff;
-            border-left: 2px solid #fff;
-            border-right: 2px solid #404040;
-            border-bottom: 2px solid #404040;
-            box-shadow: inset 1px 1px 0 #d4d0c8, inset -1px -1px 0 #808080;
-            width: 420px;
-            max-width: 95vw;
-        }
-
-        .titlebar {
-            background: linear-gradient(to right, #0a246a, #a6caf0);
-            color: #fff;
-            font-weight: bold;
-            font-size: 13px;
-            padding: 4px 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-        }
-
-        .titlebar-buttons {
-            display: flex;
-            gap: 2px;
-        }
-
-        .titlebar-btn {
-            width: 18px;
-            height: 18px;
-            background: #d4d0c8;
-            border-top: 1px solid #fff;
-            border-left: 1px solid #fff;
-            border-right: 1px solid #404040;
-            border-bottom: 1px solid #404040;
-            font-size: 11px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            cursor: default;
-        }
-
-        .window-body {
-            padding: 16px;
-        }
-
-        .error-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .error-icon {
-            font-size: 32px;
-            color: #c62828;
-            flex-shrink: 0;
-            line-height: 1;
-        }
-
-        .error-text h1 {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .error-text p {
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .button-row {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 16px;
-        }
-
-        .btn {
-            font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
-            font-size: 13px;
-            color: #000;
-            background: #d4d0c8;
-            border-top: 2px solid #fff;
-            border-left: 2px solid #fff;
-            border-right: 2px solid #404040;
-            border-bottom: 2px solid #404040;
-            box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #d4d0c8;
-            padding: 4px 16px;
-            cursor: default;
-            min-width: 75px;
-            text-align: center;
-            text-decoration: none;
-            outline: 1px dotted #000;
-            outline-offset: -4px;
-        }
-
-        .btn:active {
-            border-top: 2px solid #404040;
-            border-left: 2px solid #404040;
-            border-right: 2px solid #fff;
-            border-bottom: 2px solid #fff;
-            box-shadow: inset 1px 1px 0 #808080;
-            padding: 5px 15px 3px 17px;
-        }
+        .window { width: 420px; max-width: 95vw; }
+        .window-body { padding: 16px; }
+        .error-icon { color: var(--error); }
+        .error-text h1 { margin-bottom: 8px; }
     </style>
 </head>
 <body>

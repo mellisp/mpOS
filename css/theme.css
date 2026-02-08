@@ -1,0 +1,160 @@
+/* Classic Desktop OS Theme — Shared Styles
+   Inspired by the early-2000s desktop aesthetic. */
+
+:root {
+  --silver: #d4d0c8;
+  --white: #fff;
+  --title-dark: #0a246a;
+  --title-light: #a6caf0;
+  --desktop: #3a6ea5;
+  --shadow: #808080;
+  --dk-shadow: #404040;
+  --highlight: #0a246a;
+  --highlight-text: #fff;
+  --link: #00f;
+  --error: #c62828;
+  --font: "Trebuchet MS", Tahoma, Geneva, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  font-size: 13px;
+  color: #000;
+  background: var(--desktop);
+}
+
+/* Window */
+.window {
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+}
+
+/* Title Bar */
+.titlebar {
+  background: linear-gradient(to right, var(--title-dark), var(--title-light));
+  color: var(--white);
+  font-weight: bold;
+  font-size: 13px;
+  padding: 4px 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.titlebar-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.titlebar-btn {
+  width: 18px;
+  height: 18px;
+  background: var(--silver);
+  border: 1px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  cursor: default;
+}
+
+/* Window Body */
+.window-body { padding: 12px; }
+
+/* Sunken Panel */
+.sunken {
+  background: var(--white);
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  padding: 2px;
+}
+
+/* Buttons */
+.btn {
+  font-family: var(--font);
+  font-size: 13px;
+  color: #000;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset -1px -1px 0 var(--shadow), inset 1px 1px 0 var(--silver);
+  padding: 4px 16px;
+  cursor: default;
+  min-width: 75px;
+  text-align: center;
+  text-decoration: none;
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+}
+
+.btn:active {
+  border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
+  box-shadow: inset 1px 1px 0 var(--shadow);
+  padding: 5px 15px 3px 17px;
+}
+
+/* Section Title */
+.section-title {
+  font-size: 13px;
+  font-weight: bold;
+  margin: 12px 0 6px 0;
+}
+
+.section-title:first-child { margin-top: 0; }
+
+/* Separator */
+.separator {
+  border-top: 1px solid var(--shadow);
+  border-bottom: 1px solid var(--white);
+  margin: 8px 0;
+}
+
+/* Status Bar */
+.statusbar {
+  background: var(--silver);
+  border-top: 2px solid var(--shadow);
+  padding: 2px 6px;
+  font-size: 12px;
+  color: #000;
+  display: flex;
+  gap: 4px;
+}
+
+.statusbar-section {
+  border: 1px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  padding: 1px 8px;
+  flex: 1;
+}
+
+/* Error Dialog Pattern */
+.error-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.error-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.error-text { font-size: 13px; line-height: 1.5; }
+.error-text h1, .error-text strong { font-size: 14px; font-weight: bold; margin-bottom: 6px; }
+.error-text strong { display: block; }
+
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}

@@ -4,18 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Target Shooting</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/theme.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
-      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
-      font-size: 13px;
-      margin: 0;
       overflow: hidden;
       width: 100vw;
       height: 100vh;
-      background: #3a6ea5;
-      color: #000;
       cursor: crosshair;
     }
 
@@ -34,27 +29,18 @@
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      background: radial-gradient(
-        circle,
-        #222 15%,
-        #fff 15% 30%,
-        #222 30% 50%,
-        #fff 50% 70%,
-        #222 70%
-      );
+      background: radial-gradient(circle, #222 15%, #fff 15% 30%, #222 30% 50%, #fff 50% 70%, #222 70%);
       cursor: crosshair;
       transition: opacity 0.2s;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
-    .target.hit {
-      opacity: 0.3;
-    }
+    .target.hit { opacity: 0.3; }
 
     .label {
       font-size: 14px;
       font-weight: bold;
-      color: #d4d0c8;
+      color: var(--silver);
       text-transform: uppercase;
       letter-spacing: 2px;
       min-width: 80px;
@@ -62,14 +48,10 @@
       min-height: 18px;
     }
 
-    .label.hit {
-      color: #2e7d32;
-    }
+    .label.hit { color: #2e7d32; }
+    .label.miss { color: var(--error); }
 
-    .label.miss {
-      color: #c62828;
-    }
-
+    /* HUD mini-window */
     .hud {
       position: fixed;
       top: 12px;
@@ -77,48 +59,33 @@
       z-index: 10;
       pointer-events: none;
       user-select: none;
-
-      background: #d4d0c8;
-      border-top: 2px solid #fff;
-      border-left: 2px solid #fff;
-      border-right: 2px solid #404040;
-      border-bottom: 2px solid #404040;
-      box-shadow: inset 1px 1px 0 #d4d0c8, inset -1px -1px 0 #808080;
+      background: var(--silver);
+      border: 2px solid;
+      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+      box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
     }
 
     .hud-titlebar {
-      background: linear-gradient(to right, #0a246a, #a6caf0);
-      color: #fff;
+      background: linear-gradient(to right, var(--title-dark), var(--title-light));
+      color: var(--white);
       font-weight: bold;
       font-size: 12px;
       padding: 3px 6px;
-      user-select: none;
     }
 
-    .hud-body {
-      padding: 8px 12px;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .hud .score {
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 2px;
-    }
+    .hud-body { padding: 8px 12px; line-height: 1.6; }
+    .hud .score { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
 
     .hud-statusbar {
-      border-top: 2px solid #808080;
+      border-top: 2px solid var(--shadow);
       padding: 2px 6px;
       font-size: 11px;
       display: flex;
     }
 
     .hud-statusbar-section {
-      border-top: 1px solid #808080;
-      border-left: 1px solid #808080;
-      border-right: 1px solid #fff;
-      border-bottom: 1px solid #fff;
+      border: 1px solid;
+      border-color: var(--shadow) var(--white) var(--white) var(--shadow);
       padding: 1px 6px;
       flex: 1;
     }
@@ -126,7 +93,7 @@
     .flash {
       position: fixed;
       inset: 0;
-      background: #fff;
+      background: var(--white);
       opacity: 0;
       pointer-events: none;
       z-index: 5;
@@ -137,7 +104,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: #3a6ea5;
+      background: var(--desktop);
       z-index: 100;
       align-items: center;
       justify-content: center;
@@ -145,97 +112,15 @@
     }
 
     .mobile-dialog {
-      background: #d4d0c8;
-      border-top: 2px solid #fff;
-      border-left: 2px solid #fff;
-      border-right: 2px solid #404040;
-      border-bottom: 2px solid #404040;
-      box-shadow: inset 1px 1px 0 #d4d0c8, inset -1px -1px 0 #808080;
+      background: var(--silver);
+      border: 2px solid;
+      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+      box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
       width: 360px;
       max-width: 95vw;
     }
 
-    .mobile-dialog .titlebar {
-      background: linear-gradient(to right, #0a246a, #a6caf0);
-      color: #fff;
-      font-weight: bold;
-      font-size: 13px;
-      padding: 4px 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      user-select: none;
-    }
-
-    .mobile-dialog .titlebar-btn {
-      width: 18px;
-      height: 18px;
-      background: #d4d0c8;
-      border-top: 1px solid #fff;
-      border-left: 1px solid #fff;
-      border-right: 1px solid #404040;
-      border-bottom: 1px solid #404040;
-      font-size: 11px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #000;
-      cursor: default;
-    }
-
-    .mobile-dialog-body {
-      padding: 16px;
-    }
-
-    .mobile-dialog .error-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .mobile-dialog .error-icon {
-      font-size: 32px;
-      color: #d4a017;
-      flex-shrink: 0;
-      line-height: 1;
-    }
-
-    .mobile-dialog .error-text {
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .mobile-dialog .error-text strong {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 6px;
-    }
-
-    .mobile-dialog .button-row {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 16px;
-    }
-
-    .mobile-dialog .btn {
-      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
-      font-size: 13px;
-      color: #000;
-      background: #d4d0c8;
-      border-top: 2px solid #fff;
-      border-left: 2px solid #fff;
-      border-right: 2px solid #404040;
-      border-bottom: 2px solid #404040;
-      box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #d4d0c8;
-      padding: 4px 16px;
-      cursor: default;
-      min-width: 75px;
-      text-align: center;
-      text-decoration: none;
-      outline: 1px dotted #000;
-      outline-offset: -4px;
-    }
+    .mobile-dialog .error-icon { color: #d4a017; }
 
     @media (hover: none) and (pointer: coarse) {
       .mobile-overlay { display: flex; }
@@ -249,7 +134,7 @@
         <span>Target Shooting</span>
         <div class="titlebar-btn">X</div>
       </div>
-      <div class="mobile-dialog-body">
+      <div class="window-body" style="padding:16px">
         <div class="error-row">
           <span class="error-icon">&#9888;</span>
           <div class="error-text">
@@ -295,10 +180,9 @@
     let isHit = false;
     let statusTimeout = null;
 
-    // Cache container size — update on resize instead of every frame
     let containerW = container.offsetWidth;
     let containerH = container.offsetHeight;
-    const targetRadius = 40; // half of 80px target width
+    const targetRadius = 40;
 
     window.addEventListener("resize", () => {
       containerW = container.offsetWidth;
@@ -306,15 +190,10 @@
     });
 
     document.body.addEventListener("mousedown", (e) => {
-      // Gunshot flash — use Web Animations API to avoid forced reflow
-      flash.animate([
-        { opacity: 0.8 },
-        { opacity: 0 }
-      ], { duration: 150, easing: "ease-out" });
+      flash.animate([{ opacity: 0.8 }, { opacity: 0 }], { duration: 150, easing: "ease-out" });
 
       if (isHit) return;
 
-      // Hit detection using tracked position instead of getBoundingClientRect
       const centerX = x + containerW / 2;
       const centerY = y + targetRadius;
       const dx = e.clientX - centerX;
@@ -356,7 +235,6 @@
       }
     });
 
-    // Arrow-key movement (normalized so diagonal = same speed)
     const arrowKeys = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
     const keys = {};
     const speed = 5;
@@ -370,9 +248,7 @@
       }
     });
 
-    window.addEventListener("keyup", (e) => {
-      keys[e.key] = false;
-    });
+    window.addEventListener("keyup", (e) => { keys[e.key] = false; });
 
     function animate() {
       let dx = 0;
@@ -395,7 +271,6 @@
       y = Math.max(0, Math.min(y, maxY));
 
       container.style.transform = "translate(" + x + "px," + y + "px)";
-
       requestAnimationFrame(animate);
     }
 
