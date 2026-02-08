@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bits &amp; Bobs — Style Guide</title>
+  <style>
+    /* ============================================================
+       STYLE GUIDE — Classic Desktop OS (circa 2000) Theme
+       ============================================================
+       Inspired by the look and feel of late-90s/early-2000s
+       desktop operating systems. No trademarked names, icons,
+       or copyrighted assets are used.
+       ============================================================ */
+
+    /* --- Reset & Base --- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
+      font-size: 13px;
+      color: #000;
+      background: #3a6ea5;
+    }
+
+    /* --- Color Palette --- */
+    /*
+      System Silver:    #d4d0c8  (window backgrounds, panels)
+      System White:     #fff     (input fields, content wells)
+      Titlebar Blue:    #0a246a  (active title bar gradient start)
+      Titlebar Light:   #a6caf0  (active title bar gradient end)
+      Inactive Gray:    #808080  (inactive title bar)
+      Highlight Blue:   #0a246a  (selected items, focus)
+      Highlight Text:   #fff     (text on highlighted items)
+      Button Face:      #d4d0c8  (button backgrounds)
+      Button Shadow:    #808080  (bottom/right border on raised elements)
+      Button DkShadow:  #404040  (outer bottom/right on raised elements)
+      Button Light:     #fff     (top/left highlight on raised elements)
+      Desktop Blue:     #3a6ea5  (desktop background)
+      Link Blue:        #0000ff  (hyperlinks)
+      Error Red:        #ff0000  (error text)
+    */
+
+    /* --- Desktop Background --- */
+    .desktop {
+      min-height: 100vh;
+      background: #3a6ea5;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    /* --- Window Container --- */
+    .window {
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: inset 1px 1px 0 #d4d0c8, inset -1px -1px 0 #808080;
+      width: 680px;
+      max-width: 95vw;
+    }
+
+    /* --- Title Bar --- */
+    .titlebar {
+      background: linear-gradient(to right, #0a246a, #a6caf0);
+      color: #fff;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 4px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .titlebar-inactive {
+      background: linear-gradient(to right, #808080, #b4b4b4);
+    }
+
+    .titlebar-buttons {
+      display: flex;
+      gap: 2px;
+    }
+
+    .titlebar-btn {
+      width: 18px;
+      height: 18px;
+      background: #d4d0c8;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      font-size: 11px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      cursor: default;
+    }
+
+    /* --- Window Body --- */
+    .window-body {
+      padding: 12px;
+    }
+
+    /* --- Sunken Panel (content wells, inset areas) --- */
+    .sunken {
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      box-shadow: inset 1px 1px 0 #404040;
+      padding: 8px;
+    }
+
+    /* --- Section Headings --- */
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin: 16px 0 8px 0;
+      color: #000;
+    }
+
+    .section-title:first-child {
+      margin-top: 0;
+    }
+
+    /* --- Typography --- */
+    .guide-body p {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    /* --- Buttons --- */
+    .btn {
+      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
+      font-size: 13px;
+      color: #000;
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #d4d0c8;
+      padding: 4px 16px;
+      cursor: default;
+      min-width: 75px;
+      text-align: center;
+    }
+
+    .btn:active, .btn-pressed {
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      box-shadow: inset 1px 1px 0 #808080;
+      padding: 5px 15px 3px 17px;
+    }
+
+    .btn-default {
+      outline: 1px dotted #000;
+      outline-offset: -4px;
+    }
+
+    .btn:disabled, .btn-disabled {
+      color: #808080;
+      text-shadow: 1px 1px 0 #fff;
+    }
+
+    /* --- Links --- */
+    .classic-link {
+      color: #0000ff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .classic-link:visited {
+      color: #800080;
+    }
+
+    .classic-link:hover {
+      color: #ff0000;
+    }
+
+    /* --- Form Inputs --- */
+    .text-input {
+      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
+      font-size: 13px;
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      box-shadow: inset 1px 1px 0 #404040;
+      padding: 2px 4px;
+      color: #000;
+    }
+
+    /* --- Dropdown / Select --- */
+    .dropdown {
+      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
+      font-size: 13px;
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      padding: 2px;
+      color: #000;
+    }
+
+    /* --- Status Bar --- */
+    .statusbar {
+      background: #d4d0c8;
+      border-top: 2px solid #808080;
+      padding: 2px 6px;
+      font-size: 12px;
+      color: #000;
+      display: flex;
+      gap: 4px;
+    }
+
+    .statusbar-section {
+      border-top: 1px solid #808080;
+      border-left: 1px solid #808080;
+      border-right: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+      padding: 1px 8px;
+      flex: 1;
+    }
+
+    /* --- Menu Bar --- */
+    .menubar {
+      background: #d4d0c8;
+      padding: 2px 0;
+      display: flex;
+      border-bottom: 1px solid #808080;
+    }
+
+    .menubar-item {
+      padding: 2px 8px;
+      cursor: default;
+      font-size: 13px;
+    }
+
+    .menubar-item:hover {
+      background: #0a246a;
+      color: #fff;
+    }
+
+    /* --- Tabs --- */
+    .tab-bar {
+      display: flex;
+      padding-left: 4px;
+    }
+
+    .tab {
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      padding: 4px 16px;
+      font-size: 13px;
+      cursor: default;
+      position: relative;
+      margin-right: 2px;
+    }
+
+    .tab-active {
+      background: #d4d0c8;
+      margin-bottom: -2px;
+      padding-bottom: 6px;
+      z-index: 1;
+    }
+
+    .tab-content {
+      border: 2px solid;
+      border-color: #fff #404040 #404040 #fff;
+      background: #d4d0c8;
+      padding: 12px;
+    }
+
+    /* --- Group Box --- */
+    .groupbox {
+      border: 2px solid;
+      border-color: #fff #808080 #808080 #fff;
+      box-shadow: -1px -1px 0 #d4d0c8, inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+      padding: 12px 8px 8px 8px;
+      margin: 8px 0;
+      position: relative;
+    }
+
+    .groupbox-label {
+      position: absolute;
+      top: -8px;
+      left: 8px;
+      background: #d4d0c8;
+      padding: 0 4px;
+      font-size: 13px;
+    }
+
+    /* --- Scrollbar (aesthetic note) --- */
+    .window-body::-webkit-scrollbar {
+      width: 16px;
+    }
+
+    .window-body::-webkit-scrollbar-track {
+      background: #d4d0c8;
+      border-left: 1px solid #808080;
+    }
+
+    .window-body::-webkit-scrollbar-thumb {
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+    }
+
+    /* --- List / Tree View Items --- */
+    .list-item {
+      padding: 1px 4px;
+      cursor: default;
+    }
+
+    .list-item:hover,
+    .list-item-selected {
+      background: #0a246a;
+      color: #fff;
+    }
+
+    /* --- Separator / Divider --- */
+    .separator {
+      border-top: 1px solid #808080;
+      border-bottom: 1px solid #fff;
+      margin: 8px 0;
+    }
+
+    /* --- Progress Bar --- */
+    .progress-track {
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      height: 20px;
+      padding: 2px;
+    }
+
+    .progress-fill {
+      background: #0a246a;
+      height: 100%;
+      display: flex;
+    }
+
+    .progress-block {
+      width: 10px;
+      height: 100%;
+      background: #0a246a;
+      margin-right: 2px;
+    }
+
+    /* --- Error Page Specific --- */
+    .error-icon {
+      font-size: 36px;
+      margin-right: 12px;
+      color: #c62828;
+    }
+
+    .error-row {
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .error-text h2 {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .error-text p {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* --- HUD Overlay (for games) --- */
+    .hud-classic {
+      position: relative;
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      padding: 6px 10px;
+      font-size: 13px;
+      display: inline-block;
+    }
+
+    .hud-score {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    /* --- Swatches & Demo Layout --- */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+    }
+
+    .swatch {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      border: 1px solid #000;
+    }
+
+    .demo-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+
+    /* --- Taskbar --- */
+    .taskbar {
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      padding: 2px 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .start-btn {
+      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
+      font-size: 13px;
+      font-weight: bold;
+      color: #000;
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      padding: 3px 10px;
+      cursor: default;
+    }
+
+    .taskbar-item {
+      font-size: 12px;
+      background: #d4d0c8;
+      border-top: 1px solid #808080;
+      border-left: 1px solid #808080;
+      border-right: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+      padding: 3px 12px;
+      min-width: 120px;
+      cursor: default;
+    }
+
+    .taskbar-clock {
+      margin-left: auto;
+      border-top: 1px solid #808080;
+      border-left: 1px solid #808080;
+      border-right: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+      padding: 3px 10px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="desktop">
+
+    <!-- ===== STYLE GUIDE WINDOW ===== -->
+    <div class="window">
+      <div class="titlebar">
+        <span>Style Guide — Bits &amp; Bobs</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn">_</div>
+          <div class="titlebar-btn">&#9633;</div>
+          <div class="titlebar-btn">X</div>
+        </div>
+      </div>
+      <div class="menubar">
+        <span class="menubar-item">File</span>
+        <span class="menubar-item">Edit</span>
+        <span class="menubar-item">View</span>
+        <span class="menubar-item">Help</span>
+      </div>
+      <div class="window-body guide-body">
+
+        <p>This style guide defines the visual language for <strong>Bits &amp; Bobs</strong>,
+          inspired by the classic desktop operating system aesthetic of the early 2000s.
+          All existing pages (landing page, target game, error pages) should follow
+          these conventions.</p>
+
+        <!-- COLOR PALETTE -->
+        <div class="section-title">Color Palette</div>
+        <div class="sunken">
+          <div class="swatch-grid">
+            <div class="swatch" style="background:#d4d0c8;">System Silver<br>#d4d0c8</div>
+            <div class="swatch" style="background:#fff;">#fff<br>Content Well</div>
+            <div class="swatch" style="background:#0a246a;color:#fff;">Titlebar Blue<br>#0a246a</div>
+            <div class="swatch" style="background:#a6caf0;">Titlebar Light<br>#a6caf0</div>
+            <div class="swatch" style="background:#3a6ea5;color:#fff;">Desktop Blue<br>#3a6ea5</div>
+            <div class="swatch" style="background:#808080;color:#fff;">Inactive Gray<br>#808080</div>
+            <div class="swatch" style="background:#404040;color:#fff;">Dark Shadow<br>#404040</div>
+            <div class="swatch" style="background:#c62828;color:#fff;">Error Red<br>#c62828</div>
+          </div>
+        </div>
+
+        <!-- TYPOGRAPHY -->
+        <div class="section-title">Typography</div>
+        <div class="sunken">
+          <p style="font-size:20px;font-weight:bold;">Window Title — Bold 13px</p>
+          <p style="font-size:14px;font-weight:bold;">Section Heading — Bold 14px</p>
+          <p style="font-size:13px;">Body text — Regular 13px. The quick brown fox jumps over the lazy dog.</p>
+          <p style="font-size:12px;color:#808080;">Caption / Status — 12px gray</p>
+          <p style="margin-top:8px;">Font stack: <code>"Trebuchet MS", Tahoma, Geneva, sans-serif</code></p>
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="section-title">Buttons</div>
+        <div class="sunken">
+          <div class="demo-row">
+            <button class="btn">Normal</button>
+            <button class="btn btn-default">Default</button>
+            <button class="btn btn-pressed">Pressed</button>
+            <button class="btn btn-disabled" disabled>Disabled</button>
+          </div>
+          <p>All buttons use the raised 3D border pattern. The default (focused) button
+             has a dotted inner outline. Pressed buttons invert the border shading.</p>
+        </div>
+
+        <!-- FORM INPUTS -->
+        <div class="section-title">Form Inputs</div>
+        <div class="sunken">
+          <div class="demo-row">
+            <input class="text-input" type="text" value="Text input" style="width:160px;">
+            <select class="dropdown">
+              <option>Dropdown</option>
+              <option>Option 2</option>
+            </select>
+          </div>
+          <p>Inputs use the sunken border style (inverted from buttons) with a white background.</p>
+        </div>
+
+        <!-- WINDOW CHROME -->
+        <div class="section-title">Window Chrome</div>
+        <div class="sunken">
+          <div style="margin-bottom:12px;">
+            <div class="window" style="width:100%;">
+              <div class="titlebar">
+                <span>Active Window</span>
+                <div class="titlebar-buttons">
+                  <div class="titlebar-btn">_</div>
+                  <div class="titlebar-btn">&#9633;</div>
+                  <div class="titlebar-btn">X</div>
+                </div>
+              </div>
+              <div class="window-body">
+                <p>Active windows have a blue gradient title bar (#0a246a to #a6caf0).</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="window" style="width:100%;">
+              <div class="titlebar titlebar-inactive">
+                <span>Inactive Window</span>
+                <div class="titlebar-buttons">
+                  <div class="titlebar-btn">_</div>
+                  <div class="titlebar-btn">&#9633;</div>
+                  <div class="titlebar-btn">X</div>
+                </div>
+              </div>
+              <div class="window-body">
+                <p>Inactive windows use a gray gradient title bar.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="section-title">Tabs</div>
+        <div class="sunken">
+          <div class="tab-bar">
+            <div class="tab tab-active">General</div>
+            <div class="tab">Settings</div>
+            <div class="tab">About</div>
+          </div>
+          <div class="tab-content">
+            <p>Tab content area. The active tab merges with the content panel below it.</p>
+          </div>
+        </div>
+
+        <!-- GROUP BOX -->
+        <div class="section-title">Group Box</div>
+        <div class="sunken">
+          <div class="groupbox">
+            <span class="groupbox-label">Options</span>
+            <p>Group boxes are used to visually cluster related controls. The label
+               sits on the border with a background patch behind it.</p>
+          </div>
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div class="section-title">Progress Bar</div>
+        <div class="sunken">
+          <div class="progress-track">
+            <div class="progress-fill" style="width:65%;display:flex;">
+              <div class="progress-block"></div>
+              <div class="progress-block"></div>
+              <div class="progress-block"></div>
+              <div class="progress-block"></div>
+              <div class="progress-block"></div>
+              <div class="progress-block"></div>
+              <div class="progress-block"></div>
+              <div class="progress-block"></div>
+              <div class="progress-block"></div>
+            </div>
+          </div>
+          <p style="margin-top:4px;">Segmented blue blocks in a sunken track. Use for loading or game timers.</p>
+        </div>
+
+        <!-- LINKS -->
+        <div class="section-title">Links</div>
+        <div class="sunken">
+          <p><a class="classic-link" href="#">Unvisited link</a> — Blue (#0000ff), underlined</p>
+          <p><span style="color:#800080;text-decoration:underline;">Visited link</span> — Purple (#800080)</p>
+          <p><span style="color:#ff0000;text-decoration:underline;">Hovered link</span> — Red (#ff0000)</p>
+        </div>
+
+        <!-- LIST SELECTION -->
+        <div class="section-title">List Items</div>
+        <div class="sunken" style="padding:2px;">
+          <div class="list-item">Target Game</div>
+          <div class="list-item list-item-selected">Custom Error Pages (selected)</div>
+          <div class="list-item">Another Project</div>
+        </div>
+
+        <!-- SEPARATORS -->
+        <div class="section-title">Separator</div>
+        <div class="sunken">
+          <p>Content above</p>
+          <div class="separator"></div>
+          <p>Content below. Separators use a two-tone line (gray top, white bottom) for a carved look.</p>
+        </div>
+
+        <!-- STATUS BAR -->
+        <div class="section-title">Status Bar</div>
+        <div class="sunken">
+          <div class="statusbar">
+            <div class="statusbar-section">Ready</div>
+            <div class="statusbar-section" style="flex:0;min-width:80px;text-align:center;">Score: 0</div>
+          </div>
+          <p style="margin-top:4px;">Appears at the bottom of windows. Sections are sunken panels.</p>
+        </div>
+
+        <!-- TASKBAR -->
+        <div class="section-title">Taskbar</div>
+        <div class="sunken">
+          <div class="taskbar">
+            <button class="start-btn">Start</button>
+            <div class="taskbar-item">Style Guide</div>
+            <div class="taskbar-clock">12:00 PM</div>
+          </div>
+        </div>
+
+        <!-- ERROR PAGE PATTERN -->
+        <div class="section-title">Error Page Pattern</div>
+        <div class="sunken">
+          <div class="error-row">
+            <span class="error-icon">&#9888;</span>
+            <div class="error-text">
+              <h2>400 — Bad Request</h2>
+              <p>The server cannot process the request. Error pages are displayed
+                 inside a window dialog with an icon, heading, and description.</p>
+            </div>
+          </div>
+          <div class="demo-row" style="justify-content:flex-end;margin-top:12px;">
+            <button class="btn btn-default">OK</button>
+          </div>
+        </div>
+
+        <!-- GAME HUD PATTERN -->
+        <div class="section-title">Game HUD Pattern</div>
+        <div class="sunken" style="background:#87CEEB;padding:16px;">
+          <div class="hud-classic">
+            <div class="hud-score">Score: 42</div>
+            <div><strong>Player 1:</strong> Arrow keys to dodge</div>
+            <div><strong>Player 2:</strong> Click to shoot</div>
+          </div>
+          <p style="margin-top:8px;color:#000;">The in-game HUD uses a raised panel on the game background.
+             Keeps the classic 3D border style even during gameplay.</p>
+        </div>
+
+        <div class="separator"></div>
+        <p style="font-size:12px;color:#808080;">
+          Bits &amp; Bobs Style Guide. Apply these patterns across all pages for a consistent retro desktop feel.
+        </p>
+      </div>
+
+      <div class="statusbar">
+        <div class="statusbar-section">Style Guide — All Sections</div>
+        <div class="statusbar-section" style="flex:0;min-width:120px;text-align:right;">v1.0</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
