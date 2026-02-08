@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clay Pigeon Shooting</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      background: #87CEEB;
+      font-family: Arial, sans-serif;
+      cursor: crosshair;
+    }
+
+    .target-container {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .target {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        #222 15%,
+        #fff 15% 30%,
+        #222 30% 50%,
+        #fff 50% 70%,
+        #222 70%
+      );
+      cursor: crosshair;
+      transition: opacity 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .target.hit {
+      opacity: 0.3;
+    }
+
+    .label {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1a3a5c;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      min-width: 80px;
+      text-align: center;
+      min-height: 22px;
+    }
+
+    .label.hit {
+      color: #2e7d32;
+    }
+
+    .label.miss {
+      color: #c62828;
+    }
+
+    .hud {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.6;
+      z-index: 10;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hud .score {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .flash {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .flash.active {
+      animation: gunshot-flash 150ms ease-out forwards;
+    }
+
+    @keyframes gunshot-flash {
+      0%   { opacity: 0.8; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="flash" id="flash"></div>
+
+  <div class="hud">
+    <div class="score">Score: <span id="score">0</span></div>
+    <div><strong>Player 1:</strong> Arrow keys to dodge</div>
+    <div><strong>Player 2:</strong> Shoot the pigeon!</div>
+  </div>
+
+  <div class="target-container" id="container">
+    <div class="target" id="target"></div>
+    <span class="label" id="status"></span>
+  </div>
+
+  <script>
+    const target = document.getElementById("target");
+    const status = document.getElementById("status");
+    const scoreEl = document.getElementById("score");
+    const container = document.getElementById("container");
+    const flash = document.getElementById("flash");
+
+    let score = 0;
+    let isHit = false;
+    let statusTimeout = null;
+
+    document.body.addEventListener("mousedown", (e) => {
+      // Gunshot flash
+      flash.classList.remove("active");
+      void flash.offsetWidth;
+      flash.classList.add("active");
+
+      if (isHit) return;
+
+      // Check distance from click to target center
+      const rect = target.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const radius = rect.width / 2;
+      const dx = e.clientX - centerX;
+      const dy = e.clientY - centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist <= radius) {
+        // Hit — determine ring
+        const ratio = dist / radius;
+        let points;
+        if (ratio <= 0.33) {
+          points = 5;
+        } else if (ratio <= 0.66) {
+          points = 2;
+        } else {
+          points = 1;
+        }
+
+        score += points;
+        scoreEl.textContent = score;
+
+        status.textContent = "Hit! +" + points;
+        status.className = "label hit";
+        target.classList.add("hit");
+        isHit = true;
+
+        clearTimeout(statusTimeout);
+        statusTimeout = setTimeout(() => {
+          target.classList.remove("hit");
+          status.textContent = "";
+          status.className = "label";
+          isHit = false;
+        }, 1000);
+      } else {
+        // Miss
+        status.textContent = "Miss";
+        status.className = "label miss";
+        clearTimeout(statusTimeout);
+        statusTimeout = setTimeout(() => {
+          status.textContent = "";
+          status.className = "label";
+        }, 800);
+      }
+    });
+
+    flash.addEventListener("animationend", () => {
+      flash.classList.remove("active");
+    });
+
+    // Arrow-key movement (normalized so diagonal = same speed)
+    const keys = {};
+    const speed = 5;
+    let x = 100;
+    let y = 100;
+
+    window.addEventListener("keydown", (e) => {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+        keys[e.key] = true;
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      keys[e.key] = false;
+    });
+
+    function animate() {
+      let dx = 0;
+      let dy = 0;
+      if (keys["ArrowLeft"])  dx -= 1;
+      if (keys["ArrowRight"]) dx += 1;
+      if (keys["ArrowUp"])    dy -= 1;
+      if (keys["ArrowDown"])  dy += 1;
+
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len > 0) {
+        x += (dx / len) * speed;
+        y += (dy / len) * speed;
+      }
+
+      const rect = container.getBoundingClientRect();
+      const maxX = window.innerWidth - rect.width;
+      const maxY = window.innerHeight - rect.height;
+
+      x = Math.max(0, Math.min(x, maxX));
+      y = Math.max(0, Math.min(y, maxY));
+
+      container.style.left = x + "px";
+      container.style.top = y + "px";
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
