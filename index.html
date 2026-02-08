@@ -8,72 +8,123 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      color: #24292f;
-      background: #f6f8fa;
-      line-height: 1.6;
+      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
+      font-size: 13px;
+      color: #000;
+      background: #3a6ea5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
     }
 
-    header {
-      background: #24292f;
-      color: #f0f0f0;
-      padding: 48px 24px;
-      text-align: center;
+    .window {
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: inset 1px 1px 0 #d4d0c8, inset -1px -1px 0 #808080;
+      width: 520px;
+      max-width: 95vw;
     }
 
-    header h1 {
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 8px;
+    .titlebar {
+      background: linear-gradient(to right, #0a246a, #a6caf0);
+      color: #fff;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 4px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
     }
 
-    header p {
-      color: #8b949e;
-      font-size: 1.1rem;
+    .titlebar-buttons {
+      display: flex;
+      gap: 2px;
     }
 
-    main {
-      max-width: 720px;
-      margin: 40px auto;
-      padding: 0 24px;
+    .titlebar-btn {
+      width: 18px;
+      height: 18px;
+      background: #d4d0c8;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      font-size: 11px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      cursor: default;
     }
 
-    section {
-      margin-bottom: 40px;
+    .window-body {
+      padding: 12px;
     }
 
-    section h2 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #d0d7de;
+    .sunken {
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      box-shadow: inset 1px 1px 0 #404040;
+      padding: 2px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: bold;
+      margin: 12px 0 6px 0;
+    }
+
+    .section-title:first-child {
+      margin-top: 0;
     }
 
     .project-list {
       list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
     }
 
     .project-list li {
-      background: #fff;
-      border: 1px solid #d0d7de;
-      border-radius: 6px;
-      padding: 16px 20px;
-      transition: border-color 0.15s;
+      padding: 4px 6px;
+      cursor: default;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
     }
 
     .project-list li:hover {
-      border-color: #0969da;
+      background: #0a246a;
+      color: #fff;
+    }
+
+    .project-list li:hover a {
+      color: #fff;
+    }
+
+    .project-list li:hover .desc {
+      color: #d4d0c8;
+    }
+
+    .project-list li:hover .tag {
+      background: #a6caf0;
+      color: #0a246a;
     }
 
     .project-list a {
       text-decoration: none;
-      color: #0969da;
-      font-weight: 600;
-      font-size: 1.05rem;
+      color: #0000ff;
+      font-weight: bold;
+      font-size: 13px;
+      white-space: nowrap;
     }
 
     .project-list a:hover {
@@ -82,69 +133,92 @@
 
     .project-list .desc {
       color: #57606a;
-      font-size: 0.9rem;
-      margin-top: 4px;
+      font-size: 12px;
     }
 
     .tag {
       display: inline-block;
-      background: #ddf4ff;
-      color: #0969da;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 12px;
-      margin-top: 8px;
+      background: #d4d0c8;
+      color: #000;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 0 6px;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #808080;
+      border-bottom: 1px solid #808080;
+      white-space: nowrap;
+      margin-left: auto;
     }
 
-    footer {
-      text-align: center;
-      padding: 32px 24px;
-      color: #8b949e;
-      font-size: 0.85rem;
+    .about {
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 4px;
     }
 
-    footer a {
-      color: #57606a;
-      text-decoration: none;
+    .separator {
+      border-top: 1px solid #808080;
+      border-bottom: 1px solid #fff;
+      margin: 8px 0;
     }
 
-    footer a:hover {
-      text-decoration: underline;
+    .statusbar {
+      background: #d4d0c8;
+      border-top: 2px solid #808080;
+      padding: 2px 6px;
+      font-size: 12px;
+      color: #000;
+      display: flex;
+      gap: 4px;
+    }
+
+    .statusbar-section {
+      border-top: 1px solid #808080;
+      border-left: 1px solid #808080;
+      border-right: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+      padding: 1px 8px;
+      flex: 1;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Bits &amp; Bobs</h1>
-    <p>A collection of small projects, utilities, and experiments.</p>
-  </header>
+  <div class="window">
+    <div class="titlebar">
+      <span>Bits &amp; Bobs — Matthew Pritchard</span>
+      <div class="titlebar-buttons">
+        <div class="titlebar-btn">_</div>
+        <div class="titlebar-btn">&#9633;</div>
+        <div class="titlebar-btn">X</div>
+      </div>
+    </div>
+    <div class="window-body">
+      <div class="section-title">Projects</div>
+      <div class="sunken">
+        <ul class="project-list">
+          <li>
+            <a href="target-game.html">Target Game</a>
+            <span class="desc">A two-player clay pigeon shooting game. Arrow keys vs mouse.</span>
+            <span class="tag">HTML</span>
+          </li>
+          <li>
+            <a href="error-pages/400.html">Custom Error Pages</a>
+            <span class="desc">Styled error pages for HTTP status codes.</span>
+            <span class="tag">HTML</span>
+          </li>
+        </ul>
+      </div>
 
-  <main>
-    <section>
-      <h2>Projects</h2>
-      <ul class="project-list">
-        <li>
-          <a href="target-game.html">Target Game</a>
-          <div class="desc">A two-player clay pigeon shooting game. One player moves the target with arrow keys while the other tries to shoot it. Ring-based scoring with bullseye, mid, and outer zones.</div>
-          <span class="tag">HTML</span>
-        </li>
-        <li>
-          <a href="error-pages/400.html">Custom Error Pages</a>
-          <div class="desc">Styled error pages for HTTP status codes.</div>
-          <span class="tag">HTML</span>
-        </li>
-      </ul>
-    </section>
+      <div class="separator"></div>
 
-    <section>
-      <h2>About</h2>
-      <p>This site hosts miscellaneous standalone tools and experiments. Each project is self-contained.</p>
-    </section>
-  </main>
-
-  <footer>
-    &copy; Matthew Pritchard
-  </footer>
+      <div class="section-title">About</div>
+      <p class="about">This site hosts miscellaneous standalone tools and experiments. Each project is self-contained.</p>
+    </div>
+    <div class="statusbar">
+      <div class="statusbar-section">&copy; Matthew Pritchard</div>
+      <div class="statusbar-section" style="flex:0;min-width:90px;text-align:right;">2 item(s)</div>
+    </div>
+  </div>
 </body>
 </html>
