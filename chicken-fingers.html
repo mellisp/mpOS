@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Chicken Fingers</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/theme.css">
+  <style>
+    body {
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* Desktop warning dialog */
+    .desktop-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--desktop);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .desktop-dialog {
+      background: var(--silver);
+      border: 2px solid;
+      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+      box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+      width: 400px;
+      max-width: 95vw;
+    }
+
+    .desktop-dialog .error-icon { color: #d4a017; }
+
+    @media (hover: hover) and (pointer: fine) {
+      .desktop-overlay { display: flex; }
+    }
+
+    /* Game area */
+    .game {
+      position: fixed;
+      inset: 0;
+      display: flex;
+    }
+
+    .player-zone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: background 0.3s;
+    }
+
+    .player-zone.p1 { background: var(--title-dark); }
+    .player-zone.p2 { background: #4a1a6a; }
+
+    .player-zone.holding.p1 { background: #0d3a8a; }
+    .player-zone.holding.p2 { background: #6a2a9a; }
+
+    .player-zone.lost { background: var(--error); }
+    .player-zone.won { background: #2e7d32; }
+
+    .zone-divider {
+      width: 4px;
+      background: var(--silver);
+      box-shadow: -1px 0 0 var(--shadow), 1px 0 0 var(--white);
+    }
+
+    /* Player HUD panels */
+    .player-hud {
+      background: var(--silver);
+      border: 2px solid;
+      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+      box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+      width: 200px;
+      max-width: 80%;
+      pointer-events: none;
+    }
+
+    .player-hud .hud-titlebar {
+      background: linear-gradient(to right, var(--title-dark), var(--title-light));
+      color: var(--white);
+      font-weight: bold;
+      font-size: 12px;
+      padding: 3px 6px;
+      text-align: center;
+    }
+
+    .p2 .player-hud .hud-titlebar {
+      background: linear-gradient(to right, #4a1a6a, #c0a0e0);
+    }
+
+    .player-hud .hud-body {
+      padding: 8px 12px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .player-name {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .player-instruction {
+      font-size: 12px;
+      color: #57606a;
+    }
+
+    .player-status {
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .player-hud .hud-statusbar {
+      border-top: 2px solid var(--shadow);
+      padding: 2px 6px;
+      font-size: 11px;
+      display: flex;
+    }
+
+    .player-hud .hud-statusbar-section {
+      border: 1px solid;
+      border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+      padding: 1px 6px;
+      flex: 1;
+      text-align: center;
+    }
+
+    .timer-display {
+      font-size: 22px;
+      font-weight: bold;
+      color: #000;
+      margin-top: 6px;
+    }
+
+    /* Top bar window */
+    .top-hud {
+      position: fixed;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      pointer-events: none;
+
+      background: var(--silver);
+      border: 2px solid;
+      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+      box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+    }
+
+    .top-hud .hud-titlebar {
+      background: linear-gradient(to right, var(--title-dark), var(--title-light));
+      color: var(--white);
+      font-weight: bold;
+      font-size: 11px;
+      padding: 2px 6px;
+      text-align: center;
+    }
+
+    .top-hud .hud-body {
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: bold;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* Restart button */
+    .restart-row {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: none;
+    }
+
+    .restart-row.visible { display: block; }
+  </style>
+</head>
+<body>
+  <!-- Desktop-only warning -->
+  <div class="desktop-overlay">
+    <div class="desktop-dialog">
+      <div class="titlebar">
+        <span>Chicken Fingers</span>
+        <div class="titlebar-btn">X</div>
+      </div>
+      <div class="window-body" style="padding:16px">
+        <div class="error-row">
+          <span class="error-icon">&#9888;</span>
+          <div class="error-text">
+            <strong>Touchscreen Required</strong>
+            This game requires a touchscreen device to play. Please open this page on a phone or tablet.
+          </div>
+        </div>
+        <div class="button-row">
+          <a class="btn" href="/">OK</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game -->
+  <div class="game" id="game">
+    <div class="player-zone p1" id="zone1">
+      <div class="player-hud">
+        <div class="hud-titlebar">Player 1</div>
+        <div class="hud-body">
+          <div class="player-name">Player 1</div>
+          <div class="player-instruction">Hold your finger down!</div>
+          <div class="player-status" id="status1"></div>
+          <div class="timer-display" id="timer1">0.00s</div>
+        </div>
+        <div class="hud-statusbar">
+          <div class="hud-statusbar-section" id="bar1">Waiting...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone-divider"></div>
+
+    <div class="player-zone p2" id="zone2">
+      <div class="player-hud">
+        <div class="hud-titlebar">Player 2</div>
+        <div class="hud-body">
+          <div class="player-name">Player 2</div>
+          <div class="player-instruction">Hold your finger down!</div>
+          <div class="player-status" id="status2"></div>
+          <div class="timer-display" id="timer2">0.00s</div>
+        </div>
+        <div class="hud-statusbar">
+          <div class="hud-statusbar-section" id="bar2">Waiting...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="top-hud" id="topHud">
+    <div class="hud-titlebar">Chicken Fingers</div>
+    <div class="hud-body" id="topStatus">Both players: touch and hold!</div>
+  </div>
+
+  <div class="restart-row" id="restartRow">
+    <button class="btn" id="restartBtn">Play Again</button>
+  </div>
+
+  <script>
+    const zone1 = document.getElementById("zone1");
+    const zone2 = document.getElementById("zone2");
+    const status1 = document.getElementById("status1");
+    const status2 = document.getElementById("status2");
+    const timer1 = document.getElementById("timer1");
+    const timer2 = document.getElementById("timer2");
+    const bar1 = document.getElementById("bar1");
+    const bar2 = document.getElementById("bar2");
+    const topStatus = document.getElementById("topStatus");
+    const restartRow = document.getElementById("restartRow");
+    const restartBtn = document.getElementById("restartBtn");
+
+    let p1Touch = null;
+    let p2Touch = null;
+    let gameStarted = false;
+    let gameOver = false;
+    let startTime = 0;
+    let timerFrame = null;
+
+    function resetGame() {
+      p1Touch = null;
+      p2Touch = null;
+      gameStarted = false;
+      gameOver = false;
+      startTime = 0;
+      cancelAnimationFrame(timerFrame);
+
+      zone1.className = "player-zone p1";
+      zone2.className = "player-zone p2";
+      status1.textContent = "";
+      status2.textContent = "";
+      timer1.textContent = "0.00s";
+      timer2.textContent = "0.00s";
+      bar1.textContent = "Waiting...";
+      bar2.textContent = "Waiting...";
+      topStatus.textContent = "Both players: touch and hold!";
+      restartRow.classList.remove("visible");
+    }
+
+    function formatTime(ms) {
+      return (ms / 1000).toFixed(2) + "s";
+    }
+
+    function updateTimers() {
+      if (!gameStarted || gameOver) return;
+      const elapsed = formatTime(performance.now() - startTime);
+      timer1.textContent = elapsed;
+      timer2.textContent = elapsed;
+      timerFrame = requestAnimationFrame(updateTimers);
+    }
+
+    function startGame() {
+      if (gameStarted) return;
+      gameStarted = true;
+      startTime = performance.now();
+      topStatus.textContent = "Game on! Don't lift your finger!";
+      bar1.textContent = "Holding...";
+      bar2.textContent = "Holding...";
+      updateTimers();
+    }
+
+    function endGame(loser) {
+      if (gameOver) return;
+      gameOver = true;
+      cancelAnimationFrame(timerFrame);
+
+      const elapsed = formatTime(performance.now() - startTime);
+
+      if (loser === 1) {
+        zone1.classList.add("lost");
+        zone2.classList.add("won");
+        status1.textContent = "CHICKEN!";
+        status2.textContent = "WINNER!";
+        bar1.textContent = "Lifted at " + elapsed;
+        bar2.textContent = "Winner!";
+        topStatus.textContent = "Player 1 chickened out!";
+      } else {
+        zone2.classList.add("lost");
+        zone1.classList.add("won");
+        status2.textContent = "CHICKEN!";
+        status1.textContent = "WINNER!";
+        bar2.textContent = "Lifted at " + elapsed;
+        bar1.textContent = "Winner!";
+        topStatus.textContent = "Player 2 chickened out!";
+      }
+
+      restartRow.classList.add("visible");
+    }
+
+    function getZone(touch) {
+      const x = touch.clientX;
+      const midpoint = window.innerWidth / 2;
+      return x < midpoint ? 1 : 2;
+    }
+
+    document.addEventListener("touchstart", (e) => {
+      if (gameOver) return;
+      e.preventDefault();
+
+      for (const touch of e.changedTouches) {
+        const zone = getZone(touch);
+
+        if (zone === 1 && p1Touch === null) {
+          p1Touch = touch.identifier;
+          zone1.classList.add("holding");
+          bar1.textContent = "Holding...";
+        } else if (zone === 2 && p2Touch === null) {
+          p2Touch = touch.identifier;
+          zone2.classList.add("holding");
+          bar2.textContent = "Holding...";
+        }
+      }
+
+      if (p1Touch !== null && p2Touch !== null) {
+        startGame();
+      }
+    }, { passive: false });
+
+    document.addEventListener("touchend", (e) => {
+      if (gameOver) return;
+
+      for (const touch of e.changedTouches) {
+        if (touch.identifier === p1Touch) {
+          p1Touch = null;
+          zone1.classList.remove("holding");
+          if (gameStarted) {
+            endGame(1);
+          } else {
+            bar1.textContent = "Waiting...";
+          }
+        }
+        if (touch.identifier === p2Touch) {
+          p2Touch = null;
+          zone2.classList.remove("holding");
+          if (gameStarted) {
+            endGame(2);
+          } else {
+            bar2.textContent = "Waiting...";
+          }
+        }
+      }
+    });
+
+    document.addEventListener("touchcancel", (e) => {
+      for (const touch of e.changedTouches) {
+        if (touch.identifier === p1Touch) {
+          p1Touch = null;
+          zone1.classList.remove("holding");
+          if (gameStarted && !gameOver) endGame(1);
+        }
+        if (touch.identifier === p2Touch) {
+          p2Touch = null;
+          zone2.classList.remove("holding");
+          if (gameStarted && !gameOver) endGame(2);
+        }
+      }
+    });
+
+    restartBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      resetGame();
+    });
+
+    restartBtn.addEventListener("touchstart", (e) => {
+      e.stopPropagation();
+    }, { passive: true });
+  </script>
+</body>
+</html>
