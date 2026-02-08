@@ -131,9 +131,139 @@
       pointer-events: none;
       z-index: 5;
     }
+
+    /* Mobile dialog overlay */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #3a6ea5;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .mobile-dialog {
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: inset 1px 1px 0 #d4d0c8, inset -1px -1px 0 #808080;
+      width: 360px;
+      max-width: 95vw;
+    }
+
+    .mobile-dialog .titlebar {
+      background: linear-gradient(to right, #0a246a, #a6caf0);
+      color: #fff;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 4px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .mobile-dialog .titlebar-btn {
+      width: 18px;
+      height: 18px;
+      background: #d4d0c8;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      font-size: 11px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      cursor: default;
+    }
+
+    .mobile-dialog-body {
+      padding: 16px;
+    }
+
+    .mobile-dialog .error-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .mobile-dialog .error-icon {
+      font-size: 32px;
+      color: #d4a017;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .mobile-dialog .error-text {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .mobile-dialog .error-text strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .mobile-dialog .button-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .mobile-dialog .btn {
+      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
+      font-size: 13px;
+      color: #000;
+      background: #d4d0c8;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #d4d0c8;
+      padding: 4px 16px;
+      cursor: default;
+      min-width: 75px;
+      text-align: center;
+      text-decoration: none;
+      outline: 1px dotted #000;
+      outline-offset: -4px;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .mobile-overlay { display: flex; }
+    }
   </style>
 </head>
 <body>
+  <div class="mobile-overlay">
+    <div class="mobile-dialog">
+      <div class="titlebar">
+        <span>Target Shooting</span>
+        <div class="titlebar-btn">X</div>
+      </div>
+      <div class="mobile-dialog-body">
+        <div class="error-row">
+          <span class="error-icon">&#9888;</span>
+          <div class="error-text">
+            <strong>Keyboard &amp; Mouse Required</strong>
+            This game requires a keyboard and mouse to play. Please open this page on a desktop or laptop computer.
+          </div>
+        </div>
+        <div class="button-row">
+          <a class="btn" href="/">OK</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="flash" id="flash"></div>
 
   <div class="hud">
