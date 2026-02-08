@@ -61,10 +61,10 @@
     }
 
     .player-zone.p1 { background: var(--title-dark); }
-    .player-zone.p2 { background: #4a1a6a; }
+    .player-zone.p2 { background: #1a5c9e; }
 
     .player-zone.holding.p1 { background: #0d3a8a; }
-    .player-zone.holding.p2 { background: #6a2a9a; }
+    .player-zone.holding.p2 { background: #2878c0; }
 
     .player-zone.lost { background: var(--error); }
     .player-zone.won { background: #2e7d32; }
@@ -96,7 +96,7 @@
     }
 
     .p2 .player-hud .hud-titlebar {
-      background: linear-gradient(to right, #4a1a6a, #c0a0e0);
+      background: linear-gradient(to right, #1a5c9e, #b8d8f0);
     }
 
     .player-hud .hud-body {
@@ -275,6 +275,7 @@
     let gameOver = false;
     let startTime = 0;
     let timerFrame = null;
+    let lastElapsed = "0.00s";
 
     function resetGame() {
       p1Touch = null;
@@ -282,6 +283,7 @@
       gameStarted = false;
       gameOver = false;
       startTime = 0;
+      lastElapsed = "0.00s";
       cancelAnimationFrame(timerFrame);
 
       zone1.className = "player-zone p1";
@@ -302,9 +304,9 @@
 
     function updateTimers() {
       if (!gameStarted || gameOver) return;
-      const elapsed = formatTime(performance.now() - startTime);
-      timer1.textContent = elapsed;
-      timer2.textContent = elapsed;
+      lastElapsed = formatTime(performance.now() - startTime);
+      timer1.textContent = lastElapsed;
+      timer2.textContent = lastElapsed;
       timerFrame = requestAnimationFrame(updateTimers);
     }
 
@@ -323,14 +325,17 @@
       gameOver = true;
       cancelAnimationFrame(timerFrame);
 
-      const elapsed = formatTime(performance.now() - startTime);
+      // Final update from current time, then use this single value everywhere
+      lastElapsed = formatTime(performance.now() - startTime);
+      timer1.textContent = lastElapsed;
+      timer2.textContent = lastElapsed;
 
       if (loser === 1) {
         zone1.classList.add("lost");
         zone2.classList.add("won");
         status1.textContent = "CHICKEN!";
         status2.textContent = "WINNER!";
-        bar1.textContent = "Lifted at " + elapsed;
+        bar1.textContent = "Lifted at " + lastElapsed;
         bar2.textContent = "Winner!";
         topStatus.textContent = "Player 1 chickened out!";
       } else {
@@ -338,7 +343,7 @@
         zone1.classList.add("won");
         status2.textContent = "CHICKEN!";
         status1.textContent = "WINNER!";
-        bar2.textContent = "Lifted at " + elapsed;
+        bar2.textContent = "Lifted at " + lastElapsed;
         bar1.textContent = "Winner!";
         topStatus.textContent = "Player 2 chickened out!";
       }
