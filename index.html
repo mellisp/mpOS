@@ -4,14 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bits &amp; Bobs — Matthew Pritchard</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/theme.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
-      font-family: "Trebuchet MS", Tahoma, Geneva, sans-serif;
-      font-size: 13px;
-      color: #000;
-      background: #3a6ea5;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -20,78 +16,9 @@
       padding: 24px;
     }
 
-    .window {
-      background: #d4d0c8;
-      border-top: 2px solid #fff;
-      border-left: 2px solid #fff;
-      border-right: 2px solid #404040;
-      border-bottom: 2px solid #404040;
-      box-shadow: inset 1px 1px 0 #d4d0c8, inset -1px -1px 0 #808080;
-      width: 520px;
-      max-width: 95vw;
-    }
+    .window { width: 520px; max-width: 95vw; }
 
-    .titlebar {
-      background: linear-gradient(to right, #0a246a, #a6caf0);
-      color: #fff;
-      font-weight: bold;
-      font-size: 13px;
-      padding: 4px 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      user-select: none;
-    }
-
-    .titlebar-buttons {
-      display: flex;
-      gap: 2px;
-    }
-
-    .titlebar-btn {
-      width: 18px;
-      height: 18px;
-      background: #d4d0c8;
-      border-top: 1px solid #fff;
-      border-left: 1px solid #fff;
-      border-right: 1px solid #404040;
-      border-bottom: 1px solid #404040;
-      font-size: 11px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #000;
-      cursor: default;
-    }
-
-    .window-body {
-      padding: 12px;
-    }
-
-    .sunken {
-      background: #fff;
-      border-top: 2px solid #808080;
-      border-left: 2px solid #808080;
-      border-right: 2px solid #fff;
-      border-bottom: 2px solid #fff;
-      box-shadow: inset 1px 1px 0 #404040;
-      padding: 2px;
-    }
-
-    .section-title {
-      font-size: 13px;
-      font-weight: bold;
-      margin: 12px 0 6px 0;
-    }
-
-    .section-title:first-child {
-      margin-top: 0;
-    }
-
-    .project-list {
-      list-style: none;
-    }
+    .project-list { list-style: none; }
 
     .project-list li {
       padding: 4px 6px;
@@ -101,86 +28,35 @@
       gap: 8px;
     }
 
-    .project-list li:hover {
-      background: #0a246a;
-      color: #fff;
-    }
-
-    .project-list li:hover a {
-      color: #fff;
-    }
-
-    .project-list li:hover .desc {
-      color: #d4d0c8;
-    }
-
-    .project-list li:hover .tag {
-      background: #a6caf0;
-      color: #0a246a;
-    }
+    .project-list li:hover { background: var(--highlight); color: var(--highlight-text); }
+    .project-list li:hover a { color: var(--highlight-text); }
+    .project-list li:hover .desc { color: var(--silver); }
+    .project-list li:hover .tag { background: var(--title-light); color: var(--highlight); }
 
     .project-list a {
       text-decoration: none;
-      color: #0000ff;
+      color: var(--link);
       font-weight: bold;
-      font-size: 13px;
       white-space: nowrap;
     }
 
-    .project-list a:hover {
-      text-decoration: underline;
-    }
-
-    .project-list .desc {
-      color: #57606a;
-      font-size: 12px;
-    }
+    .project-list a:hover { text-decoration: underline; }
+    .project-list .desc { color: #57606a; font-size: 12px; }
 
     .tag {
       display: inline-block;
-      background: #d4d0c8;
+      background: var(--silver);
       color: #000;
       font-size: 11px;
       font-weight: bold;
       padding: 0 6px;
-      border-top: 1px solid #fff;
-      border-left: 1px solid #fff;
-      border-right: 1px solid #808080;
-      border-bottom: 1px solid #808080;
+      border: 1px solid;
+      border-color: var(--white) var(--shadow) var(--shadow) var(--white);
       white-space: nowrap;
       margin-left: auto;
     }
 
-    .about {
-      font-size: 13px;
-      line-height: 1.5;
-      padding: 4px;
-    }
-
-    .separator {
-      border-top: 1px solid #808080;
-      border-bottom: 1px solid #fff;
-      margin: 8px 0;
-    }
-
-    .statusbar {
-      background: #d4d0c8;
-      border-top: 2px solid #808080;
-      padding: 2px 6px;
-      font-size: 12px;
-      color: #000;
-      display: flex;
-      gap: 4px;
-    }
-
-    .statusbar-section {
-      border-top: 1px solid #808080;
-      border-left: 1px solid #808080;
-      border-right: 1px solid #fff;
-      border-bottom: 1px solid #fff;
-      padding: 1px 8px;
-      flex: 1;
-    }
+    .about { line-height: 1.5; padding: 4px; }
   </style>
 </head>
 <body>
