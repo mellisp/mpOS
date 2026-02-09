@@ -205,3 +205,275 @@ body {
 }
 
 .device-dialog .error-icon { color: #d4a017; }
+
+/* ============================================================
+   Desktop OS Layout
+   ============================================================ */
+
+/* Desktop & Desktop Area */
+.desktop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--desktop);
+}
+
+.desktop-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  padding: 16px;
+}
+
+/* Desktop Icon */
+.desktop-icon {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  cursor: default;
+  user-select: none;
+  border: 1px solid transparent;
+  border-radius: 2px;
+}
+
+.desktop-icon:hover {
+  background: rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.desktop-icon-img {
+  width: 48px;
+  height: 48px;
+}
+
+.desktop-icon-label {
+  color: var(--white);
+  font-size: 12px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  text-align: center;
+  max-width: 72px;
+  word-wrap: break-word;
+}
+
+/* ============================================================
+   Taskbar
+   ============================================================ */
+
+.taskbar {
+  background: var(--silver);
+  border-top: 2px solid var(--white);
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+/* Start Button */
+.start-btn {
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: bold;
+  color: #000;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset -1px -1px 0 var(--shadow), inset 1px 1px 0 var(--silver);
+  padding: 2px 8px;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.start-btn:active,
+.start-btn.pressed {
+  border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
+  box-shadow: inset 1px 1px 0 var(--shadow);
+  padding: 3px 7px 1px 9px;
+}
+
+/* Start Menu */
+.start-menu {
+  display: none;
+  position: absolute;
+  bottom: 34px;
+  left: 4px;
+  min-width: 180px;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+  z-index: 50;
+}
+
+.start-menu.open { display: block; }
+
+/* Taskbar Items */
+.taskbar-items {
+  flex: 1;
+  display: flex;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.taskbar-item {
+  font-family: var(--font);
+  font-size: 12px;
+  background: var(--silver);
+  border: 1px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  padding: 2px 8px;
+  min-width: 120px;
+  max-width: 180px;
+  cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+.taskbar-item.active {
+  border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
+  box-shadow: inset 1px 1px 0 var(--shadow);
+  background: #bbb8b0;
+}
+
+/* System Tray */
+.system-tray {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  padding: 1px 8px;
+}
+
+.tray-icon {
+  width: 16px;
+  height: 16px;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tray-clock {
+  font-size: 12px;
+  padding-left: 6px;
+  white-space: nowrap;
+}
+
+/* Volume Popup */
+.volume-popup {
+  display: none;
+  position: absolute;
+  bottom: 36px;
+  right: 4px;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+  padding: 12px;
+  z-index: 50;
+  text-align: center;
+}
+
+.volume-popup.open { display: block; }
+
+.volume-slider {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  height: 100px;
+  margin: 8px auto;
+  display: block;
+}
+
+.volume-popup label {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  cursor: default;
+}
+
+/* ============================================================
+   Window Animations
+   ============================================================ */
+
+@keyframes windowClose {
+  from { transform: scale(1); opacity: 1; }
+  to   { transform: scale(0.85); opacity: 0; }
+}
+
+@keyframes windowMinimize {
+  from { transform: scale(1); opacity: 1; }
+  to   { transform: scale(0.3) translateY(100px); opacity: 0; }
+}
+
+@keyframes windowRestore {
+  from { transform: scale(0.3) translateY(100px); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.window.closing {
+  animation: windowClose 200ms ease-in forwards;
+}
+
+.window.minimizing {
+  animation: windowMinimize 250ms ease-in forwards;
+}
+
+.window.restoring {
+  animation: windowRestore 250ms ease-out forwards;
+}
+
+/* Draggable Window */
+.window.draggable {
+  position: absolute;
+  z-index: 10;
+}
+
+.window.draggable .titlebar {
+  cursor: move;
+}
+
+.window.draggable .titlebar-btn {
+  cursor: default;
+}
+
+/* Explorer Grid (icon view) */
+.explorer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+.explorer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  cursor: default;
+  text-decoration: none;
+  color: #000;
+  font-size: 12px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+.explorer-item:hover {
+  background: var(--highlight);
+  color: var(--highlight-text);
+  border-color: var(--highlight);
+}
