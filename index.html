@@ -126,67 +126,7 @@
           <div class="titlebar-btn" onclick="bbTaskbar.closeWindow('mycomputer')">X</div>
         </div>
       </div>
-      <div class="window-body">
-        <div class="sysinfo-hero">
-          <!-- Monitor icon -->
-          <svg width="80" height="64" viewBox="0 0 80 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="2" width="72" height="44" rx="3" fill="#1a3a5c" stroke="#0a246a" stroke-width="2"/>
-            <rect x="8" y="6" width="64" height="36" rx="1" fill="#3a6ea5"/>
-            <rect x="28" y="48" width="24" height="5" fill="#808080"/>
-            <rect x="16" y="53" width="48" height="4" rx="1.5" fill="var(--silver)" stroke="#808080" stroke-width="1"/>
-          </svg>
-          <div class="sysinfo-os" id="sysOs"></div>
-          <div class="sysinfo-browser" id="sysBrowser"></div>
-        </div>
-
-        <div class="separator"></div>
-
-        <div class="section-title">System</div>
-        <div class="sunken">
-          <table class="sysinfo-table">
-            <tr><th>Platform</th><td id="sysPlatform"></td></tr>
-            <tr><th>CPU Cores</th><td id="sysCores"></td></tr>
-            <tr><th>Memory</th><td id="sysMemory"></td></tr>
-            <tr><th>Language</th><td id="sysLang"></td></tr>
-            <tr><th>Online</th><td id="sysOnline"></td></tr>
-            <tr><th>Cookies</th><td id="sysCookies"></td></tr>
-          </table>
-        </div>
-
-        <div class="section-title">Display</div>
-        <div class="sunken">
-          <table class="sysinfo-table">
-            <tr><th>Resolution</th><td id="sysScreen"></td></tr>
-            <tr><th>Color Depth</th><td id="sysColor"></td></tr>
-            <tr><th>Pixel Ratio</th><td id="sysPixel"></td></tr>
-            <tr><th>Touch</th><td id="sysTouch"></td></tr>
-          </table>
-        </div>
-
-        <div class="section-title">Storage</div>
-        <div class="sunken">
-          <table class="sysinfo-table">
-            <tr><th>Quota</th><td id="sysStorageQuota"></td></tr>
-            <tr><th>Used</th><td id="sysStorageUsed"></td></tr>
-          </table>
-        </div>
-
-        <div class="section-title">Network</div>
-        <div class="sunken">
-          <table class="sysinfo-table">
-            <tr><th>Type</th><td id="sysNetType"></td></tr>
-            <tr><th>Downlink</th><td id="sysNetSpeed"></td></tr>
-          </table>
-        </div>
-
-        <div class="section-title">Battery</div>
-        <div class="sunken">
-          <table class="sysinfo-table">
-            <tr><th>Level</th><td id="sysBatLevel"></td></tr>
-            <tr><th>Charging</th><td id="sysBatCharging"></td></tr>
-          </table>
-        </div>
-      </div>
+      <div class="window-body" id="sysInfoBody"></div>
       <div class="statusbar">
         <div class="statusbar-section" id="sysUserAgent" style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
       </div>
@@ -299,15 +239,39 @@
     }
 
     function populateSysInfo() {
+      var body = document.getElementById('sysInfoBody');
+      if (body.dataset.populated) return;
+      body.dataset.populated = '1';
+
       var ua = navigator.userAgent;
       var nav = navigator;
       var scr = screen;
 
+      // --- Helpers ---
+      function formatBytes(bytes) {
+        if (!bytes) return null;
+        var units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        var i = 0;
+        while (bytes >= 1024 && i < units.length - 1) { bytes /= 1024; i++; }
+        return bytes.toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
+      }
+
+      function makeSection(title, rows) {
+        // Filter out rows with no value
+        var valid = rows.filter(function (r) { return r[1] != null; });
+        if (!valid.length) return '';
+        var html = '<div class="section-title">' + title + '</div><div class="sunken"><table class="sysinfo-table">';
+        valid.forEach(function (r) {
+          html += '<tr><th>' + r[0] + '</th><td>' + r[1] + '</td></tr>';
+        });
+        return html + '</table></div>';
+      }
+
       // --- OS detection ---
-      var os = 'Unknown OS';
+      var os = null;
       if (/Windows/.test(ua)) {
         os = 'Windows';
-        if (/Windows NT 10/.test(ua)) os = ua.indexOf('Windows NT 10.0') !== -1 ? 'Windows 10/11' : 'Windows 10';
+        if (/Windows NT 10/.test(ua)) os = 'Windows 10/11';
         else if (/Windows NT 6.3/.test(ua)) os = 'Windows 8.1';
         else if (/Windows NT 6.1/.test(ua)) os = 'Windows 7';
       } else if (/Mac OS X/.test(ua)) {
@@ -320,88 +284,100 @@
         if (a) os = 'Android ' + a[1];
       } else if (/iPhone|iPad/.test(ua)) {
         os = 'iOS';
-        var i = ua.match(/OS (\d+_\d+)/);
-        if (i) os = 'iOS ' + i[1].replace('_', '.');
-      } else if (/Linux/.test(ua)) {
-        os = 'Linux';
+        var ip = ua.match(/OS (\d+_\d+)/);
+        if (ip) os = 'iOS ' + ip[1].replace('_', '.');
       } else if (/CrOS/.test(ua)) {
         os = 'Chrome OS';
+      } else if (/Linux/.test(ua)) {
+        os = 'Linux';
       }
 
       // --- Browser detection ---
-      var browser = 'Unknown Browser';
+      var browser = null;
       if (/Edg\//.test(ua)) {
         var ev = ua.match(/Edg\/([\d.]+)/);
-        browser = 'Microsoft Edge ' + (ev ? ev[1] : '');
+        browser = 'Microsoft Edge' + (ev ? ' ' + ev[1] : '');
       } else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) {
         var cv = ua.match(/Chrome\/([\d.]+)/);
-        browser = 'Google Chrome ' + (cv ? cv[1] : '');
+        browser = 'Google Chrome' + (cv ? ' ' + cv[1] : '');
       } else if (/Firefox\//.test(ua)) {
         var fv = ua.match(/Firefox\/([\d.]+)/);
-        browser = 'Mozilla Firefox ' + (fv ? fv[1] : '');
+        browser = 'Mozilla Firefox' + (fv ? ' ' + fv[1] : '');
       } else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) {
         var sv = ua.match(/Version\/([\d.]+)/);
-        browser = 'Apple Safari ' + (sv ? sv[1] : '');
+        browser = 'Apple Safari' + (sv ? ' ' + sv[1] : '');
       }
 
-      // --- Populate fields ---
-      document.getElementById('sysOs').textContent = os;
-      document.getElementById('sysBrowser').textContent = browser;
-      document.getElementById('sysPlatform').textContent = nav.platform || 'N/A';
-      document.getElementById('sysCores').textContent = nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : 'N/A';
-      document.getElementById('sysMemory').textContent = nav.deviceMemory ? nav.deviceMemory + ' GB (approximate)' : 'N/A';
-      document.getElementById('sysLang').textContent = nav.language || 'N/A';
-      document.getElementById('sysOnline').textContent = nav.onLine ? 'Yes' : 'No';
-      document.getElementById('sysCookies').textContent = nav.cookieEnabled ? 'Enabled' : 'Disabled';
+      // --- Build hero ---
+      var html = '<div class="sysinfo-hero">';
+      html += '<svg width="80" height="64" viewBox="0 0 80 64" fill="none" xmlns="http://www.w3.org/2000/svg">';
+      html += '<rect x="4" y="2" width="72" height="44" rx="3" fill="#1a3a5c" stroke="#0a246a" stroke-width="2"/>';
+      html += '<rect x="8" y="6" width="64" height="36" rx="1" fill="#3a6ea5"/>';
+      html += '<rect x="28" y="48" width="24" height="5" fill="#808080"/>';
+      html += '<rect x="16" y="53" width="48" height="4" rx="1.5" fill="var(--silver)" stroke="#808080" stroke-width="1"/>';
+      html += '</svg>';
+      if (os) html += '<div class="sysinfo-os">' + os + '</div>';
+      if (browser) html += '<div class="sysinfo-browser">' + browser + '</div>';
+      html += '</div><div class="separator"></div>';
 
-      // Display
-      document.getElementById('sysScreen').textContent = scr.width + ' x ' + scr.height;
-      document.getElementById('sysColor').textContent = scr.colorDepth + '-bit';
-      document.getElementById('sysPixel').textContent = window.devicePixelRatio + 'x' + (window.devicePixelRatio > 1 ? ' (HiDPI)' : '');
-      document.getElementById('sysTouch').textContent = nav.maxTouchPoints > 0 ? 'Yes (' + nav.maxTouchPoints + ' points)' : 'No';
+      // --- Sync sections ---
+      html += makeSection('System', [
+        ['Platform', nav.platform || null],
+        ['CPU Cores', nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : null],
+        ['Memory', nav.deviceMemory ? nav.deviceMemory + ' GB (approximate)' : null],
+        ['Language', nav.language || null],
+        ['Online', nav.onLine !== undefined ? (nav.onLine ? 'Yes' : 'No') : null],
+        ['Cookies', nav.cookieEnabled !== undefined ? (nav.cookieEnabled ? 'Enabled' : 'Disabled') : null]
+      ]);
 
-      // Storage
+      html += makeSection('Display', [
+        ['Resolution', scr.width + ' \u00d7 ' + scr.height],
+        ['Color Depth', scr.colorDepth + '-bit'],
+        ['Pixel Ratio', window.devicePixelRatio + 'x' + (window.devicePixelRatio > 1 ? ' (HiDPI)' : '')],
+        ['Touch', nav.maxTouchPoints > 0 ? 'Yes (' + nav.maxTouchPoints + ' points)' : 'No']
+      ]);
+
+      // Placeholders for async sections
+      html += '<div id="sysStorageSection"></div>';
+      html += '<div id="sysNetSection"></div>';
+      html += '<div id="sysBatSection"></div>';
+
+      body.innerHTML = html;
+
+      // --- Async: Storage ---
       if (nav.storage && nav.storage.estimate) {
         nav.storage.estimate().then(function (est) {
-          document.getElementById('sysStorageQuota').textContent = formatBytes(est.quota);
-          document.getElementById('sysStorageUsed').textContent = formatBytes(est.usage);
+          var rows = [];
+          var q = formatBytes(est.quota);
+          var u = formatBytes(est.usage);
+          if (q) rows.push(['Quota', q]);
+          if (u) rows.push(['Used', u]);
+          document.getElementById('sysStorageSection').innerHTML = makeSection('Storage', rows);
         });
-      } else {
-        document.getElementById('sysStorageQuota').textContent = 'N/A';
-        document.getElementById('sysStorageUsed').textContent = 'N/A';
       }
 
-      // Network
+      // --- Async: Network ---
       var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
       if (conn) {
-        document.getElementById('sysNetType').textContent = conn.effectiveType ? conn.effectiveType.toUpperCase() : (conn.type || 'N/A');
-        document.getElementById('sysNetSpeed').textContent = conn.downlink ? conn.downlink + ' Mbps' : 'N/A';
-      } else {
-        document.getElementById('sysNetType').textContent = 'N/A';
-        document.getElementById('sysNetSpeed').textContent = 'N/A';
+        var netRows = [];
+        if (conn.effectiveType) netRows.push(['Type', conn.effectiveType.toUpperCase()]);
+        else if (conn.type) netRows.push(['Type', conn.type]);
+        if (conn.downlink) netRows.push(['Downlink', conn.downlink + ' Mbps']);
+        document.getElementById('sysNetSection').innerHTML = makeSection('Network', netRows);
       }
 
-      // Battery
+      // --- Async: Battery ---
       if (nav.getBattery) {
         nav.getBattery().then(function (bat) {
-          document.getElementById('sysBatLevel').textContent = Math.round(bat.level * 100) + '%';
-          document.getElementById('sysBatCharging').textContent = bat.charging ? 'Yes' : 'No';
+          var batRows = [];
+          batRows.push(['Level', Math.round(bat.level * 100) + '%']);
+          batRows.push(['Charging', bat.charging ? 'Yes' : 'No']);
+          document.getElementById('sysBatSection').innerHTML = makeSection('Battery', batRows);
         });
-      } else {
-        document.getElementById('sysBatLevel').textContent = 'N/A';
-        document.getElementById('sysBatCharging').textContent = 'N/A';
       }
 
       // User agent in status bar
       document.getElementById('sysUserAgent').textContent = ua;
-    }
-
-    function formatBytes(bytes) {
-      if (!bytes) return 'N/A';
-      var units = ['B', 'KB', 'MB', 'GB', 'TB'];
-      var i = 0;
-      while (bytes >= 1024 && i < units.length - 1) { bytes /= 1024; i++; }
-      return bytes.toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
     }
 
     // Play click sound on button interactions
