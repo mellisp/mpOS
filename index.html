@@ -297,9 +297,9 @@
       color: #57606a;
     }
 
-    #sysInfoBody .section-title { margin: 10px 0 4px; }
-    #sysInfoBody .section-title:first-child { margin-top: 0; }
-    #sysInfoBody .sunken { margin-bottom: 0; }
+    #mycomputer .section-title { margin: 10px 0 4px; }
+    #mycomputer .section-title:first-child { margin-top: 0; }
+    #mycomputer .sunken { margin-bottom: 0; }
 
     .sysinfo-table {
       width: 100%;
@@ -423,16 +423,13 @@
     <!-- My Computer Window (hidden initially) -->
     <div class="window draggable" id="mycomputer" style="display:none;">
       <div class="titlebar">
-        <span>System Properties</span>
+        <span>About My Computer</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" onclick="bbTaskbar.minimizeWindow('mycomputer')">_</div>
           <div class="titlebar-btn" onclick="bbTaskbar.closeWindow('mycomputer')">X</div>
         </div>
       </div>
       <div class="window-body" id="sysInfoBody"></div>
-      <div class="statusbar">
-        <div class="statusbar-section">System Properties</div>
-      </div>
     </div>
 
     <!-- Explorer Window (hidden initially) -->
