@@ -126,11 +126,10 @@
       <div class="fish-desc" id="fishDesc"></div>
       <div class="fish-link">
         <a class="btn" id="wikiLink" href="#" target="_blank" rel="noopener">Wikipedia</a>
-        <a class="btn" id="fbLink" href="#" target="_blank" rel="noopener">FishBase</a>
       </div>
     </div>
     <div class="statusbar">
-      <div class="statusbar-section" id="statusText">Powered by FishBase</div>
+      <div class="statusbar-section" id="statusText">Powered by Wikipedia</div>
       <div class="statusbar-section" style="flex:0;min-width:130px;text-align:right;" id="dateText"></div>
     </div>
   </div>
@@ -333,7 +332,6 @@
     var fishDetails = document.getElementById("fishDetails");
     var fishDesc = document.getElementById("fishDesc");
     var wikiLink = document.getElementById("wikiLink");
-    var fbLink = document.getElementById("fbLink");
     var statusText = document.getElementById("statusText");
     var dateText = document.getElementById("dateText");
 
@@ -382,8 +380,6 @@
     var sciName = f[1] + " " + f[2];
     var wikiTitle = f[1] + "_" + f[2];
     wikiLink.href = "https://en.wikipedia.org/wiki/" + wikiTitle;
-    fbLink.href = "https://www.fishbase.se/search.php?lang=English&genusname=" +
-      encodeURIComponent(f[1]) + "&speciesname=" + encodeURIComponent(f[2]);
 
     /* ── Image loading ───────────────────────────────────── */
     /* Cache key matches the <head> preload script */
