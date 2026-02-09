@@ -8,191 +8,81 @@
   <link rel="stylesheet" href="css/theme.css">
   <style>
     body {
-      overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-      touch-action: none;
-      -webkit-user-select: none;
-      user-select: none;
+      overflow: hidden; width: 100vw; height: 100vh;
+      touch-action: none; -webkit-user-select: none; user-select: none;
     }
 
-    /* Desktop warning dialog */
-    .desktop-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: var(--desktop);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .desktop-dialog {
-      background: var(--silver);
-      border: 2px solid;
-      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-      box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
-      width: 400px;
-      max-width: 95vw;
-    }
-
-    .desktop-dialog .error-icon { color: #d4a017; }
+    .device-dialog { width: 400px; }
 
     @media (hover: hover) and (pointer: fine) {
-      .desktop-overlay { display: flex; }
+      .device-overlay { display: flex; }
     }
 
-    /* Game area */
-    .game {
-      position: fixed;
-      inset: 0;
-      display: flex;
-    }
+    .game { position: fixed; inset: 0; display: flex; }
 
     .player-zone {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      transition: background 0.3s;
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; transition: background 0.3s;
     }
 
     .player-zone.p1 { background: var(--title-dark); }
     .player-zone.p2 { background: #1a5c9e; }
-
     .player-zone.holding.p1 { background: #0d3a8a; }
     .player-zone.holding.p2 { background: #2878c0; }
-
     .player-zone.lost { background: var(--error); }
     .player-zone.won { background: #2e7d32; }
 
     .zone-divider {
-      width: 4px;
-      background: var(--silver);
+      width: 4px; background: var(--silver);
       box-shadow: -1px 0 0 var(--shadow), 1px 0 0 var(--white);
     }
 
-    /* Player HUD panels */
     .player-hud {
       background: var(--silver);
       border: 2px solid;
       border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
       box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
-      width: 200px;
-      max-width: 80%;
-      pointer-events: none;
+      width: 200px; max-width: 80%; pointer-events: none;
     }
 
-    .player-hud .hud-titlebar {
-      background: linear-gradient(to right, var(--title-dark), var(--title-light));
-      color: var(--white);
-      font-weight: bold;
-      font-size: 12px;
-      padding: 3px 6px;
-      text-align: center;
-    }
+    .player-hud .hud-titlebar, .player-hud .hud-body,
+    .player-hud .hud-statusbar-section { text-align: center; }
 
     .p2 .player-hud .hud-titlebar {
       background: linear-gradient(to right, #1a5c9e, #b8d8f0);
     }
 
-    .player-hud .hud-body {
-      padding: 8px 12px;
-      text-align: center;
-      line-height: 1.5;
-    }
+    .player-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+    .player-instruction { font-size: 12px; color: #57606a; }
+    .player-status { font-size: 14px; font-weight: bold; margin-top: 4px; }
+    .timer-display { font-size: 22px; font-weight: bold; margin-top: 6px; }
 
-    .player-name {
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-
-    .player-instruction {
-      font-size: 12px;
-      color: #57606a;
-    }
-
-    .player-status {
-      font-size: 14px;
-      font-weight: bold;
-      margin-top: 4px;
-    }
-
-    .player-hud .hud-statusbar {
-      border-top: 2px solid var(--shadow);
-      padding: 2px 6px;
-      font-size: 11px;
-      display: flex;
-    }
-
-    .player-hud .hud-statusbar-section {
-      border: 1px solid;
-      border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-      padding: 1px 6px;
-      flex: 1;
-      text-align: center;
-    }
-
-    .timer-display {
-      font-size: 22px;
-      font-weight: bold;
-      color: #000;
-      margin-top: 6px;
-    }
-
-    /* Top bar window */
     .top-hud {
-      position: fixed;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      pointer-events: none;
-
+      position: fixed; top: 8px; left: 50%;
+      transform: translateX(-50%); z-index: 10; pointer-events: none;
       background: var(--silver);
       border: 2px solid;
       border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
       box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
     }
 
-    .top-hud .hud-titlebar {
-      background: linear-gradient(to right, var(--title-dark), var(--title-light));
-      color: var(--white);
-      font-weight: bold;
-      font-size: 11px;
-      padding: 2px 6px;
-      text-align: center;
-    }
-
+    .top-hud .hud-titlebar { font-size: 11px; padding: 2px 6px; text-align: center; }
     .top-hud .hud-body {
-      padding: 4px 12px;
-      font-size: 13px;
-      font-weight: bold;
-      text-align: center;
-      white-space: nowrap;
+      padding: 4px 12px; font-weight: bold; text-align: center; white-space: nowrap;
     }
 
-    /* Restart button */
     .restart-row {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      display: none;
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%); z-index: 10; display: none;
     }
 
     .restart-row.visible { display: block; }
   </style>
 </head>
 <body>
-  <!-- Desktop-only warning -->
-  <div class="desktop-overlay">
-    <div class="desktop-dialog">
+  <div class="device-overlay">
+    <div class="device-dialog">
       <div class="titlebar">
         <span>Chicken Fingers</span>
         <div class="titlebar-btn">X</div>
@@ -212,8 +102,7 @@
     </div>
   </div>
 
-  <!-- Game -->
-  <div class="game" id="game">
+  <div class="game">
     <div class="player-zone p1" id="zone1">
       <div class="player-hud">
         <div class="hud-titlebar">Player 1</div>
@@ -247,7 +136,7 @@
     </div>
   </div>
 
-  <div class="top-hud" id="topHud">
+  <div class="top-hud">
     <div class="hud-titlebar">Chicken Fingers</div>
     <div class="hud-body" id="topStatus">Both players: touch and hold!</div>
   </div>
@@ -325,7 +214,6 @@
       gameOver = true;
       cancelAnimationFrame(timerFrame);
 
-      // Final update from current time, then use this single value everywhere
       lastElapsed = formatTime(performance.now() - startTime);
       timer1.textContent = lastElapsed;
       timer2.textContent = lastElapsed;
@@ -351,18 +239,14 @@
       restartRow.classList.add("visible");
     }
 
-    function getZone(touch) {
-      const x = touch.clientX;
-      const midpoint = window.innerWidth / 2;
-      return x < midpoint ? 1 : 2;
-    }
+    const midpoint = () => window.innerWidth / 2;
 
     document.addEventListener("touchstart", (e) => {
       if (gameOver) return;
       e.preventDefault();
 
       for (const touch of e.changedTouches) {
-        const zone = getZone(touch);
+        const zone = touch.clientX < midpoint() ? 1 : 2;
 
         if (zone === 1 && p1Touch === null) {
           p1Touch = touch.identifier;
@@ -375,9 +259,7 @@
         }
       }
 
-      if (p1Touch !== null && p2Touch !== null) {
-        startGame();
-      }
+      if (p1Touch !== null && p2Touch !== null) startGame();
     }, { passive: false });
 
     document.addEventListener("touchend", (e) => {
@@ -387,20 +269,14 @@
         if (touch.identifier === p1Touch) {
           p1Touch = null;
           zone1.classList.remove("holding");
-          if (gameStarted) {
-            endGame(1);
-          } else {
-            bar1.textContent = "Waiting...";
-          }
+          if (gameStarted) endGame(1);
+          else bar1.textContent = "Waiting...";
         }
         if (touch.identifier === p2Touch) {
           p2Touch = null;
           zone2.classList.remove("holding");
-          if (gameStarted) {
-            endGame(2);
-          } else {
-            bar2.textContent = "Waiting...";
-          }
+          if (gameStarted) endGame(2);
+          else bar2.textContent = "Waiting...";
         }
       }
     });
@@ -420,14 +296,8 @@
       }
     });
 
-    restartBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      resetGame();
-    });
-
-    restartBtn.addEventListener("touchstart", (e) => {
-      e.stopPropagation();
-    }, { passive: true });
+    restartBtn.addEventListener("click", (e) => { e.preventDefault(); resetGame(); });
+    restartBtn.addEventListener("touchstart", (e) => { e.stopPropagation(); }, { passive: true });
   </script>
 </body>
 </html>

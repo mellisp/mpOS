@@ -7,17 +7,11 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/theme.css">
   <style>
-    body {
-      overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-      cursor: crosshair;
-    }
+    body { overflow: hidden; width: 100vw; height: 100vh; cursor: crosshair; }
 
     .target-container {
       position: absolute;
-      left: 0;
-      top: 0;
+      left: 0; top: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -26,8 +20,7 @@
     }
 
     .target {
-      width: 80px;
-      height: 80px;
+      width: 80px; height: 80px;
       border-radius: 50%;
       background: radial-gradient(circle, #222 15%, #fff 15% 30%, #222 30% 50%, #fff 50% 70%, #222 70%);
       cursor: crosshair;
@@ -38,98 +31,41 @@
     .target.hit { opacity: 0.3; }
 
     .label {
-      font-size: 14px;
-      font-weight: bold;
-      color: var(--silver);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      min-width: 80px;
-      text-align: center;
-      min-height: 18px;
+      font-size: 14px; font-weight: bold; color: var(--silver);
+      text-transform: uppercase; letter-spacing: 2px;
+      min-width: 80px; text-align: center; min-height: 18px;
     }
 
     .label.hit { color: #2e7d32; }
     .label.miss { color: var(--error); }
 
-    /* HUD mini-window */
     .hud {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      z-index: 10;
-      pointer-events: none;
-      user-select: none;
+      position: fixed; top: 12px; left: 12px; z-index: 10;
+      pointer-events: none; user-select: none;
       background: var(--silver);
       border: 2px solid;
       border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
       box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
     }
 
-    .hud-titlebar {
-      background: linear-gradient(to right, var(--title-dark), var(--title-light));
-      color: var(--white);
-      font-weight: bold;
-      font-size: 12px;
-      padding: 3px 6px;
-    }
-
-    .hud-body { padding: 8px 12px; line-height: 1.6; }
     .hud .score { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
 
-    .hud-statusbar {
-      border-top: 2px solid var(--shadow);
-      padding: 2px 6px;
-      font-size: 11px;
-      display: flex;
-    }
-
-    .hud-statusbar-section {
-      border: 1px solid;
-      border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-      padding: 1px 6px;
-      flex: 1;
-    }
-
     .flash {
-      position: fixed;
-      inset: 0;
-      background: var(--white);
-      opacity: 0;
-      pointer-events: none;
-      z-index: 5;
+      position: fixed; inset: 0;
+      background: var(--white); opacity: 0;
+      pointer-events: none; z-index: 5;
     }
 
-    /* Mobile dialog overlay */
-    .mobile-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: var(--desktop);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .mobile-dialog {
-      background: var(--silver);
-      border: 2px solid;
-      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-      box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
-      width: 360px;
-      max-width: 95vw;
-    }
-
-    .mobile-dialog .error-icon { color: #d4a017; }
+    .device-dialog { width: 360px; }
 
     @media (hover: none) and (pointer: coarse) {
-      .mobile-overlay { display: flex; }
+      .device-overlay { display: flex; }
     }
   </style>
 </head>
 <body>
-  <div class="mobile-overlay">
-    <div class="mobile-dialog">
+  <div class="device-overlay">
+    <div class="device-dialog">
       <div class="titlebar">
         <span>Target Shooting</span>
         <div class="titlebar-btn">X</div>
