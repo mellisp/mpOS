@@ -272,13 +272,11 @@ body {
 .taskbar {
   background: var(--silver);
   border-top: 2px solid var(--white);
-  padding: 2px 4px;
+  padding: 2px 4px 6px;
   display: flex;
   align-items: center;
   gap: 4px;
-  height: 34px;
   flex-shrink: 0;
-  margin-bottom: 4px;
 }
 
 /* Start Button */
