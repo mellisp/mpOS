@@ -158,3 +158,50 @@ body {
   justify-content: flex-end;
   margin-top: 16px;
 }
+
+/* HUD (mini-window for game overlays) */
+.hud-titlebar {
+  background: linear-gradient(to right, var(--title-dark), var(--title-light));
+  color: var(--white);
+  font-weight: bold;
+  font-size: 12px;
+  padding: 3px 6px;
+}
+
+.hud-body { padding: 8px 12px; line-height: 1.6; }
+
+.hud-statusbar {
+  border-top: 2px solid var(--shadow);
+  padding: 2px 6px;
+  font-size: 11px;
+  display: flex;
+}
+
+.hud-statusbar-section {
+  border: 1px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  padding: 1px 6px;
+  flex: 1;
+}
+
+/* Device-gate overlay (shown/hidden via media query per page) */
+.device-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--desktop);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.device-dialog {
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+  max-width: 95vw;
+}
+
+.device-dialog .error-icon { color: #d4a017; }
