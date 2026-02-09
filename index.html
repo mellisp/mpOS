@@ -47,12 +47,66 @@
 
     .about { line-height: 1.5; padding: 4px; }
 
-    #explorer { width: 520px; max-width: 95vw; left: 80px; top: 60px; }
+    #explorer { width: 520px; max-width: 95vw; left: 80px; top: 80px; }
+
+    /* My Computer window */
+    #mycomputer { width: 380px; max-width: 95vw; left: 120px; top: 40px; }
+
+    .sysinfo-hero {
+      text-align: center;
+      padding: 16px 12px 8px;
+    }
+
+    .sysinfo-hero svg { margin-bottom: 8px; }
+
+    .sysinfo-hero .sysinfo-os {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    .sysinfo-hero .sysinfo-browser {
+      font-size: 12px;
+      color: #57606a;
+    }
+
+    .sysinfo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .sysinfo-table tr { border-bottom: 1px solid var(--silver); }
+    .sysinfo-table tr:last-child { border-bottom: none; }
+
+    .sysinfo-table th {
+      text-align: right;
+      padding: 3px 8px 3px 4px;
+      font-weight: bold;
+      white-space: nowrap;
+      width: 1%;
+      color: var(--dk-shadow);
+    }
+
+    .sysinfo-table td {
+      padding: 3px 4px;
+    }
   </style>
 </head>
 <body>
   <div class="desktop">
     <div class="desktop-area">
+      <!-- My Computer icon -->
+      <div class="desktop-icon" ondblclick="openMyComputer()">
+        <svg class="desktop-icon-img" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="4" width="40" height="28" rx="2" fill="#1a3a5c" stroke="#0a246a" stroke-width="1.5"/>
+          <rect x="7" y="7" width="34" height="22" rx="1" fill="#3a6ea5"/>
+          <rect x="16" y="34" width="16" height="4" fill="#808080"/>
+          <rect x="10" y="38" width="28" height="3" rx="1" fill="#d4d0c8" stroke="#808080" stroke-width="0.5"/>
+        </svg>
+        <span class="desktop-icon-label">My Computer</span>
+      </div>
+
       <!-- Applications folder icon -->
       <div class="desktop-icon" id="folderIcon" ondblclick="openExplorer()">
         <svg class="desktop-icon-img" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -60,6 +114,81 @@
           <path d="M4 18 L44 18 L44 42 L4 42 Z" fill="#ffe082"/>
         </svg>
         <span class="desktop-icon-label">Applications</span>
+      </div>
+    </div>
+
+    <!-- My Computer Window (hidden initially) -->
+    <div class="window draggable" id="mycomputer" style="display:none;">
+      <div class="titlebar">
+        <span>System Properties</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" onclick="bbTaskbar.minimizeWindow('mycomputer')">_</div>
+          <div class="titlebar-btn" onclick="bbTaskbar.closeWindow('mycomputer')">X</div>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="sysinfo-hero">
+          <!-- Monitor icon -->
+          <svg width="80" height="64" viewBox="0 0 80 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="2" width="72" height="44" rx="3" fill="#1a3a5c" stroke="#0a246a" stroke-width="2"/>
+            <rect x="8" y="6" width="64" height="36" rx="1" fill="#3a6ea5"/>
+            <rect x="28" y="48" width="24" height="5" fill="#808080"/>
+            <rect x="16" y="53" width="48" height="4" rx="1.5" fill="var(--silver)" stroke="#808080" stroke-width="1"/>
+          </svg>
+          <div class="sysinfo-os" id="sysOs"></div>
+          <div class="sysinfo-browser" id="sysBrowser"></div>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="section-title">System</div>
+        <div class="sunken">
+          <table class="sysinfo-table">
+            <tr><th>Platform</th><td id="sysPlatform"></td></tr>
+            <tr><th>CPU Cores</th><td id="sysCores"></td></tr>
+            <tr><th>Memory</th><td id="sysMemory"></td></tr>
+            <tr><th>Language</th><td id="sysLang"></td></tr>
+            <tr><th>Online</th><td id="sysOnline"></td></tr>
+            <tr><th>Cookies</th><td id="sysCookies"></td></tr>
+          </table>
+        </div>
+
+        <div class="section-title">Display</div>
+        <div class="sunken">
+          <table class="sysinfo-table">
+            <tr><th>Resolution</th><td id="sysScreen"></td></tr>
+            <tr><th>Color Depth</th><td id="sysColor"></td></tr>
+            <tr><th>Pixel Ratio</th><td id="sysPixel"></td></tr>
+            <tr><th>Touch</th><td id="sysTouch"></td></tr>
+          </table>
+        </div>
+
+        <div class="section-title">Storage</div>
+        <div class="sunken">
+          <table class="sysinfo-table">
+            <tr><th>Quota</th><td id="sysStorageQuota"></td></tr>
+            <tr><th>Used</th><td id="sysStorageUsed"></td></tr>
+          </table>
+        </div>
+
+        <div class="section-title">Network</div>
+        <div class="sunken">
+          <table class="sysinfo-table">
+            <tr><th>Type</th><td id="sysNetType"></td></tr>
+            <tr><th>Downlink</th><td id="sysNetSpeed"></td></tr>
+          </table>
+        </div>
+
+        <div class="section-title">Battery</div>
+        <div class="sunken">
+          <table class="sysinfo-table">
+            <tr><th>Level</th><td id="sysBatLevel"></td></tr>
+            <tr><th>Charging</th><td id="sysBatCharging"></td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="sysUserAgent" style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
       </div>
     </div>
 
@@ -151,16 +280,128 @@
   <script src="js/audio.js"></script>
   <script src="js/taskbar.js"></script>
   <script>
-    function openExplorer() {
-      var win = document.getElementById('explorer');
-      if (win.style.display === 'none') {
-        win.style.display = '';
-        win.classList.add('restoring');
-        win.addEventListener('animationend', function handler() {
-          win.classList.remove('restoring');
-          win.removeEventListener('animationend', handler);
-        });
+    function openWindow(id) {
+      var win = document.getElementById(id);
+      if (!win || win.style.display !== 'none') return;
+      win.style.display = '';
+      win.classList.add('restoring');
+      win.addEventListener('animationend', function handler() {
+        win.classList.remove('restoring');
+        win.removeEventListener('animationend', handler);
+      });
+    }
+
+    function openExplorer() { openWindow('explorer'); }
+
+    function openMyComputer() {
+      openWindow('mycomputer');
+      populateSysInfo();
+    }
+
+    function populateSysInfo() {
+      var ua = navigator.userAgent;
+      var nav = navigator;
+      var scr = screen;
+
+      // --- OS detection ---
+      var os = 'Unknown OS';
+      if (/Windows/.test(ua)) {
+        os = 'Windows';
+        if (/Windows NT 10/.test(ua)) os = ua.indexOf('Windows NT 10.0') !== -1 ? 'Windows 10/11' : 'Windows 10';
+        else if (/Windows NT 6.3/.test(ua)) os = 'Windows 8.1';
+        else if (/Windows NT 6.1/.test(ua)) os = 'Windows 7';
+      } else if (/Mac OS X/.test(ua)) {
+        os = 'macOS';
+        var m = ua.match(/Mac OS X (\d+[._]\d+[._]?\d*)/);
+        if (m) os = 'macOS ' + m[1].replace(/_/g, '.');
+      } else if (/Android/.test(ua)) {
+        os = 'Android';
+        var a = ua.match(/Android ([\d.]+)/);
+        if (a) os = 'Android ' + a[1];
+      } else if (/iPhone|iPad/.test(ua)) {
+        os = 'iOS';
+        var i = ua.match(/OS (\d+_\d+)/);
+        if (i) os = 'iOS ' + i[1].replace('_', '.');
+      } else if (/Linux/.test(ua)) {
+        os = 'Linux';
+      } else if (/CrOS/.test(ua)) {
+        os = 'Chrome OS';
       }
+
+      // --- Browser detection ---
+      var browser = 'Unknown Browser';
+      if (/Edg\//.test(ua)) {
+        var ev = ua.match(/Edg\/([\d.]+)/);
+        browser = 'Microsoft Edge ' + (ev ? ev[1] : '');
+      } else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) {
+        var cv = ua.match(/Chrome\/([\d.]+)/);
+        browser = 'Google Chrome ' + (cv ? cv[1] : '');
+      } else if (/Firefox\//.test(ua)) {
+        var fv = ua.match(/Firefox\/([\d.]+)/);
+        browser = 'Mozilla Firefox ' + (fv ? fv[1] : '');
+      } else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) {
+        var sv = ua.match(/Version\/([\d.]+)/);
+        browser = 'Apple Safari ' + (sv ? sv[1] : '');
+      }
+
+      // --- Populate fields ---
+      document.getElementById('sysOs').textContent = os;
+      document.getElementById('sysBrowser').textContent = browser;
+      document.getElementById('sysPlatform').textContent = nav.platform || 'N/A';
+      document.getElementById('sysCores').textContent = nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : 'N/A';
+      document.getElementById('sysMemory').textContent = nav.deviceMemory ? nav.deviceMemory + ' GB (approximate)' : 'N/A';
+      document.getElementById('sysLang').textContent = nav.language || 'N/A';
+      document.getElementById('sysOnline').textContent = nav.onLine ? 'Yes' : 'No';
+      document.getElementById('sysCookies').textContent = nav.cookieEnabled ? 'Enabled' : 'Disabled';
+
+      // Display
+      document.getElementById('sysScreen').textContent = scr.width + ' x ' + scr.height;
+      document.getElementById('sysColor').textContent = scr.colorDepth + '-bit';
+      document.getElementById('sysPixel').textContent = window.devicePixelRatio + 'x' + (window.devicePixelRatio > 1 ? ' (HiDPI)' : '');
+      document.getElementById('sysTouch').textContent = nav.maxTouchPoints > 0 ? 'Yes (' + nav.maxTouchPoints + ' points)' : 'No';
+
+      // Storage
+      if (nav.storage && nav.storage.estimate) {
+        nav.storage.estimate().then(function (est) {
+          document.getElementById('sysStorageQuota').textContent = formatBytes(est.quota);
+          document.getElementById('sysStorageUsed').textContent = formatBytes(est.usage);
+        });
+      } else {
+        document.getElementById('sysStorageQuota').textContent = 'N/A';
+        document.getElementById('sysStorageUsed').textContent = 'N/A';
+      }
+
+      // Network
+      var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+      if (conn) {
+        document.getElementById('sysNetType').textContent = conn.effectiveType ? conn.effectiveType.toUpperCase() : (conn.type || 'N/A');
+        document.getElementById('sysNetSpeed').textContent = conn.downlink ? conn.downlink + ' Mbps' : 'N/A';
+      } else {
+        document.getElementById('sysNetType').textContent = 'N/A';
+        document.getElementById('sysNetSpeed').textContent = 'N/A';
+      }
+
+      // Battery
+      if (nav.getBattery) {
+        nav.getBattery().then(function (bat) {
+          document.getElementById('sysBatLevel').textContent = Math.round(bat.level * 100) + '%';
+          document.getElementById('sysBatCharging').textContent = bat.charging ? 'Yes' : 'No';
+        });
+      } else {
+        document.getElementById('sysBatLevel').textContent = 'N/A';
+        document.getElementById('sysBatCharging').textContent = 'N/A';
+      }
+
+      // User agent in status bar
+      document.getElementById('sysUserAgent').textContent = ua;
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes) return 'N/A';
+      var units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      var i = 0;
+      while (bytes >= 1024 && i < units.length - 1) { bytes /= 1024; i++; }
+      return bytes.toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
     }
 
     // Play click sound on button interactions
