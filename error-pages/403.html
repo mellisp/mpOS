@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 Forbidden</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../css/theme.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .window { width: 420px; max-width: 95vw; }
+        .window-body { padding: 16px; }
+        .error-icon { color: var(--error); }
+        .error-text h1 { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="window">
+        <div class="titlebar">
+            <span>403 Forbidden</span>
+            <div class="titlebar-buttons">
+                <div class="titlebar-btn">X</div>
+            </div>
+        </div>
+        <div class="window-body">
+            <div class="error-row">
+                <span class="error-icon">&#9888;</span>
+                <div class="error-text">
+                    <h1>Error 403 — Forbidden</h1>
+                    <p>You do not have permission to access this resource. Please check your credentials and try again.</p>
+                </div>
+            </div>
+            <div class="button-row">
+                <a class="btn" href="/">OK</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
