@@ -306,8 +306,6 @@
       overflow: hidden;
     }
 
-    .fish-link { margin-top: 10px; }
-
     .home-link {
       margin-top: 12px;
       font-size: 12px;
@@ -322,7 +320,6 @@
       <span>Fish of the Day</span>
       <div class="titlebar-buttons">
         <div class="titlebar-btn">_</div>
-        <div class="titlebar-btn">&#9633;</div>
         <div class="titlebar-btn">X</div>
       </div>
     </div>
@@ -336,9 +333,6 @@
       <div class="separator"></div>
       <dl class="fish-details" id="fishDetails"></dl>
       <div class="fish-desc" id="fishDesc"></div>
-      <div class="fish-link">
-        <a class="btn" id="wikiLink" href="#" target="_blank" rel="noopener">Wikipedia</a>
-      </div>
     </div>
     <div class="statusbar">
       <div class="statusbar-section" id="statusText">Powered by Wikipedia</div>
@@ -373,7 +367,6 @@
 
     var sciName = f[1] + " " + f[2];
     var wikiTitle = f[1] + "_" + f[2];
-    wikiLink.href = "https://en.wikipedia.org/wiki/" + wikiTitle;
 
     /* ── Image loading ───────────────────────────────────── */
     /* Cache key matches the <head> preload script */
