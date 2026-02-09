@@ -70,6 +70,10 @@
       color: #57606a;
     }
 
+    #sysInfoBody .section-title { margin: 10px 0 4px; }
+    #sysInfoBody .section-title:first-child { margin-top: 0; }
+    #sysInfoBody .sunken { margin-bottom: 0; }
+
     .sysinfo-table {
       width: 100%;
       border-collapse: collapse;
@@ -128,7 +132,7 @@
       </div>
       <div class="window-body" id="sysInfoBody"></div>
       <div class="statusbar">
-        <div class="statusbar-section" id="sysUserAgent" style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+        <div class="statusbar-section">System Properties</div>
       </div>
     </div>
 
@@ -320,39 +324,37 @@
       if (browser) html += '<div class="sysinfo-browser">' + browser + '</div>';
       html += '</div><div class="separator"></div>';
 
-      // --- Sync sections ---
-      html += makeSection('System', [
+      // --- System (sync rows + async storage appended later) ---
+      var sysRows = [
         ['Platform', nav.platform || null],
         ['CPU Cores', nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : null],
         ['Memory', nav.deviceMemory ? nav.deviceMemory + ' GB (approximate)' : null],
-        ['Language', nav.language || null],
-        ['Online', nav.onLine !== undefined ? (nav.onLine ? 'Yes' : 'No') : null],
-        ['Cookies', nav.cookieEnabled !== undefined ? (nav.cookieEnabled ? 'Enabled' : 'Disabled') : null]
-      ]);
+        ['Language', nav.language || null]
+      ];
+
+      html += makeSection('System', sysRows);
 
       html += makeSection('Display', [
         ['Resolution', scr.width + ' \u00d7 ' + scr.height],
         ['Color Depth', scr.colorDepth + '-bit'],
-        ['Pixel Ratio', window.devicePixelRatio + 'x' + (window.devicePixelRatio > 1 ? ' (HiDPI)' : '')],
-        ['Touch', nav.maxTouchPoints > 0 ? 'Yes (' + nav.maxTouchPoints + ' points)' : 'No']
+        ['Pixel Ratio', window.devicePixelRatio + 'x' + (window.devicePixelRatio > 1 ? ' (HiDPI)' : '')]
       ]);
 
       // Placeholders for async sections
-      html += '<div id="sysStorageSection"></div>';
       html += '<div id="sysNetSection"></div>';
       html += '<div id="sysBatSection"></div>';
 
       body.innerHTML = html;
 
-      // --- Async: Storage ---
+      // --- Async: Storage (append into System table) ---
       if (nav.storage && nav.storage.estimate) {
         nav.storage.estimate().then(function (est) {
-          var rows = [];
+          var table = body.querySelector('.sysinfo-table');
+          if (!table) return;
           var q = formatBytes(est.quota);
           var u = formatBytes(est.usage);
-          if (q) rows.push(['Quota', q]);
-          if (u) rows.push(['Used', u]);
-          document.getElementById('sysStorageSection').innerHTML = makeSection('Storage', rows);
+          if (q) table.innerHTML += '<tr><th>Storage</th><td>' + q + '</td></tr>';
+          if (u) table.innerHTML += '<tr><th>Used</th><td>' + u + '</td></tr>';
         });
       }
 
@@ -369,15 +371,12 @@
       // --- Async: Battery ---
       if (nav.getBattery) {
         nav.getBattery().then(function (bat) {
-          var batRows = [];
-          batRows.push(['Level', Math.round(bat.level * 100) + '%']);
-          batRows.push(['Charging', bat.charging ? 'Yes' : 'No']);
-          document.getElementById('sysBatSection').innerHTML = makeSection('Battery', batRows);
+          document.getElementById('sysBatSection').innerHTML = makeSection('Battery', [
+            ['Level', Math.round(bat.level * 100) + '%'],
+            ['Charging', bat.charging ? 'Yes' : 'No']
+          ]);
         });
       }
-
-      // User agent in status bar
-      document.getElementById('sysUserAgent').textContent = ua;
     }
 
     // Play click sound on button interactions
