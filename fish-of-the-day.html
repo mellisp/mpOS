@@ -6,139 +6,12 @@
   <title>Fish of the Day</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/theme.css">
-  <link rel="preconnect" href="https://upload.wikimedia.org">
+  <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin>
   <link rel="preconnect" href="https://en.wikipedia.org">
-  <script>
-    /* Preload cached image immediately so browser starts fetching in parallel with CSS */
-    (function(){var d=new Date(),k="fotd-img-"+d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(),u=localStorage.getItem(k);if(u){var l=document.createElement("link");l.rel="preload";l.as="image";l.href=u;document.head.appendChild(l)}})();
-  </script>
-  <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .window { width: 480px; max-width: 95vw; }
-
-    .photo-frame {
-      background: #1a1a2e;
-      border: 2px solid;
-      border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-      box-shadow: inset 1px 1px 0 var(--dk-shadow);
-      min-height: 160px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    .photo-frame img {
-      width: 100%;
-      display: block;
-    }
-
-    .photo-frame .placeholder {
-      color: var(--shadow);
-      font-size: 12px;
-      padding: 24px;
-      text-align: center;
-    }
-
-    .fish-name {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .fish-scientific {
-      font-style: italic;
-      color: #57606a;
-      font-size: 13px;
-      margin-top: 2px;
-    }
-
-    .fish-details {
-      margin-top: 8px;
-      font-size: 12px;
-      line-height: 1.8;
-    }
-
-    .fish-details dt {
-      display: inline;
-      font-weight: bold;
-    }
-
-    .fish-details dt::after { content: ": "; }
-
-    .fish-details dd {
-      display: inline;
-      margin: 0;
-    }
-
-    .fish-details dd::after {
-      content: "";
-      display: block;
-    }
-
-    .fish-desc {
-      font-size: 12px;
-      color: #57606a;
-      line-height: 1.5;
-      margin-top: 6px;
-      max-height: 4.5em;
-      overflow: hidden;
-    }
-
-    .fish-link { margin-top: 10px; }
-
-    .home-link {
-      margin-top: 12px;
-      font-size: 12px;
-    }
-
-    .home-link a { color: var(--silver); }
-  </style>
-</head>
-<body>
-  <div class="window">
-    <div class="titlebar">
-      <span>Fish of the Day</span>
-      <div class="titlebar-buttons">
-        <div class="titlebar-btn">_</div>
-        <div class="titlebar-btn">&#9633;</div>
-        <div class="titlebar-btn">X</div>
-      </div>
-    </div>
-    <div class="window-body">
-      <div class="photo-frame">
-        <img id="fishPhoto" alt="" style="display:none">
-        <div class="placeholder" id="photoPlaceholder">Loading image...</div>
-      </div>
-      <div class="fish-name" id="fishName"></div>
-      <div class="fish-scientific" id="fishScientific"></div>
-      <div class="separator"></div>
-      <dl class="fish-details" id="fishDetails"></dl>
-      <div class="fish-desc" id="fishDesc"></div>
-      <div class="fish-link">
-        <a class="btn" id="wikiLink" href="#" target="_blank" rel="noopener">Wikipedia</a>
-      </div>
-    </div>
-    <div class="statusbar">
-      <div class="statusbar-section" id="statusText">Powered by Wikipedia</div>
-      <div class="statusbar-section" style="flex:0;min-width:130px;text-align:right;" id="dateText"></div>
-    </div>
-  </div>
-
-  <div class="home-link"><a href="/">&laquo; Back</a></div>
-
   <script>
     /* ── Curated fish dataset ─────────────────────────────────
        Each entry: [common name, Genus, species, Family, Order,
-                    max length cm, habitat, depth range] */
+                    max length cm, habitat, depth range, pre-baked image URL?] */
     var FISH = [
       ["Clown Anemonefish","Amphiprion","ocellaris","Pomacentridae","Perciformes",11,"Marine","1–15 m","https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Clown_fish_in_the_Andaman_Coral_Reef.jpg/480px-Clown_fish_in_the_Andaman_Coral_Reef.jpg"],
       ["Blue Tang","Paracanthurus","hepatus","Acanthuridae","Perciformes",31,"Marine","2–40 m","https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Paletten-Doktorfisch_M%C3%BCnster.JPG/480px-Paletten-Doktorfisch_M%C3%BCnster.JPG"],
@@ -322,21 +195,6 @@
       ["Green Chromis","Chromis","viridis","Pomacentridae","Perciformes",10,"Marine","1–12 m","https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Blue-green_Chromis%2C_Kiribati_imported_from_iNaturalist_photo_345755248.jpg/480px-Blue-green_Chromis%2C_Kiribati_imported_from_iNaturalist_photo_345755248.jpg"]
     ];
 
-    /* ── DOM refs ─────────────────────────────────────────── */
-    var fishPhoto = document.getElementById("fishPhoto");
-    var photoPlaceholder = document.getElementById("photoPlaceholder");
-    var fishName = document.getElementById("fishName");
-    var fishScientific = document.getElementById("fishScientific");
-    var fishDetails = document.getElementById("fishDetails");
-    var fishDesc = document.getElementById("fishDesc");
-    var wikiLink = document.getElementById("wikiLink");
-    var statusText = document.getElementById("statusText");
-    var dateText = document.getElementById("dateText");
-
-    dateText.textContent = new Date().toLocaleDateString("en-US", {
-      year: "numeric", month: "long", day: "numeric"
-    });
-
     /* ── Deterministic FNV-1a hash ───────────────────────── */
     function fnv(str) {
       var h = 0x811c9dc5;
@@ -352,9 +210,147 @@
       return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
     }
 
-    /* ── Pick today's fish ───────────────────────────────── */
-    var idx = fnv(todayKey()) % FISH.length;
-    var f = FISH[idx];
+    /* ── Pick today's fish and preload image immediately ── */
+    var FISH_TODAY = FISH[fnv(todayKey()) % FISH.length];
+    (function(){
+      var k = "fotd-img-" + todayKey();
+      var u = FISH_TODAY[8] || localStorage.getItem(k);
+      if (u) {
+        var l = document.createElement("link");
+        l.rel = "preload";
+        l.as = "image";
+        l.fetchPriority = "high";
+        l.href = u;
+        document.head.appendChild(l);
+      }
+    })();
+  </script>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .window { width: 480px; max-width: 95vw; }
+
+    .photo-frame {
+      background: #1a1a2e;
+      border: 2px solid;
+      border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+      box-shadow: inset 1px 1px 0 var(--dk-shadow);
+      min-height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .photo-frame img {
+      width: 100%;
+      display: block;
+    }
+
+    .photo-frame .placeholder {
+      color: var(--shadow);
+      font-size: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .fish-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .fish-scientific {
+      font-style: italic;
+      color: #57606a;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .fish-details {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .fish-details dt {
+      display: inline;
+      font-weight: bold;
+    }
+
+    .fish-details dt::after { content: ": "; }
+
+    .fish-details dd {
+      display: inline;
+      margin: 0;
+    }
+
+    .fish-details dd::after {
+      content: "";
+      display: block;
+    }
+
+    .fish-desc {
+      font-size: 12px;
+      color: #57606a;
+      line-height: 1.5;
+      margin-top: 6px;
+      max-height: 4.5em;
+      overflow: hidden;
+    }
+
+    .fish-link { margin-top: 10px; }
+
+    .home-link {
+      margin-top: 12px;
+      font-size: 12px;
+    }
+
+    .home-link a { color: var(--silver); }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <span>Fish of the Day</span>
+      <div class="titlebar-buttons">
+        <div class="titlebar-btn">_</div>
+        <div class="titlebar-btn">&#9633;</div>
+        <div class="titlebar-btn">X</div>
+      </div>
+    </div>
+    <div class="window-body">
+      <div class="photo-frame">
+        <img id="fishPhoto" alt="" decoding="async" style="display:none">
+        <div class="placeholder" id="photoPlaceholder">Loading image...</div>
+      </div>
+      <div class="fish-name" id="fishName"></div>
+      <div class="fish-scientific" id="fishScientific"></div>
+      <div class="separator"></div>
+      <dl class="fish-details" id="fishDetails"></dl>
+      <div class="fish-desc" id="fishDesc"></div>
+      <div class="fish-link">
+        <a class="btn" id="wikiLink" href="#" target="_blank" rel="noopener">Wikipedia</a>
+      </div>
+    </div>
+    <div class="statusbar">
+      <div class="statusbar-section" id="statusText">Powered by Wikipedia</div>
+      <div class="statusbar-section" style="flex:0;min-width:130px;text-align:right;" id="dateText"></div>
+    </div>
+  </div>
+
+  <div class="home-link"><a href="/">&laquo; Back</a></div>
+
+  <script>
+    /* ── Today's fish (computed in <head> for early image preload) */
+    var f = FISH_TODAY;
 
     fishName.textContent = f[0];
     fishScientific.textContent = f[1] + " " + f[2];
