@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fish of the Day</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/theme.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .window { width: 480px; max-width: 95vw; }
+
+    .photo-frame {
+      background: #1a1a2e;
+      border: 2px solid;
+      border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+      box-shadow: inset 1px 1px 0 var(--dk-shadow);
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .photo-frame img {
+      width: 100%;
+      display: block;
+    }
+
+    .photo-frame .placeholder {
+      color: var(--shadow);
+      font-size: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .fish-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .fish-scientific {
+      font-style: italic;
+      color: #57606a;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .fish-details {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .fish-details dt {
+      display: inline;
+      font-weight: bold;
+    }
+
+    .fish-details dt::after { content: ": "; }
+
+    .fish-details dd {
+      display: inline;
+      margin: 0;
+    }
+
+    .fish-details dd::after {
+      content: "";
+      display: block;
+    }
+
+    .fish-desc {
+      font-size: 12px;
+      color: #57606a;
+      line-height: 1.5;
+      margin-top: 6px;
+      max-height: 4.5em;
+      overflow: hidden;
+    }
+
+    .fish-link { margin-top: 10px; }
+
+    .loading-msg, .error-msg {
+      padding: 16px 0;
+      text-align: center;
+    }
+
+    .loading-msg { color: #57606a; }
+
+    .home-link {
+      margin-top: 12px;
+      font-size: 12px;
+    }
+
+    .home-link a { color: var(--silver); }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <span>Fish of the Day</span>
+      <div class="titlebar-buttons">
+        <div class="titlebar-btn">_</div>
+        <div class="titlebar-btn">&#9633;</div>
+        <div class="titlebar-btn">X</div>
+      </div>
+    </div>
+    <div class="window-body" id="content">
+      <div id="loading" class="loading-msg">Loading today's fish...</div>
+
+      <div id="fish" style="display:none">
+        <div class="photo-frame">
+          <img id="fishPhoto" alt="" style="display:none">
+          <div class="placeholder" id="photoPlaceholder">Loading image...</div>
+        </div>
+        <div class="fish-name" id="fishName"></div>
+        <div class="fish-scientific" id="fishScientific"></div>
+        <div class="separator"></div>
+        <dl class="fish-details" id="fishDetails"></dl>
+        <div class="fish-desc" id="fishDesc"></div>
+        <div class="fish-link">
+          <a class="btn" id="fishbaseLink" href="#" target="_blank" rel="noopener">View on FishBase</a>
+        </div>
+      </div>
+
+      <div id="error" style="display:none">
+        <div class="error-row">
+          <span class="error-icon">&#9888;</span>
+          <div class="error-text">
+            <strong>Could not load fish data</strong>
+            <span id="errorDetail">The FishBase API may be unavailable.</span>
+          </div>
+        </div>
+        <div class="button-row">
+          <button class="btn" id="retryBtn">Retry</button>
+        </div>
+      </div>
+    </div>
+    <div class="statusbar">
+      <div class="statusbar-section" id="statusText">Connecting...</div>
+      <div class="statusbar-section" style="flex:0;min-width:130px;text-align:right;" id="dateText"></div>
+    </div>
+  </div>
+
+  <div class="home-link"><a href="/">&laquo; Back</a></div>
+
+  <script>
+    const API = "https://fishbase.ropensci.org";
+    const IMG = "https://www.fishbase.se/images/species/";
+
+    const loadingEl = document.getElementById("loading");
+    const fishEl = document.getElementById("fish");
+    const errorEl = document.getElementById("error");
+    const errorDetail = document.getElementById("errorDetail");
+    const retryBtn = document.getElementById("retryBtn");
+    const statusText = document.getElementById("statusText");
+    const dateText = document.getElementById("dateText");
+
+    const fishPhoto = document.getElementById("fishPhoto");
+    const photoPlaceholder = document.getElementById("photoPlaceholder");
+    const fishName = document.getElementById("fishName");
+    const fishScientific = document.getElementById("fishScientific");
+    const fishDetails = document.getElementById("fishDetails");
+    const fishDesc = document.getElementById("fishDesc");
+    const fishbaseLink = document.getElementById("fishbaseLink");
+
+    dateText.textContent = new Date().toLocaleDateString("en-US", {
+      year: "numeric", month: "long", day: "numeric"
+    });
+
+    /* Deterministic hash from date string */
+    function hashDate(str) {
+      let h = 0x811c9dc5;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 0x01000193);
+      }
+      return h >>> 0;
+    }
+
+    function todayKey() {
+      const d = new Date();
+      return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+    }
+
+    async function fetchJSON(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }
+
+    function addDetail(label, value) {
+      if (!value && value !== 0) return;
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      dd.textContent = value;
+      fishDetails.appendChild(dt);
+      fishDetails.appendChild(dd);
+    }
+
+    function habitatStr(sp) {
+      const parts = [];
+      if (sp.Fresh === -1) parts.push("Freshwater");
+      if (sp.Brack === -1) parts.push("Brackish");
+      if (sp.Saltwater === -1) parts.push("Marine");
+      return parts.join(", ") || null;
+    }
+
+    function depthStr(sp) {
+      const s = sp.DepthRangeShallow;
+      const d = sp.DepthRangeDeep;
+      if (s != null && d != null) return s + "\u2013" + d + " m";
+      if (d != null) return "0\u2013" + d + " m";
+      return null;
+    }
+
+    function showFish(data) {
+      loadingEl.style.display = "none";
+      errorEl.style.display = "none";
+      fishEl.style.display = "block";
+
+      fishName.textContent = data.name || data.genus + " " + data.species;
+      fishScientific.textContent = data.genus + " " + data.species;
+
+      fishDetails.innerHTML = "";
+      addDetail("Family", data.family);
+      addDetail("Order", data.order);
+      if (data.maxLength) addDetail("Max Size", data.maxLength + " cm");
+      addDetail("Habitat", data.habitat);
+      addDetail("Depth", data.depth);
+      if (data.dempiag) addDetail("Environment", data.dempiag);
+      if (data.dangerous && data.dangerous !== "harmless")
+        addDetail("Danger", data.dangerous);
+      if (data.vulnerability)
+        addDetail("Vulnerability", data.vulnerability.toFixed(1) + " / 100");
+
+      if (data.comments) {
+        const txt = data.comments.length > 250
+          ? data.comments.slice(0, 247) + "..."
+          : data.comments;
+        fishDesc.textContent = txt;
+        fishDesc.style.display = "block";
+      } else {
+        fishDesc.style.display = "none";
+      }
+
+      fishbaseLink.href = "https://www.fishbase.se/summary/" + data.specCode + ".html";
+
+      if (data.image) {
+        fishPhoto.alt = (data.name || data.genus + " " + data.species);
+        fishPhoto.src = data.image;
+        fishPhoto.onload = function () {
+          fishPhoto.style.display = "block";
+          photoPlaceholder.style.display = "none";
+        };
+        fishPhoto.onerror = function () {
+          photoPlaceholder.textContent = "Photo unavailable";
+        };
+      } else {
+        photoPlaceholder.textContent = "No photo available";
+      }
+
+      statusText.textContent = "Powered by FishBase";
+    }
+
+    function showError(msg) {
+      loadingEl.style.display = "none";
+      fishEl.style.display = "none";
+      errorEl.style.display = "block";
+      errorDetail.textContent = msg || "The FishBase API may be unavailable.";
+      statusText.textContent = "Error";
+    }
+
+    async function fetchFromAPI() {
+      statusText.textContent = "Fetching photo index...";
+      const countRes = await fetchJSON(API + "/picturesmain?limit=1&fields=SpecCode");
+      const total = countRes.count;
+      if (!total) throw new Error("Empty photo database");
+
+      const offset = hashDate(todayKey()) % total;
+
+      statusText.textContent = "Picking today's fish...";
+      const photoRes = await fetchJSON(
+        API + "/picturesmain?limit=1&offset=" + offset + "&fields=SpecCode,PicName"
+      );
+      const photo = photoRes.data && photoRes.data[0];
+      if (!photo) throw new Error("No photo at offset " + offset);
+
+      statusText.textContent = "Loading species data...";
+      const specRes = await fetchJSON(
+        API + "/species?SpecCode=" + photo.SpecCode +
+        "&fields=Genus,Species,FBname,Family,Order,Length,Fresh,Brack,Saltwater," +
+        "DemersPelag,DepthRangeShallow,DepthRangeDeep,Vulnerability,Dangerous,Comments"
+      );
+      const sp = specRes.data && specRes.data[0];
+      if (!sp) throw new Error("No species data for SpecCode " + photo.SpecCode);
+
+      return {
+        name: sp.FBname || "",
+        genus: sp.Genus,
+        species: sp.Species,
+        family: sp.Family,
+        order: sp.Order,
+        maxLength: sp.Length,
+        habitat: habitatStr(sp),
+        depth: depthStr(sp),
+        dempiag: sp.DemersPelag,
+        dangerous: sp.Dangerous,
+        vulnerability: sp.Vulnerability,
+        comments: sp.Comments,
+        image: photo.PicName ? IMG + photo.PicName : null,
+        specCode: photo.SpecCode
+      };
+    }
+
+    async function fetchFromStatic() {
+      const res = await fetch("data/fish.json");
+      if (!res.ok) throw new Error("No local data");
+      const all = await res.json();
+      if (!all.length) throw new Error("Empty local data");
+      return all[hashDate(todayKey()) % all.length];
+    }
+
+    async function loadFish() {
+      loadingEl.style.display = "block";
+      fishEl.style.display = "none";
+      errorEl.style.display = "none";
+      statusText.textContent = "Connecting...";
+
+      /* Check localStorage cache */
+      const key = "fotd-" + todayKey();
+      const cached = localStorage.getItem(key);
+      if (cached) {
+        try {
+          showFish(JSON.parse(cached));
+          return;
+        } catch (e) { /* ignore bad cache */ }
+      }
+
+      try {
+        const result = await fetchFromAPI();
+        localStorage.setItem(key, JSON.stringify(result));
+        showFish(result);
+      } catch (apiErr) {
+        /* API failed — try static JSON fallback */
+        try {
+          statusText.textContent = "Trying local data...";
+          const result = await fetchFromStatic();
+          localStorage.setItem(key, JSON.stringify(result));
+          showFish(result);
+        } catch (fallbackErr) {
+          showError(apiErr.message);
+        }
+      }
+    }
+
+    retryBtn.addEventListener("click", loadFish);
+    loadFish();
+  </script>
+</body>
+</html>
