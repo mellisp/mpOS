@@ -499,7 +499,7 @@
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="fishStatusText">Powered by Wikipedia</div>
-        <div class="statusbar-section" style="flex:0;min-width:130px;text-align:right;" id="fishDateText"></div>
+        <div class="statusbar-section" style="flex:0;text-align:right;white-space:nowrap;" id="fishDateText"></div>
       </div>
     </div>
 
@@ -728,7 +728,7 @@
       fishScientific.textContent = f[1] + " " + f[2];
 
       var now = new Date();
-      fishDateText.textContent = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      fishDateText.textContent = now.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 
       function addDetail(label, value) {
         if (!value && value !== 0) return;
