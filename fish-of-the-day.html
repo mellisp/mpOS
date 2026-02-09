@@ -6,6 +6,12 @@
   <title>Fish of the Day</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/theme.css">
+  <link rel="preconnect" href="https://upload.wikimedia.org">
+  <link rel="preconnect" href="https://en.wikipedia.org">
+  <script>
+    /* Preload cached image immediately so browser starts fetching in parallel with CSS */
+    (function(){var d=new Date(),k="fotd-img-"+d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(),u=localStorage.getItem(k);if(u){var l=document.createElement("link");l.rel="preload";l.as="image";l.href=u;document.head.appendChild(l)}})();
+  </script>
   <style>
     body {
       min-height: 100vh;
@@ -379,109 +385,40 @@
     fbLink.href = "https://www.fishbase.se/search.php?lang=English&genusname=" +
       encodeURIComponent(f[1]) + "&speciesname=" + encodeURIComponent(f[2]);
 
-    var FB_API = "https://fishbase.ropensci.org";
-    var FB_IMG = "https://www.fishbase.se/images/species/";
-    var cacheKey = "fotd-" + todayKey();
+    /* ── Image loading ───────────────────────────────────── */
+    /* Cache key matches the <head> preload script */
+    var imgKey = "fotd-img-" + todayKey();
 
-    /* ── Try FishBase API first for richer data + photo ──── */
-    (function tryFishBase() {
-      var cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        try {
-          var d = JSON.parse(cached);
-          if (d.fbImage) { showImage(d.fbImage); }
-          if (d.fbDesc) { showDesc(d.fbDesc); }
-          enrichDetails(d);
-          if (d.fbSpecCode) {
-            fbLink.href = "https://www.fishbase.se/summary/" + d.fbSpecCode + ".html";
-          }
-          return;
-        } catch (e) { /* ignore bad cache */ }
-      }
-
-      /* Race: FishBase species lookup (may fail due to CORS) */
-      var controller = new AbortController();
-      var timeout = setTimeout(function () { controller.abort(); }, 5000);
-
-      fetch(FB_API + "/species?Genus=" + f[1] + "&Species=" + f[2] +
-        "&fields=SpecCode,Vulnerability,Dangerous,DemersPelag,DepthRangeShallow," +
-        "DepthRangeDeep,Fresh,Brack,Saltwater,Comments,Length",
-        { signal: controller.signal })
-        .then(function (r) { clearTimeout(timeout); if (!r.ok) throw 0; return r.json(); })
-        .then(function (body) {
-          var sp = body.data && body.data[0];
-          if (!sp) return Promise.reject(0);
-          var result = {
-            fbSpecCode: sp.SpecCode,
-            vulnerability: sp.Vulnerability,
-            dangerous: sp.Dangerous,
-            environment: sp.DemersPelag,
-            fbDesc: sp.Comments
-          };
-          /* Update FishBase link to direct SpecCode URL */
-          fbLink.href = "https://www.fishbase.se/summary/" + sp.SpecCode + ".html";
-          enrichDetails(result);
-          if (sp.Comments) showDesc(sp.Comments);
-
-          /* Try to get a FishBase photo too */
-          return fetch(FB_API + "/picturesmain?SpecCode=" + sp.SpecCode +
-            "&limit=1&fields=PicName", { signal: controller.signal })
-            .then(function (r2) { return r2.ok ? r2.json() : null; })
-            .then(function (pb) {
-              var pic = pb && pb.data && pb.data[0];
-              if (pic && pic.PicName) {
-                result.fbImage = FB_IMG + pic.PicName;
-                showImage(result.fbImage);
-              }
-              localStorage.setItem(cacheKey, JSON.stringify(result));
-            });
-        })
-        .catch(function () {
-          clearTimeout(timeout);
-          /* FishBase unavailable — Wikipedia handles image below */
-        });
-    })();
-
-    /* ── Fetch image from Wikipedia REST API (always runs) ── */
-    var imgCacheKey = "fotd-img-" + wikiTitle;
-    var cachedImg = localStorage.getItem(imgCacheKey);
-
-    if (cachedImg) {
-      showImageIfNeeded(cachedImg);
-    } else {
-      fetchWikiSummary(wikiTitle)
-        .catch(function () {
-          return fetchWikiSummary(f[0].replace(/ /g, "_"));
-        })
-        .catch(function () {
-          if (!fishPhoto.src) photoPlaceholder.textContent = "No photo available";
-        });
+    /* Priority 1: pre-baked URL in dataset (index 8), zero network */
+    if (f[8]) {
+      showImage(f[8]);
+    }
+    /* Priority 2: cached URL from a previous Wikipedia fetch */
+    else if (localStorage.getItem(imgKey)) {
+      showImage(localStorage.getItem(imgKey));
+    }
+    /* Priority 3: fetch from Wikipedia REST API (one call, then cached) */
+    else {
+      fetchWikiImage(wikiTitle)
+        .catch(function () { return fetchWikiImage(f[0].replace(/ /g, "_")); })
+        .catch(function () { photoPlaceholder.textContent = "No photo available"; });
     }
 
-    function fetchWikiSummary(title) {
+    function fetchWikiImage(title) {
       return fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + title)
-        .then(function (res) {
-          if (!res.ok) throw new Error(res.status);
-          return res.json();
-        })
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
         .then(function (data) {
           var src = data.thumbnail && data.thumbnail.source;
-          if (src) {
-            src = src.replace(/\/\d+px-/, "/480px-");
-            localStorage.setItem(imgCacheKey, src);
-            showImageIfNeeded(src);
-          }
+          if (!src) throw 0;
+          src = src.replace(/\/\d+px-/, "/480px-");
+          localStorage.setItem(imgKey, src);
+          showImage(src);
           if (data.extract && !fishDesc.textContent) {
-            showDesc(data.extract);
+            fishDesc.textContent = data.extract.length > 250
+              ? data.extract.slice(0, 247) + "..." : data.extract;
+            fishDesc.style.display = "block";
           }
-          if (!src) throw new Error("no image");
         });
-    }
-
-    /* Only show Wikipedia image if FishBase hasn't loaded one already */
-    function showImageIfNeeded(src) {
-      if (fishPhoto.src && fishPhoto.style.display !== "none") return;
-      showImage(src);
     }
 
     function showImage(src) {
@@ -494,21 +431,6 @@
       fishPhoto.onerror = function () {
         photoPlaceholder.textContent = "Photo unavailable";
       };
-    }
-
-    function showDesc(text) {
-      if (!text) return;
-      fishDesc.textContent = text.length > 250 ? text.slice(0, 247) + "..." : text;
-      fishDesc.style.display = "block";
-    }
-
-    function enrichDetails(d) {
-      if (d.environment) addDetail("Environment", d.environment);
-      if (d.dangerous && d.dangerous !== "harmless")
-        addDetail("Danger", d.dangerous);
-      if (d.vulnerability)
-        addDetail("Vulnerability", (typeof d.vulnerability === "number"
-          ? d.vulnerability.toFixed(1) : d.vulnerability) + " / 100");
     }
   </script>
 </body>
