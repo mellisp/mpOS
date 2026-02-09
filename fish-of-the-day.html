@@ -23,7 +23,7 @@
       border: 2px solid;
       border-color: var(--shadow) var(--white) var(--white) var(--shadow);
       box-shadow: inset 1px 1px 0 var(--dk-shadow);
-      min-height: 120px;
+      min-height: 160px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -88,13 +88,7 @@
     }
 
     .fish-link { margin-top: 10px; }
-
-    .loading-msg, .error-msg {
-      padding: 16px 0;
-      text-align: center;
-    }
-
-    .loading-msg { color: #57606a; }
+    .fish-link .btn { margin-right: 6px; }
 
     .home-link {
       margin-top: 12px;
@@ -114,39 +108,23 @@
         <div class="titlebar-btn">X</div>
       </div>
     </div>
-    <div class="window-body" id="content">
-      <div id="loading" class="loading-msg">Loading today's fish...</div>
-
-      <div id="fish" style="display:none">
-        <div class="photo-frame">
-          <img id="fishPhoto" alt="" style="display:none">
-          <div class="placeholder" id="photoPlaceholder">Loading image...</div>
-        </div>
-        <div class="fish-name" id="fishName"></div>
-        <div class="fish-scientific" id="fishScientific"></div>
-        <div class="separator"></div>
-        <dl class="fish-details" id="fishDetails"></dl>
-        <div class="fish-desc" id="fishDesc"></div>
-        <div class="fish-link">
-          <a class="btn" id="fishbaseLink" href="#" target="_blank" rel="noopener">View on FishBase</a>
-        </div>
+    <div class="window-body">
+      <div class="photo-frame">
+        <img id="fishPhoto" alt="" style="display:none">
+        <div class="placeholder" id="photoPlaceholder">Loading image...</div>
       </div>
-
-      <div id="error" style="display:none">
-        <div class="error-row">
-          <span class="error-icon">&#9888;</span>
-          <div class="error-text">
-            <strong>Could not load fish data</strong>
-            <span id="errorDetail">The FishBase API may be unavailable.</span>
-          </div>
-        </div>
-        <div class="button-row">
-          <button class="btn" id="retryBtn">Retry</button>
-        </div>
+      <div class="fish-name" id="fishName"></div>
+      <div class="fish-scientific" id="fishScientific"></div>
+      <div class="separator"></div>
+      <dl class="fish-details" id="fishDetails"></dl>
+      <div class="fish-desc" id="fishDesc"></div>
+      <div class="fish-link">
+        <a class="btn" id="wikiLink" href="#" target="_blank" rel="noopener">Wikipedia</a>
+        <a class="btn" id="fbLink" href="#" target="_blank" rel="noopener">FishBase</a>
       </div>
     </div>
     <div class="statusbar">
-      <div class="statusbar-section" id="statusText">Connecting...</div>
+      <div class="statusbar-section" id="statusText">Powered by FishBase</div>
       <div class="statusbar-section" style="flex:0;min-width:130px;text-align:right;" id="dateText"></div>
     </div>
   </div>
@@ -154,33 +132,213 @@
   <div class="home-link"><a href="/">&laquo; Back</a></div>
 
   <script>
-    const API = "https://fishbase.ropensci.org";
-    const IMG = "https://www.fishbase.se/images/species/";
+    /* ── Curated fish dataset ─────────────────────────────────
+       Each entry: [common name, Genus, species, Family, Order,
+                    max length cm, habitat, depth range] */
+    var FISH = [
+      ["Clown Anemonefish","Amphiprion","ocellaris","Pomacentridae","Perciformes",11,"Marine","1\u201315 m"],
+      ["Blue Tang","Paracanthurus","hepatus","Acanthuridae","Perciformes",31,"Marine","2\u201340 m"],
+      ["Atlantic Salmon","Salmo","salar","Salmonidae","Salmoniformes",150,"Freshwater, Marine","0\u2013210 m"],
+      ["Rainbow Trout","Oncorhynchus","mykiss","Salmonidae","Salmoniformes",120,"Freshwater","0\u2013200 m"],
+      ["Common Carp","Cyprinus","carpio","Cyprinidae","Cypriniformes",120,"Freshwater","0\u201330 m"],
+      ["Goldfish","Carassius","auratus","Cyprinidae","Cypriniformes",41,"Freshwater","0\u201320 m"],
+      ["Siamese Fighting Fish","Betta","splendens","Osphronemidae","Anabantiformes",7,"Freshwater","0\u20131 m"],
+      ["Northern Pike","Esox","lucius","Esocidae","Esociformes",150,"Freshwater","0\u201330 m"],
+      ["Largemouth Bass","Micropterus","salmoides","Centrarchidae","Perciformes",97,"Freshwater","0\u201320 m"],
+      ["European Perch","Perca","fluviatilis","Percidae","Perciformes",60,"Freshwater","1\u201330 m"],
+      ["Whale Shark","Rhincodon","typus","Rhincodontidae","Orectolobiformes",1200,"Marine","0\u20131928 m"],
+      ["Great White Shark","Carcharodon","carcharias","Lamnidae","Lamniformes",600,"Marine","0\u20131200 m"],
+      ["Ocean Sunfish","Mola","mola","Molidae","Tetraodontiformes",333,"Marine","30\u2013480 m"],
+      ["Atlantic Bluefin Tuna","Thunnus","thynnus","Scombridae","Scombriformes",458,"Marine","0\u20131000 m"],
+      ["Yellowfin Tuna","Thunnus","albacares","Scombridae","Scombriformes",239,"Marine","1\u2013250 m"],
+      ["Atlantic Cod","Gadus","morhua","Gadidae","Gadiformes",200,"Marine","0\u2013600 m"],
+      ["Spotted Seahorse","Hippocampus","kuda","Syngnathidae","Syngnathiformes",17,"Marine","0\u201355 m"],
+      ["Red Lionfish","Pterois","volitans","Scorpaenidae","Scorpaeniformes",38,"Marine","2\u201355 m"],
+      ["Mandarinfish","Synchiropus","splendidus","Callionymidae","Perciformes",6,"Marine","1\u201318 m"],
+      ["Atlantic Mackerel","Scomber","scombrus","Scombridae","Scombriformes",60,"Marine","0\u2013300 m"],
+      ["European Eel","Anguilla","anguilla","Anguillidae","Anguilliformes",133,"Freshwater, Marine","0\u2013700 m"],
+      ["Giant Manta Ray","Mobula","birostris","Mobulidae","Myliobatiformes",910,"Marine","0\u2013120 m"],
+      ["Sockeye Salmon","Oncorhynchus","nerka","Salmonidae","Salmoniformes",84,"Freshwater, Marine","0\u2013250 m"],
+      ["Moorish Idol","Zanclus","cornutus","Zanclidae","Perciformes",23,"Marine","3\u2013182 m"],
+      ["Atlantic Herring","Clupea","harengus","Clupeidae","Clupeiformes",45,"Marine","0\u2013364 m"],
+      ["Zebrafish","Danio","rerio","Cyprinidae","Cypriniformes",4,"Freshwater","surface"],
+      ["Nile Tilapia","Oreochromis","niloticus","Cichlidae","Cichliformes",60,"Freshwater","0\u201320 m"],
+      ["Atlantic Halibut","Hippoglossus","hippoglossus","Pleuronectidae","Pleuronectiformes",470,"Marine","0\u20132000 m"],
+      ["Humphead Wrasse","Cheilinus","undulatus","Labridae","Perciformes",229,"Marine","1\u2013100 m"],
+      ["Pufferfish","Tetraodon","nigroviridis","Tetraodontidae","Tetraodontiformes",17,"Freshwater, Brackish","surface"],
+      ["Striped Bass","Morone","saxatilis","Moronidae","Perciformes",200,"Freshwater, Marine","0\u201330 m"],
+      ["Bluegill","Lepomis","macrochirus","Centrarchidae","Perciformes",41,"Freshwater","0\u201316 m"],
+      ["King Mackerel","Scomberomorus","cavalla","Scombridae","Scombriformes",184,"Marine","5\u201340 m"],
+      ["Yellow Perch","Perca","flavescens","Percidae","Perciformes",50,"Freshwater","0\u201315 m"],
+      ["Mahi-mahi","Coryphaena","hippurus","Coryphaenidae","Perciformes",210,"Marine","0\u201385 m"],
+      ["Swordfish","Xiphias","gladius","Xiphiidae","Istiophoriformes",455,"Marine","0\u2013800 m"],
+      ["Common Sole","Solea","solea","Soleidae","Pleuronectiformes",70,"Marine","0\u2013150 m"],
+      ["Walleye","Sander","vitreus","Percidae","Perciformes",107,"Freshwater","0\u201330 m"],
+      ["Pumpkinseed","Lepomis","gibbosus","Centrarchidae","Perciformes",40,"Freshwater","0\u201312 m"],
+      ["Tiger Barb","Puntigrus","tetrazona","Cyprinidae","Cypriniformes",7,"Freshwater","surface"],
+      ["Oscar","Astronotus","ocellatus","Cichlidae","Cichliformes",45,"Freshwater","0\u20132 m"],
+      ["Discus","Symphysodon","discus","Cichlidae","Cichliformes",20,"Freshwater","1\u20134 m"],
+      ["Guppy","Poecilia","reticulata","Poeciliidae","Cyprinodontiformes",5,"Freshwater","surface"],
+      ["Neon Tetra","Paracheirodon","innesi","Characidae","Characiformes",4,"Freshwater","surface"],
+      ["Piranha","Pygocentrus","nattereri","Serrasalmidae","Characiformes",33,"Freshwater","0\u20135 m"],
+      ["Electric Eel","Electrophorus","electricus","Gymnotidae","Gymnotiformes",250,"Freshwater","surface"],
+      ["Arapaima","Arapaima","gigas","Arapaimidae","Osteoglossiformes",450,"Freshwater","surface"],
+      ["Tiger Shark","Galeocerdo","cuvier","Carcharhinidae","Carcharhiniformes",550,"Marine","0\u2013371 m"],
+      ["Hammerhead Shark","Sphyrna","mokarran","Sphyrnidae","Carcharhiniformes",610,"Marine","1\u2013300 m"],
+      ["Basking Shark","Cetorhinus","maximus","Cetorhinidae","Lamniformes",1520,"Marine","0\u20132000 m"],
+      ["Blue Marlin","Makaira","nigricans","Istiophoridae","Istiophoriformes",500,"Marine","0\u20131000 m"],
+      ["Sailfish","Istiophorus","platypterus","Istiophoridae","Istiophoriformes",315,"Marine","0\u2013200 m"],
+      ["Barramundi","Lates","calcarifer","Latidae","Perciformes",200,"Freshwater, Marine","10\u201340 m"],
+      ["Peacock Bass","Cichla","ocellaris","Cichlidae","Cichliformes",74,"Freshwater","0\u20135 m"],
+      ["Angelfish","Pterophyllum","scalare","Cichlidae","Cichliformes",15,"Freshwater","0\u20133 m"],
+      ["Clown Triggerfish","Balistoides","conspicillum","Balistidae","Tetraodontiformes",50,"Marine","1\u201375 m"],
+      ["Royal Gramma","Gramma","loreto","Grammatidae","Perciformes",8,"Marine","1\u201360 m"],
+      ["Flame Angelfish","Centropyge","loricula","Pomacanthidae","Perciformes",10,"Marine","15\u201360 m"],
+      ["Powder Blue Tang","Acanthurus","leucosternon","Acanthuridae","Perciformes",23,"Marine","0\u201325 m"],
+      ["Emperor Angelfish","Pomacanthus","imperator","Pomacanthidae","Perciformes",40,"Marine","1\u2013100 m"],
+      ["Copperband Butterflyfish","Chelmon","rostratus","Chaetodontidae","Perciformes",20,"Marine","1\u201325 m"],
+      ["Yellowtail Snapper","Ocyurus","chrysurus","Lutjanidae","Perciformes",86,"Marine","0\u2013180 m"],
+      ["Red Snapper","Lutjanus","campechanus","Lutjanidae","Perciformes",100,"Marine","10\u2013190 m"],
+      ["Grouper","Epinephelus","marginatus","Serranidae","Perciformes",150,"Marine","8\u2013300 m"],
+      ["Giant Trevally","Caranx","ignobilis","Carangidae","Carangiformes",170,"Marine","0\u2013100 m"],
+      ["Permit","Trachinotus","falcatus","Carangidae","Carangiformes",114,"Marine","0\u201335 m"],
+      ["Bonefish","Albula","vulpes","Albulidae","Albuliformes",104,"Marine","0\u201384 m"],
+      ["Tarpon","Megalops","atlanticus","Megalopidae","Elopiformes",250,"Marine, Brackish","0\u201330 m"],
+      ["Coelacanth","Latimeria","chalumnae","Latimeriidae","Coelacanthiformes",200,"Marine","150\u2013700 m"],
+      ["Spotted Garden Eel","Heteroconger","hassi","Congridae","Anguilliformes",40,"Marine","7\u201345 m"],
+      ["Leafy Seadragon","Phycodurus","eques","Syngnathidae","Syngnathiformes",35,"Marine","3\u201350 m"],
+      ["Weedy Seadragon","Phyllopteryx","taeniolatus","Syngnathidae","Syngnathiformes",46,"Marine","3\u201350 m"],
+      ["Flying Fish","Exocoetus","volitans","Exocoetidae","Beloniformes",30,"Marine","0\u201320 m"],
+      ["Atlantic Mudskipper","Periophthalmus","barbarus","Oxudercidae","Gobiiformes",16,"Brackish","0\u20132 m"],
+      ["Archerfish","Toxotes","jaculatrix","Toxotidae","Perciformes",27,"Freshwater, Brackish","surface"],
+      ["Parrotfish","Scarus","vetula","Scaridae","Perciformes",61,"Marine","3\u201325 m"],
+      ["Cleaner Wrasse","Labroides","dimidiatus","Labridae","Perciformes",14,"Marine","1\u201340 m"],
+      ["Yellowtail Amberjack","Seriola","lalandi","Carangidae","Carangiformes",250,"Marine","3\u2013825 m"],
+      ["Red Drum","Sciaenops","ocellatus","Sciaenidae","Perciformes",155,"Marine, Brackish","0\u201340 m"],
+      ["Spotted Trunkfish","Lactophrys","bicaudalis","Ostraciidae","Tetraodontiformes",48,"Marine","3\u201380 m"],
+      ["Longhorn Cowfish","Lactoria","cornuta","Ostraciidae","Tetraodontiformes",46,"Marine","1\u2013100 m"],
+      ["Porcupinefish","Diodon","hystrix","Diodontidae","Tetraodontiformes",91,"Marine","2\u201350 m"],
+      ["Atlantic Wolffish","Anarhichas","lupus","Anarhichadidae","Perciformes",150,"Marine","1\u2013500 m"],
+      ["Stoplight Parrotfish","Sparisoma","viride","Scaridae","Perciformes",64,"Marine","3\u201350 m"],
+      ["Bicolor Parrotfish","Cetoscarus","bicolor","Scaridae","Perciformes",90,"Marine","1\u201330 m"],
+      ["Harlequin Tuskfish","Choerodon","fasciatus","Labridae","Perciformes",25,"Marine","1\u201325 m"],
+      ["Foxface Rabbitfish","Siganus","vulpinus","Siganidae","Perciformes",24,"Marine","1\u201330 m"],
+      ["Picasso Triggerfish","Rhinecanthus","aculeatus","Balistidae","Tetraodontiformes",30,"Marine","0\u20134 m"],
+      ["Pacific Blue Tang","Acanthurus","coeruleus","Acanthuridae","Perciformes",39,"Marine","2\u201340 m"],
+      ["French Angelfish","Pomacanthus","paru","Pomacanthidae","Perciformes",41,"Marine","2\u2013100 m"],
+      ["Queen Angelfish","Holacanthus","ciliaris","Pomacanthidae","Perciformes",45,"Marine","1\u201370 m"],
+      ["Sergeant Major","Abudefduf","saxatilis","Pomacentridae","Perciformes",23,"Marine","0\u201315 m"],
+      ["Garibaldi","Hypsypops","rubicundus","Pomacentridae","Perciformes",36,"Marine","1\u201330 m"],
+      ["Tench","Tinca","tinca","Cyprinidae","Cypriniformes",84,"Freshwater","1\u201312 m"],
+      ["Wels Catfish","Silurus","glanis","Siluridae","Siluriformes",500,"Freshwater","2\u201380 m"],
+      ["Channel Catfish","Ictalurus","punctatus","Ictaluridae","Siluriformes",132,"Freshwater","0\u201320 m"],
+      ["Brook Trout","Salvelinus","fontinalis","Salmonidae","Salmoniformes",86,"Freshwater","0\u201320 m"],
+      ["Lake Trout","Salvelinus","namaycush","Salmonidae","Salmoniformes",150,"Freshwater","0\u2013200 m"],
+      ["Brown Trout","Salmo","trutta","Salmonidae","Salmoniformes",140,"Freshwater, Marine","0\u2013230 m"],
+      ["Chinook Salmon","Oncorhynchus","tshawytscha","Salmonidae","Salmoniformes",150,"Freshwater, Marine","0\u2013250 m"],
+      ["Pink Salmon","Oncorhynchus","gorbuscha","Salmonidae","Salmoniformes",76,"Freshwater, Marine","0\u2013250 m"],
+      ["Arctic Char","Salvelinus","alpinus","Salmonidae","Salmoniformes",107,"Freshwater","0\u201375 m"],
+      ["Atlantic Sturgeon","Acipenser","oxyrinchus","Acipenseridae","Acipenseriformes",460,"Freshwater, Marine","0\u201348 m"],
+      ["Beluga Sturgeon","Huso","huso","Acipenseridae","Acipenseriformes",600,"Freshwater, Marine","0\u2013180 m"],
+      ["Paddlefish","Polyodon","spathula","Polyodontidae","Acipenseriformes",221,"Freshwater","0\u201312 m"],
+      ["Longnose Gar","Lepisosteus","osseus","Lepisosteidae","Lepisosteiformes",200,"Freshwater","0\u201320 m"],
+      ["Bowfin","Amia","calva","Amiidae","Amiiformes",109,"Freshwater","0\u20136 m"],
+      ["Alligator Gar","Atractosteus","spatula","Lepisosteidae","Lepisosteiformes",305,"Freshwater","0\u201314 m"],
+      ["Yellowfin Goby","Acanthogobius","flavimanus","Gobiidae","Gobiiformes",30,"Brackish, Marine","0\u201320 m"],
+      ["Frogfish","Antennarius","striatus","Antennariidae","Lophiiformes",22,"Marine","10\u2013219 m"],
+      ["Anglerfish","Lophius","piscatorius","Lophiidae","Lophiiformes",200,"Marine","20\u20131000 m"],
+      ["John Dory","Zeus","faber","Zeidae","Zeiformes",90,"Marine","5\u2013400 m"],
+      ["Opah","Lampris","guttatus","Lampridae","Lampriformes",200,"Marine","0\u2013500 m"],
+      ["Oarfish","Regalecus","glesne","Regalecidae","Lampriformes",1100,"Marine","20\u20131000 m"],
+      ["Atlantic Flounder","Paralichthys","dentatus","Paralichthyidae","Pleuronectiformes",94,"Marine","0\u201380 m"],
+      ["Turbot","Scophthalmus","maximus","Scophthalmidae","Pleuronectiformes",100,"Marine","20\u201370 m"],
+      ["European Plaice","Pleuronectes","platessa","Pleuronectidae","Pleuronectiformes",100,"Marine","0\u2013200 m"],
+      ["Monkfish","Lophius","americanus","Lophiidae","Lophiiformes",120,"Marine","0\u2013668 m"],
+      ["Striped Catfish","Plotosus","lineatus","Plotosidae","Siluriformes",32,"Marine","1\u201360 m"],
+      ["Cardinal Tetra","Paracheirodon","axelrodi","Characidae","Characiformes",5,"Freshwater","surface"],
+      ["Congo Tetra","Phenacogrammus","interruptus","Alestidae","Characiformes",8,"Freshwater","surface"],
+      ["Silver Arowana","Osteoglossum","bicirrhosum","Osteoglossidae","Osteoglossiformes",120,"Freshwater","surface"],
+      ["Asian Arowana","Scleropages","formosus","Osteoglossidae","Osteoglossiformes",90,"Freshwater","surface"],
+      ["Freshwater Angelfish","Pterophyllum","altum","Cichlidae","Cichliformes",18,"Freshwater","surface"],
+      ["Jack Dempsey","Rocio","octofasciata","Cichlidae","Cichliformes",25,"Freshwater","0\u20133 m"],
+      ["Convict Cichlid","Amatitlania","nigrofasciata","Cichlidae","Cichliformes",10,"Freshwater","0\u20133 m"],
+      ["Frontosa Cichlid","Cyphotilapia","frontosa","Cichlidae","Cichliformes",35,"Freshwater","10\u201370 m"],
+      ["Flowerhorn Cichlid","Amphilophus","trimaculatus","Cichlidae","Cichliformes",35,"Freshwater","0\u20135 m"],
+      ["Plecostomus","Hypostomus","plecostomus","Loricariidae","Siluriformes",50,"Freshwater","surface"],
+      ["Corydoras Catfish","Corydoras","paleatus","Callichthyidae","Siluriformes",7,"Freshwater","surface"],
+      ["Clown Loach","Chromobotia","macracanthus","Botiidae","Cypriniformes",40,"Freshwater","0\u20135 m"],
+      ["Cherry Barb","Puntius","titteya","Cyprinidae","Cypriniformes",5,"Freshwater","surface"],
+      ["Hatchetfish","Gasteropelecus","sternicla","Gasteropelecidae","Characiformes",4,"Freshwater","surface"],
+      ["Dwarf Gourami","Trichogaster","lalius","Osphronemidae","Anabantiformes",9,"Freshwater","surface"],
+      ["Pearl Gourami","Trichopodus","leerii","Osphronemidae","Anabantiformes",12,"Freshwater","surface"],
+      ["Giant Gourami","Osphronemus","goramy","Osphronemidae","Anabantiformes",70,"Freshwater","surface"],
+      ["Snakehead","Channa","striata","Channidae","Anabantiformes",100,"Freshwater","surface"],
+      ["Red Belly Pacu","Piaractus","brachypomus","Serrasalmidae","Characiformes",88,"Freshwater","0\u20135 m"],
+      ["Tambaqui","Colossoma","macropomum","Serrasalmidae","Characiformes",108,"Freshwater","0\u20135 m"],
+      ["Muskellunge","Esox","masquinongy","Esocidae","Esociformes",183,"Freshwater","0\u201315 m"],
+      ["Smallmouth Bass","Micropterus","dolomieu","Centrarchidae","Perciformes",69,"Freshwater","0\u201320 m"],
+      ["Black Crappie","Pomoxis","nigromaculatus","Centrarchidae","Perciformes",49,"Freshwater","0\u20136 m"],
+      ["White Sturgeon","Acipenser","transmontanus","Acipenseridae","Acipenseriformes",610,"Freshwater","0\u201330 m"],
+      ["Cutthroat Trout","Oncorhynchus","clarkii","Salmonidae","Salmoniformes",99,"Freshwater","0\u201020 m"],
+      ["Coho Salmon","Oncorhynchus","kisutch","Salmonidae","Salmoniformes",108,"Freshwater, Marine","0\u2013250 m"],
+      ["Grayling","Thymallus","thymallus","Salmonidae","Salmoniformes",60,"Freshwater","0\u201330 m"],
+      ["Huchen","Hucho","hucho","Salmonidae","Salmoniformes",150,"Freshwater","0\u201330 m"],
+      ["Zander","Sander","lucioperca","Percidae","Perciformes",130,"Freshwater","1\u201330 m"],
+      ["Rudd","Scardinius","erythrophthalmus","Cyprinidae","Cypriniformes",51,"Freshwater","0\u20133 m"],
+      ["Bleak","Alburnus","alburnus","Cyprinidae","Cypriniformes",25,"Freshwater","surface"],
+      ["Barbel","Barbus","barbus","Cyprinidae","Cypriniformes",120,"Freshwater","1\u201310 m"],
+      ["Stone Loach","Barbatula","barbatula","Nemacheilidae","Cypriniformes",21,"Freshwater","surface"],
+      ["Weather Loach","Misgurnus","fossilis","Cobitidae","Cypriniformes",30,"Freshwater","surface"],
+      ["Spiny Dogfish","Squalus","acanthias","Squalidae","Squaliformes",160,"Marine","0\u2013900 m"],
+      ["Nurse Shark","Ginglymostoma","cirratum","Ginglymostomatidae","Orectolobiformes",430,"Marine","0\u2013130 m"],
+      ["Lemon Shark","Negaprion","brevirostris","Carcharhinidae","Carcharhiniformes",340,"Marine","0\u201392 m"],
+      ["Bull Shark","Carcharhinus","leucas","Carcharhinidae","Carcharhiniformes",340,"Marine, Freshwater","0\u2013150 m"],
+      ["Blue Shark","Prionace","glauca","Carcharhinidae","Carcharhiniformes",383,"Marine","0\u2013350 m"],
+      ["Mako Shark","Isurus","oxyrinchus","Lamnidae","Lamniformes",445,"Marine","0\u2013500 m"],
+      ["Thresher Shark","Alopias","vulpinus","Alopiidae","Lamniformes",573,"Marine","0\u2013366 m"],
+      ["Wobbegong","Orectolobus","maculatus","Orectolobidae","Orectolobiformes",320,"Marine","0\u2013110 m"],
+      ["Horn Shark","Heterodontus","francisci","Heterodontidae","Heterodontiformes",122,"Marine","2\u2013150 m"],
+      ["Spotted Eagle Ray","Aetobatus","narinari","Aetobatidae","Myliobatiformes",330,"Marine","1\u201380 m"],
+      ["Southern Stingray","Hypanus","americanus","Dasyatidae","Myliobatiformes",200,"Marine","0\u201353 m"],
+      ["Electric Ray","Torpedo","torpedo","Torpedinidae","Torpediniformes",60,"Marine","2\u2013400 m"],
+      ["Sawfish","Pristis","pristis","Pristidae","Rhinopristiformes",650,"Marine, Freshwater","0\u201310 m"],
+      ["Yellowtail Clownfish","Amphiprion","clarkii","Pomacentridae","Perciformes",15,"Marine","1\u201360 m"],
+      ["Banggai Cardinalfish","Pterapogon","kauderni","Apogonidae","Perciformes",8,"Marine","1\u20135 m"],
+      ["Regal Angelfish","Pygoplites","diacanthus","Pomacanthidae","Perciformes",25,"Marine","1\u201348 m"],
+      ["Racoon Butterflyfish","Chaetodon","lunula","Chaetodontidae","Perciformes",20,"Marine","1\u201330 m"],
+      ["Longnose Butterflyfish","Forcipiger","flavissimus","Chaetodontidae","Perciformes",22,"Marine","2\u2013145 m"],
+      ["Six-line Wrasse","Pseudocheilinus","hexataenia","Labridae","Perciformes",10,"Marine","2\u201335 m"],
+      ["Bicolor Blenny","Ecsenius","bicolor","Blenniidae","Perciformes",11,"Marine","1\u201325 m"],
+      ["Firefish Goby","Nemateleotris","magnifica","Gobiidae","Gobiiformes",9,"Marine","6\u201370 m"],
+      ["Yellow Tang","Zebrasoma","flavescens","Acanthuridae","Perciformes",20,"Marine","2\u201346 m"],
+      ["Achilles Tang","Acanthurus","achilles","Acanthuridae","Perciformes",24,"Marine","0\u20134 m"],
+      ["Bluespine Unicornfish","Naso","unicornis","Acanthuridae","Perciformes",70,"Marine","0\u201380 m"],
+      ["Clown Wrasse","Coris","gaimard","Labridae","Perciformes",40,"Marine","2\u201350 m"],
+      ["Napoleon Wrasse","Cheilinus","undulatus","Labridae","Perciformes",229,"Marine","1\u2013100 m"],
+      ["Tomato Clownfish","Amphiprion","frenatus","Pomacentridae","Perciformes",14,"Marine","1\u201312 m"],
+      ["Green Chromis","Chromis","viridis","Pomacentridae","Perciformes",10,"Marine","1\u201312 m"]
+    ];
 
-    const loadingEl = document.getElementById("loading");
-    const fishEl = document.getElementById("fish");
-    const errorEl = document.getElementById("error");
-    const errorDetail = document.getElementById("errorDetail");
-    const retryBtn = document.getElementById("retryBtn");
-    const statusText = document.getElementById("statusText");
-    const dateText = document.getElementById("dateText");
-
-    const fishPhoto = document.getElementById("fishPhoto");
-    const photoPlaceholder = document.getElementById("photoPlaceholder");
-    const fishName = document.getElementById("fishName");
-    const fishScientific = document.getElementById("fishScientific");
-    const fishDetails = document.getElementById("fishDetails");
-    const fishDesc = document.getElementById("fishDesc");
-    const fishbaseLink = document.getElementById("fishbaseLink");
+    /* ── DOM refs ─────────────────────────────────────────── */
+    var fishPhoto = document.getElementById("fishPhoto");
+    var photoPlaceholder = document.getElementById("photoPlaceholder");
+    var fishName = document.getElementById("fishName");
+    var fishScientific = document.getElementById("fishScientific");
+    var fishDetails = document.getElementById("fishDetails");
+    var fishDesc = document.getElementById("fishDesc");
+    var wikiLink = document.getElementById("wikiLink");
+    var fbLink = document.getElementById("fbLink");
+    var statusText = document.getElementById("statusText");
+    var dateText = document.getElementById("dateText");
 
     dateText.textContent = new Date().toLocaleDateString("en-US", {
       year: "numeric", month: "long", day: "numeric"
     });
 
-    /* Deterministic hash from date string */
-    function hashDate(str) {
-      let h = 0x811c9dc5;
-      for (let i = 0; i < str.length; i++) {
+    /* ── Deterministic FNV-1a hash ───────────────────────── */
+    function fnv(str) {
+      var h = 0x811c9dc5;
+      for (var i = 0; i < str.length; i++) {
         h ^= str.charCodeAt(i);
         h = Math.imul(h, 0x01000193);
       }
@@ -188,184 +346,170 @@
     }
 
     function todayKey() {
-      const d = new Date();
+      var d = new Date();
       return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
     }
 
-    async function fetchJSON(url) {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res.json();
-    }
+    /* ── Pick today's fish ───────────────────────────────── */
+    var idx = fnv(todayKey()) % FISH.length;
+    var f = FISH[idx];
+
+    fishName.textContent = f[0];
+    fishScientific.textContent = f[1] + " " + f[2];
 
     function addDetail(label, value) {
       if (!value && value !== 0) return;
-      const dt = document.createElement("dt");
+      var dt = document.createElement("dt");
       dt.textContent = label;
-      const dd = document.createElement("dd");
+      var dd = document.createElement("dd");
       dd.textContent = value;
       fishDetails.appendChild(dt);
       fishDetails.appendChild(dd);
     }
 
-    function habitatStr(sp) {
-      const parts = [];
-      if (sp.Fresh === -1) parts.push("Freshwater");
-      if (sp.Brack === -1) parts.push("Brackish");
-      if (sp.Saltwater === -1) parts.push("Marine");
-      return parts.join(", ") || null;
-    }
+    addDetail("Family", f[3]);
+    addDetail("Order", f[4]);
+    if (f[5]) addDetail("Max Size", f[5] + " cm");
+    addDetail("Habitat", f[6]);
+    addDetail("Depth", f[7]);
 
-    function depthStr(sp) {
-      const s = sp.DepthRangeShallow;
-      const d = sp.DepthRangeDeep;
-      if (s != null && d != null) return s + "\u2013" + d + " m";
-      if (d != null) return "0\u2013" + d + " m";
-      return null;
-    }
+    var sciName = f[1] + " " + f[2];
+    var wikiTitle = f[1] + "_" + f[2];
+    wikiLink.href = "https://en.wikipedia.org/wiki/" + wikiTitle;
+    fbLink.href = "https://www.fishbase.se/search.php?lang=English&genusname=" +
+      encodeURIComponent(f[1]) + "&speciesname=" + encodeURIComponent(f[2]);
 
-    function showFish(data) {
-      loadingEl.style.display = "none";
-      errorEl.style.display = "none";
-      fishEl.style.display = "block";
+    var FB_API = "https://fishbase.ropensci.org";
+    var FB_IMG = "https://www.fishbase.se/images/species/";
+    var cacheKey = "fotd-" + todayKey();
 
-      fishName.textContent = data.name || data.genus + " " + data.species;
-      fishScientific.textContent = data.genus + " " + data.species;
-
-      fishDetails.innerHTML = "";
-      addDetail("Family", data.family);
-      addDetail("Order", data.order);
-      if (data.maxLength) addDetail("Max Size", data.maxLength + " cm");
-      addDetail("Habitat", data.habitat);
-      addDetail("Depth", data.depth);
-      if (data.dempiag) addDetail("Environment", data.dempiag);
-      if (data.dangerous && data.dangerous !== "harmless")
-        addDetail("Danger", data.dangerous);
-      if (data.vulnerability)
-        addDetail("Vulnerability", data.vulnerability.toFixed(1) + " / 100");
-
-      if (data.comments) {
-        const txt = data.comments.length > 250
-          ? data.comments.slice(0, 247) + "..."
-          : data.comments;
-        fishDesc.textContent = txt;
-        fishDesc.style.display = "block";
-      } else {
-        fishDesc.style.display = "none";
-      }
-
-      fishbaseLink.href = "https://www.fishbase.se/summary/" + data.specCode + ".html";
-
-      if (data.image) {
-        fishPhoto.alt = (data.name || data.genus + " " + data.species);
-        fishPhoto.src = data.image;
-        fishPhoto.onload = function () {
-          fishPhoto.style.display = "block";
-          photoPlaceholder.style.display = "none";
-        };
-        fishPhoto.onerror = function () {
-          photoPlaceholder.textContent = "Photo unavailable";
-        };
-      } else {
-        photoPlaceholder.textContent = "No photo available";
-      }
-
-      statusText.textContent = "Powered by FishBase";
-    }
-
-    function showError(msg) {
-      loadingEl.style.display = "none";
-      fishEl.style.display = "none";
-      errorEl.style.display = "block";
-      errorDetail.textContent = msg || "The FishBase API may be unavailable.";
-      statusText.textContent = "Error";
-    }
-
-    async function fetchFromAPI() {
-      statusText.textContent = "Fetching photo index...";
-      const countRes = await fetchJSON(API + "/picturesmain?limit=1&fields=SpecCode");
-      const total = countRes.count;
-      if (!total) throw new Error("Empty photo database");
-
-      const offset = hashDate(todayKey()) % total;
-
-      statusText.textContent = "Picking today's fish...";
-      const photoRes = await fetchJSON(
-        API + "/picturesmain?limit=1&offset=" + offset + "&fields=SpecCode,PicName"
-      );
-      const photo = photoRes.data && photoRes.data[0];
-      if (!photo) throw new Error("No photo at offset " + offset);
-
-      statusText.textContent = "Loading species data...";
-      const specRes = await fetchJSON(
-        API + "/species?SpecCode=" + photo.SpecCode +
-        "&fields=Genus,Species,FBname,Family,Order,Length,Fresh,Brack,Saltwater," +
-        "DemersPelag,DepthRangeShallow,DepthRangeDeep,Vulnerability,Dangerous,Comments"
-      );
-      const sp = specRes.data && specRes.data[0];
-      if (!sp) throw new Error("No species data for SpecCode " + photo.SpecCode);
-
-      return {
-        name: sp.FBname || "",
-        genus: sp.Genus,
-        species: sp.Species,
-        family: sp.Family,
-        order: sp.Order,
-        maxLength: sp.Length,
-        habitat: habitatStr(sp),
-        depth: depthStr(sp),
-        dempiag: sp.DemersPelag,
-        dangerous: sp.Dangerous,
-        vulnerability: sp.Vulnerability,
-        comments: sp.Comments,
-        image: photo.PicName ? IMG + photo.PicName : null,
-        specCode: photo.SpecCode
-      };
-    }
-
-    async function fetchFromStatic() {
-      const res = await fetch("data/fish.json");
-      if (!res.ok) throw new Error("No local data");
-      const all = await res.json();
-      if (!all.length) throw new Error("Empty local data");
-      return all[hashDate(todayKey()) % all.length];
-    }
-
-    async function loadFish() {
-      loadingEl.style.display = "block";
-      fishEl.style.display = "none";
-      errorEl.style.display = "none";
-      statusText.textContent = "Connecting...";
-
-      /* Check localStorage cache */
-      const key = "fotd-" + todayKey();
-      const cached = localStorage.getItem(key);
+    /* ── Try FishBase API first for richer data + photo ──── */
+    (function tryFishBase() {
+      var cached = localStorage.getItem(cacheKey);
       if (cached) {
         try {
-          showFish(JSON.parse(cached));
+          var d = JSON.parse(cached);
+          if (d.fbImage) { showImage(d.fbImage); }
+          if (d.fbDesc) { showDesc(d.fbDesc); }
+          enrichDetails(d);
+          if (d.fbSpecCode) {
+            fbLink.href = "https://www.fishbase.se/summary/" + d.fbSpecCode + ".html";
+          }
           return;
         } catch (e) { /* ignore bad cache */ }
       }
 
-      try {
-        const result = await fetchFromAPI();
-        localStorage.setItem(key, JSON.stringify(result));
-        showFish(result);
-      } catch (apiErr) {
-        /* API failed — try static JSON fallback */
-        try {
-          statusText.textContent = "Trying local data...";
-          const result = await fetchFromStatic();
-          localStorage.setItem(key, JSON.stringify(result));
-          showFish(result);
-        } catch (fallbackErr) {
-          showError(apiErr.message);
-        }
-      }
+      /* Race: FishBase species lookup (may fail due to CORS) */
+      var controller = new AbortController();
+      var timeout = setTimeout(function () { controller.abort(); }, 5000);
+
+      fetch(FB_API + "/species?Genus=" + f[1] + "&Species=" + f[2] +
+        "&fields=SpecCode,Vulnerability,Dangerous,DemersPelag,DepthRangeShallow," +
+        "DepthRangeDeep,Fresh,Brack,Saltwater,Comments,Length",
+        { signal: controller.signal })
+        .then(function (r) { clearTimeout(timeout); if (!r.ok) throw 0; return r.json(); })
+        .then(function (body) {
+          var sp = body.data && body.data[0];
+          if (!sp) return Promise.reject(0);
+          var result = {
+            fbSpecCode: sp.SpecCode,
+            vulnerability: sp.Vulnerability,
+            dangerous: sp.Dangerous,
+            environment: sp.DemersPelag,
+            fbDesc: sp.Comments
+          };
+          /* Update FishBase link to direct SpecCode URL */
+          fbLink.href = "https://www.fishbase.se/summary/" + sp.SpecCode + ".html";
+          enrichDetails(result);
+          if (sp.Comments) showDesc(sp.Comments);
+
+          /* Try to get a FishBase photo too */
+          return fetch(FB_API + "/picturesmain?SpecCode=" + sp.SpecCode +
+            "&limit=1&fields=PicName", { signal: controller.signal })
+            .then(function (r2) { return r2.ok ? r2.json() : null; })
+            .then(function (pb) {
+              var pic = pb && pb.data && pb.data[0];
+              if (pic && pic.PicName) {
+                result.fbImage = FB_IMG + pic.PicName;
+                showImage(result.fbImage);
+              }
+              localStorage.setItem(cacheKey, JSON.stringify(result));
+            });
+        })
+        .catch(function () {
+          clearTimeout(timeout);
+          /* FishBase unavailable — Wikipedia handles image below */
+        });
+    })();
+
+    /* ── Fetch image from Wikipedia REST API (always runs) ── */
+    var imgCacheKey = "fotd-img-" + wikiTitle;
+    var cachedImg = localStorage.getItem(imgCacheKey);
+
+    if (cachedImg) {
+      showImageIfNeeded(cachedImg);
+    } else {
+      fetchWikiSummary(wikiTitle)
+        .catch(function () {
+          return fetchWikiSummary(f[0].replace(/ /g, "_"));
+        })
+        .catch(function () {
+          if (!fishPhoto.src) photoPlaceholder.textContent = "No photo available";
+        });
     }
 
-    retryBtn.addEventListener("click", loadFish);
-    loadFish();
+    function fetchWikiSummary(title) {
+      return fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + title)
+        .then(function (res) {
+          if (!res.ok) throw new Error(res.status);
+          return res.json();
+        })
+        .then(function (data) {
+          var src = data.thumbnail && data.thumbnail.source;
+          if (src) {
+            src = src.replace(/\/\d+px-/, "/480px-");
+            localStorage.setItem(imgCacheKey, src);
+            showImageIfNeeded(src);
+          }
+          if (data.extract && !fishDesc.textContent) {
+            showDesc(data.extract);
+          }
+          if (!src) throw new Error("no image");
+        });
+    }
+
+    /* Only show Wikipedia image if FishBase hasn't loaded one already */
+    function showImageIfNeeded(src) {
+      if (fishPhoto.src && fishPhoto.style.display !== "none") return;
+      showImage(src);
+    }
+
+    function showImage(src) {
+      fishPhoto.alt = f[0] + " (" + sciName + ")";
+      fishPhoto.src = src;
+      fishPhoto.onload = function () {
+        fishPhoto.style.display = "block";
+        photoPlaceholder.style.display = "none";
+      };
+      fishPhoto.onerror = function () {
+        photoPlaceholder.textContent = "Photo unavailable";
+      };
+    }
+
+    function showDesc(text) {
+      if (!text) return;
+      fishDesc.textContent = text.length > 250 ? text.slice(0, 247) + "..." : text;
+      fishDesc.style.display = "block";
+    }
+
+    function enrichDetails(d) {
+      if (d.environment) addDetail("Environment", d.environment);
+      if (d.dangerous && d.dangerous !== "harmless")
+        addDetail("Danger", d.dangerous);
+      if (d.vulnerability)
+        addDetail("Vulnerability", (typeof d.vulnerability === "number"
+          ? d.vulnerability.toFixed(1) : d.vulnerability) + " / 100");
+    }
   </script>
 </body>
 </html>
