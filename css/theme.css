@@ -216,10 +216,11 @@ body {
 .desktop {
   display: flex;
   flex-direction: column;
-  background: var(--desktop);
+  background: var(--silver);
   height: 100vh;
   height: var(--vh, 100vh);
   overflow: hidden;
+  padding-bottom: 6px;
 }
 
 .desktop-area {
