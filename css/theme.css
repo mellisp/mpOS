@@ -216,11 +216,10 @@ body {
 .desktop {
   display: flex;
   flex-direction: column;
-  background: var(--silver);
+  background: var(--desktop);
   height: 100vh;
   height: var(--vh, 100vh);
   overflow: hidden;
-  padding-bottom: 6px;
 }
 
 .desktop-area {
@@ -279,6 +278,7 @@ body {
   gap: 4px;
   height: 34px;
   flex-shrink: 0;
+  margin-bottom: 4px;
 }
 
 /* Start Button */
