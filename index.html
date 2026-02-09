@@ -581,17 +581,7 @@
       var nav = navigator;
       var scr = screen;
 
-      // --- Helpers ---
-      function formatBytes(bytes) {
-        if (!bytes) return null;
-        var units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        var i = 0;
-        while (bytes >= 1024 && i < units.length - 1) { bytes /= 1024; i++; }
-        return bytes.toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
-      }
-
       function makeSection(title, rows) {
-        // Filter out rows with no value
         var valid = rows.filter(function (r) { return r[1] != null; });
         if (!valid.length) return '';
         var html = '<div class="section-title">' + title + '</div><div class="sunken"><table class="sysinfo-table">';
@@ -601,32 +591,16 @@
         return html + '</table></div>';
       }
 
-      // --- OS detection ---
+      // --- OS detection (coarse only — UA string versions are frozen) ---
       var os = null;
-      if (/Windows/.test(ua)) {
-        os = 'Windows';
-        if (/Windows NT 10/.test(ua)) os = 'Windows 10/11';
-        else if (/Windows NT 6.3/.test(ua)) os = 'Windows 8.1';
-        else if (/Windows NT 6.1/.test(ua)) os = 'Windows 7';
-      } else if (/Mac OS X/.test(ua)) {
-        os = 'macOS';
-        var m = ua.match(/Mac OS X (\d+[._]\d+[._]?\d*)/);
-        if (m) os = 'macOS ' + m[1].replace(/_/g, '.');
-      } else if (/Android/.test(ua)) {
-        os = 'Android';
-        var a = ua.match(/Android ([\d.]+)/);
-        if (a) os = 'Android ' + a[1];
-      } else if (/iPhone|iPad/.test(ua)) {
-        os = 'iOS';
-        var ip = ua.match(/OS (\d+_\d+)/);
-        if (ip) os = 'iOS ' + ip[1].replace('_', '.');
-      } else if (/CrOS/.test(ua)) {
-        os = 'Chrome OS';
-      } else if (/Linux/.test(ua)) {
-        os = 'Linux';
-      }
+      if (/Windows/.test(ua)) os = 'Windows';
+      else if (/Mac OS X/.test(ua)) os = 'macOS';
+      else if (/Android/.test(ua)) os = 'Android';
+      else if (/iPhone|iPad/.test(ua)) os = 'iOS';
+      else if (/CrOS/.test(ua)) os = 'Chrome OS';
+      else if (/Linux/.test(ua)) os = 'Linux';
 
-      // --- Browser detection ---
+      // --- Browser detection (version is still accurate in UA) ---
       var browser = null;
       if (/Edg\//.test(ua)) {
         var ev = ua.match(/Edg\/([\d.]+)/);
@@ -642,70 +616,76 @@
         browser = 'Apple Safari' + (sv ? ' ' + sv[1] : '');
       }
 
-      // --- Build hero ---
-      var html = '<div class="sysinfo-hero">';
-      html += '<svg width="80" height="64" viewBox="0 0 80 64" fill="none" xmlns="http://www.w3.org/2000/svg">';
-      html += '<rect x="4" y="2" width="72" height="44" rx="3" fill="#1a3a5c" stroke="#0a246a" stroke-width="2"/>';
-      html += '<rect x="8" y="6" width="64" height="36" rx="1" fill="#3a6ea5"/>';
-      html += '<rect x="28" y="48" width="24" height="5" fill="#808080"/>';
-      html += '<rect x="16" y="53" width="48" height="4" rx="1.5" fill="var(--silver)" stroke="#808080" stroke-width="1"/>';
-      html += '</svg>';
-      if (os) html += '<div class="sysinfo-os">' + os + '</div>';
-      if (browser) html += '<div class="sysinfo-browser">' + browser + '</div>';
-      html += '</div><div class="separator"></div>';
+      function render(osLabel) {
+        // --- Build hero ---
+        var html = '<div class="sysinfo-hero">';
+        html += '<svg width="80" height="64" viewBox="0 0 80 64" fill="none" xmlns="http://www.w3.org/2000/svg">';
+        html += '<rect x="4" y="2" width="72" height="44" rx="3" fill="#1a3a5c" stroke="#0a246a" stroke-width="2"/>';
+        html += '<rect x="8" y="6" width="64" height="36" rx="1" fill="#3a6ea5"/>';
+        html += '<rect x="28" y="48" width="24" height="5" fill="#808080"/>';
+        html += '<rect x="16" y="53" width="48" height="4" rx="1.5" fill="var(--silver)" stroke="#808080" stroke-width="1"/>';
+        html += '</svg>';
+        if (osLabel) html += '<div class="sysinfo-os">' + osLabel + '</div>';
+        if (browser) html += '<div class="sysinfo-browser">' + browser + '</div>';
+        html += '</div><div class="separator"></div>';
 
-      // --- System (sync rows + async storage appended later) ---
-      var sysRows = [
-        ['Platform', nav.platform || null],
-        ['CPU Cores', nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : null],
-        ['Memory', nav.deviceMemory ? nav.deviceMemory + ' GB (approximate)' : null],
-        ['Language', nav.language || null]
-      ];
+        // --- System ---
+        // navigator.platform is deprecated (frozen to "MacIntel" on ARM Macs)
+        // navigator.deviceMemory is capped at 8 GB (misleading)
+        // navigator.storage.estimate() returns browser quota, not disk space
+        // Only show reliably accurate values:
+        html += makeSection('System', [
+          ['CPU Cores', nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : null],
+          ['Language', nav.language || null]
+        ]);
 
-      html += makeSection('System', sysRows);
+        // --- Display ---
+        // screen.colorDepth varies by browser (Chrome: 30, Firefox/Safari: 24) — omit
+        var dpr = window.devicePixelRatio || 1;
+        html += makeSection('Display', [
+          ['Resolution', scr.width + ' \u00d7 ' + scr.height],
+          ['Pixel Ratio', dpr + 'x' + (dpr > 1 ? ' (HiDPI)' : '')]
+        ]);
 
-      html += makeSection('Display', [
-        ['Resolution', scr.width + ' \u00d7 ' + scr.height],
-        ['Color Depth', scr.colorDepth + '-bit'],
-        ['Pixel Ratio', window.devicePixelRatio + 'x' + (window.devicePixelRatio > 1 ? ' (HiDPI)' : '')]
-      ]);
+        // Placeholders for async sections
+        html += '<div id="sysNetSection"></div>';
+        html += '<div id="sysBatSection"></div>';
 
-      // Placeholders for async sections
-      html += '<div id="sysNetSection"></div>';
-      html += '<div id="sysBatSection"></div>';
+        body.innerHTML = html;
 
-      body.innerHTML = html;
+        // --- Async: Network ---
+        var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+        if (conn) {
+          var netRows = [];
+          if (conn.effectiveType) netRows.push(['Type', conn.effectiveType.toUpperCase()]);
+          else if (conn.type) netRows.push(['Type', conn.type]);
+          if (conn.downlink) netRows.push(['Downlink', conn.downlink + ' Mbps']);
+          document.getElementById('sysNetSection').innerHTML = makeSection('Network', netRows);
+        }
 
-      // --- Async: Storage (append into System table) ---
-      if (nav.storage && nav.storage.estimate) {
-        nav.storage.estimate().then(function (est) {
-          var table = body.querySelector('.sysinfo-table');
-          if (!table) return;
-          var q = formatBytes(est.quota);
-          var u = formatBytes(est.usage);
-          if (q) table.innerHTML += '<tr><th>Storage</th><td>' + q + '</td></tr>';
-          if (u) table.innerHTML += '<tr><th>Used</th><td>' + u + '</td></tr>';
-        });
+        // --- Async: Battery ---
+        if (nav.getBattery) {
+          nav.getBattery().then(function (bat) {
+            document.getElementById('sysBatSection').innerHTML = makeSection('Battery', [
+              ['Level', Math.round(bat.level * 100) + '%'],
+              ['Charging', bat.charging ? 'Yes' : 'No']
+            ]);
+          });
+        }
       }
 
-      // --- Async: Network ---
-      var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
-      if (conn) {
-        var netRows = [];
-        if (conn.effectiveType) netRows.push(['Type', conn.effectiveType.toUpperCase()]);
-        else if (conn.type) netRows.push(['Type', conn.type]);
-        if (conn.downlink) netRows.push(['Downlink', conn.downlink + ' Mbps']);
-        document.getElementById('sysNetSection').innerHTML = makeSection('Network', netRows);
-      }
-
-      // --- Async: Battery ---
-      if (nav.getBattery) {
-        nav.getBattery().then(function (bat) {
-          document.getElementById('sysBatSection').innerHTML = makeSection('Battery', [
-            ['Level', Math.round(bat.level * 100) + '%'],
-            ['Charging', bat.charging ? 'Yes' : 'No']
-          ]);
-        });
+      // --- Try to get real OS version via User-Agent Client Hints (Chromium only) ---
+      if (nav.userAgentData && nav.userAgentData.getHighEntropyValues) {
+        nav.userAgentData.getHighEntropyValues(['platformVersion']).then(function (data) {
+          if (data.platformVersion && os) {
+            var v = data.platformVersion.split('.');
+            render(os + ' ' + v[0] + (v[1] && v[1] !== '0' ? '.' + v[1] : ''));
+          } else {
+            render(os);
+          }
+        }).catch(function () { render(os); });
+      } else {
+        render(os);
       }
     }
 
