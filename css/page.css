@@ -1,0 +1,202 @@
+/* Page-specific styles for index.html — extracted for browser caching */
+
+.project-list { list-style: none; }
+
+.project-list li {
+  padding: 4px 6px;
+  cursor: default;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.project-list li:hover { background: var(--highlight); color: var(--highlight-text); }
+.project-list li:hover a { color: var(--highlight-text); }
+.project-list li:hover .desc { color: var(--silver); }
+.project-list li:hover .tag { background: var(--title-light); color: var(--highlight); }
+
+.project-list a {
+  text-decoration: none;
+  color: var(--link);
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.project-list a:hover { text-decoration: underline; }
+.project-list .desc { color: #57606a; font-size: 12px; }
+
+.tag {
+  display: inline-block;
+  background: var(--silver);
+  color: #000;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 0 6px;
+  border: 1px solid;
+  border-color: var(--white) var(--shadow) var(--shadow) var(--white);
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.about { line-height: 1.5; padding: 4px; }
+
+#explorer { width: 520px; max-width: 95vw; left: 80px; top: 80px; }
+
+/* My Computer window */
+#mycomputer { width: 380px; max-width: 95vw; left: 120px; top: 40px; }
+
+.sysinfo-hero {
+  text-align: center;
+  padding: 16px 12px 8px;
+}
+
+.sysinfo-hero svg { margin-bottom: 8px; }
+
+.sysinfo-hero .sysinfo-os {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.sysinfo-hero .sysinfo-browser {
+  font-size: 12px;
+  color: #57606a;
+}
+
+#mycomputer .section-title { margin: 10px 0 4px; }
+#mycomputer .sunken { margin-bottom: 0; }
+
+.sysinfo-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.sysinfo-table tr { border-bottom: 1px solid var(--silver); }
+.sysinfo-table tr:last-child { border-bottom: none; }
+
+.sysinfo-table th {
+  text-align: right;
+  padding: 3px 8px 3px 4px;
+  font-weight: bold;
+  white-space: nowrap;
+  width: 1%;
+  color: var(--dk-shadow);
+}
+
+.sysinfo-table td {
+  padding: 3px 4px;
+}
+
+/* Virtual Aquarium window */
+#aquarium { width: 640px; max-width: 95vw; left: 60px; top: 30px; }
+#aquarium .window-body { padding: 0; background: #000; }
+#aquarium .aquarium-embed { position: relative; width: 100%; padding-top: 56.25%; overflow: hidden; }
+#aquarium .aquarium-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; transform: scale(1.5); transform-origin: center; }
+#aquarium .aquarium-shield {
+  position: absolute; inset: 0; z-index: 1;
+  background: #0a1628;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #5a8ab5;
+  transition: background 1.5s ease, color 1s ease;
+}
+#aquarium .aquarium-shield.loaded { background: transparent; color: transparent; }
+
+/* On Target window */
+#ontarget { width: 640px; max-width: 95vw; left: 80px; top: 40px; }
+#ontarget .window-body { padding: 0; }
+#ontarget .game-embed { position: relative; width: 100%; height: 400px; }
+#ontarget .game-embed iframe { width: 100%; height: 100%; border: none; }
+
+/* Run terminal window */
+#run { width: 560px; max-width: 95vw; left: 70px; top: 50px; }
+#run .window-body { padding: 0; }
+.term {
+  background: #000; color: #c0c0c0;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 13px; line-height: 1.4;
+  padding: 8px; height: 260px;
+  display: flex; flex-direction: column;
+}
+.term-output {
+  flex: 1; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+}
+.term-input-row { display: flex; gap: 0; flex-shrink: 0; }
+.term-prompt { white-space: pre; }
+.term-input {
+  flex: 1; background: none; border: none; outline: none;
+  color: #c0c0c0; font: inherit; padding: 0; margin: 0;
+  caret-color: #c0c0c0;
+}
+
+/* Fish Finder window */
+#fishfinder { width: 420px; max-width: 95vw; left: 100px; top: 50px; }
+.finder-label { font-size: 11px; font-weight: bold; color: var(--dk-shadow); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.finder-name { font-size: 15px; font-weight: bold; }
+.finder-location { font-size: 12px; color: #57606a; margin-top: 2px; }
+.finder-distance { font-size: 13px; margin-top: 4px; }
+
+/* Fish of the Day window */
+#fishofday { width: 480px; max-width: 95vw; left: 160px; top: 60px; }
+
+.photo-frame {
+  background: #1a1a2e;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-frame .placeholder {
+  color: var(--shadow);
+  font-size: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.fish-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.fish-scientific {
+  font-style: italic;
+  color: #57606a;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.fish-details {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.fish-details dt {
+  display: inline;
+  font-weight: bold;
+}
+
+.fish-details dt::after { content: ": "; }
+
+.fish-details dd {
+  display: inline;
+  margin: 0;
+}
+
+.fish-details dd::after {
+  content: "";
+  display: block;
+}
