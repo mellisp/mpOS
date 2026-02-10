@@ -3,9 +3,8 @@
 /**
  * Build Fish of the Day Database
  *
- * Fetches Wikipedia thumbnail URLs for the fish species already embedded
- * in fish-of-the-day.html and bakes them into the dataset so the page
- * needs zero API calls at runtime.
+ * Fetches Wikipedia thumbnail URLs for the fish species in js/fish-data.js
+ * and bakes them into the dataset so the page needs zero API calls at runtime.
  *
  * Usage:
  *   node scripts/build-fish-db.js
@@ -19,8 +18,7 @@ const fs = require("fs");
 const path = require("path");
 
 const WIKI_API = "https://en.wikipedia.org/api/rest_v1/page/summary/";
-const HTML_PATH = path.join(__dirname, "..", "fish-of-the-day.html");
-const INDEX_PATH = path.join(__dirname, "..", "index.html");
+const DATA_PATH = path.join(__dirname, "..", "js", "fish-data.js");
 const CONCURRENCY = 4;
 const DELAY = 250;
 const MAX_RETRIES = 2;
@@ -85,12 +83,12 @@ async function fetchWikiThumb(genus, species, commonName) {
 /* ── Main ──────────────────────────────────────────────── */
 
 async function main() {
-  var html = fs.readFileSync(HTML_PATH, "utf8");
+  var src = fs.readFileSync(DATA_PATH, "utf8");
 
-  /* Extract the FISH array from the HTML */
-  var arrayMatch = html.match(/var FISH = \[([\s\S]*?)\];/);
+  /* Extract the FISH array from fish-data.js */
+  var arrayMatch = src.match(/var FISH = \[([\s\S]*?)\];/);
   if (!arrayMatch) {
-    console.error("Could not find FISH array in " + HTML_PATH);
+    console.error("Could not find FISH array in " + DATA_PATH);
     process.exit(1);
   }
 
@@ -144,22 +142,13 @@ async function main() {
 
   /* Rebuild the FISH array */
   var lines = entries.map(function (e) {
-    return "      " + JSON.stringify(e);
+    return "  " + JSON.stringify(e);
   });
-  var newArray = "var FISH = [\n" + lines.join(",\n") + "\n    ];";
+  var newArray = "var FISH = [\n" + lines.join(",\n") + "\n];";
 
-  var patched = html.replace(/var FISH = \[[\s\S]*?\];/, newArray);
-  fs.writeFileSync(HTML_PATH, patched);
-
-  /* Also patch index.html (same FISH array embedded there) */
-  var indexHtml = fs.readFileSync(INDEX_PATH, "utf8");
-  if (/var FISH = \[[\s\S]*?\];/.test(indexHtml)) {
-    var patchedIndex = indexHtml.replace(/var FISH = \[[\s\S]*?\];/, newArray);
-    fs.writeFileSync(INDEX_PATH, patchedIndex);
-    console.log("\nUpdated both " + HTML_PATH + " and " + INDEX_PATH);
-  } else {
-    console.log("\nUpdated " + HTML_PATH + " (index.html had no FISH array to patch)");
-  }
+  var patched = src.replace(/var FISH = \[[\s\S]*?\];/, newArray);
+  fs.writeFileSync(DATA_PATH, patched);
+  console.log("\nUpdated " + DATA_PATH);
 
   console.log(found + " species now have pre-baked images — zero API calls at runtime.");
 }
