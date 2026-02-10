@@ -79,7 +79,7 @@
           </div>
         </div>
         <div class="button-row">
-          <a class="btn" href="/" onclick="if(window.parent!==window){parent.closeOnTarget();return false;}">OK</a>
+          <a class="btn" href="/" onclick="if(window.parent!==window){event.preventDefault();parent.closeOnTarget();}">OK</a>
         </div>
       </div>
     </div>
@@ -90,7 +90,7 @@
   <div class="hud">
     <div class="hud-titlebar" style="display:flex;justify-content:space-between;align-items:center;">
       <span>Target Shooting</span>
-      <a href="/" class="titlebar-btn" style="pointer-events:auto;text-decoration:none;font-size:11px;" onclick="if(window.parent!==window){parent.closeOnTarget();return false;}">X</a>
+      <a href="/" class="titlebar-btn" style="pointer-events:auto;text-decoration:none;font-size:11px;" onclick="if(window.parent!==window){event.preventDefault();parent.closeOnTarget();}">X</a>
     </div>
     <div class="hud-body">
       <div class="score">Score: <span id="score">0</span></div>
