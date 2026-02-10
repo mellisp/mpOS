@@ -242,7 +242,7 @@
       border: 2px solid;
       border-color: var(--shadow) var(--white) var(--white) var(--shadow);
       box-shadow: inset 1px 1px 0 var(--dk-shadow);
-      min-height: 160px;
+      height: 280px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -251,6 +251,8 @@
 
     .photo-frame img {
       width: 100%;
+      height: 100%;
+      object-fit: cover;
       display: block;
     }
 
@@ -297,15 +299,6 @@
       display: block;
     }
 
-    .fish-desc {
-      font-size: 12px;
-      color: #57606a;
-      line-height: 1.5;
-      margin-top: 6px;
-      max-height: 4.5em;
-      overflow: hidden;
-    }
-
     .home-link {
       margin-top: 12px;
       font-size: 12px;
@@ -332,11 +325,10 @@
       <div class="fish-scientific" id="fishScientific"></div>
       <div class="separator"></div>
       <dl class="fish-details" id="fishDetails"></dl>
-      <div class="fish-desc" id="fishDesc"></div>
     </div>
     <div class="statusbar">
       <div class="statusbar-section" id="statusText">Powered by Wikipedia</div>
-      <div class="statusbar-section" style="flex:0;min-width:130px;text-align:right;" id="dateText"></div>
+      <div class="statusbar-section" style="flex:0;text-align:right;white-space:nowrap;" id="dateText"></div>
     </div>
   </div>
 
@@ -364,6 +356,9 @@
     if (f[5]) addDetail("Max Size", f[5] + " cm");
     addDetail("Habitat", f[6]);
     addDetail("Depth", f[7]);
+
+    var now = new Date();
+    dateText.textContent = now.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 
     var sciName = f[1] + " " + f[2];
     var wikiTitle = f[1] + "_" + f[2];
@@ -396,11 +391,6 @@
           src = src.replace(/\/\d+px-/, "/480px-");
           localStorage.setItem(imgKey, src);
           showImage(src);
-          if (data.extract && !fishDesc.textContent) {
-            fishDesc.textContent = data.extract.length > 250
-              ? data.extract.slice(0, 247) + "..." : data.extract;
-            fishDesc.style.display = "block";
-          }
         });
     }
 
