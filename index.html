@@ -133,6 +133,27 @@
     #ontarget .game-embed { position: relative; width: 100%; height: 400px; }
     #ontarget .game-embed iframe { width: 100%; height: 100%; border: none; }
 
+    /* Run terminal window */
+    #run { width: 560px; max-width: 95vw; left: 70px; top: 50px; }
+    #run .window-body { padding: 0; }
+    .term {
+      background: #000; color: #c0c0c0;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 13px; line-height: 1.4;
+      padding: 8px; height: 260px;
+      display: flex; flex-direction: column;
+    }
+    .term-output {
+      flex: 1; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+    }
+    .term-input-row { display: flex; gap: 0; flex-shrink: 0; }
+    .term-prompt { white-space: pre; }
+    .term-input {
+      flex: 1; background: none; border: none; outline: none;
+      color: #c0c0c0; font: inherit; padding: 0; margin: 0;
+      caret-color: #c0c0c0;
+    }
+
     /* Fish Finder window */
     #fishfinder { width: 420px; max-width: 95vw; left: 100px; top: 50px; }
     .finder-label { font-size: 11px; font-weight: bold; color: var(--dk-shadow); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
@@ -372,6 +393,26 @@
       </div>
     </div>
 
+    <!-- Run Terminal (hidden initially) -->
+    <div class="window draggable" id="run" style="display:none;">
+      <div class="titlebar">
+        <span>Run</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('run')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('run')">X</div>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="term">
+          <div class="term-output" id="termOutput"></div>
+          <div class="term-input-row">
+            <span class="term-prompt">C:\BITS-AND-BOBS&gt; </span>
+            <input class="term-input" id="termInput" type="text" spellcheck="false" autocomplete="off">
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Chicken Fingers Error Dialog (hidden initially) -->
     <div class="window" id="chickenError" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;width:380px;max-width:95vw;">
       <div class="titlebar">
@@ -454,6 +495,12 @@
           <div class="start-submenu">
             <div class="start-menu-empty">No documents yet</div>
           </div>
+        </div>
+
+        <!-- Run -->
+        <div class="start-menu-item" onclick="openRun(); closeStartMenu();">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="4" width="18" height="13" rx="1" fill="#000" stroke="#808080" stroke-width="1"/><text x="4" y="13" font-family="Consolas,monospace" font-size="7" fill="#c0c0c0">C:\&gt;_</text></svg>
+          <span>Run...</span>
         </div>
 
         <div class="start-menu-separator"></div>
@@ -882,6 +929,63 @@
           '</div>' +
         '</div>';
     }
+
+    /* ── Run Terminal ── */
+    const termOutput = document.getElementById('termOutput');
+    const termInput = document.getElementById('termInput');
+    const COMMANDS = {
+      'help':        { run: cmdHelp,        desc: 'List available commands' },
+      'ontarget':    { run: openOnTarget,    desc: 'Launch On Target' },
+      'fishofday':   { run: openFishOfDay,   desc: 'Launch Fish of the Day' },
+      'fishfinder':  { run: openFishFinder,  desc: 'Launch Fish Finder' },
+      'aquarium':    { run: openAquarium,    desc: 'Launch Virtual Aquarium' },
+      'mycomputer':  { run: function () { openMyComputer(); }, desc: 'Open My Computer' },
+      'explorer':    { run: openExplorer,    desc: 'Open Applications' },
+      'cls':         { run: cmdCls,          desc: 'Clear the screen' },
+      'clear':       { run: cmdCls,          desc: 'Clear the screen' },
+      'exit':        { run: function () { bbTaskbar.closeWindow('run'); }, desc: 'Close this window' },
+      'ver':         { run: cmdVer,          desc: 'Show version' },
+    };
+
+    function termPrint(text) {
+      termOutput.textContent += text + '\n';
+      termOutput.scrollTop = termOutput.scrollHeight;
+    }
+
+    function cmdHelp() {
+      termPrint('Available commands:\n');
+      const names = Object.keys(COMMANDS).filter(function (k) { return k !== 'clear'; });
+      names.forEach(function (name) {
+        termPrint('  ' + name.toUpperCase().padEnd(14) + COMMANDS[name].desc);
+      });
+      termPrint('');
+    }
+
+    function cmdCls() { termOutput.textContent = ''; }
+
+    function cmdVer() { termPrint('Bits-and-Bobs [Version 1.0]\n(c) Matthew Pritchard. All rights reserved.\n'); }
+
+    function openRun() {
+      openWindow('run');
+      termOutput.textContent = '';
+      cmdVer();
+      termInput.value = '';
+      setTimeout(function () { termInput.focus(); }, 100);
+    }
+
+    termInput.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      const raw = termInput.value.trim();
+      termInput.value = '';
+      termPrint('C:\\BITS-AND-BOBS> ' + raw);
+      if (!raw) return;
+      const cmd = raw.toLowerCase();
+      if (COMMANDS[cmd]) {
+        COMMANDS[cmd].run();
+      } else {
+        termPrint("'" + raw + "' is not recognized as an internal or external command,\noperable program or batch file.\n");
+      }
+    });
 
     // Play click sound on button interactions
     document.addEventListener('click', function (e) {
