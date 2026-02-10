@@ -17,7 +17,6 @@
 
         .window { width: 420px; max-width: 95vw; }
         .window-body { padding: 16px; }
-        .error-icon { color: var(--error); }
         .error-text h1 { margin-bottom: 8px; }
     </style>
 </head>
@@ -31,7 +30,7 @@
         </div>
         <div class="window-body">
             <div class="error-row">
-                <span class="error-icon">&#9888;</span>
+                <svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 2 L30 28 L2 28 Z" fill="#fdd835" stroke="#c6a700" stroke-width="1.5" stroke-linejoin="round"/><text x="16" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#000" font-family="Arial, sans-serif">!</text></svg>
                 <div class="error-text">
                     <h1>Error 400 — Bad Request</h1>
                     <p>The server cannot process this request. The request may be malformed or contain invalid parameters.</p>

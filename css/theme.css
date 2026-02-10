@@ -142,10 +142,10 @@ body {
   gap: 12px;
 }
 
-.error-icon {
-  font-size: 32px;
+.alert-icon {
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
-  line-height: 1;
 }
 
 .error-text { font-size: 13px; line-height: 1.5; }
@@ -203,7 +203,6 @@ body {
   max-width: 95vw;
 }
 
-.device-dialog .error-icon { color: #d4a017; }
 
 /* ============================================================
    Desktop OS Layout
