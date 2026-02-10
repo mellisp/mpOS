@@ -1,7 +1,7 @@
 /* Fish of the Day — Shared Dataset
    Each entry: [common name, Genus, species, Family, Order,
                 max length cm, habitat, depth range, pre-baked image URL?] */
-var FISH = [
+const FISH = [
   ["Clown Anemonefish","Amphiprion","ocellaris","Pomacentridae","Perciformes",11,"Marine","1–15 m","https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Clown_fish_in_the_Andaman_Coral_Reef.jpg/480px-Clown_fish_in_the_Andaman_Coral_Reef.jpg"],
   ["Blue Tang","Paracanthurus","hepatus","Acanthuridae","Perciformes",31,"Marine","2–40 m","https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Paletten-Doktorfisch_M%C3%BCnster.JPG/480px-Paletten-Doktorfisch_M%C3%BCnster.JPG"],
   ["Atlantic Salmon","Salmo","salar","Salmonidae","Salmoniformes",150,"Freshwater, Marine","0–210 m","https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Wst_atlantischer_lachs_stoer_001.jpg/480px-Wst_atlantischer_lachs_stoer_001.jpg"],
@@ -186,8 +186,8 @@ var FISH = [
 
 /* ── Deterministic FNV-1a hash ───────────────────────── */
 function fnv(str) {
-  var h = 0x811c9dc5;
-  for (var i = 0; i < str.length; i++) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i);
     h = Math.imul(h, 0x01000193);
   }
@@ -195,17 +195,17 @@ function fnv(str) {
 }
 
 function todayKey() {
-  var d = new Date();
+  const d = new Date();
   return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
 }
 
 /* ── Pick today's fish and preload image immediately ── */
-var FISH_TODAY = FISH[fnv(todayKey()) % FISH.length];
+const FISH_TODAY = FISH[fnv(todayKey()) % FISH.length];
 (function(){
-  var k = "fotd-img-" + todayKey();
-  var u = FISH_TODAY[8] || localStorage.getItem(k);
+  const k = "fotd-img-" + todayKey();
+  const u = FISH_TODAY[8] || localStorage.getItem(k);
   if (u) {
-    var l = document.createElement("link");
+    const l = document.createElement("link");
     l.rel = "preload";
     l.as = "image";
     l.fetchPriority = "high";

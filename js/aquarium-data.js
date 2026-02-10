@@ -1,6 +1,6 @@
 /* Aquarium Dataset — coordinates and metadata sourced from Wikidata (wikidata.org)
    Each entry: [name, city, latitude, longitude, website, year opened] */
-var AQUARIUMS = [
+const AQUARIUMS = [
   // North America — USA
   ["Georgia Aquarium", "Atlanta, GA, USA", 33.76343, -84.395075, "https://www.georgiaaquarium.org", 2005],
   ["Monterey Bay Aquarium", "Monterey, CA, USA", 36.618253, -121.901481, "https://www.montereybayaquarium.org", 1984],
