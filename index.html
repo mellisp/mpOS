@@ -18,6 +18,7 @@
     })();
   </script>
   <script src="js/fish-data.js"></script>
+  <script src="js/aquarium-data.js"></script>
   <style>
     .project-list { list-style: none; }
 
@@ -120,6 +121,13 @@
       transition: background 1.5s ease, color 1s ease;
     }
     #aquarium .aquarium-shield.loaded { background: transparent; color: transparent; }
+
+    /* Fish Finder window */
+    #fishfinder { width: 420px; max-width: 95vw; left: 100px; top: 50px; }
+    .finder-label { font-size: 11px; font-weight: bold; color: var(--dk-shadow); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .finder-name { font-size: 15px; font-weight: bold; }
+    .finder-location { font-size: 12px; color: #57606a; margin-top: 2px; }
+    .finder-distance { font-size: 13px; margin-top: 4px; }
 
     /* Fish of the Day window */
     #fishofday { width: 480px; max-width: 95vw; left: 160px; top: 60px; }
@@ -252,6 +260,11 @@
               <span class="desc">A new fish every day, powered by Wikipedia.</span>
               <span class="tag">HTML</span>
             </li>
+            <li>
+              <a href="#" onclick="openFishFinder(); return false;">Fish Finder</a>
+              <span class="desc">Find the closest aquarium near you. Also finds the furthest.</span>
+              <span class="tag">HTML</span>
+            </li>
           </ul>
         </div>
 
@@ -273,7 +286,7 @@
       </div>
       <div class="statusbar">
         <div class="statusbar-section">&copy; Matthew Pritchard</div>
-        <div class="statusbar-section" style="flex:0;min-width:90px;text-align:right;">4 item(s)</div>
+        <div class="statusbar-section" style="flex:0;min-width:90px;text-align:right;">5 item(s)</div>
       </div>
     </div>
 
@@ -316,6 +329,21 @@
       </div>
       <div class="statusbar">
         <div class="statusbar-section">Powered by explore.org</div>
+      </div>
+    </div>
+
+    <!-- Fish Finder Window (hidden initially) -->
+    <div class="window draggable" id="fishfinder" style="display:none;">
+      <div class="titlebar">
+        <span>Fish Finder</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" onclick="bbTaskbar.minimizeWindow('fishfinder')">_</div>
+          <div class="titlebar-btn" onclick="bbTaskbar.closeWindow('fishfinder')">X</div>
+        </div>
+      </div>
+      <div class="window-body" id="fishFinderBody"></div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="fishFinderStatus"></div>
       </div>
     </div>
 
@@ -626,6 +654,93 @@
           photoPlaceholder.textContent = "Photo unavailable";
         };
       }
+    }
+
+    /* ── Fish Finder ── */
+    function openFishFinder() {
+      openWindow('fishfinder');
+      populateFishFinder();
+    }
+
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      var R = 6371;
+      var dLat = (lat2 - lat1) * Math.PI / 180;
+      var dLon = (lon2 - lon1) * Math.PI / 180;
+      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function formatFinderDistance(km) {
+      var mi = km * 0.621371;
+      return km.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' km (' +
+             mi.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' mi)';
+    }
+
+    function populateFishFinder() {
+      var body = document.getElementById('fishFinderBody');
+      var status = document.getElementById('fishFinderStatus');
+
+      body.innerHTML = '<div style="padding:16px;font-size:12px;color:#57606a;">Locating you...</div>';
+      status.textContent = '';
+
+      if (!navigator.geolocation) {
+        showFinderError(body, 'Geolocation is not supported by your browser.');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        function (pos) {
+          var lat = pos.coords.latitude;
+          var lon = pos.coords.longitude;
+          var nearest = null, furthest = null;
+          var minDist = Infinity, maxDist = -1;
+
+          for (var i = 0; i < AQUARIUMS.length; i++) {
+            var d = haversineDistance(lat, lon, AQUARIUMS[i][2], AQUARIUMS[i][3]);
+            if (d < minDist) { minDist = d; nearest = AQUARIUMS[i]; }
+            if (d > maxDist) { maxDist = d; furthest = AQUARIUMS[i]; }
+          }
+
+          body.innerHTML =
+            '<div style="padding:10px;">' +
+              '<div class="finder-label">Nearest Aquarium</div>' +
+              '<div class="sunken" style="padding:10px;margin-bottom:10px;">' +
+                '<div class="finder-name">' + nearest[0] + '</div>' +
+                '<div class="finder-location">' + nearest[1] + '</div>' +
+                '<div class="finder-distance">' + formatFinderDistance(minDist) + '</div>' +
+              '</div>' +
+              '<div class="finder-label">Furthest Aquarium</div>' +
+              '<div class="sunken" style="padding:10px;">' +
+                '<div class="finder-name">' + furthest[0] + '</div>' +
+                '<div class="finder-location">' + furthest[1] + '</div>' +
+                '<div class="finder-distance">' + formatFinderDistance(maxDist) + '</div>' +
+              '</div>' +
+            '</div>';
+
+          status.textContent = AQUARIUMS.length + ' aquariums in database';
+        },
+        function (err) {
+          var msgs = {
+            1: 'Location access was denied.',
+            2: 'Location information is unavailable.',
+            3: 'Location request timed out.'
+          };
+          showFinderError(body, msgs[err.code] || 'An unknown error occurred.');
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+      );
+    }
+
+    function showFinderError(body, msg) {
+      body.innerHTML =
+        '<div style="padding:16px;">' +
+          '<div class="error-row">' +
+            '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 2 L30 28 L2 28 Z" fill="#fdd835" stroke="#c6a700" stroke-width="1.5" stroke-linejoin="round"/><text x="16" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#000" font-family="Arial, sans-serif">!</text></svg>' +
+            '<div class="error-text">' + msg + '</div>' +
+          '</div>' +
+        '</div>';
     }
 
     // Play click sound on button interactions
