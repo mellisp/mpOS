@@ -1,6 +1,3 @@
-/* Classic Desktop OS Theme — Shared Styles
-   Inspired by the early-2000s desktop aesthetic. */
-
 :root {
   --silver: #d4d0c8;
   --white: #fff;
@@ -272,7 +269,7 @@ body {
 .taskbar {
   background: var(--silver);
   border-top: 2px solid var(--white);
-  padding: 4px 16px 6px;
+  padding: 6px 20px 8px;
   display: flex;
   align-items: center;
   gap: 4px;
