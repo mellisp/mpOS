@@ -20,6 +20,7 @@ const path = require("path");
 
 const WIKI_API = "https://en.wikipedia.org/api/rest_v1/page/summary/";
 const HTML_PATH = path.join(__dirname, "..", "fish-of-the-day.html");
+const INDEX_PATH = path.join(__dirname, "..", "index.html");
 const CONCURRENCY = 4;
 const DELAY = 250;
 const MAX_RETRIES = 2;
@@ -150,8 +151,16 @@ async function main() {
   var patched = html.replace(/var FISH = \[[\s\S]*?\];/, newArray);
   fs.writeFileSync(HTML_PATH, patched);
 
-  var sizeKB = (Buffer.byteLength(patched) / 1024).toFixed(0);
-  console.log("\nDone! Updated " + HTML_PATH + " (" + sizeKB + " KB)");
+  /* Also patch index.html (same FISH array embedded there) */
+  var indexHtml = fs.readFileSync(INDEX_PATH, "utf8");
+  if (/var FISH = \[[\s\S]*?\];/.test(indexHtml)) {
+    var patchedIndex = indexHtml.replace(/var FISH = \[[\s\S]*?\];/, newArray);
+    fs.writeFileSync(INDEX_PATH, patchedIndex);
+    console.log("\nUpdated both " + HTML_PATH + " and " + INDEX_PATH);
+  } else {
+    console.log("\nUpdated " + HTML_PATH + " (index.html had no FISH array to patch)");
+  }
+
   console.log(found + " species now have pre-baked images — zero API calls at runtime.");
 }
 
