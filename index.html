@@ -110,8 +110,9 @@
     /* Virtual Aquarium window */
     #aquarium { width: 640px; max-width: 95vw; left: 60px; top: 30px; }
     #aquarium .window-body { padding: 0; background: #000; }
-    #aquarium .aquarium-embed { position: relative; width: 100%; padding-top: 56.25%; }
-    #aquarium .aquarium-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+    #aquarium .aquarium-embed { position: relative; width: 100%; padding-top: 56.25%; overflow: hidden; }
+    #aquarium .aquarium-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; transform: scale(1.2); transform-origin: center; }
+    #aquarium .aquarium-shield { position: absolute; inset: 0; z-index: 1; }
 
     /* Fish of the Day window */
     #fishofday { width: 480px; max-width: 95vw; left: 160px; top: 60px; }
@@ -304,10 +305,10 @@
         </div>
       </div>
       <div class="window-body">
-        <div class="aquarium-embed" id="aquariumEmbed"></div>
+        <div class="aquarium-embed" id="aquariumEmbed"><div class="aquarium-shield"></div></div>
       </div>
       <div class="statusbar">
-        <div class="statusbar-section">Tropical Reef Camera powered by EXPLORE.org</div>
+        <div class="statusbar-section">Powered by explore.org</div>
       </div>
     </div>
 
@@ -408,7 +409,7 @@
     function openAquarium() {
       var embed = document.getElementById('aquariumEmbed');
       if (!embed.dataset.loaded) {
-        embed.innerHTML = '<iframe src="https://www.youtube.com/embed/DHUnz4dyb54" title="Tropical Reef Camera powered by EXPLORE.org" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+        embed.innerHTML = '<iframe src="https://www.youtube.com/embed/DHUnz4dyb54?autoplay=1&mute=1&controls=0&rel=0&iv_load_policy=3&modestbranding=1" title="Virtual Aquarium" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
         embed.dataset.loaded = '1';
       }
       openWindow('aquarium');
