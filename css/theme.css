@@ -121,7 +121,7 @@ body {
 .statusbar {
   background: var(--silver);
   border-top: 2px solid var(--shadow);
-  padding: 2px 6px;
+  padding: 2px 3px;
   font-size: 12px;
   color: #000;
   display: flex;
