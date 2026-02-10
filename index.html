@@ -607,6 +607,11 @@
         const iframe = document.createElement('iframe');
         iframe.src = 'target-game.html';
         iframe.title = 'On Target';
+        let initialLoad = true;
+        iframe.addEventListener('load', function () {
+          if (initialLoad) { initialLoad = false; return; }
+          closeOnTarget();
+        });
         embed.appendChild(iframe);
       }
     }
