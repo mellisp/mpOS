@@ -1,4 +1,4 @@
-/* Main application logic — Bits & Bobs */
+/* Main application logic — mpOS */
 
 function openWindow(id) {
   const win = document.getElementById(id);
@@ -369,7 +369,7 @@ function showFinderError(body, msg) {
   body.innerHTML =
     '<div style="padding:16px;">' +
       '<div class="error-row">' +
-        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 2 L30 28 L2 28 Z" fill="#fdd835" stroke="#c6a700" stroke-width="1.5" stroke-linejoin="round"/><text x="16" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#000" font-family="Arial, sans-serif">!</text></svg>' +
+        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 2 L30 28 L2 28 Z" fill="#fdd835" stroke="#c6a700" stroke-width="1.5" stroke-linejoin="round"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#000"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#000"/></svg>' +
         '<div class="error-text">' + msg + '</div>' +
       '</div>' +
     '</div>';
@@ -408,7 +408,7 @@ function cmdHelp() {
 
 function cmdCls() { termOutput.textContent = ''; }
 
-function cmdVer() { termPrint('Bits-and-Bobs [Version 1.0]\n(c) Matthew Pritchard. All rights reserved.\n'); }
+function cmdVer() { termPrint('mpOS [Version 1.0]\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
 function openRun() {
   openWindow('run');
@@ -422,7 +422,7 @@ termInput.addEventListener('keydown', function (e) {
   if (e.key !== 'Enter') return;
   const raw = termInput.value.trim();
   termInput.value = '';
-  termPrint('C:\\BITS-AND-BOBS> ' + raw);
+  termPrint('C:\\mpOS> ' + raw);
   if (!raw) return;
   const cmd = raw.toLowerCase();
   if (COMMANDS[cmd]) {

@@ -1,5 +1,4 @@
-/* Audio System — Bits & Bobs
-   Lazy-loads and plays UI sounds from audio/<name>.mp3 */
+/* Audio System — Lazy-loads and plays UI sounds from audio/<name>.mp3 */
 
 (function () {
   const cache = {};
