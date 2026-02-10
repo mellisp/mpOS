@@ -83,7 +83,6 @@
     }
 
     #mycomputer .section-title { margin: 10px 0 4px; }
-    #mycomputer .section-title:first-child { margin-top: 0; }
     #mycomputer .sunken { margin-bottom: 0; }
 
     .sysinfo-table {
@@ -375,21 +374,12 @@
       else if (/CrOS/.test(ua)) os = 'Chrome OS';
       else if (/Linux/.test(ua)) os = 'Linux';
 
-      // --- Browser detection (version is still accurate in UA) ---
+      // --- Browser detection ---
       var browser = null;
-      if (/Edg\//.test(ua)) {
-        var ev = ua.match(/Edg\/([\d.]+)/);
-        browser = 'Microsoft Edge' + (ev ? ' ' + ev[1] : '');
-      } else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) {
-        var cv = ua.match(/Chrome\/([\d.]+)/);
-        browser = 'Google Chrome' + (cv ? ' ' + cv[1] : '');
-      } else if (/Firefox\//.test(ua)) {
-        var fv = ua.match(/Firefox\/([\d.]+)/);
-        browser = 'Mozilla Firefox' + (fv ? ' ' + fv[1] : '');
-      } else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) {
-        var sv = ua.match(/Version\/([\d.]+)/);
-        browser = 'Apple Safari' + (sv ? ' ' + sv[1] : '');
-      }
+      if (/Edg\//.test(ua)) browser = 'Microsoft Edge';
+      else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) browser = 'Google Chrome';
+      else if (/Firefox\//.test(ua)) browser = 'Mozilla Firefox';
+      else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Apple Safari';
 
       function render(osLabel) {
         // --- Build hero ---
@@ -449,19 +439,7 @@
         }
       }
 
-      // --- Try to get real OS version via User-Agent Client Hints (Chromium only) ---
-      if (nav.userAgentData && nav.userAgentData.getHighEntropyValues) {
-        nav.userAgentData.getHighEntropyValues(['platformVersion']).then(function (data) {
-          if (data.platformVersion && os) {
-            var v = data.platformVersion.split('.');
-            render(os + ' ' + v[0] + (v[1] && v[1] !== '0' ? '.' + v[1] : ''));
-          } else {
-            render(os);
-          }
-        }).catch(function () { render(os); });
-      } else {
-        render(os);
-      }
+      render(os);
     }
 
     // --- Fish of the Day ---
