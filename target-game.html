@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Target Shooting</title>
+  <title>On Target</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/theme.css">
   <style>
-    body { overflow: hidden; width: 100vw; height: 100vh; cursor: crosshair; }
+    /* Dark background — high contrast for game elements, reduces eye strain */
+    body {
+      overflow: hidden; width: 100vw; height: 100vh;
+      cursor: crosshair;
+      background: #1a1f2e;
+    }
 
     .target-container {
       position: absolute;
@@ -19,47 +24,98 @@
       will-change: transform;
     }
 
+    /* Classic red/white shooting target — instantly recognizable */
     .target {
       width: 80px; height: 80px;
       border-radius: 50%;
-      background: radial-gradient(circle, #222 15%, #fff 15% 30%, #222 30% 50%, #fff 50% 70%, #222 70%);
+      background: radial-gradient(circle,
+        #d32f2f 14%, #fff 14% 28%,
+        #d32f2f 28% 46%, #fff 46% 62%,
+        #d32f2f 62% 78%, #fff 78% 90%,
+        #d32f2f 90%
+      );
       cursor: crosshair;
-      transition: opacity 0.2s;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      transition: opacity 0.2s, filter 0.2s;
+      box-shadow: 0 0 16px rgba(255,255,255,0.12);
     }
 
-    .target.hit { opacity: 0.3; }
+    .target.hit { opacity: 0.25; filter: grayscale(1); }
 
+    /* Feedback labels — bright against dark background */
     .label {
-      font-size: 14px; font-weight: bold; color: var(--silver);
+      font-size: 14px; font-weight: bold;
+      color: rgba(255,255,255,0.5);
       text-transform: uppercase; letter-spacing: 2px;
       min-width: 80px; text-align: center; min-height: 18px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
     }
 
-    .label.hit { color: #2e7d32; }
-    .label.miss { color: var(--error); }
+    .label.hit { color: #66bb6a; }
+    .label.miss { color: #ef5350; }
 
-    .hud {
-      position: fixed; top: 12px; left: 12px; z-index: 10;
-      pointer-events: none; user-select: none;
+    /* Warm muzzle-flash feel */
+    .flash {
+      position: fixed; inset: 0;
+      background: radial-gradient(circle at var(--fx, 50%) var(--fy, 50%),
+        rgba(255,200,60,0.7), transparent 40%);
+      opacity: 0;
+      pointer-events: none; z-index: 5;
+    }
+
+    /* Rules dialog overlay */
+    .rules-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: default;
+    }
+
+    .rules-overlay.hidden { display: none; }
+
+    .rules-dialog {
       background: var(--silver);
       border: 2px solid;
       border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
       box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+      width: 300px;
+      max-width: 90vw;
     }
 
-    .hud .score { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
+    .rules-dialog .window-body { padding: 16px; line-height: 1.6; }
 
-    .flash {
-      position: fixed; inset: 0;
-      background: var(--white); opacity: 0;
-      pointer-events: none; z-index: 5;
+    /* Score display — bottom left, XP-styled */
+    .score-bar {
+      position: fixed;
+      bottom: 8px;
+      left: 8px;
+      z-index: 10;
+      pointer-events: none;
+      user-select: none;
+      background: var(--silver);
+      border: 2px solid;
+      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+      box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: bold;
+      display: none;
     }
+
+    .score-bar.active { display: block; }
+
+    .score-bar .status { font-weight: normal; margin-left: 8px; }
+    .score-bar .status.hit { color: #2e7d32; }
+    .score-bar .status.miss { color: var(--error); }
 
     .device-dialog { width: 360px; }
 
     @media (hover: none) and (pointer: coarse) {
       .device-overlay { display: flex; }
+      .rules-overlay { display: none; }
     }
   </style>
 </head>
@@ -67,7 +123,7 @@
   <div class="device-overlay">
     <div class="device-dialog">
       <div class="titlebar">
-        <span>Target Shooting</span>
+        <span>On Target</span>
         <div class="titlebar-btn">X</div>
       </div>
       <div class="window-body" style="padding:16px">
@@ -85,21 +141,25 @@
     </div>
   </div>
 
+  <div class="rules-overlay" id="rulesOverlay">
+    <div class="rules-dialog">
+      <div class="titlebar">
+        <span>On Target</span>
+      </div>
+      <div class="window-body">
+        <div><strong>Player 1:</strong> Arrow keys to dodge</div>
+        <div><strong>Player 2:</strong> Use the mouse to shoot!</div>
+        <div class="button-row" style="margin-top:12px">
+          <button class="btn" id="startBtn">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="flash" id="flash"></div>
 
-  <div class="hud">
-    <div class="hud-titlebar" style="display:flex;justify-content:space-between;align-items:center;">
-      <span>Target Shooting</span>
-      <a href="/" class="titlebar-btn" style="pointer-events:auto;text-decoration:none;font-size:11px;" onclick="if(window.parent!==window){event.preventDefault();parent.closeOnTarget();}">X</a>
-    </div>
-    <div class="hud-body">
-      <div class="score">Score: <span id="score">0</span></div>
-      <div><strong>Player 1:</strong> Arrow keys to dodge</div>
-      <div><strong>Player 2:</strong> Shoot the target!</div>
-    </div>
-    <div class="hud-statusbar">
-      <div class="hud-statusbar-section">Ready</div>
-    </div>
+  <div class="score-bar" id="scoreBar">
+    Score: <span id="score">0</span><span class="status" id="scoreStatus"></span>
   </div>
 
   <div class="target-container" id="container">
@@ -113,11 +173,21 @@
     const scoreEl = document.getElementById("score");
     const container = document.getElementById("container");
     const flash = document.getElementById("flash");
-    const hudStatus = document.querySelector(".hud-statusbar-section");
+    const scoreBar = document.getElementById("scoreBar");
+    const scoreStatus = document.getElementById("scoreStatus");
+    const rulesOverlay = document.getElementById("rulesOverlay");
+    const startBtn = document.getElementById("startBtn");
 
     let score = 0;
     let isHit = false;
     let statusTimeout = null;
+    let gameStarted = false;
+
+    startBtn.addEventListener("click", () => {
+      rulesOverlay.classList.add("hidden");
+      scoreBar.classList.add("active");
+      gameStarted = true;
+    });
 
     let containerW = container.offsetWidth;
     let containerH = container.offsetHeight;
@@ -129,7 +199,12 @@
     });
 
     document.body.addEventListener("mousedown", (e) => {
-      flash.animate([{ opacity: 0.8 }, { opacity: 0 }], { duration: 150, easing: "ease-out" });
+      if (!gameStarted) return;
+
+      /* Position the flash radial at the click point */
+      flash.style.setProperty("--fx", e.clientX + "px");
+      flash.style.setProperty("--fy", e.clientY + "px");
+      flash.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: "ease-out" });
 
       if (isHit) return;
 
@@ -150,7 +225,8 @@
         status.textContent = "Hit! +" + points;
         status.className = "label hit";
         target.classList.add("hit");
-        hudStatus.textContent = "Hit! +" + points;
+        scoreStatus.textContent = "Hit! +" + points;
+        scoreStatus.className = "status hit";
         isHit = true;
 
         clearTimeout(statusTimeout);
@@ -158,18 +234,21 @@
           target.classList.remove("hit");
           status.textContent = "";
           status.className = "label";
-          hudStatus.textContent = "Ready";
+          scoreStatus.textContent = "";
+          scoreStatus.className = "status";
           isHit = false;
         }, 1000);
       } else {
         status.textContent = "Miss";
         status.className = "label miss";
-        hudStatus.textContent = "Miss";
+        scoreStatus.textContent = "Miss";
+        scoreStatus.className = "status miss";
         clearTimeout(statusTimeout);
         statusTimeout = setTimeout(() => {
           status.textContent = "";
           status.className = "label";
-          hudStatus.textContent = "Ready";
+          scoreStatus.textContent = "";
+          scoreStatus.className = "status";
         }, 800);
       }
     });
