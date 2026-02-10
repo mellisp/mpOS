@@ -48,6 +48,17 @@
         </svg>
         <span class="desktop-icon-label">Applications</span>
       </div>
+      <!-- WikiBrowser icon -->
+      <div class="desktop-icon" role="button" tabindex="0" ondblclick="openBrowser()" onkeydown="if(event.key==='Enter')openBrowser()">
+        <svg class="desktop-icon-img" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="18" fill="#a6caf0" stroke="#0a246a" stroke-width="2"/>
+          <ellipse cx="24" cy="24" rx="7" ry="18" fill="none" stroke="#0a246a" stroke-width="1.5"/>
+          <line x1="6" y1="24" x2="42" y2="24" stroke="#0a246a" stroke-width="1.5"/>
+          <line x1="8" y1="15" x2="40" y2="15" stroke="#0a246a" stroke-width="1"/>
+          <line x1="8" y1="33" x2="40" y2="33" stroke="#0a246a" stroke-width="1"/>
+        </svg>
+        <span class="desktop-icon-label">WikiBrowser</span>
+      </div>
     </div>
 
     <!-- My Computer Window (hidden initially) -->
@@ -113,7 +124,7 @@
         <div class="sunken">
           <ul class="project-list">
             <li>
-              <a href="#" onclick="openBrowser(); return false;">Web Browser</a>
+              <a href="#" onclick="openBrowser(); return false;">WikiBrowser</a>
               <span class="desc">Browse Wikipedia from within mpOS.</span>
               <span class="tag">HTML</span>
             </li>
@@ -222,10 +233,10 @@
       </div>
     </div>
 
-    <!-- Web Browser (hidden initially) -->
+    <!-- WikiBrowser (hidden initially) -->
     <div class="window draggable" id="browser" style="display:none;">
       <div class="titlebar">
-        <span id="browserTitle">Web Browser</span>
+        <span id="browserTitle">WikiBrowser</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('browser')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeBrowser()">X</div>
@@ -236,7 +247,7 @@
           <input class="browser-url" id="browserUrl" type="text" spellcheck="false" autocomplete="off" placeholder="Search Wikipedia or enter article name...">
         </div>
         <div class="browser-viewport" id="browserViewport">
-          <iframe id="browserFrame" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" title="Web Browser"></iframe>
+          <iframe id="browserFrame" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" title="WikiBrowser"></iframe>
         </div>
       </div>
     </div>
@@ -290,8 +301,8 @@
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <a class="start-menu-item" href="#" onclick="openBrowser(); closeStartMenu(); return false;">
-              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="11" r="7" fill="#a6caf0" stroke="#0a246a" stroke-width="1.5"/><ellipse cx="10" cy="11" rx="3" ry="7" fill="none" stroke="#0a246a" stroke-width="1"/><line x1="3" y1="11" x2="17" y2="11" stroke="#0a246a" stroke-width="1"/><line x1="4.5" y1="7" x2="15.5" y2="7" stroke="#0a246a" stroke-width="0.75"/><line x1="4.5" y1="15" x2="15.5" y2="15" stroke="#0a246a" stroke-width="0.75"/><path d="M8 4.5 Q10 2.5 12 4.5" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" fill="none"/><circle cx="10" cy="4.5" r="1" fill="#4ade80"/></svg>
-              <span>Web Browser</span>
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" fill="#a6caf0" stroke="#0a246a" stroke-width="1.5"/><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#0a246a" stroke-width="1"/><line x1="2" y1="10" x2="18" y2="10" stroke="#0a246a" stroke-width="1"/><line x1="3.5" y1="6" x2="16.5" y2="6" stroke="#0a246a" stroke-width="0.75"/><line x1="3.5" y1="14" x2="16.5" y2="14" stroke="#0a246a" stroke-width="0.75"/></svg>
+              <span>WikiBrowser</span>
             </a>
             <a class="start-menu-item" href="#" onclick="openFishOfDay(); closeStartMenu(); return false;">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="10" cy="11" rx="8" ry="5" fill="#4a9" stroke="#276"/><circle cx="14" cy="10" r="1" fill="#000"/><path d="M2 11 Q0 8 3 7" stroke="#276" fill="none" stroke-width="1.5"/></svg>

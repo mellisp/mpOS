@@ -108,7 +108,7 @@
 #ontarget .game-embed { position: relative; width: 100%; height: 400px; }
 #ontarget .game-embed iframe { width: 100%; height: 100%; border: none; }
 
-/* Web Browser window */
+/* WikiBrowser window */
 #browser { width: 720px; max-width: 95vw; left: 60px; top: 30px; }
 #browser .window-body { padding: 0; display: flex; flex-direction: column; }
 

@@ -375,7 +375,7 @@ function showFinderError(body, msg) {
     '</div>';
 }
 
-/* ── Web Browser ── */
+/* ── WikiBrowser ── */
 const BROWSER_HOME = 'https://en.m.wikipedia.org/wiki/Main_Page';
 const browserFrame = document.getElementById('browserFrame');
 const browserUrl = document.getElementById('browserUrl');
@@ -397,7 +397,7 @@ function closeBrowser() {
   browserFrame.src = 'about:blank';
   vp.dataset.loaded = '';
   browserUrl.value = '';
-  browserTitle.textContent = 'Web Browser';
+  browserTitle.textContent = 'WikiBrowser';
   bbTaskbar.closeWindow('browser');
 }
 
@@ -427,7 +427,7 @@ browserFrame.addEventListener('load', function () {
     if (loc && loc !== 'about:blank') {
       browserUrl.value = loc;
       const title = browserFrame.contentDocument && browserFrame.contentDocument.title;
-      browserTitle.textContent = title ? 'Web Browser — ' + title : 'Web Browser';
+      browserTitle.textContent = title ? 'WikiBrowser — ' + title : 'WikiBrowser';
     }
   } catch (e) {
     /* cross-origin — can't read iframe location */
@@ -443,7 +443,7 @@ const COMMANDS = {
   'fishofday':   { run: openFishOfDay,   desc: 'Launch Fish of the Day' },
   'fishfinder':  { run: openFishFinder,  desc: 'Launch Fish Finder' },
   'aquarium':    { run: openAquarium,    desc: 'Launch Virtual Aquarium' },
-  'browser':     { run: openBrowser,     desc: 'Launch Web Browser' },
+  'browser':     { run: openBrowser,     desc: 'Launch WikiBrowser' },
   'mycomputer':  { run: function () { openMyComputer(); }, desc: 'Open My Computer' },
   'explorer':    { run: openExplorer,    desc: 'Open Applications' },
   'cls':         { run: cmdCls,          desc: 'Clear the screen' },
