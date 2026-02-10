@@ -439,7 +439,7 @@
         <div class="start-menu-separator"></div>
 
         <!-- Exit Site -->
-        <div class="start-menu-item" onclick="closeStartMenu(); window.close();">
+        <div class="start-menu-item" onclick="exitSite();">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="3" y="2" width="14" height="16" rx="1" fill="#d4d0c8" stroke="#808080" stroke-width="1"/>
             <path d="M7 10 L14 10 M12 7 L15 10 L12 13" stroke="#c62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -509,6 +509,15 @@
         return false;
       }
       return true;
+    }
+
+    function exitSite() {
+      closeStartMenu();
+      window.close();
+      // Fallback: window.close() is blocked on user-opened tabs
+      document.title = 'Goodbye!';
+      document.body.innerHTML = '';
+      document.body.style.background = '#3a6ea5';
     }
 
     /* ── YouTube API lazy loader ── */
