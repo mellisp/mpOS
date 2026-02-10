@@ -703,20 +703,23 @@
             if (d > maxDist) { maxDist = d; furthest = AQUARIUMS[i]; }
           }
 
+          function finderCard(aq, dist) {
+            var name = aq[4] ? '<a href="' + aq[4] + '" target="_blank" rel="noopener" style="color:var(--link);text-decoration:none;">' + aq[0] + '</a>' : aq[0];
+            var meta = aq[1];
+            if (aq[5]) meta += ' &middot; Est. ' + aq[5];
+            return '<div class="sunken" style="padding:10px;margin-bottom:10px;">' +
+              '<div class="finder-name">' + name + '</div>' +
+              '<div class="finder-location">' + meta + '</div>' +
+              '<div class="finder-distance">' + formatFinderDistance(dist) + '</div>' +
+            '</div>';
+          }
+
           body.innerHTML =
             '<div style="padding:10px;">' +
               '<div class="finder-label">Nearest Aquarium</div>' +
-              '<div class="sunken" style="padding:10px;margin-bottom:10px;">' +
-                '<div class="finder-name">' + nearest[0] + '</div>' +
-                '<div class="finder-location">' + nearest[1] + '</div>' +
-                '<div class="finder-distance">' + formatFinderDistance(minDist) + '</div>' +
-              '</div>' +
+              finderCard(nearest, minDist) +
               '<div class="finder-label">Furthest Aquarium</div>' +
-              '<div class="sunken" style="padding:10px;">' +
-                '<div class="finder-name">' + furthest[0] + '</div>' +
-                '<div class="finder-location">' + furthest[1] + '</div>' +
-                '<div class="finder-distance">' + formatFinderDistance(maxDist) + '</div>' +
-              '</div>' +
+              finderCard(furthest, maxDist) +
             '</div>';
 
           status.textContent = AQUARIUMS.length + ' aquariums in database';
