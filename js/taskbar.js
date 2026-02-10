@@ -1,4 +1,4 @@
-/* Taskbar — Bits & Bobs */
+/* Taskbar — Window Management */
 (function () {
   const startBtn = document.querySelector('.start-btn');
   const startMenu = document.querySelector('.start-menu');
