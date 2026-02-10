@@ -150,6 +150,27 @@
           </ul>
         </div>
 
+        <div class="section-title">Utilities</div>
+        <div class="sunken">
+          <ul class="project-list">
+            <li>
+              <a href="#" onclick="openNotepad(); return false;">Notepad</a>
+              <span class="desc">A simple text editor with save and load.</span>
+              <span class="tag">HTML</span>
+            </li>
+            <li>
+              <a href="#" onclick="openCalculator(); return false;">Calculator</a>
+              <span class="desc">Basic arithmetic calculator.</span>
+              <span class="tag">HTML</span>
+            </li>
+            <li>
+              <a href="#" onclick="openWeather(); return false;">Weather</a>
+              <span class="desc">Three-day forecast for your location.</span>
+              <span class="tag">API</span>
+            </li>
+          </ul>
+        </div>
+
         <div class="separator"></div>
 
         <div class="section-title">About</div>
@@ -157,7 +178,7 @@
       </div>
       <div class="statusbar">
         <div class="statusbar-section">&copy; Matthew Pritchard</div>
-        <div class="statusbar-section" style="flex:0;min-width:90px;text-align:right;">5 item(s)</div>
+        <div class="statusbar-section" style="flex:0;min-width:90px;text-align:right;">8 item(s)</div>
       </div>
     </div>
 
@@ -271,6 +292,80 @@
       </div>
     </div>
 
+    <!-- Notepad Window (hidden initially) -->
+    <div class="window draggable" id="notepad" style="display:none;">
+      <div class="titlebar">
+        <span>Notepad</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('notepad')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('notepad')">X</div>
+        </div>
+      </div>
+      <div class="window-body" style="padding:0;">
+        <div class="notepad-toolbar">
+          <button class="btn" onclick="notepadNew()">New</button>
+          <button class="btn" onclick="notepadSave()">Save</button>
+          <button class="btn" onclick="notepadLoad()">Open</button>
+        </div>
+        <textarea class="notepad-editor" id="notepadEditor" spellcheck="false" placeholder="Type here..."></textarea>
+      </div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="notepadStatus">0 characters</div>
+      </div>
+    </div>
+
+    <!-- Calculator Window (hidden initially) -->
+    <div class="window draggable" id="calculator" style="display:none;">
+      <div class="titlebar">
+        <span>Calculator</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('calculator')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('calculator')">X</div>
+        </div>
+      </div>
+      <div class="window-body" style="padding:8px;">
+        <div class="calc-display" id="calcDisplay">0</div>
+        <div class="calc-buttons">
+          <button class="calc-btn" onclick="calcClearEntry()">CE</button>
+          <button class="calc-btn" onclick="calcClear()">C</button>
+          <button class="calc-btn" onclick="calcBackspace()">&#9003;</button>
+          <button class="calc-btn calc-op" onclick="calcOp('/')">&divide;</button>
+          <button class="calc-btn" onclick="calcDigit('7')">7</button>
+          <button class="calc-btn" onclick="calcDigit('8')">8</button>
+          <button class="calc-btn" onclick="calcDigit('9')">9</button>
+          <button class="calc-btn calc-op" onclick="calcOp('*')">&times;</button>
+          <button class="calc-btn" onclick="calcDigit('4')">4</button>
+          <button class="calc-btn" onclick="calcDigit('5')">5</button>
+          <button class="calc-btn" onclick="calcDigit('6')">6</button>
+          <button class="calc-btn calc-op" onclick="calcOp('-')">&minus;</button>
+          <button class="calc-btn" onclick="calcDigit('1')">1</button>
+          <button class="calc-btn" onclick="calcDigit('2')">2</button>
+          <button class="calc-btn" onclick="calcDigit('3')">3</button>
+          <button class="calc-btn calc-op" onclick="calcOp('+')">+</button>
+          <button class="calc-btn calc-zero" onclick="calcDigit('0')">0</button>
+          <button class="calc-btn" onclick="calcDecimal()">.</button>
+          <button class="calc-btn calc-eq" onclick="calcEquals()">=</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weather Window (hidden initially) -->
+    <div class="window draggable" id="weather" style="display:none;">
+      <div class="titlebar">
+        <span>Weather</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('weather')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('weather')">X</div>
+        </div>
+      </div>
+      <div class="window-body" id="weatherBody">
+        <div style="padding:16px;font-size:12px;color:#57606a;">Loading weather data...</div>
+      </div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="weatherStatus">Powered by Open-Meteo</div>
+      </div>
+    </div>
+
     <!-- Chicken Fingers Error Dialog (hidden initially) -->
     <div class="window" id="chickenError" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;width:380px;max-width:95vw;">
       <div class="titlebar">
@@ -366,6 +461,32 @@
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <div class="start-menu-empty">No documents yet</div>
+          </div>
+        </div>
+
+        <!-- Utilities -->
+        <div class="start-menu-item has-submenu">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="ut-wrench" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="50%" stop-color="#5a9ece"/><stop offset="100%" stop-color="#2a6898"/></linearGradient></defs>
+            <path d="M14 3 Q18 7 14 11 L11 8 L5 14 Q3 16 5 18 Q7 20 9 18 L15 12 L12 9 Q16 5 14 3 Z" fill="url(#ut-wrench)" stroke="#1a4a6e" stroke-width="0.8" stroke-linejoin="round"/>
+            <path d="M5 14 L9 18" stroke="#1a4a6e" stroke-width="0.6"/>
+            <rect x="13" y="3.5" width="3" height="2" rx="0.5" fill="white" opacity="0.35" transform="rotate(-45 14.5 4.5)"/>
+          </svg>
+          <span>Utilities</span>
+          <span class="arrow">&#9654;</span>
+          <div class="start-submenu">
+            <a class="start-menu-item" href="#" onclick="openNotepad(); closeStartMenu(); return false;">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="np-doc" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#f0f4ff"/><stop offset="100%" stop-color="#a0b8d8"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1" fill="url(#np-doc)" stroke="#4a6a8e" stroke-width="0.8"/><rect x="4" y="2" width="8" height="3" rx="0.5" fill="white" opacity="0.35"/><line x1="6" y1="7" x2="14" y2="7" stroke="#4a6a8e" stroke-width="0.6"/><line x1="6" y1="10" x2="14" y2="10" stroke="#4a6a8e" stroke-width="0.6"/><line x1="6" y1="13" x2="11" y2="13" stroke="#4a6a8e" stroke-width="0.6"/></svg>
+              <span>Notepad</span>
+            </a>
+            <a class="start-menu-item" href="#" onclick="openCalculator(); closeStartMenu(); return false;">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ca-body" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#e8e4dc"/><stop offset="100%" stop-color="#a8a49c"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1.5" fill="url(#ca-body)" stroke="#8a8680" stroke-width="0.8"/><rect x="4" y="2" width="7" height="3" rx="0.5" fill="white" opacity="0.3"/><rect x="5" y="3" width="10" height="3" rx="0.5" fill="#d0e8c0" stroke="#6a8a5a" stroke-width="0.5"/><rect x="5" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="8" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="12" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="16" width="6" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="16" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/></svg>
+              <span>Calculator</span>
+            </a>
+            <a class="start-menu-item" href="#" onclick="openWeather(); closeStartMenu(); return false;">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="we-sun" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><circle cx="7" cy="6" r="4" fill="url(#we-sun)" stroke="#c49000" stroke-width="0.8"/><ellipse cx="6" cy="5" rx="2" ry="1.5" fill="white" opacity="0.3"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="#e8e4dc" stroke="#8a8680" stroke-width="0.7"/></svg>
+              <span>Weather</span>
+            </a>
           </div>
         </div>
 
