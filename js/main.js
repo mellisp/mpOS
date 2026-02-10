@@ -375,6 +375,65 @@ function showFinderError(body, msg) {
     '</div>';
 }
 
+/* ── Web Browser ── */
+const BROWSER_HOME = 'https://en.m.wikipedia.org/wiki/Main_Page';
+const browserFrame = document.getElementById('browserFrame');
+const browserUrl = document.getElementById('browserUrl');
+const browserTitle = document.getElementById('browserTitle');
+
+function openBrowser() {
+  const vp = document.getElementById('browserViewport');
+  openWindow('browser');
+  if (!vp.dataset.loaded) {
+    vp.dataset.loaded = '1';
+    browserFrame.src = BROWSER_HOME;
+    browserUrl.value = BROWSER_HOME;
+  }
+  setTimeout(function () { browserUrl.focus(); browserUrl.select(); }, 100);
+}
+
+function closeBrowser() {
+  const vp = document.getElementById('browserViewport');
+  browserFrame.src = 'about:blank';
+  vp.dataset.loaded = '';
+  browserUrl.value = '';
+  browserTitle.textContent = 'Web Browser';
+  bbTaskbar.closeWindow('browser');
+}
+
+function browserNavigate(query) {
+  query = query.trim();
+  if (!query) return;
+  let url;
+  if (/^https?:\/\/[a-z]+\.wikipedia\.org\//i.test(query)) {
+    url = query;
+  } else {
+    url = 'https://en.m.wikipedia.org/wiki/Special:Search/' + encodeURIComponent(query);
+  }
+  browserFrame.src = url;
+  browserUrl.value = url;
+}
+
+browserUrl.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    browserNavigate(browserUrl.value);
+  }
+});
+
+browserFrame.addEventListener('load', function () {
+  try {
+    const loc = browserFrame.contentWindow.location.href;
+    if (loc && loc !== 'about:blank') {
+      browserUrl.value = loc;
+      const title = browserFrame.contentDocument && browserFrame.contentDocument.title;
+      browserTitle.textContent = title ? 'Web Browser — ' + title : 'Web Browser';
+    }
+  } catch (e) {
+    /* cross-origin — can't read iframe location */
+  }
+});
+
 /* ── Run Terminal ── */
 const termOutput = document.getElementById('termOutput');
 const termInput = document.getElementById('termInput');
@@ -384,6 +443,7 @@ const COMMANDS = {
   'fishofday':   { run: openFishOfDay,   desc: 'Launch Fish of the Day' },
   'fishfinder':  { run: openFishFinder,  desc: 'Launch Fish Finder' },
   'aquarium':    { run: openAquarium,    desc: 'Launch Virtual Aquarium' },
+  'browser':     { run: openBrowser,     desc: 'Launch Web Browser' },
   'mycomputer':  { run: function () { openMyComputer(); }, desc: 'Open My Computer' },
   'explorer':    { run: openExplorer,    desc: 'Open Applications' },
   'cls':         { run: cmdCls,          desc: 'Clear the screen' },
