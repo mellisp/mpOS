@@ -375,7 +375,7 @@ function showFinderError(body, msg) {
   body.innerHTML =
     '<div style="padding:16px;">' +
       '<div class="error-row">' +
-        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 2 L30 28 L2 28 Z" fill="#fdd835" stroke="#c6a700" stroke-width="1.5" stroke-linejoin="round"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#000"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#000"/></svg>' +
+        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri-ff" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="35%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri-ff)" stroke="#c49000" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 5 L10 17 L16 17 Z" fill="white" opacity="0.25"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>' +
         '<div class="error-text">' + msg + '</div>' +
       '</div>' +
     '</div>';
@@ -440,6 +440,197 @@ browserFrame.addEventListener('load', function () {
   }
 });
 
+/* ── Notepad ── */
+function openNotepad() {
+  openWindow('notepad');
+  var editor = document.getElementById('notepadEditor');
+  if (!editor.dataset.loaded) {
+    editor.dataset.loaded = '1';
+    var saved = localStorage.getItem('mpOS-notepad');
+    if (saved !== null) editor.value = saved;
+    updateNotepadStatus();
+  }
+  setTimeout(function () { editor.focus(); }, 100);
+}
+
+function notepadNew() {
+  document.getElementById('notepadEditor').value = '';
+  updateNotepadStatus();
+}
+
+function notepadSave() {
+  localStorage.setItem('mpOS-notepad', document.getElementById('notepadEditor').value);
+  document.getElementById('notepadStatus').textContent = 'Saved';
+  setTimeout(updateNotepadStatus, 1500);
+}
+
+function notepadLoad() {
+  var text = localStorage.getItem('mpOS-notepad');
+  if (text !== null) document.getElementById('notepadEditor').value = text;
+  updateNotepadStatus();
+}
+
+function updateNotepadStatus() {
+  var len = document.getElementById('notepadEditor').value.length;
+  document.getElementById('notepadStatus').textContent = len + ' character' + (len !== 1 ? 's' : '');
+}
+
+document.getElementById('notepadEditor').addEventListener('input', updateNotepadStatus);
+
+/* ── Calculator ── */
+var calcCurrent = '0';
+var calcPrev = null;
+var calcOperation = null;
+var calcReset = false;
+
+function openCalculator() { openWindow('calculator'); }
+
+function calcUpdateDisplay() {
+  document.getElementById('calcDisplay').textContent = calcCurrent;
+}
+
+function calcDigit(d) {
+  if (calcReset) { calcCurrent = '0'; calcReset = false; }
+  if (calcCurrent === '0') calcCurrent = d;
+  else calcCurrent += d;
+  if (calcCurrent.length > 15) calcCurrent = calcCurrent.slice(0, 15);
+  calcUpdateDisplay();
+}
+
+function calcDecimal() {
+  if (calcReset) { calcCurrent = '0'; calcReset = false; }
+  if (calcCurrent.indexOf('.') === -1) calcCurrent += '.';
+  calcUpdateDisplay();
+}
+
+function calcOp(op) {
+  if (calcPrev !== null && calcOperation && !calcReset) calcEquals();
+  calcPrev = parseFloat(calcCurrent);
+  calcOperation = op;
+  calcReset = true;
+}
+
+function calcEquals() {
+  if (calcPrev === null || !calcOperation) return;
+  var curr = parseFloat(calcCurrent);
+  var result;
+  switch (calcOperation) {
+    case '+': result = calcPrev + curr; break;
+    case '-': result = calcPrev - curr; break;
+    case '*': result = calcPrev * curr; break;
+    case '/': result = curr === 0 ? 'Error' : calcPrev / curr; break;
+  }
+  calcCurrent = typeof result === 'string' ? result : String(result);
+  if (calcCurrent !== 'Error' && calcCurrent.length > 15) calcCurrent = parseFloat(calcCurrent).toPrecision(10);
+  calcPrev = null;
+  calcOperation = null;
+  calcReset = true;
+  calcUpdateDisplay();
+}
+
+function calcClear() {
+  calcCurrent = '0'; calcPrev = null; calcOperation = null; calcReset = false;
+  calcUpdateDisplay();
+}
+
+function calcClearEntry() {
+  calcCurrent = '0'; calcReset = false;
+  calcUpdateDisplay();
+}
+
+function calcBackspace() {
+  if (calcReset) return;
+  calcCurrent = calcCurrent.length > 1 ? calcCurrent.slice(0, -1) : '0';
+  calcUpdateDisplay();
+}
+
+/* ── Weather ── */
+var weatherLoaded = false;
+
+function openWeather() {
+  openWindow('weather');
+  fetchWeather();
+}
+
+function fetchWeather() {
+  if (weatherLoaded) return;
+  var body = document.getElementById('weatherBody');
+  var status = document.getElementById('weatherStatus');
+  body.innerHTML = '<div style="padding:16px;font-size:12px;color:#57606a;">Locating you...</div>';
+
+  if (!navigator.geolocation) {
+    showWeatherError(body, 'Geolocation is not supported by your browser.');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function (pos) {
+      body.innerHTML = '<div style="padding:16px;font-size:12px;color:#57606a;">Fetching weather data...</div>';
+      var lat = pos.coords.latitude;
+      var lon = pos.coords.longitude;
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true&timezone=auto&forecast_days=3')
+        .then(function (r) { if (!r.ok) throw new Error('API error'); return r.json(); })
+        .then(function (data) {
+          weatherLoaded = true;
+          renderWeather(body, data);
+          status.textContent = 'Powered by Open-Meteo';
+        })
+        .catch(function () {
+          showWeatherError(body, 'Failed to fetch weather data. Please try again later.');
+        });
+    },
+    function (err) {
+      var msgs = { 1: 'Location access was denied.', 2: 'Location information is unavailable.', 3: 'Location request timed out.' };
+      showWeatherError(body, msgs[err.code] || 'An unknown error occurred.');
+    },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+  );
+}
+
+function weatherCodeToDesc(code) {
+  var codes = {
+    0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+    45: 'Fog', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Dense drizzle',
+    61: 'Slight rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Light freezing rain', 67: 'Freezing rain',
+    71: 'Slight snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains',
+    80: 'Light showers', 81: 'Showers', 82: 'Heavy showers',
+    85: 'Snow showers', 86: 'Heavy snow showers',
+    95: 'Thunderstorm', 96: 'Thunderstorm w/ hail', 99: 'Severe thunderstorm'
+  };
+  return codes[code] || 'Unknown';
+}
+
+function renderWeather(body, data) {
+  var current = data.current_weather;
+  var daily = data.daily;
+  var html = '<div class="weather-current">';
+  html += '<div class="weather-temp">' + Math.round(current.temperature) + '\u00b0C</div>';
+  html += '<div class="weather-desc">' + weatherCodeToDesc(current.weathercode) + '</div>';
+  html += '</div><div class="separator"></div><div class="weather-forecast">';
+  for (var i = 0; i < daily.time.length; i++) {
+    var date = new Date(daily.time[i] + 'T00:00:00');
+    var dayName = date.toLocaleDateString(undefined, { weekday: 'short' });
+    html += '<div class="weather-day">';
+    html += '<div class="weather-day-name">' + dayName + '</div>';
+    html += '<div class="weather-day-temp">' + Math.round(daily.temperature_2m_max[i]) + '\u00b0</div>';
+    html += '<div class="weather-day-range">' + Math.round(daily.temperature_2m_min[i]) + '\u00b0 / ' + Math.round(daily.temperature_2m_max[i]) + '\u00b0</div>';
+    html += '<div class="weather-day-desc">' + weatherCodeToDesc(daily.weathercode[i]) + '</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function showWeatherError(body, msg) {
+  body.innerHTML =
+    '<div style="padding:16px;">' +
+      '<div class="error-row">' +
+        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri-we" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="35%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri-we)" stroke="#c49000" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 5 L10 17 L16 17 Z" fill="white" opacity="0.25"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>' +
+        '<div class="error-text">' + msg + '</div>' +
+      '</div>' +
+    '</div>';
+}
+
 /* ── Run Terminal ── */
 const termOutput = document.getElementById('termOutput');
 const termInput = document.getElementById('termInput');
@@ -452,6 +643,9 @@ const COMMANDS = {
   'browser':     { run: openBrowser,     desc: 'Launch WikiBrowser' },
   'mycomputer':  { run: function () { openMyComputer(); }, desc: 'Open My Computer' },
   'explorer':    { run: openExplorer,    desc: 'Open Applications' },
+  'notepad':     { run: openNotepad,     desc: 'Open Notepad' },
+  'calculator':  { run: openCalculator,  desc: 'Open Calculator' },
+  'weather':     { run: openWeather,     desc: 'Open Weather' },
   'cls':         { run: cmdCls,          desc: 'Clear the screen' },
   'clear':       { run: cmdCls,          desc: 'Clear the screen' },
   'exit':        { run: function () { bbTaskbar.closeWindow('run'); }, desc: 'Close this window' },
