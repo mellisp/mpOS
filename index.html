@@ -33,15 +33,18 @@
       <div class="desktop-icon" role="button" tabindex="0" ondblclick="openMyComputer()" onkeydown="if(event.key==='Enter')openMyComputer()">
         <svg class="desktop-icon-img" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="mc-body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c8e0f8"/><stop offset="50%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6a9e"/></linearGradient>
-            <linearGradient id="mc-screen" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#dff0ff"/><stop offset="100%" stop-color="#78b8e0"/></linearGradient>
-            <linearGradient id="mc-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="100%" stop-color="#b0aca4"/></linearGradient>
+            <linearGradient id="mc-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="35%" stop-color="#5a9ece"/><stop offset="70%" stop-color="#3a7ab0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient>
+            <linearGradient id="mc-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0f0ff"/><stop offset="50%" stop-color="#b0d4f0"/><stop offset="100%" stop-color="#88bbe0"/></linearGradient>
+            <linearGradient id="mc-stand" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="50%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient>
+            <linearGradient id="mc-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="40%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient>
           </defs>
           <rect x="4" y="4" width="40" height="28" rx="2" fill="url(#mc-body)" stroke="#1a4a6e" stroke-width="1.5"/>
+          <rect x="5" y="5" width="28" height="8" rx="1" fill="white" opacity="0.4"/>
           <rect x="7" y="7" width="34" height="22" rx="1" fill="url(#mc-screen)"/>
-          <rect x="5" y="5" width="16" height="6" rx="1" fill="white" opacity="0.25"/>
-          <rect x="18" y="34" width="12" height="4" rx="1" fill="url(#mc-base)" stroke="#8a8680" stroke-width="0.75"/>
+          <rect x="7" y="7" width="34" height="6" rx="1" fill="white" opacity="0.2"/>
+          <rect x="18" y="34" width="12" height="4" rx="1" fill="url(#mc-stand)" stroke="#8a8680" stroke-width="0.75"/>
           <rect x="11" y="38" width="26" height="3" rx="1.5" fill="url(#mc-base)" stroke="#8a8680" stroke-width="0.75"/>
+          <line x1="12" y1="38.5" x2="36" y2="38.5" stroke="white" stroke-width="0.5" opacity="0.5"/>
         </svg>
         <span class="desktop-icon-label">My Computer</span>
       </div>
@@ -50,12 +53,13 @@
       <div class="desktop-icon" id="folderIcon" role="button" tabindex="0" ondblclick="openExplorer()" onkeydown="if(event.key==='Enter')openExplorer()">
         <svg class="desktop-icon-img" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="af-tab" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="100%" stop-color="#ffc107"/></linearGradient>
-            <linearGradient id="af-body" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#ffe082"/><stop offset="100%" stop-color="#ffca28"/></linearGradient>
+            <linearGradient id="af-tab" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff8dc"/><stop offset="30%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient>
+            <linearGradient id="af-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffe98a"/><stop offset="40%" stop-color="#ffd740"/><stop offset="100%" stop-color="#f0b800"/></linearGradient>
           </defs>
           <path d="M4 12 L4 42 L44 42 L44 16 L22 16 L18 12 Z" fill="url(#af-tab)" stroke="#c49000" stroke-width="1.5" stroke-linejoin="round"/>
+          <rect x="5" y="13" width="12" height="3" rx="1" fill="white" opacity="0.45"/>
           <path d="M4 18 L44 18 L44 42 L4 42 Z" fill="url(#af-body)"/>
-          <rect x="5" y="13" width="10" height="3" rx="1" fill="white" opacity="0.3"/>
+          <line x1="5" y1="18.5" x2="43" y2="18.5" stroke="white" stroke-width="1" opacity="0.4"/>
         </svg>
         <span class="desktop-icon-label">Applications</span>
       </div>
@@ -63,14 +67,14 @@
       <div class="desktop-icon" role="button" tabindex="0" ondblclick="openBrowser()" onkeydown="if(event.key==='Enter')openBrowser()">
         <svg class="desktop-icon-img" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <radialGradient id="wb-sphere" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#c8e0f8"/><stop offset="60%" stop-color="#6aafe0"/><stop offset="100%" stop-color="#4a8abe"/></radialGradient>
+            <radialGradient id="wb-sphere" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#d8f0ff"/><stop offset="30%" stop-color="#7ac0e8"/><stop offset="70%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient>
           </defs>
           <circle cx="24" cy="24" r="18" fill="url(#wb-sphere)" stroke="#1a4a6e" stroke-width="1.5"/>
           <ellipse cx="24" cy="24" rx="7" ry="18" fill="none" stroke="#1a4a6e" stroke-width="1.2"/>
           <line x1="6" y1="24" x2="42" y2="24" stroke="#1a4a6e" stroke-width="1.2"/>
           <line x1="8" y1="15" x2="40" y2="15" stroke="#1a4a6e" stroke-width="0.8"/>
           <line x1="8" y1="33" x2="40" y2="33" stroke="#1a4a6e" stroke-width="0.8"/>
-          <ellipse cx="18" cy="16" rx="8" ry="5" fill="white" opacity="0.2"/>
+          <ellipse cx="17" cy="15" rx="9" ry="6" fill="white" opacity="0.35"/>
         </svg>
         <span class="desktop-icon-label">WikiBrowser</span>
       </div>
@@ -277,7 +281,7 @@
       </div>
       <div class="window-body" style="padding:16px">
         <div class="error-row">
-          <svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="100%" stop-color="#ffc107"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri)" stroke="#c49000" stroke-width="1.5" stroke-linejoin="round"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>
+          <svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="35%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri)" stroke="#c49000" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 5 L10 17 L16 17 Z" fill="white" opacity="0.25"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>
           <div class="error-text">
             <strong>Touchscreen Required</strong>
             This game requires a touchscreen device to play. Please open this page on a phone or tablet.
@@ -294,8 +298,9 @@
       <!-- Start Button -->
       <button class="start-btn">
         <svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-          <defs><radialGradient id="sm-face" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fff3c4"/><stop offset="100%" stop-color="#ffc107"/></radialGradient></defs>
+          <defs><radialGradient id="sm-face" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="40%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs>
           <circle cx="32" cy="32" r="31" fill="url(#sm-face)" stroke="#c49000" stroke-width="2"/>
+          <ellipse cx="26" cy="20" rx="12" ry="8" fill="white" opacity="0.3"/>
           <circle cx="22" cy="26" r="4" fill="#5d4037"/>
           <circle cx="42" cy="26" r="4" fill="#5d4037"/>
           <path d="M18 38 Q32 50 46 38" fill="none" stroke="#5d4037" stroke-width="3" stroke-linecap="round"/>
@@ -308,37 +313,41 @@
         <!-- Programs -->
         <div class="start-menu-item has-submenu">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs><linearGradient id="pg-sq" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c8e0f8"/><stop offset="100%" stop-color="#4a8abe"/></linearGradient></defs>
+            <defs><linearGradient id="pg-sq" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="40%" stop-color="#5a9ece"/><stop offset="100%" stop-color="#2a6898"/></linearGradient></defs>
             <rect x="1" y="1" width="8" height="8" rx="1" fill="url(#pg-sq)" stroke="#1a4a6e" stroke-width="0.6"/>
             <rect x="11" y="1" width="8" height="8" rx="1" fill="url(#pg-sq)" stroke="#1a4a6e" stroke-width="0.6"/>
             <rect x="1" y="11" width="8" height="8" rx="1" fill="url(#pg-sq)" stroke="#1a4a6e" stroke-width="0.6"/>
             <rect x="11" y="11" width="8" height="8" rx="1" fill="url(#pg-sq)" stroke="#1a4a6e" stroke-width="0.6"/>
+            <rect x="1.5" y="1.5" width="4" height="2.5" rx="0.5" fill="white" opacity="0.3"/>
+            <rect x="11.5" y="1.5" width="4" height="2.5" rx="0.5" fill="white" opacity="0.3"/>
+            <rect x="1.5" y="11.5" width="4" height="2.5" rx="0.5" fill="white" opacity="0.3"/>
+            <rect x="11.5" y="11.5" width="4" height="2.5" rx="0.5" fill="white" opacity="0.3"/>
           </svg>
           <span>Programs</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <a class="start-menu-item" href="#" onclick="openBrowser(); closeStartMenu(); return false;">
-              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="wbs-sphere" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#c8e0f8"/><stop offset="100%" stop-color="#4a8abe"/></radialGradient></defs><circle cx="10" cy="10" r="8" fill="url(#wbs-sphere)" stroke="#1a4a6e" stroke-width="1"/><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.8"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.8"/><line x1="3.5" y1="6" x2="16.5" y2="6" stroke="#1a4a6e" stroke-width="0.6"/><line x1="3.5" y1="14" x2="16.5" y2="14" stroke="#1a4a6e" stroke-width="0.6"/></svg>
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="wbs-sphere" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#d8f0ff"/><stop offset="50%" stop-color="#5a9ece"/><stop offset="100%" stop-color="#3a7ab0"/></radialGradient></defs><circle cx="10" cy="10" r="8" fill="url(#wbs-sphere)" stroke="#1a4a6e" stroke-width="1"/><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.8"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.8"/><line x1="3.5" y1="6" x2="16.5" y2="6" stroke="#1a4a6e" stroke-width="0.6"/><line x1="3.5" y1="14" x2="16.5" y2="14" stroke="#1a4a6e" stroke-width="0.6"/><ellipse cx="8" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/></svg>
               <span>WikiBrowser</span>
             </a>
             <a class="start-menu-item" href="#" onclick="openFishOfDay(); closeStartMenu(); return false;">
-              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="fd-fish" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#80c8a0"/><stop offset="100%" stop-color="#4a9"/></linearGradient></defs><ellipse cx="10" cy="11" rx="8" ry="5" fill="url(#fd-fish)" stroke="#1a5c42" stroke-width="0.8"/><circle cx="14" cy="10" r="1" fill="#1a5c42"/><path d="M2 11 Q0 8 3 7" stroke="#1a5c42" fill="none" stroke-width="1.2"/></svg>
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="fd-fish" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#a0e8c0"/><stop offset="50%" stop-color="#60b888"/><stop offset="100%" stop-color="#2a8858"/></linearGradient></defs><ellipse cx="10" cy="11" rx="8" ry="5" fill="url(#fd-fish)" stroke="#1a5c42" stroke-width="0.8"/><ellipse cx="9" cy="9.5" rx="5" ry="2" fill="white" opacity="0.25"/><circle cx="14" cy="10" r="1" fill="#1a5c42"/><path d="M2 11 Q0 8 3 7" stroke="#1a5c42" fill="none" stroke-width="1.2"/></svg>
               <span>Fish of the Day</span>
             </a>
             <a class="start-menu-item" href="#" onclick="openFishFinder(); closeStartMenu(); return false;">
-              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ff-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="100%" stop-color="#a6caf0"/></radialGradient></defs><circle cx="9" cy="9" r="6" fill="url(#ff-lens)" stroke="#1a4a6e" stroke-width="1.5"/><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="#8a8680" stroke-width="2.5" stroke-linecap="round"/></svg>
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ff-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#c8e0f8"/><stop offset="100%" stop-color="#88bbe0"/></radialGradient></defs><circle cx="9" cy="9" r="6" fill="url(#ff-lens)" stroke="#1a4a6e" stroke-width="1.5"/><ellipse cx="7.5" cy="7.5" rx="3" ry="2" fill="white" opacity="0.4"/><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="#8a8680" stroke-width="2.5" stroke-linecap="round"/></svg>
               <span>Fish Finder</span>
             </a>
             <a class="start-menu-item" href="#" onclick="openOnTarget(); closeStartMenu(); return false;">
-              <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ot-red" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ef5350"/><stop offset="100%" stop-color="#d32f2f"/></radialGradient></defs><circle cx="10" cy="10" r="9" fill="url(#ot-red)" stroke="#c62828" stroke-width="0.6"/><circle cx="10" cy="10" r="7" fill="#fff"/><circle cx="10" cy="10" r="5" fill="url(#ot-red)"/><circle cx="10" cy="10" r="3" fill="#fff"/><circle cx="10" cy="10" r="1.5" fill="url(#ot-red)"/></svg>
+              <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ot-red" cx="0.4" cy="0.4" r="0.6"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="60%" stop-color="#ef5350"/><stop offset="100%" stop-color="#c62828"/></radialGradient></defs><circle cx="10" cy="10" r="9" fill="url(#ot-red)" stroke="#c62828" stroke-width="0.6"/><circle cx="10" cy="10" r="7" fill="#fff"/><circle cx="10" cy="10" r="5" fill="url(#ot-red)"/><circle cx="10" cy="10" r="3" fill="#fff"/><circle cx="10" cy="10" r="1.5" fill="url(#ot-red)"/></svg>
               <span>On Target</span>
             </a>
             <a class="start-menu-item" href="#" onclick="openAquarium(); closeStartMenu(); return false;">
-              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="va-body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c8e0f8"/><stop offset="100%" stop-color="#4a8abe"/></linearGradient><linearGradient id="va-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a6a8a"/><stop offset="100%" stop-color="#0d3d56"/></linearGradient></defs><rect x="1" y="3" width="18" height="12" rx="2" fill="url(#va-body)" stroke="#1a4a6e" stroke-width="0.6"/><rect x="3" y="5" width="14" height="8" rx="1" fill="url(#va-water)"/><circle cx="8" cy="9" r="1.5" fill="#ffc107"/><circle cx="13" cy="10" r="1" fill="#ffc107"/></svg>
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="va-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="50%" stop-color="#5a9ece"/><stop offset="100%" stop-color="#2a6898"/></linearGradient><linearGradient id="va-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a8aaa"/><stop offset="50%" stop-color="#0d5a76"/><stop offset="100%" stop-color="#082a3e"/></linearGradient></defs><rect x="1" y="3" width="18" height="12" rx="2" fill="url(#va-body)" stroke="#1a4a6e" stroke-width="0.6"/><rect x="3" y="5" width="14" height="8" rx="1" fill="url(#va-water)"/><circle cx="8" cy="9" r="1.5" fill="#ffc107"/><circle cx="13" cy="10" r="1" fill="#ffc107"/></svg>
               <span>Virtual Aquarium</span>
             </a>
             <a class="start-menu-item" href="chicken-fingers.html" onclick="closeStartMenu(); return openChickenFingers();">
-              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cf-body" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fff3c4"/><stop offset="100%" stop-color="#ffc107"/></radialGradient></defs><ellipse cx="10" cy="12" rx="6" ry="5" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.6"/><circle cx="10" cy="6" r="4" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.6"/><circle cx="8.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="11.5" cy="5.5" r="0.8" fill="#5d4037"/><path d="M9 7.5 L10 8.5 L11 7.5" stroke="#e67e22" stroke-width="0.8" fill="#e67e22"/></svg>
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cf-body" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="50%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><ellipse cx="10" cy="12" rx="6" ry="5" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.6"/><circle cx="10" cy="6" r="4" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.6"/><circle cx="8.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="11.5" cy="5.5" r="0.8" fill="#5d4037"/><path d="M9 7.5 L10 8.5 L11 7.5" stroke="#e67e22" stroke-width="0.8" fill="#e67e22"/></svg>
               <span>Chicken Fingers</span>
             </a>
           </div>
@@ -347,10 +356,11 @@
         <!-- Documents -->
         <div class="start-menu-item has-submenu">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs><linearGradient id="df-tab" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="100%" stop-color="#ffc107"/></linearGradient><linearGradient id="df-body" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#ffe082"/><stop offset="100%" stop-color="#ffca28"/></linearGradient></defs>
+            <defs><linearGradient id="df-tab" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff8dc"/><stop offset="30%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient><linearGradient id="df-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffe98a"/><stop offset="40%" stop-color="#ffd740"/><stop offset="100%" stop-color="#f0b800"/></linearGradient></defs>
             <path d="M4 12 L4 42 L44 42 L44 16 L22 16 L18 12 Z" fill="url(#df-tab)" stroke="#c49000" stroke-width="1.5" stroke-linejoin="round"/>
+            <rect x="5" y="13" width="12" height="3" rx="1" fill="white" opacity="0.45"/>
             <path d="M4 18 L44 18 L44 42 L4 42 Z" fill="url(#df-body)"/>
-            <rect x="5" y="13" width="10" height="3" rx="1" fill="white" opacity="0.3"/>
+            <line x1="5" y1="18.5" x2="43" y2="18.5" stroke="white" stroke-width="1" opacity="0.4"/>
           </svg>
           <span>Documents</span>
           <span class="arrow">&#9654;</span>
@@ -361,7 +371,7 @@
 
         <!-- Run -->
         <div class="start-menu-item" onclick="openRun(); closeStartMenu();">
-          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rt-body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#0a0a0a"/></linearGradient></defs><rect x="1" y="4" width="18" height="13" rx="1" fill="url(#rt-body)" stroke="#8a8680" stroke-width="0.8"/><path d="M4 8 L7.5 10.5 L4 13" stroke="#80c8a0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="9" y1="13" x2="14" y2="13" stroke="#80c8a0" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rt-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="50%" stop-color="#1a1a1a"/><stop offset="100%" stop-color="#050505"/></linearGradient></defs><rect x="1" y="4" width="18" height="13" rx="1" fill="url(#rt-body)" stroke="#8a8680" stroke-width="0.8"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.5" opacity="0.15"/><path d="M4 8 L7.5 10.5 L4 13" stroke="#80c8a0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="9" y1="13" x2="14" y2="13" stroke="#80c8a0" stroke-width="1.5" stroke-linecap="round"/></svg>
           <span>Run...</span>
         </div>
 
@@ -370,8 +380,9 @@
         <!-- Exit Site -->
         <div class="start-menu-item" onclick="exitSite();">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs><linearGradient id="ex-door" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="100%" stop-color="#b0aca4"/></linearGradient></defs>
+            <defs><linearGradient id="ex-door" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="40%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient></defs>
             <rect x="3" y="2" width="14" height="16" rx="1" fill="url(#ex-door)" stroke="#8a8680" stroke-width="0.8"/>
+            <line x1="4" y1="3" x2="4" y2="17" stroke="white" stroke-width="0.5" opacity="0.35"/>
             <path d="M7 10 L14 10 M12 7 L15 10 L12 13" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span>Exit Site</span>
