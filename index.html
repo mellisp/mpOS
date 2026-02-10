@@ -111,8 +111,15 @@
     #aquarium { width: 640px; max-width: 95vw; left: 60px; top: 30px; }
     #aquarium .window-body { padding: 0; background: #000; }
     #aquarium .aquarium-embed { position: relative; width: 100%; padding-top: 56.25%; overflow: hidden; }
-    #aquarium .aquarium-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; transform: scale(1.2); transform-origin: center; }
-    #aquarium .aquarium-shield { position: absolute; inset: 0; z-index: 1; }
+    #aquarium .aquarium-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; transform: scale(1.3); transform-origin: center; }
+    #aquarium .aquarium-shield {
+      position: absolute; inset: 0; z-index: 1;
+      background: #0a1628;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #5a8ab5;
+      transition: background 1.5s ease, color 1s ease;
+    }
+    #aquarium .aquarium-shield.loaded { background: transparent; color: transparent; }
 
     /* Fish of the Day window */
     #fishofday { width: 480px; max-width: 95vw; left: 160px; top: 60px; }
@@ -305,7 +312,7 @@
         </div>
       </div>
       <div class="window-body">
-        <div class="aquarium-embed" id="aquariumEmbed"><div class="aquarium-shield"></div></div>
+        <div class="aquarium-embed" id="aquariumEmbed"><div class="aquarium-shield" id="aquariumShield">Connecting to live feed...</div></div>
       </div>
       <div class="statusbar">
         <div class="statusbar-section">Powered by explore.org</div>
@@ -377,6 +384,7 @@
     </div>
   </div>
 
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script src="js/audio.js"></script>
   <script src="js/taskbar.js"></script>
   <script>
@@ -406,10 +414,58 @@
       return true;
     }
 
+    /* ── Virtual Aquarium (YouTube IFrame Player API) ── */
+    var aquariumPlayer = null;
+    var aquariumTimer = null;
+
+    function getSystemVolume() {
+      var v = localStorage.getItem('bb-volume');
+      return Math.round((v !== null ? parseFloat(v) : 0.1) * 100);
+    }
+
+    function isSystemMuted() {
+      return localStorage.getItem('bb-muted') === '1';
+    }
+
+    function syncAquariumVolume() {
+      if (!aquariumPlayer || !aquariumPlayer.setVolume) return;
+      if (isSystemMuted()) {
+        aquariumPlayer.mute();
+      } else {
+        aquariumPlayer.unMute();
+        aquariumPlayer.setVolume(getSystemVolume());
+      }
+    }
+
+    // Hook into existing volume update chain
+    var origUpdateVolume = window.bbAudioUpdateVolume;
+    window.bbAudioUpdateVolume = function () {
+      if (origUpdateVolume) origUpdateVolume();
+      syncAquariumVolume();
+    };
+
     function openAquarium() {
       var embed = document.getElementById('aquariumEmbed');
+      var shield = document.getElementById('aquariumShield');
       if (!embed.dataset.loaded) {
-        embed.innerHTML = '<iframe src="https://www.youtube.com/embed/DHUnz4dyb54?autoplay=1&mute=1&controls=0&rel=0&iv_load_policy=3&modestbranding=1" title="Virtual Aquarium" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+        shield.classList.remove('loaded');
+        var playerDiv = document.createElement('div');
+        playerDiv.id = 'ytAquariumPlayer';
+        embed.appendChild(playerDiv);
+        aquariumPlayer = new YT.Player('ytAquariumPlayer', {
+          videoId: 'DHUnz4dyb54',
+          playerVars: {
+            autoplay: 1, controls: 0, rel: 0,
+            iv_load_policy: 3, modestbranding: 1,
+            disablekb: 1, fs: 0
+          },
+          events: {
+            onReady: function (e) {
+              syncAquariumVolume();
+              aquariumTimer = setTimeout(function () { shield.classList.add('loaded'); }, 3000);
+            }
+          }
+        });
         embed.dataset.loaded = '1';
       }
       openWindow('aquarium');
@@ -417,7 +473,15 @@
 
     function closeAquarium() {
       var embed = document.getElementById('aquariumEmbed');
-      embed.innerHTML = '';
+      var shield = document.getElementById('aquariumShield');
+      if (aquariumPlayer && aquariumPlayer.destroy) {
+        aquariumPlayer.destroy();
+        aquariumPlayer = null;
+      }
+      var iframe = embed.querySelector('iframe');
+      if (iframe) iframe.remove();
+      clearTimeout(aquariumTimer);
+      shield.classList.remove('loaded');
       embed.dataset.loaded = '';
       bbTaskbar.closeWindow('aquarium');
     }
