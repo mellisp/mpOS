@@ -108,6 +108,42 @@
 #ontarget .game-embed { position: relative; width: 100%; height: 400px; }
 #ontarget .game-embed iframe { width: 100%; height: 100%; border: none; }
 
+/* Web Browser window */
+#browser { width: 720px; max-width: 95vw; left: 60px; top: 30px; }
+#browser .window-body { padding: 0; display: flex; flex-direction: column; }
+
+.browser-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--silver);
+  border-bottom: 1px solid var(--shadow);
+}
+
+.browser-url {
+  flex: 1;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 2px 6px;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  background: #fff;
+  outline: none;
+}
+
+.browser-viewport {
+  width: 100%;
+  height: 440px;
+  background: #fff;
+}
+
+.browser-viewport iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
 /* Run terminal window */
 #run { width: 560px; max-width: 95vw; left: 70px; top: 50px; }
 #run .window-body { padding: 0; }
