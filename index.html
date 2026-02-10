@@ -127,6 +127,12 @@
     }
     #aquarium .aquarium-shield.loaded { background: transparent; color: transparent; }
 
+    /* On Target window */
+    #ontarget { width: 640px; max-width: 95vw; left: 80px; top: 40px; }
+    #ontarget .window-body { padding: 0; }
+    #ontarget .game-embed { position: relative; width: 100%; height: 400px; }
+    #ontarget .game-embed iframe { width: 100%; height: 100%; border: none; }
+
     /* Fish Finder window */
     #fishfinder { width: 420px; max-width: 95vw; left: 100px; top: 50px; }
     .finder-label { font-size: 11px; font-weight: bold; color: var(--dk-shadow); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
@@ -251,7 +257,7 @@
         <div class="sunken">
           <ul class="project-list">
             <li>
-              <a href="target-game.html">On Target</a>
+              <a href="#" onclick="openOnTarget(); return false;">On Target</a>
               <span class="desc">A two-player target shooting game. Arrow keys vs mouse.</span>
               <span class="tag">HTML</span>
             </li>
@@ -352,6 +358,20 @@
       </div>
     </div>
 
+    <!-- On Target Window (hidden initially) -->
+    <div class="window draggable" id="ontarget" style="display:none;">
+      <div class="titlebar">
+        <span>On Target</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('ontarget')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeOnTarget()">X</div>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="game-embed" id="ontargetEmbed"></div>
+      </div>
+    </div>
+
     <!-- Chicken Fingers Error Dialog (hidden initially) -->
     <div class="window" id="chickenError" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;width:380px;max-width:95vw;">
       <div class="titlebar">
@@ -408,7 +428,7 @@
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="9" r="6" stroke="#0a246a" stroke-width="2" fill="#a6caf0"/><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="#0a246a" stroke-width="2" stroke-linecap="round"/></svg>
               <span>Fish Finder</span>
             </a>
-            <a class="start-menu-item" href="target-game.html">
+            <a class="start-menu-item" href="#" onclick="openOnTarget(); closeStartMenu(); return false;">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" stroke="#c62828" stroke-width="2" fill="none"/><circle cx="10" cy="10" r="4" stroke="#c62828" stroke-width="2" fill="none"/><circle cx="10" cy="10" r="1" fill="#c62828"/></svg>
               <span>On Target</span>
             </a>
@@ -576,6 +596,27 @@
       shield.classList.remove('loaded');
       embed.dataset.loaded = '';
       bbTaskbar.closeWindow('aquarium');
+    }
+
+    /* ── On Target (embedded game) ── */
+    function openOnTarget() {
+      const embed = document.getElementById('ontargetEmbed');
+      openWindow('ontarget');
+      if (!embed.dataset.loaded) {
+        embed.dataset.loaded = '1';
+        const iframe = document.createElement('iframe');
+        iframe.src = 'target-game.html';
+        iframe.title = 'On Target';
+        embed.appendChild(iframe);
+      }
+    }
+
+    function closeOnTarget() {
+      const embed = document.getElementById('ontargetEmbed');
+      const iframe = embed.querySelector('iframe');
+      if (iframe) iframe.remove();
+      embed.dataset.loaded = '';
+      bbTaskbar.closeWindow('ontarget');
     }
 
     function openFishOfDay() {
