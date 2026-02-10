@@ -1,0 +1,50 @@
+name: Bump version
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Increment version
+        run: |
+          # Read current version
+          VERSION=$(jq -r '.version' version.json)
+          IFS='.' read -r X Y Z <<< "$VERSION"
+
+          # Increment with rollover (each digit 0-9)
+          Z=$((Z + 1))
+          if [ "$Z" -gt 9 ]; then
+            Z=0
+            Y=$((Y + 1))
+          fi
+          if [ "$Y" -gt 9 ]; then
+            Y=0
+            X=$((X + 1))
+          fi
+
+          NEW_VERSION="${X}.${Y}.${Z}"
+          echo "OLD_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
+
+          # Update version.json
+          echo "{ \"version\": \"$NEW_VERSION\" }" > version.json
+
+          # Update js/main.js
+          sed -i "s/mpOS \[Version ${VERSION}\]/mpOS [Version ${NEW_VERSION}]/" js/main.js
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add version.json js/main.js
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Bump version to $NEW_VERSION [skip ci]"
+          git push
