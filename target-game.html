@@ -60,10 +60,6 @@
 
     .score-bar.active { display: flex; gap: 12px; }
 
-    .score-bar .status { font-weight: normal; }
-    .score-bar .status.hit { color: #2e7d32; }
-    .score-bar .status.miss { color: var(--error); }
-
     /* Game over overlay */
     .gameover-overlay {
       position: fixed;
@@ -143,7 +139,6 @@
   <div class="score-bar" id="scoreBar">
     <span>Score: <span id="score">0</span></span>
     <span>Shots: <span id="shots">12</span></span>
-    <span class="status" id="scoreStatus"></span>
   </div>
 
   <div class="gameover-overlay" id="gameoverOverlay">
@@ -177,7 +172,7 @@
     const scoreEl = document.getElementById("score");
     const shotsEl = document.getElementById("shots");
     const scoreBar = document.getElementById("scoreBar");
-    const scoreStatus = document.getElementById("scoreStatus");
+
     const rulesOverlay = document.getElementById("rulesOverlay");
     const gameoverOverlay = document.getElementById("gameoverOverlay");
     const finalScoreEl = document.getElementById("finalScore");
@@ -257,15 +252,11 @@
         hitActive = true;
         hitTimer = HIT_DURATION;
 
-        scoreStatus.textContent = "Hit! +" + pts;
-        scoreStatus.className = "status hit";
       } else {
         labelText = "MISS";
         labelColor = "#ef5350";
         labelTimer = MISS_DURATION;
 
-        scoreStatus.textContent = "Miss";
-        scoreStatus.className = "status miss";
       }
 
       /* Check game over */
@@ -278,8 +269,6 @@
       gameOver = true;
       finalScoreEl.textContent = score;
       gameoverOverlay.classList.add("active");
-      scoreStatus.textContent = "";
-      scoreStatus.className = "status";
     }
 
     function resetGame() {
@@ -295,8 +284,6 @@
       y = 100;
       scoreEl.textContent = "0";
       shotsEl.textContent = MAX_SHOTS;
-      scoreStatus.textContent = "";
-      scoreStatus.className = "status";
       gameoverOverlay.classList.remove("active");
     }
 
@@ -376,8 +363,6 @@
           labelTimer -= dt;
           if (labelTimer <= 0) {
             labelText = "";
-            scoreStatus.textContent = "";
-            scoreStatus.className = "status";
           }
         }
         if (flashAlpha > 0) flashAlpha = Math.max(0, flashAlpha - FLASH_DECAY * dt);
