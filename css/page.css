@@ -236,3 +236,135 @@
   content: "";
   display: block;
 }
+
+/* Notepad window */
+#notepad { width: 480px; max-width: 95vw; left: 100px; top: 60px; }
+
+.notepad-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--silver);
+  border-bottom: 1px solid var(--shadow);
+}
+
+.notepad-toolbar .btn {
+  padding: 2px 10px;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.notepad-editor {
+  width: 100%;
+  height: 280px;
+  border: none;
+  padding: 8px;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 13px;
+  resize: none;
+  outline: none;
+  background: #fff;
+}
+
+/* Calculator window */
+#calculator { width: 240px; max-width: 95vw; left: 140px; top: 70px; }
+
+.calc-display {
+  background: #d8e8d0;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  padding: 6px 8px;
+  font-size: 20px;
+  font-family: "Consolas", "Courier New", monospace;
+  text-align: right;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-bottom: 8px;
+}
+
+.calc-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+}
+
+.calc-btn {
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 8px 0;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset -1px -1px 0 var(--shadow), inset 1px 1px 0 var(--silver);
+  cursor: default;
+  outline: none;
+}
+
+.calc-btn:active {
+  border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
+  box-shadow: inset 1px 1px 0 var(--shadow);
+}
+
+.calc-btn.calc-op { background: #e8e0d8; }
+.calc-btn.calc-eq { background: #c8d8e8; }
+.calc-btn.calc-zero { grid-column: span 2; }
+
+/* Weather window */
+#weather { width: 400px; max-width: 95vw; left: 110px; top: 50px; }
+
+.weather-current {
+  padding: 12px;
+  text-align: center;
+}
+
+.weather-temp {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.weather-desc {
+  font-size: 13px;
+  color: #57606a;
+  margin-top: 4px;
+}
+
+.weather-forecast {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 0 8px 8px;
+}
+
+.weather-day {
+  text-align: center;
+  padding: 8px;
+  background: var(--white);
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+}
+
+.weather-day-name {
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.weather-day-temp {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.weather-day-range {
+  font-size: 11px;
+  color: #57606a;
+  margin-top: 2px;
+}
+
+.weather-day-desc {
+  font-size: 11px;
+  color: #57606a;
+  margin-top: 2px;
+}
