@@ -111,7 +111,7 @@
     #aquarium { width: 640px; max-width: 95vw; left: 60px; top: 30px; }
     #aquarium .window-body { padding: 0; background: #000; }
     #aquarium .aquarium-embed { position: relative; width: 100%; padding-top: 56.25%; overflow: hidden; }
-    #aquarium .aquarium-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; transform: scale(1.3); transform-origin: center; }
+    #aquarium .aquarium-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; transform: scale(1.5); transform-origin: center; }
     #aquarium .aquarium-shield {
       position: absolute; inset: 0; z-index: 1;
       background: #0a1628;
@@ -418,32 +418,6 @@
     var aquariumPlayer = null;
     var aquariumTimer = null;
 
-    function getSystemVolume() {
-      var v = localStorage.getItem('bb-volume');
-      return Math.round((v !== null ? parseFloat(v) : 0.1) * 100);
-    }
-
-    function isSystemMuted() {
-      return localStorage.getItem('bb-muted') === '1';
-    }
-
-    function syncAquariumVolume() {
-      if (!aquariumPlayer || !aquariumPlayer.setVolume) return;
-      if (isSystemMuted()) {
-        aquariumPlayer.mute();
-      } else {
-        aquariumPlayer.unMute();
-        aquariumPlayer.setVolume(getSystemVolume());
-      }
-    }
-
-    // Hook into existing volume update chain
-    var origUpdateVolume = window.bbAudioUpdateVolume;
-    window.bbAudioUpdateVolume = function () {
-      if (origUpdateVolume) origUpdateVolume();
-      syncAquariumVolume();
-    };
-
     function openAquarium() {
       var embed = document.getElementById('aquariumEmbed');
       var shield = document.getElementById('aquariumShield');
@@ -455,14 +429,13 @@
         aquariumPlayer = new YT.Player('ytAquariumPlayer', {
           videoId: 'DHUnz4dyb54',
           playerVars: {
-            autoplay: 1, controls: 0, rel: 0,
+            autoplay: 1, mute: 1, controls: 0, rel: 0,
             iv_load_policy: 3, modestbranding: 1,
             disablekb: 1, fs: 0
           },
           events: {
-            onReady: function (e) {
-              syncAquariumVolume();
-              aquariumTimer = setTimeout(function () { shield.classList.add('loaded'); }, 3000);
+            onReady: function () {
+              aquariumTimer = setTimeout(function () { shield.classList.add('loaded'); }, 5000);
             }
           }
         });
@@ -526,65 +499,56 @@
       else if (/Firefox\//.test(ua)) browser = 'Mozilla Firefox';
       else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Apple Safari';
 
-      function render(osLabel) {
-        // --- Build hero ---
-        var html = '<div class="sysinfo-hero">';
-        html += '<svg width="80" height="64" viewBox="0 0 80 64" fill="none" xmlns="http://www.w3.org/2000/svg">';
-        html += '<rect x="4" y="2" width="72" height="44" rx="3" fill="#1a3a5c" stroke="#0a246a" stroke-width="2"/>';
-        html += '<rect x="8" y="6" width="64" height="36" rx="1" fill="#fff"/>';
-        html += '<rect x="28" y="48" width="24" height="5" fill="#808080"/>';
-        html += '<rect x="16" y="53" width="48" height="4" rx="1.5" fill="var(--silver)" stroke="#808080" stroke-width="1"/>';
-        html += '</svg>';
-        if (osLabel) html += '<div class="sysinfo-os">' + osLabel + '</div>';
-        if (browser) html += '<div class="sysinfo-browser">' + browser + '</div>';
-        html += '</div><div class="separator"></div>';
+      // --- Build hero ---
+      var html = '<div class="sysinfo-hero">';
+      html += '<svg width="80" height="64" viewBox="0 0 80 64" fill="none" xmlns="http://www.w3.org/2000/svg">';
+      html += '<rect x="4" y="2" width="72" height="44" rx="3" fill="#1a3a5c" stroke="#0a246a" stroke-width="2"/>';
+      html += '<rect x="8" y="6" width="64" height="36" rx="1" fill="#fff"/>';
+      html += '<rect x="28" y="48" width="24" height="5" fill="#808080"/>';
+      html += '<rect x="16" y="53" width="48" height="4" rx="1.5" fill="var(--silver)" stroke="#808080" stroke-width="1"/>';
+      html += '</svg>';
+      if (os) html += '<div class="sysinfo-os">' + os + '</div>';
+      if (browser) html += '<div class="sysinfo-browser">' + browser + '</div>';
+      html += '</div><div class="separator"></div>';
 
-        // --- System ---
-        // navigator.platform is deprecated (frozen to "MacIntel" on ARM Macs)
-        // navigator.deviceMemory is capped at 8 GB (misleading)
-        // navigator.storage.estimate() returns browser quota, not disk space
-        // Only show reliably accurate values:
-        html += makeSection('System', [
-          ['CPU Cores', nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : null],
-          ['Language', nav.language || null]
-        ]);
+      // --- System ---
+      html += makeSection('System', [
+        ['CPU Cores', nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : null],
+        ['Language', nav.language || null]
+      ]);
 
-        // --- Display ---
-        // screen.colorDepth varies by browser (Chrome: 30, Firefox/Safari: 24) — omit
-        var dpr = window.devicePixelRatio || 1;
-        html += makeSection('Display', [
-          ['Resolution', scr.width + ' \u00d7 ' + scr.height],
-          ['Pixel Ratio', dpr + 'x' + (dpr > 1 ? ' (HiDPI)' : '')]
-        ]);
+      // --- Display ---
+      var dpr = window.devicePixelRatio || 1;
+      html += makeSection('Display', [
+        ['Resolution', scr.width + ' \u00d7 ' + scr.height],
+        ['Pixel Ratio', dpr + 'x' + (dpr > 1 ? ' (HiDPI)' : '')]
+      ]);
 
-        // Placeholders for async sections
-        html += '<div id="sysNetSection"></div>';
-        html += '<div id="sysBatSection"></div>';
+      // Placeholders for async sections
+      html += '<div id="sysNetSection"></div>';
+      html += '<div id="sysBatSection"></div>';
 
-        body.innerHTML = html;
+      body.innerHTML = html;
 
-        // --- Async: Network ---
-        var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
-        if (conn) {
-          var netRows = [];
-          if (conn.effectiveType) netRows.push(['Type', conn.effectiveType.toUpperCase()]);
-          else if (conn.type) netRows.push(['Type', conn.type]);
-          if (conn.downlink) netRows.push(['Downlink', conn.downlink + ' Mbps']);
-          document.getElementById('sysNetSection').innerHTML = makeSection('Network', netRows);
-        }
-
-        // --- Async: Battery ---
-        if (nav.getBattery) {
-          nav.getBattery().then(function (bat) {
-            document.getElementById('sysBatSection').innerHTML = makeSection('Battery', [
-              ['Level', Math.round(bat.level * 100) + '%'],
-              ['Charging', bat.charging ? 'Yes' : 'No']
-            ]);
-          });
-        }
+      // --- Network ---
+      var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+      if (conn) {
+        var netRows = [];
+        if (conn.effectiveType) netRows.push(['Type', conn.effectiveType.toUpperCase()]);
+        else if (conn.type) netRows.push(['Type', conn.type]);
+        if (conn.downlink) netRows.push(['Downlink', conn.downlink + ' Mbps']);
+        document.getElementById('sysNetSection').innerHTML = makeSection('Network', netRows);
       }
 
-      render(os);
+      // --- Battery (async) ---
+      if (nav.getBattery) {
+        nav.getBattery().then(function (bat) {
+          document.getElementById('sysBatSection').innerHTML = makeSection('Battery', [
+            ['Level', Math.round(bat.level * 100) + '%'],
+            ['Charging', bat.charging ? 'Yes' : 'No']
+          ]);
+        });
+      }
     }
 
     // --- Fish of the Day ---
@@ -601,8 +565,9 @@
       var fishDetails = document.getElementById('fishDetails');
       var fishDateText = document.getElementById('fishDateText');
 
+      var sciName = f[1] + " " + f[2];
       fishName.textContent = f[0];
-      fishScientific.textContent = f[1] + " " + f[2];
+      fishScientific.textContent = sciName;
 
       var now = new Date();
       fishDateText.textContent = now.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
@@ -623,7 +588,6 @@
       addDetail("Habitat", f[6]);
       addDetail("Depth", f[7]);
 
-      var sciName = f[1] + " " + f[2];
       var wikiTitle = f[1] + "_" + f[2];
 
       /* ── Image loading ───────────────────────────────────── */
