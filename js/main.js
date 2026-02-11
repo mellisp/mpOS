@@ -89,7 +89,8 @@ const FOLDER_ITEMS = {
     { name: 'Calendar', desc: 'Monthly calendar viewer.', tag: 'HTML', action: 'openCalendar' },
     { name: 'Time Zone', desc: 'World clocks for 8 cities.', tag: 'HTML', action: 'openTimeZone' },
     { name: 'Weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather' },
-    { name: 'Disk Usage', desc: 'Source code breakdown by file type.', tag: 'HTML', action: 'openDiskUsage' }
+    { name: 'Disk Usage', desc: 'Source code breakdown by file type.', tag: 'HTML', action: 'openDiskUsage' },
+    { name: 'Help', desc: 'Browse the mpOS help documentation.', tag: 'HTML', action: 'openHelp' }
   ]
 };
 
@@ -230,7 +231,8 @@ function getItemIcon(name) {
     'Calculator': '<defs><linearGradient id="ei-ca" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#e8e4dc"/><stop offset="100%" stop-color="#a8a49c"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1.5" fill="url(#ei-ca)" stroke="#8a8680" stroke-width="0.8"/><rect x="5" y="3" width="10" height="3" rx="0.5" fill="#d0e8c0" stroke="#6a8a5a" stroke-width="0.5"/><rect x="5" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="8" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/>',
     'Time Zone': '<defs><linearGradient id="ei-tz" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient><linearGradient id="ei-tzr" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#ei-tzr)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#ei-tz)"/><ellipse cx="8.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><line x1="10" y1="10" x2="10" y2="5" stroke="#2a4a6e" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="10" x2="14" y2="10" stroke="#2a4a6e" stroke-width="0.9" stroke-linecap="round"/><circle cx="10" cy="10" r="0.8" fill="#2a4a6e"/><path d="M3.5 13 Q10 15.5 16.5 13" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/><path d="M3.5 7 Q10 4.5 16.5 7" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/>',
     'Weather': '<defs><radialGradient id="ei-we" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><circle cx="7" cy="6" r="4" fill="url(#ei-we)" stroke="#c49000" stroke-width="0.8"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="#e8e4dc" stroke="#8a8680" stroke-width="0.7"/>',
-    'Disk Usage': '<defs><linearGradient id="ei-du" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="30%" stop-color="#c8c4bc"/><stop offset="70%" stop-color="#a8a49c"/><stop offset="100%" stop-color="#8a8680"/></linearGradient><linearGradient id="ei-dup" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient></defs><rect x="2" y="6" width="16" height="10" rx="1.5" fill="url(#ei-du)" stroke="#6a6660" stroke-width="0.8"/><rect x="4" y="8" width="8" height="5" rx="0.5" fill="url(#ei-dup)" stroke="#4a4a4a" stroke-width="0.5"/><circle cx="8" cy="10.5" r="1.8" fill="none" stroke="#555" stroke-width="0.4"/><circle cx="8" cy="10.5" r="0.5" fill="#888"/><circle cx="15" cy="13" r="0.8" fill="#5aaa80" stroke="#2a7a52" stroke-width="0.3"/>'
+    'Disk Usage': '<defs><linearGradient id="ei-du" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="30%" stop-color="#c8c4bc"/><stop offset="70%" stop-color="#a8a49c"/><stop offset="100%" stop-color="#8a8680"/></linearGradient><linearGradient id="ei-dup" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient></defs><rect x="2" y="6" width="16" height="10" rx="1.5" fill="url(#ei-du)" stroke="#6a6660" stroke-width="0.8"/><rect x="4" y="8" width="8" height="5" rx="0.5" fill="url(#ei-dup)" stroke="#4a4a4a" stroke-width="0.5"/><circle cx="8" cy="10.5" r="1.8" fill="none" stroke="#555" stroke-width="0.4"/><circle cx="8" cy="10.5" r="0.5" fill="#888"/><circle cx="15" cy="13" r="0.8" fill="#5aaa80" stroke="#2a7a52" stroke-width="0.3"/>',
+    'Help': '<defs><linearGradient id="ei-hp" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffc107"/><stop offset="70%" stop-color="#e8a010"/><stop offset="100%" stop-color="#c49000"/></linearGradient><linearGradient id="ei-hpp" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient></defs><rect x="2" y="3" width="3" height="14" rx="0.5" fill="url(#ei-hp)" stroke="#c49000" stroke-width="0.6"/><rect x="5" y="4" width="11" height="12" rx="1" fill="url(#ei-hpp)" stroke="#8a8680" stroke-width="0.6"/><path d="M9.5 8 Q9.5 6.5 11 6.5 Q12.5 6.5 12.5 8 Q12.5 9 11 9.5 L11 10.5" fill="none" stroke="#4a8abe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="12.5" r="0.7" fill="#4a8abe"/>'
   };
   return icons[name] || '';
 }
@@ -1413,7 +1415,8 @@ const DU_FILES = [
   { path: 'js/taskbar.js', type: 'JS' },
   { path: 'js/audio.js', type: 'JS' },
   { path: 'js/fish-data.js', type: 'JS' },
-  { path: 'js/aquarium-data.js', type: 'JS' }
+  { path: 'js/aquarium-data.js', type: 'JS' },
+  { path: 'js/help-data.js', type: 'JS' }
 ];
 
 const DU_COLORS = { HTML: '#4a8abe', CSS: '#5aaa80', JS: '#e8a010' };
@@ -1578,6 +1581,342 @@ function formatDuSize(bytes) {
   return (bytes / 1024).toFixed(1) + ' KB';
 }
 
+/* ── Help System ── */
+let helpHistory = [];
+let helpHistoryIndex = -1;
+let helpCurrentTab = 'contents';
+let helpNavVisible = true;
+let helpBuilt = false;
+let helpIndexData = null;
+
+function openHelp() {
+  openWindow('help');
+  if (!helpBuilt) {
+    helpBuilt = true;
+    helpHistory = ['welcome'];
+    helpHistoryIndex = 0;
+    helpSwitchTab('contents');
+    helpRenderTopic('welcome');
+    helpUpdateButtons();
+  }
+}
+
+function helpNavigateTo(topicId) {
+  if (!HELP_TOPICS[topicId]) return;
+  // Trim forward history
+  helpHistory = helpHistory.slice(0, helpHistoryIndex + 1);
+  helpHistory.push(topicId);
+  helpHistoryIndex = helpHistory.length - 1;
+  helpRenderTopic(topicId);
+  helpUpdateButtons();
+  helpUpdateTreeActive(topicId);
+}
+
+function helpBack() {
+  if (helpHistoryIndex <= 0) return;
+  helpHistoryIndex--;
+  var topicId = helpHistory[helpHistoryIndex];
+  helpRenderTopic(topicId);
+  helpUpdateButtons();
+  helpUpdateTreeActive(topicId);
+}
+
+function helpForward() {
+  if (helpHistoryIndex >= helpHistory.length - 1) return;
+  helpHistoryIndex++;
+  var topicId = helpHistory[helpHistoryIndex];
+  helpRenderTopic(topicId);
+  helpUpdateButtons();
+  helpUpdateTreeActive(topicId);
+}
+
+function helpHome() {
+  helpNavigateTo('welcome');
+}
+
+function helpToggleNav() {
+  var nav = document.getElementById('helpNav');
+  var btn = document.getElementById('helpToggleBtn');
+  helpNavVisible = !helpNavVisible;
+  nav.classList.toggle('hidden', !helpNavVisible);
+  btn.textContent = helpNavVisible ? 'Hide' : 'Show';
+}
+
+function helpUpdateButtons() {
+  document.getElementById('helpBackBtn').disabled = (helpHistoryIndex <= 0);
+  document.getElementById('helpFwdBtn').disabled = (helpHistoryIndex >= helpHistory.length - 1);
+}
+
+function helpSwitchTab(tab) {
+  helpCurrentTab = tab;
+  var tabs = { contents: 'helpTabContents', index: 'helpTabIndex', search: 'helpTabSearch' };
+  for (var key in tabs) {
+    document.getElementById(tabs[key]).classList.toggle('active', key === tab);
+  }
+  var body = document.getElementById('helpTabBody');
+  body.textContent = '';
+  if (tab === 'contents') helpBuildTree(body);
+  else if (tab === 'index') helpBuildIndex(body);
+  else if (tab === 'search') helpBuildSearch(body);
+}
+
+function helpBuildTree(body) {
+  var frag = document.createDocumentFragment();
+  for (var i = 0; i < HELP_TREE.length; i++) {
+    var folder = HELP_TREE[i];
+    var folderEl = document.createElement('div');
+
+    var folderRow = document.createElement('div');
+    folderRow.className = 'help-tree-folder';
+    var icon = document.createElement('span');
+    icon.className = 'help-tree-icon';
+    icon.textContent = '\uD83D\uDCD6';
+    folderRow.appendChild(icon);
+    var label = document.createElement('span');
+    label.textContent = folder.title;
+    folderRow.appendChild(label);
+    folderEl.appendChild(folderRow);
+
+    var childrenEl = document.createElement('div');
+    childrenEl.className = 'help-tree-children open';
+
+    for (var j = 0; j < folder.children.length; j++) {
+      var topicId = folder.children[j];
+      var topic = HELP_TOPICS[topicId];
+      if (!topic) continue;
+      var topicEl = document.createElement('div');
+      topicEl.className = 'help-tree-topic';
+      topicEl.dataset.topicId = topicId;
+      var tIcon = document.createElement('span');
+      tIcon.className = 'help-tree-icon';
+      tIcon.textContent = '\uD83D\uDCC4';
+      topicEl.appendChild(tIcon);
+      var tLabel = document.createElement('span');
+      tLabel.textContent = topic.title;
+      topicEl.appendChild(tLabel);
+      topicEl.addEventListener('click', (function (id) {
+        return function () { helpNavigateTo(id); };
+      })(topicId));
+      childrenEl.appendChild(topicEl);
+    }
+
+    folderEl.appendChild(childrenEl);
+
+    folderRow.addEventListener('click', (function (ch) {
+      return function () { ch.classList.toggle('open'); };
+    })(childrenEl));
+
+    frag.appendChild(folderEl);
+  }
+  body.appendChild(frag);
+  // Highlight current topic
+  if (helpHistory.length > 0) {
+    helpUpdateTreeActive(helpHistory[helpHistoryIndex]);
+  }
+}
+
+function helpBuildIndex(body) {
+  // Build index data once
+  if (!helpIndexData) {
+    helpIndexData = [];
+    var keys = Object.keys(HELP_TOPICS);
+    for (var i = 0; i < keys.length; i++) {
+      var topic = HELP_TOPICS[keys[i]];
+      for (var j = 0; j < topic.keywords.length; j++) {
+        helpIndexData.push({ keyword: topic.keywords[j], topicId: keys[i], title: topic.title });
+      }
+    }
+    helpIndexData.sort(function (a, b) {
+      return a.keyword.localeCompare(b.keyword);
+    });
+  }
+
+  var header = document.createElement('div');
+  header.className = 'help-index-header';
+  header.textContent = 'Type a keyword:';
+  body.appendChild(header);
+
+  var input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'help-index-input';
+  input.spellcheck = false;
+  input.autocomplete = 'off';
+  body.appendChild(input);
+
+  var list = document.createElement('div');
+  list.style.cssText = 'flex:1;overflow-y:auto;';
+  body.appendChild(list);
+
+  function filterIndex() {
+    var query = input.value.toLowerCase();
+    list.textContent = '';
+    var matches = helpIndexData.filter(function (item) {
+      return item.keyword.toLowerCase().indexOf(query) === 0;
+    });
+    if (matches.length === 0) {
+      var none = document.createElement('div');
+      none.className = 'help-no-results';
+      none.textContent = 'No matching keywords.';
+      list.appendChild(none);
+      return;
+    }
+    for (var i = 0; i < matches.length; i++) {
+      var row = document.createElement('div');
+      row.className = 'help-list-item';
+      row.textContent = matches[i].keyword + ' \u2014 ' + matches[i].title;
+      row.addEventListener('click', (function (id) {
+        return function () { helpNavigateTo(id); };
+      })(matches[i].topicId));
+      list.appendChild(row);
+    }
+  }
+
+  filterIndex();
+  input.addEventListener('input', filterIndex);
+  setTimeout(function () { input.focus(); }, 50);
+}
+
+function helpBuildSearch(body) {
+  var header = document.createElement('div');
+  header.className = 'help-search-header';
+  header.textContent = 'Search for:';
+  body.appendChild(header);
+
+  var input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'help-search-input';
+  input.spellcheck = false;
+  input.autocomplete = 'off';
+  body.appendChild(input);
+
+  var btn = document.createElement('button');
+  btn.className = 'btn help-search-btn';
+  btn.textContent = 'List Topics';
+  body.appendChild(btn);
+
+  var results = document.createElement('div');
+  results.style.cssText = 'flex:1;overflow-y:auto;margin-top:4px;';
+  body.appendChild(results);
+
+  function doSearch() {
+    var query = input.value.trim().toLowerCase();
+    results.textContent = '';
+    if (!query) return;
+
+    var matches = [];
+    var keys = Object.keys(HELP_TOPICS);
+    for (var i = 0; i < keys.length; i++) {
+      var topic = HELP_TOPICS[keys[i]];
+      var searchText = topic.title.toLowerCase();
+      searchText += ' ' + topic.keywords.join(' ').toLowerCase();
+      for (var b = 0; b < topic.body.length; b++) {
+        var block = topic.body[b];
+        if (block.p) searchText += ' ' + block.p.toLowerCase();
+        if (block.h) searchText += ' ' + block.h.toLowerCase();
+        if (block.ul) searchText += ' ' + block.ul.join(' ').toLowerCase();
+      }
+      if (searchText.indexOf(query) !== -1) {
+        matches.push({ topicId: keys[i], title: topic.title });
+      }
+    }
+
+    if (matches.length === 0) {
+      var none = document.createElement('div');
+      none.className = 'help-no-results';
+      none.textContent = 'No topics found.';
+      results.appendChild(none);
+      return;
+    }
+
+    for (var m = 0; m < matches.length; m++) {
+      var row = document.createElement('div');
+      row.className = 'help-list-item';
+      row.textContent = matches[m].title;
+      row.addEventListener('click', (function (id) {
+        return function () { helpNavigateTo(id); };
+      })(matches[m].topicId));
+      results.appendChild(row);
+    }
+  }
+
+  btn.addEventListener('click', doSearch);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') doSearch();
+  });
+  setTimeout(function () { input.focus(); }, 50);
+}
+
+function helpRenderTopic(topicId) {
+  var content = document.getElementById('helpContent');
+  var topic = HELP_TOPICS[topicId];
+  if (!topic) return;
+
+  content.textContent = '';
+  content.scrollTop = 0;
+
+  // Update title bar
+  document.getElementById('helpTitle').textContent = 'mpOS Help \u2014 ' + topic.title;
+
+  var titleEl = document.createElement('div');
+  titleEl.className = 'help-topic-title';
+  titleEl.textContent = topic.title;
+  content.appendChild(titleEl);
+
+  for (var i = 0; i < topic.body.length; i++) {
+    var block = topic.body[i];
+
+    if (block.p) {
+      var p = document.createElement('div');
+      p.className = 'help-topic-p';
+      p.textContent = block.p;
+      content.appendChild(p);
+    } else if (block.h) {
+      var h = document.createElement('div');
+      h.className = 'help-topic-heading';
+      h.textContent = block.h;
+      content.appendChild(h);
+    } else if (block.ul) {
+      var ul = document.createElement('ul');
+      ul.className = 'help-topic-ul';
+      for (var j = 0; j < block.ul.length; j++) {
+        var li = document.createElement('li');
+        li.textContent = block.ul[j];
+        ul.appendChild(li);
+      }
+      content.appendChild(ul);
+    } else if (block.sa) {
+      var sa = document.createElement('div');
+      sa.className = 'help-topic-sa';
+      var saLabel = document.createElement('div');
+      saLabel.className = 'help-topic-sa-label';
+      saLabel.textContent = 'See also:';
+      sa.appendChild(saLabel);
+      for (var k = 0; k < block.sa.length; k++) {
+        var linked = HELP_TOPICS[block.sa[k]];
+        if (!linked) continue;
+        if (k > 0) {
+          sa.appendChild(document.createTextNode(', '));
+        }
+        var link = document.createElement('span');
+        link.className = 'help-topic-link';
+        link.textContent = linked.title;
+        link.addEventListener('click', (function (id) {
+          return function () { helpNavigateTo(id); };
+        })(block.sa[k]));
+        sa.appendChild(link);
+      }
+      content.appendChild(sa);
+    }
+  }
+}
+
+function helpUpdateTreeActive(topicId) {
+  var topics = document.querySelectorAll('.help-tree-topic');
+  for (var i = 0; i < topics.length; i++) {
+    topics[i].classList.toggle('active', topics[i].dataset.topicId === topicId);
+  }
+}
+
 /* ── Action lookup map (replaces new Function for FOLDER_ITEMS actions) ── */
 const ACTION_MAP = {
   openBrowser: openBrowser,
@@ -1591,7 +1930,8 @@ const ACTION_MAP = {
   openCalendar: openCalendar,
   openTimeZone: openTimeZone,
   openWeather: openWeather,
-  openDiskUsage: openDiskUsage
+  openDiskUsage: openDiskUsage,
+  openHelp: openHelp
 };
 
 /* ── Run Terminal ── */
@@ -1635,6 +1975,7 @@ const COMMANDS = {
   'timezone':    { run: openTimeZone,    desc: 'Open Time Zone' },
   'weather':     { run: openWeather,     desc: 'Open Weather' },
   'diskusage':   { run: openDiskUsage,  desc: 'Open Disk Usage' },
+  'hh':          { run: openHelp,       desc: 'Open mpOS Help' },
   'cls':         { run: cmdCls,          desc: 'Clear the screen' },
   'clear':       { run: cmdCls,          desc: 'Clear the screen' },
   'exit':        { run: function () { stopMatrix(); bbTaskbar.closeWindow('run'); }, desc: 'Close this window' },
@@ -1827,7 +2168,8 @@ function buildLauncher() {
   ];
   var system = [
     { name: 'My Computer', action: openMyComputer },
-    { name: 'Files', action: openExplorer }
+    { name: 'Files', action: openExplorer },
+    { name: 'Help', action: openHelp }
   ];
 
   function populateGrid(gridId, items) {
@@ -1913,6 +2255,12 @@ window.closeTimeZone = closeTimeZone;
 window.tzToggleView = tzToggleView;
 window.openWeather = openWeather;
 window.openDiskUsage = openDiskUsage;
+window.openHelp = openHelp;
+window.helpBack = helpBack;
+window.helpForward = helpForward;
+window.helpHome = helpHome;
+window.helpToggleNav = helpToggleNav;
+window.helpSwitchTab = helpSwitchTab;
 window.openRun = openRun;
 
 })();

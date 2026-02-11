@@ -31,6 +31,7 @@
   </script>
   <script src="js/fish-data.js" defer></script>
   <script src="js/aquarium-data.js" defer></script>
+  <script src="js/help-data.js" defer></script>
 </head>
 <body>
   <noscript><div style="background:#3a6ea5;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:Tahoma,sans-serif;font-size:16px;text-align:center;padding:24px;">mpOS requires JavaScript to run.</div></noscript>
@@ -424,6 +425,34 @@
       </div>
     </div>
 
+    <!-- Help Window (hidden initially) -->
+    <div class="window draggable" id="help" style="display:none;">
+      <div class="titlebar">
+        <span id="helpTitle">mpOS Help</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('help')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('help')">X</div>
+        </div>
+      </div>
+      <div class="help-toolbar">
+        <button class="btn help-tb-btn" id="helpToggleBtn" onclick="helpToggleNav()">Hide</button>
+        <button class="btn help-tb-btn" id="helpBackBtn" onclick="helpBack()" disabled>Back</button>
+        <button class="btn help-tb-btn" id="helpFwdBtn" onclick="helpForward()" disabled>Forward</button>
+        <button class="btn help-tb-btn" onclick="helpHome()">Home</button>
+      </div>
+      <div class="help-panes" id="helpPanes">
+        <div class="help-nav" id="helpNav">
+          <div class="help-tabs">
+            <button class="help-tab active" id="helpTabContents" onclick="helpSwitchTab('contents')">Contents</button>
+            <button class="help-tab" id="helpTabIndex" onclick="helpSwitchTab('index')">Index</button>
+            <button class="help-tab" id="helpTabSearch" onclick="helpSwitchTab('search')">Search</button>
+          </div>
+          <div class="help-tab-body" id="helpTabBody"></div>
+        </div>
+        <div class="help-content" id="helpContent"></div>
+      </div>
+    </div>
+
     <!-- Chicken Fingers Error Dialog (hidden initially) -->
     <div class="window" id="chickenError" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;width:380px;max-width:95vw;">
       <div class="titlebar">
@@ -566,6 +595,25 @@
             </button>
           </div>
         </div>
+
+        <!-- Help -->
+        <button class="start-menu-item" type="button" onclick="openHelp(); closeStartMenu();">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="hp-book" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffc107"/><stop offset="70%" stop-color="#e8a010"/><stop offset="100%" stop-color="#c49000"/></linearGradient>
+              <linearGradient id="hp-page" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient>
+            </defs>
+            <!-- Book spine -->
+            <rect x="2" y="3" width="3" height="14" rx="0.5" fill="url(#hp-book)" stroke="#c49000" stroke-width="0.6"/>
+            <!-- Pages -->
+            <rect x="5" y="4" width="11" height="12" rx="1" fill="url(#hp-page)" stroke="#8a8680" stroke-width="0.6"/>
+            <line x1="6" y1="4.5" x2="15" y2="4.5" stroke="white" stroke-width="0.5" opacity="0.5"/>
+            <!-- Question mark (vector path, no <text>) -->
+            <path d="M9.5 8 Q9.5 6.5 11 6.5 Q12.5 6.5 12.5 8 Q12.5 9 11 9.5 L11 10.5" fill="none" stroke="#4a8abe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="11" cy="12.5" r="0.7" fill="#4a8abe"/>
+          </svg>
+          <span>Help</span>
+        </button>
 
         <!-- Run -->
         <div class="start-menu-item" onclick="openRun(); closeStartMenu();">
