@@ -18,7 +18,132 @@ function closeStartMenu() {
   if (b) b.classList.remove('pressed');
 }
 
-function openExplorer() { openWindow('explorer'); }
+/* ── Explorer / Folder Browser ── */
+var explorerCurrentFolder = 'all';
+var explorerCurrentView = 'list';
+
+var FOLDER_ITEMS = {
+  programs: [
+    { name: 'WikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'HTML', action: 'openBrowser()' },
+    { name: 'Fish of the Day', desc: 'A new fish every day, powered by Wikipedia.', tag: 'HTML', action: 'openFishOfDay()' },
+    { name: 'Fish Finder', desc: 'Find the closest aquarium near you.', tag: 'HTML', action: 'openFishFinder()' },
+    { name: 'On Target', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget()' },
+    { name: 'Virtual Aquarium', desc: 'Watch real fish, in real-time.', tag: 'HTML', action: 'openAquarium()' },
+    { name: 'Chicken Fingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers()', href: 'chicken-fingers.html' }
+  ],
+  documents: [],
+  utilities: [
+    { name: 'Notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad()' },
+    { name: 'Calculator', desc: 'Basic arithmetic calculator.', tag: 'HTML', action: 'openCalculator()' },
+    { name: 'Weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather()' }
+  ]
+};
+
+var FOLDER_NAMES = {
+  all: { title: 'Applications', address: 'C:\\mpOS' },
+  programs: { title: 'Programs', address: 'C:\\mpOS\\Programs' },
+  documents: { title: 'Documents', address: 'C:\\mpOS\\Documents' },
+  utilities: { title: 'Utilities', address: 'C:\\mpOS\\Utilities' }
+};
+
+function openExplorer() {
+  openWindow('explorer');
+  navigateExplorer(explorerCurrentFolder);
+}
+
+function openExplorerTo(folder) {
+  openWindow('explorer');
+  navigateExplorer(folder);
+}
+
+function navigateExplorer(folder) {
+  explorerCurrentFolder = folder;
+  var info = FOLDER_NAMES[folder];
+  document.getElementById('explorerTitle').textContent = info.title;
+  document.getElementById('explorerAddress').textContent = info.address;
+
+  // Update sidebar active state
+  var items = document.querySelectorAll('#explorer .tree-item');
+  var folderIndex = { all: 0, programs: 1, documents: 2, utilities: 3 };
+  items.forEach(function (el, i) {
+    el.classList.toggle('active', i === folderIndex[folder]);
+  });
+
+  renderExplorerContent();
+}
+
+function renderExplorerContent() {
+  var body = document.getElementById('explorerBody');
+  var status = document.getElementById('explorerStatus');
+  var items;
+
+  if (explorerCurrentFolder === 'all') {
+    items = FOLDER_ITEMS.programs.concat(FOLDER_ITEMS.documents, FOLDER_ITEMS.utilities);
+  } else {
+    items = FOLDER_ITEMS[explorerCurrentFolder];
+  }
+
+  if (!items.length) {
+    body.innerHTML = '<div class="folder-empty">This folder is empty.</div>';
+    status.textContent = '0 item(s)';
+    return;
+  }
+
+  status.textContent = items.length + ' item(s)';
+
+  if (explorerCurrentView === 'icon') {
+    var html = '<div class="folder-icon-view">';
+    items.forEach(function (item) {
+      var dblAction = item.href
+        ? 'if(' + item.action + ')location.href=&quot;' + item.href + '&quot;'
+        : item.action;
+      html += '<div class="folder-icon-tile" ondblclick="' + dblAction + '">';
+      html += '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">' + getItemIcon(item.name) + '</svg>';
+      html += '<span class="folder-icon-label">' + item.name + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    body.innerHTML = html;
+  } else {
+    var html = '<div class="folder-list-view">';
+    items.forEach(function (item) {
+      var dblAction = item.href
+        ? 'if(' + item.action + ')location.href=&quot;' + item.href + '&quot;'
+        : item.action;
+      html += '<div class="folder-list-item" ondblclick="' + dblAction + '">';
+      html += '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">' + getItemIcon(item.name) + '</svg>';
+      html += '<span class="folder-list-name">' + item.name + '</span>';
+      html += '<span class="folder-list-desc">' + item.desc + '</span>';
+      html += '<span class="tag">' + item.tag + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    body.innerHTML = html;
+  }
+}
+
+function setExplorerView(view) {
+  explorerCurrentView = view;
+  var btns = document.querySelectorAll('#explorer .folder-view-btn');
+  btns[0].classList.toggle('active', view === 'icon');
+  btns[1].classList.toggle('active', view === 'list');
+  renderExplorerContent();
+}
+
+function getItemIcon(name) {
+  var icons = {
+    'WikiBrowser': '<defs><radialGradient id="ei-wb" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#d8f0ff"/><stop offset="50%" stop-color="#5a9ece"/><stop offset="100%" stop-color="#3a7ab0"/></radialGradient></defs><circle cx="10" cy="10" r="8" fill="url(#ei-wb)" stroke="#1a4a6e" stroke-width="1"/><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.8"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.8"/><ellipse cx="8" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/>',
+    'Fish of the Day': '<defs><linearGradient id="ei-fd" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#a0e8c0"/><stop offset="50%" stop-color="#60b888"/><stop offset="100%" stop-color="#2a8858"/></linearGradient></defs><path d="M1 7 Q3 10 1 14 L4 11 Z" fill="url(#ei-fd)" stroke="#1a5c42" stroke-width="0.6"/><ellipse cx="10" cy="11" rx="8" ry="5" fill="url(#ei-fd)" stroke="#1a5c42" stroke-width="0.8"/><ellipse cx="9" cy="9.5" rx="5" ry="2" fill="white" opacity="0.25"/><circle cx="15" cy="10" r="1" fill="#1a5c42"/>',
+    'Fish Finder': '<defs><radialGradient id="ei-ff" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#c8e0f8"/><stop offset="100%" stop-color="#88bbe0"/></radialGradient></defs><circle cx="9" cy="9" r="6" fill="url(#ei-ff)" stroke="#1a4a6e" stroke-width="1.5"/><ellipse cx="7.5" cy="7.5" rx="3" ry="2" fill="white" opacity="0.4"/><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="#8a8680" stroke-width="2.5" stroke-linecap="round"/>',
+    'On Target': '<defs><radialGradient id="ei-ot" cx="0.4" cy="0.4" r="0.6"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="60%" stop-color="#ef5350"/><stop offset="100%" stop-color="#c62828"/></radialGradient></defs><circle cx="10" cy="10" r="9" fill="url(#ei-ot)" stroke="#c62828" stroke-width="0.6"/><circle cx="10" cy="10" r="7" fill="#fff"/><circle cx="10" cy="10" r="5" fill="url(#ei-ot)"/><circle cx="10" cy="10" r="3" fill="#fff"/><circle cx="10" cy="10" r="1.5" fill="url(#ei-ot)"/>',
+    'Virtual Aquarium': '<defs><linearGradient id="ei-va" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="50%" stop-color="#5a9ece"/><stop offset="100%" stop-color="#2a6898"/></linearGradient><linearGradient id="ei-vw" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a8aaa"/><stop offset="50%" stop-color="#0d5a76"/><stop offset="100%" stop-color="#082a3e"/></linearGradient></defs><rect x="1" y="3" width="18" height="12" rx="2" fill="url(#ei-va)" stroke="#1a4a6e" stroke-width="0.6"/><rect x="3" y="5" width="14" height="8" rx="1" fill="url(#ei-vw)"/><circle cx="8" cy="9" r="1.5" fill="#ffc107"/><circle cx="13" cy="10" r="1" fill="#ffc107"/>',
+    'Chicken Fingers': '<defs><radialGradient id="ei-cf" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="50%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><ellipse cx="10" cy="12" rx="6" ry="5" fill="url(#ei-cf)" stroke="#c49000" stroke-width="0.6"/><circle cx="10" cy="6" r="4" fill="url(#ei-cf)" stroke="#c49000" stroke-width="0.6"/><circle cx="8.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="11.5" cy="5.5" r="0.8" fill="#5d4037"/><path d="M9 7.5 L10 8.5 L11 7.5" stroke="#e67e22" stroke-width="0.8" fill="#e67e22"/>',
+    'Notepad': '<defs><linearGradient id="ei-np" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#f0f4ff"/><stop offset="100%" stop-color="#a0b8d8"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1" fill="url(#ei-np)" stroke="#4a6a8e" stroke-width="0.8"/><line x1="6" y1="7" x2="14" y2="7" stroke="#4a6a8e" stroke-width="0.6"/><line x1="6" y1="10" x2="14" y2="10" stroke="#4a6a8e" stroke-width="0.6"/><line x1="6" y1="13" x2="11" y2="13" stroke="#4a6a8e" stroke-width="0.6"/>',
+    'Calculator': '<defs><linearGradient id="ei-ca" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#e8e4dc"/><stop offset="100%" stop-color="#a8a49c"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1.5" fill="url(#ei-ca)" stroke="#8a8680" stroke-width="0.8"/><rect x="5" y="3" width="10" height="3" rx="0.5" fill="#d0e8c0" stroke="#6a8a5a" stroke-width="0.5"/><rect x="5" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="8" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/>',
+    'Weather': '<defs><radialGradient id="ei-we" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><circle cx="7" cy="6" r="4" fill="url(#ei-we)" stroke="#c49000" stroke-width="0.8"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="#e8e4dc" stroke="#8a8680" stroke-width="0.7"/>'
+  };
+  return icons[name] || '';
+}
 
 function openMyComputer() {
   openWindow('mycomputer');
@@ -651,6 +776,9 @@ const COMMANDS = {
   'browser':     { run: openBrowser,     desc: 'Launch WikiBrowser' },
   'mycomputer':  { run: function () { openMyComputer(); }, desc: 'Open My Computer' },
   'explorer':    { run: openExplorer,    desc: 'Open Applications' },
+  'programs':    { run: function () { openExplorerTo('programs'); },   desc: 'Open Programs folder' },
+  'documents':   { run: function () { openExplorerTo('documents'); },  desc: 'Open Documents folder' },
+  'utilities':   { run: function () { openExplorerTo('utilities'); },  desc: 'Open Utilities folder' },
   'notepad':     { run: openNotepad,     desc: 'Open Notepad' },
   'calculator':  { run: openCalculator,  desc: 'Open Calculator' },
   'weather':     { run: openWeather,     desc: 'Open Weather' },
