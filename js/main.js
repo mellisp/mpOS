@@ -88,7 +88,8 @@ const FOLDER_ITEMS = {
     { name: 'Calculator', desc: 'Basic arithmetic calculator.', tag: 'HTML', action: 'openCalculator' },
     { name: 'Calendar', desc: 'Monthly calendar viewer.', tag: 'HTML', action: 'openCalendar' },
     { name: 'Time Zone', desc: 'World clocks for 8 cities.', tag: 'HTML', action: 'openTimeZone' },
-    { name: 'Weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather' }
+    { name: 'Weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather' },
+    { name: 'Disk Usage', desc: 'Source code breakdown by file type.', tag: 'HTML', action: 'openDiskUsage' }
   ]
 };
 
@@ -228,7 +229,8 @@ function getItemIcon(name) {
     'Calendar': '<defs><linearGradient id="ei-cl" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient><linearGradient id="ei-clb" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ef5350"/><stop offset="50%" stop-color="#d32f2f"/><stop offset="100%" stop-color="#b71c1c"/></linearGradient></defs><rect x="3" y="3" width="14" height="16" rx="1" fill="url(#ei-cl)" stroke="#8a8680" stroke-width="0.8"/><rect x="3" y="3" width="14" height="3.5" rx="1" fill="url(#ei-clb)"/><circle cx="7" cy="10" r="0.6" fill="#808080"/><circle cx="10" cy="10" r="0.6" fill="#808080"/><circle cx="13" cy="10" r="0.6" fill="#808080"/><circle cx="7" cy="13" r="0.6" fill="#808080"/><circle cx="10" cy="13" r="0.6" fill="#808080"/><circle cx="13" cy="13" r="0.6" fill="#808080"/><circle cx="7" cy="16" r="0.6" fill="#808080"/><circle cx="10" cy="16" r="0.6" fill="#808080"/>',
     'Calculator': '<defs><linearGradient id="ei-ca" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#e8e4dc"/><stop offset="100%" stop-color="#a8a49c"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1.5" fill="url(#ei-ca)" stroke="#8a8680" stroke-width="0.8"/><rect x="5" y="3" width="10" height="3" rx="0.5" fill="#d0e8c0" stroke="#6a8a5a" stroke-width="0.5"/><rect x="5" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="8" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/>',
     'Time Zone': '<defs><linearGradient id="ei-tz" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient><linearGradient id="ei-tzr" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#ei-tzr)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#ei-tz)"/><ellipse cx="8.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><line x1="10" y1="10" x2="10" y2="5" stroke="#2a4a6e" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="10" x2="14" y2="10" stroke="#2a4a6e" stroke-width="0.9" stroke-linecap="round"/><circle cx="10" cy="10" r="0.8" fill="#2a4a6e"/><path d="M3.5 13 Q10 15.5 16.5 13" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/><path d="M3.5 7 Q10 4.5 16.5 7" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/>',
-    'Weather': '<defs><radialGradient id="ei-we" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><circle cx="7" cy="6" r="4" fill="url(#ei-we)" stroke="#c49000" stroke-width="0.8"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="#e8e4dc" stroke="#8a8680" stroke-width="0.7"/>'
+    'Weather': '<defs><radialGradient id="ei-we" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><circle cx="7" cy="6" r="4" fill="url(#ei-we)" stroke="#c49000" stroke-width="0.8"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="#e8e4dc" stroke="#8a8680" stroke-width="0.7"/>',
+    'Disk Usage': '<defs><linearGradient id="ei-du" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="30%" stop-color="#c8c4bc"/><stop offset="70%" stop-color="#a8a49c"/><stop offset="100%" stop-color="#8a8680"/></linearGradient><linearGradient id="ei-dup" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient></defs><rect x="2" y="6" width="16" height="10" rx="1.5" fill="url(#ei-du)" stroke="#6a6660" stroke-width="0.8"/><rect x="4" y="8" width="8" height="5" rx="0.5" fill="url(#ei-dup)" stroke="#4a4a4a" stroke-width="0.5"/><circle cx="8" cy="10.5" r="1.8" fill="none" stroke="#555" stroke-width="0.4"/><circle cx="8" cy="10.5" r="0.5" fill="#888"/><circle cx="15" cy="13" r="0.8" fill="#5aaa80" stroke="#2a7a52" stroke-width="0.3"/>'
   };
   return icons[name] || '';
 }
@@ -1396,6 +1398,186 @@ function renderWeather(body, data) {
   body.appendChild(forecast);
 }
 
+/* ── Disk Usage ── */
+const DU_FILES = [
+  { path: 'index.html', type: 'HTML' },
+  { path: '404.html', type: 'HTML' },
+  { path: 'target-game.html', type: 'HTML' },
+  { path: 'chicken-fingers.html', type: 'HTML' },
+  { path: 'error-pages/400.html', type: 'HTML' },
+  { path: 'error-pages/403.html', type: 'HTML' },
+  { path: 'error-pages/500.html', type: 'HTML' },
+  { path: 'css/theme.css', type: 'CSS' },
+  { path: 'css/page.css', type: 'CSS' },
+  { path: 'js/main.js', type: 'JS' },
+  { path: 'js/taskbar.js', type: 'JS' },
+  { path: 'js/audio.js', type: 'JS' },
+  { path: 'js/fish-data.js', type: 'JS' },
+  { path: 'js/aquarium-data.js', type: 'JS' }
+];
+
+const DU_COLORS = { HTML: '#4a8abe', CSS: '#5aaa80', JS: '#e8a010' };
+const DU_LABELS = { HTML: 'HTML', CSS: 'CSS', JS: 'JavaScript' };
+
+function openDiskUsage() {
+  openWindow('diskusage');
+  populateDiskUsage();
+}
+
+function populateDiskUsage() {
+  var body = document.getElementById('diskUsageBody');
+  var status = document.getElementById('diskUsageStatus');
+  if (body.dataset.populated) return;
+  body.dataset.populated = '1';
+
+  showLoadingMessage(body, 'Scanning disk...');
+
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  var fetches = DU_FILES.map(function (f) {
+    return fetch(f.path)
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+      .then(function (b) { return { path: f.path, type: f.type, size: b.size }; })
+      .catch(function () { return null; });
+  });
+
+  Promise.all(fetches).then(function (results) {
+    var files = results.filter(function (r) { return r !== null; });
+    var totals = { HTML: 0, CSS: 0, JS: 0 };
+    var counts = { HTML: 0, CSS: 0, JS: 0 };
+    var totalSize = 0;
+
+    files.forEach(function (f) {
+      totals[f.type] += f.size;
+      counts[f.type]++;
+      totalSize += f.size;
+    });
+
+    if (totalSize === 0) {
+      showLoadingMessage(body, 'No files found.');
+      return;
+    }
+
+    body.textContent = '';
+
+    // Header
+    var header = document.createElement('div');
+    header.className = 'du-header';
+    var titleEl = document.createElement('div');
+    titleEl.className = 'du-header-title';
+    titleEl.textContent = 'mpOS Virtual Disk';
+    header.appendChild(titleEl);
+    var subEl = document.createElement('div');
+    subEl.className = 'du-header-sub';
+    subEl.textContent = 'File system: HTMLFS';
+    header.appendChild(subEl);
+    body.appendChild(header);
+
+    // Pie chart
+    var pieWrap = document.createElement('div');
+    pieWrap.className = 'du-pie-wrap';
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 120 120');
+    svg.setAttribute('width', '120');
+    svg.setAttribute('height', '120');
+
+    var types = ['HTML', 'CSS', 'JS'];
+    var cumulative = 0;
+
+    types.forEach(function (type) {
+      var pct = totals[type] / totalSize;
+      if (pct === 0) return;
+      var startAngle = cumulative * 2 * Math.PI;
+      var endAngle = (cumulative + pct) * 2 * Math.PI;
+      cumulative += pct;
+
+      var x1 = 60 + 50 * Math.sin(startAngle);
+      var y1 = 60 - 50 * Math.cos(startAngle);
+      var x2 = 60 + 50 * Math.sin(endAngle);
+      var y2 = 60 - 50 * Math.cos(endAngle);
+      var largeArc = pct > 0.5 ? 1 : 0;
+
+      var path = document.createElementNS(SVG_NS, 'path');
+      if (pct >= 0.9999) {
+        // Full circle
+        path.setAttribute('d', 'M60,10 A50,50 0 1,1 59.99,10 Z');
+      } else {
+        path.setAttribute('d',
+          'M60,60 L' + x1 + ',' + y1 +
+          ' A50,50 0 ' + largeArc + ',1 ' + x2 + ',' + y2 + ' Z'
+        );
+      }
+      path.setAttribute('fill', DU_COLORS[type]);
+      svg.appendChild(path);
+    });
+
+    pieWrap.appendChild(svg);
+    body.appendChild(pieWrap);
+
+    // Legend
+    var legend = document.createElement('div');
+    legend.className = 'du-legend';
+
+    types.forEach(function (type) {
+      var pct = totals[type] / totalSize * 100;
+      var row = document.createElement('div');
+      row.className = 'du-legend-row';
+
+      var chip = document.createElement('span');
+      chip.className = 'du-chip';
+      chip.style.background = DU_COLORS[type];
+      row.appendChild(chip);
+
+      var label = document.createElement('span');
+      label.className = 'du-legend-label';
+      label.textContent = DU_LABELS[type];
+      row.appendChild(label);
+
+      var sizeEl = document.createElement('span');
+      sizeEl.className = 'du-legend-size';
+      sizeEl.textContent = formatDuSize(totals[type]);
+      row.appendChild(sizeEl);
+
+      var pctEl = document.createElement('span');
+      pctEl.className = 'du-legend-pct';
+      pctEl.textContent = Math.round(pct) + '%';
+      row.appendChild(pctEl);
+
+      legend.appendChild(row);
+    });
+
+    body.appendChild(legend);
+
+    // Capacity bar
+    var bar = document.createElement('div');
+    bar.className = 'du-bar';
+
+    types.forEach(function (type) {
+      var pct = totals[type] / totalSize * 100;
+      if (pct === 0) return;
+      var seg = document.createElement('div');
+      seg.className = 'du-bar-seg';
+      seg.style.width = pct + '%';
+      seg.style.background = DU_COLORS[type];
+      bar.appendChild(seg);
+    });
+
+    body.appendChild(bar);
+
+    // Total line
+    var totalEl = document.createElement('div');
+    totalEl.className = 'du-total';
+    totalEl.textContent = 'Total: ' + formatDuSize(totalSize) + ' (' + files.length + ' files)';
+    body.appendChild(totalEl);
+
+    status.textContent = files.length + ' files scanned';
+  });
+}
+
+function formatDuSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  return (bytes / 1024).toFixed(1) + ' KB';
+}
+
 /* ── Action lookup map (replaces new Function for FOLDER_ITEMS actions) ── */
 const ACTION_MAP = {
   openBrowser: openBrowser,
@@ -1408,7 +1590,8 @@ const ACTION_MAP = {
   openCalculator: openCalculator,
   openCalendar: openCalendar,
   openTimeZone: openTimeZone,
-  openWeather: openWeather
+  openWeather: openWeather,
+  openDiskUsage: openDiskUsage
 };
 
 /* ── Run Terminal ── */
@@ -1451,6 +1634,7 @@ const COMMANDS = {
   'calendar':    { run: openCalendar,    desc: 'Open Calendar' },
   'timezone':    { run: openTimeZone,    desc: 'Open Time Zone' },
   'weather':     { run: openWeather,     desc: 'Open Weather' },
+  'diskusage':   { run: openDiskUsage,  desc: 'Open Disk Usage' },
   'cls':         { run: cmdCls,          desc: 'Clear the screen' },
   'clear':       { run: cmdCls,          desc: 'Clear the screen' },
   'exit':        { run: function () { stopMatrix(); bbTaskbar.closeWindow('run'); }, desc: 'Close this window' },
@@ -1638,7 +1822,8 @@ function buildLauncher() {
     { name: 'Calculator', action: openCalculator },
     { name: 'Calendar', action: openCalendar },
     { name: 'Time Zone', action: openTimeZone },
-    { name: 'Weather', action: openWeather }
+    { name: 'Weather', action: openWeather },
+    { name: 'Disk Usage', action: openDiskUsage }
   ];
   var system = [
     { name: 'My Computer', action: openMyComputer },
@@ -1727,6 +1912,7 @@ window.openTimeZone = openTimeZone;
 window.closeTimeZone = closeTimeZone;
 window.tzToggleView = tzToggleView;
 window.openWeather = openWeather;
+window.openDiskUsage = openDiskUsage;
 window.openRun = openRun;
 
 })();

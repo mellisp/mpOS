@@ -407,6 +407,23 @@
       </div>
     </div>
 
+    <!-- Disk Usage Window (hidden initially) -->
+    <div class="window draggable" id="diskusage" style="display:none;">
+      <div class="titlebar">
+        <span>Disk Usage</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('diskusage')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('diskusage')">X</div>
+        </div>
+      </div>
+      <div class="window-body" id="diskUsageBody">
+        <div style="padding:16px;font-size:12px;color:var(--text-muted);">Scanning disk...</div>
+      </div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="diskUsageStatus"></div>
+      </div>
+    </div>
+
     <!-- Chicken Fingers Error Dialog (hidden initially) -->
     <div class="window" id="chickenError" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;width:380px;max-width:95vw;">
       <div class="titlebar">
@@ -542,6 +559,10 @@
             <button class="start-menu-item" type="button" onclick="openWeather(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="we-sun" cx="0.3" cy="0.3" r="0.7"><stop offset="0%" stop-color="#fffde0"/><stop offset="40%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f9a825"/></radialGradient><radialGradient id="we-cloud" cx="0.4" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#e8e4dc"/><stop offset="100%" stop-color="#c8c4bc"/></radialGradient></defs><line x1="7" y1="1" x2="7" y2="3" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><line x1="2" y1="3" x2="3.5" y2="4.5" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><line x1="12" y1="3" x2="10.5" y2="4.5" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><line x1="1" y1="7" x2="3" y2="7" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><circle cx="7" cy="7" r="3.5" fill="url(#we-sun)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="6" cy="5.5" rx="2" ry="1.5" fill="white" opacity="0.35"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="url(#we-cloud)" stroke="#8a8680" stroke-width="0.6"/><ellipse cx="10" cy="14" rx="4" ry="1.5" fill="white" opacity="0.3"/></svg>
               <span>Weather</span>
+            </button>
+            <button class="start-menu-item" type="button" onclick="openDiskUsage(); closeStartMenu();">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="du-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="30%" stop-color="#c8c4bc"/><stop offset="70%" stop-color="#a8a49c"/><stop offset="100%" stop-color="#8a8680"/></linearGradient><linearGradient id="du-platter" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient></defs><rect x="2" y="6" width="16" height="10" rx="1.5" fill="url(#du-body)" stroke="#6a6660" stroke-width="0.8"/><line x1="3" y1="7" x2="17" y2="7" stroke="white" stroke-width="0.5" opacity="0.4"/><rect x="4" y="8" width="8" height="5" rx="0.5" fill="url(#du-platter)" stroke="#4a4a4a" stroke-width="0.5"/><circle cx="8" cy="10.5" r="1.8" fill="none" stroke="#555" stroke-width="0.4"/><circle cx="8" cy="10.5" r="0.5" fill="#888"/><circle cx="15" cy="13" r="0.8" fill="#5aaa80" stroke="#2a7a52" stroke-width="0.3"/><ellipse cx="7" cy="8.5" rx="3" ry="1.5" fill="white" opacity="0.15"/></svg>
+              <span>Disk Usage</span>
             </button>
           </div>
         </div>
