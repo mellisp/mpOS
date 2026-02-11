@@ -843,6 +843,7 @@ function openRun() {
   openWindow('run');
   termOutput.textContent = '';
   cmdVer();
+  termPrint('Type HELP for a list of available commands.\n');
   termInput.value = '';
   setTimeout(function () { termInput.focus(); }, 100);
 }
