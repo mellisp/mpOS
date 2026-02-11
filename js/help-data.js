@@ -11,7 +11,7 @@
 
 var HELP_TREE = [
   { title: 'Getting Started', children: ['welcome', 'desktop', 'startmenu', 'taskbar'] },
-  { title: 'Programs',        children: ['wikibrowser', 'fishofday', 'fishfinder', 'ontarget', 'aquarium', 'chickenfingers'] },
+  { title: 'Programs',        children: ['wikibrowser', 'fishofday', 'fishfinder', 'ontarget', 'aquarium', 'chickenfingers', 'paint'] },
   { title: 'Utilities',       children: ['notepad', 'calculator', 'calendar', 'timezone', 'weather', 'diskusage'] },
   { title: 'System',          children: ['mycomputer', 'explorer', 'run'] }
 ];
@@ -208,6 +208,47 @@ var HELP_TOPICS = {
         'Follow the on-screen instructions to play with two players.'
       ]},
       { sa: ['ontarget'] }
+    ]
+  },
+
+  paint: {
+    title: 'Paint',
+    keywords: ['paint', 'draw', 'drawing', 'image', 'canvas', 'brush', 'pencil', 'eraser', 'fill', 'color', 'art'],
+    body: [
+      { p: 'Paint is an image editor for creating and editing drawings. Files are saved as PNG images in your browser\u2019s local storage.' },
+      { h: 'Tools' },
+      { ul: [
+        'Pencil \u2014 draws thin 1px lines for precise detail work.',
+        'Brush \u2014 draws smooth strokes at the selected size.',
+        'Eraser \u2014 erases by painting with the background color.',
+        'Line \u2014 draws a straight line between two points.',
+        'Rectangle \u2014 draws a rectangle outline.',
+        'Ellipse \u2014 draws an ellipse outline.',
+        'Fill \u2014 flood-fills a region with the foreground color.'
+      ]},
+      { h: 'Colors' },
+      { ul: [
+        'Left-click a swatch to set the foreground (drawing) color.',
+        'Right-click a swatch to set the background (eraser) color.',
+        'Double-click the FG or BG preview square to pick a custom color.'
+      ]},
+      { h: 'Toolbar' },
+      { ul: [
+        'New \u2014 clears the canvas and starts fresh.',
+        'Save \u2014 saves the current image. Prompts for a name if untitled.',
+        'Open \u2014 loads a previously saved image.',
+        'Undo / Redo \u2014 step backward or forward through changes.',
+        'Clear \u2014 fills the canvas with white.',
+        'Size slider \u2014 adjusts brush, eraser, and shape stroke width.'
+      ]},
+      { h: 'Keyboard Shortcuts' },
+      { ul: [
+        'Ctrl+Z \u2014 Undo',
+        'Ctrl+Y \u2014 Redo',
+        'Ctrl+S \u2014 Save',
+        'Ctrl+N \u2014 New'
+      ]},
+      { sa: ['notepad', 'explorer'] }
     ]
   },
 

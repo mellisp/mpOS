@@ -81,7 +81,8 @@ const FOLDER_ITEMS = {
     { name: 'Fish Finder', desc: 'Find the closest aquarium near you.', tag: 'HTML', action: 'openFishFinder' },
     { name: 'On Target', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget' },
     { name: 'Virtual Aquarium', desc: 'Watch real fish, in real-time.', tag: 'HTML', action: 'openAquarium' },
-    { name: 'Chicken Fingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers', href: 'chicken-fingers.html' }
+    { name: 'Chicken Fingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers', href: 'chicken-fingers.html' },
+    { name: 'Paint', desc: 'Create and edit images.', tag: 'HTML', action: 'openPaint' }
   ],
   documents: [],
   utilities: [
@@ -233,6 +234,7 @@ function getItemIcon(name) {
     'Time Zone': '<defs><linearGradient id="ei-tz" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient><linearGradient id="ei-tzr" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#ei-tzr)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#ei-tz)"/><ellipse cx="8.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><line x1="10" y1="10" x2="10" y2="5" stroke="#2a4a6e" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="10" x2="14" y2="10" stroke="#2a4a6e" stroke-width="0.9" stroke-linecap="round"/><circle cx="10" cy="10" r="0.8" fill="#2a4a6e"/><path d="M3.5 13 Q10 15.5 16.5 13" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/><path d="M3.5 7 Q10 4.5 16.5 7" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/>',
     'Weather': '<defs><radialGradient id="ei-we" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><circle cx="7" cy="6" r="4" fill="url(#ei-we)" stroke="#c49000" stroke-width="0.8"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="#e8e4dc" stroke="#8a8680" stroke-width="0.7"/>',
     'Disk Usage': '<defs><linearGradient id="ei-du" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="30%" stop-color="#c8c4bc"/><stop offset="70%" stop-color="#a8a49c"/><stop offset="100%" stop-color="#8a8680"/></linearGradient><linearGradient id="ei-dup" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient></defs><rect x="2" y="6" width="16" height="10" rx="1.5" fill="url(#ei-du)" stroke="#6a6660" stroke-width="0.8"/><rect x="4" y="8" width="8" height="5" rx="0.5" fill="url(#ei-dup)" stroke="#4a4a4a" stroke-width="0.5"/><circle cx="8" cy="10.5" r="1.8" fill="none" stroke="#555" stroke-width="0.4"/><circle cx="8" cy="10.5" r="0.5" fill="#888"/><circle cx="15" cy="13" r="0.8" fill="#5aaa80" stroke="#2a7a52" stroke-width="0.3"/>',
+    'Paint': '<defs><linearGradient id="ei-pt" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffe082"/><stop offset="70%" stop-color="#f0c050"/><stop offset="100%" stop-color="#c49000"/></linearGradient></defs><ellipse cx="10" cy="11" rx="8" ry="7" fill="url(#ei-pt)" stroke="#a07000" stroke-width="0.8"/><ellipse cx="9" cy="8" rx="5" ry="3" fill="white" opacity="0.25"/><circle cx="6" cy="9" r="1.5" fill="#ef5350"/><circle cx="9" cy="7" r="1.3" fill="#4a8abe"/><circle cx="13" cy="8" r="1.4" fill="#5aaa80"/><circle cx="14" cy="11" r="1.3" fill="#ffc107"/><circle cx="6" cy="13" r="1.2" fill="#9c27b0"/><ellipse cx="11" cy="14" rx="1" ry="0.8" fill="#ff9800"/><path d="M15 5 Q16 3 17 2 Q18 1.5 18 3 Q17 4 16 6 Q15 7 15 5Z" fill="#a07000" stroke="#785000" stroke-width="0.5"/>',
     'Help': '<defs><linearGradient id="ei-hp" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffc107"/><stop offset="70%" stop-color="#e8a010"/><stop offset="100%" stop-color="#c49000"/></linearGradient><linearGradient id="ei-hpp" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient></defs><rect x="2" y="3" width="3" height="14" rx="0.5" fill="url(#ei-hp)" stroke="#c49000" stroke-width="0.6"/><rect x="5" y="4" width="11" height="12" rx="1" fill="url(#ei-hpp)" stroke="#8a8680" stroke-width="0.6"/><path d="M9.5 8 Q9.5 6.5 11 6.5 Q12.5 6.5 12.5 8 Q12.5 9 11 9.5 L11 10.5" fill="none" stroke="#4a8abe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="12.5" r="0.7" fill="#4a8abe"/>'
   };
   return icons[name] || '';
@@ -1924,6 +1926,658 @@ function helpUpdateTreeActive(topicId) {
   }
 }
 
+/* ── Paint ── */
+const PAINT_COLORS = [
+  '#000000','#808080','#800000','#808000','#008000','#008080','#000080','#800080',
+  '#808040','#004040','#0080ff','#004080','#8000ff','#804000',
+  '#ffffff','#c0c0c0','#ff0000','#ffff00','#00ff00','#00ffff','#0000ff','#ff00ff',
+  '#ffff80','#00ff80','#80ffff','#8080ff','#ff0080','#ff8040'
+];
+
+let paintCanvas = null;
+let paintPreview = null;
+let paintCtx = null;
+let paintPrevCtx = null;
+let paintBuilt = false;
+let paintTool = 'pencil';
+let paintFg = '#000000';
+let paintBgColor = '#ffffff';
+let paintSize = 3;
+let paintDrawing = false;
+let paintPoints = [];
+let paintUndoStack = [];
+let paintRedoStack = [];
+let paintDirty = false;
+let paintCurrentFile = null;
+let paintStartPos = null;
+let paintW = 640;
+let paintH = 400;
+
+function openPaint() {
+  openWindow('paint');
+  if (!paintBuilt) {
+    paintBuilt = true;
+    paintSetup();
+  }
+  document.getElementById('paint').focus();
+}
+
+function closePaint() {
+  if (paintDirty && !confirm('You have unsaved changes. Discard them?')) return;
+  paintDismissDialog();
+  bbTaskbar.closeWindow('paint');
+}
+
+function paintSetup() {
+  paintCanvas = document.getElementById('paintCanvas');
+  paintPreview = document.getElementById('paintPreview');
+  paintCtx = paintCanvas.getContext('2d');
+  paintPrevCtx = paintPreview.getContext('2d');
+
+  var dpr = window.devicePixelRatio || 1;
+  paintCanvas.width = paintW * dpr;
+  paintCanvas.height = paintH * dpr;
+  paintCanvas.style.width = paintW + 'px';
+  paintCanvas.style.height = paintH + 'px';
+  paintCtx.scale(dpr, dpr);
+
+  paintPreview.width = paintW * dpr;
+  paintPreview.height = paintH * dpr;
+  paintPreview.style.width = paintW + 'px';
+  paintPreview.style.height = paintH + 'px';
+  paintPrevCtx.scale(dpr, dpr);
+
+  paintCtx.fillStyle = '#ffffff';
+  paintCtx.fillRect(0, 0, paintW, paintH);
+
+  // Build color swatches
+  var swatchContainer = document.getElementById('paintSwatches');
+  for (var i = 0; i < PAINT_COLORS.length; i++) {
+    var swatch = document.createElement('div');
+    swatch.className = 'paint-swatch';
+    swatch.style.background = PAINT_COLORS[i];
+    swatch.dataset.color = PAINT_COLORS[i];
+    swatch.addEventListener('click', function (e) {
+      paintFg = e.target.dataset.color;
+      document.getElementById('paintFg').style.background = paintFg;
+    });
+    swatch.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      paintBgColor = e.target.dataset.color;
+      document.getElementById('paintBg').style.background = paintBgColor;
+    });
+    swatchContainer.appendChild(swatch);
+  }
+
+  // Set initial FG/BG display
+  document.getElementById('paintFg').style.background = paintFg;
+  document.getElementById('paintBg').style.background = paintBgColor;
+
+  // FG/BG double-click to pick custom color
+  var colorPicker = document.getElementById('paintColorPicker');
+  var pickingTarget = null;
+  document.getElementById('paintFg').addEventListener('dblclick', function () {
+    pickingTarget = 'fg';
+    colorPicker.value = paintFg;
+    colorPicker.click();
+  });
+  document.getElementById('paintBg').addEventListener('dblclick', function () {
+    pickingTarget = 'bg';
+    colorPicker.value = paintBgColor;
+    colorPicker.click();
+  });
+  colorPicker.addEventListener('input', function () {
+    if (pickingTarget === 'fg') {
+      paintFg = colorPicker.value;
+      document.getElementById('paintFg').style.background = paintFg;
+    } else if (pickingTarget === 'bg') {
+      paintBgColor = colorPicker.value;
+      document.getElementById('paintBg').style.background = paintBgColor;
+    }
+  });
+
+  // Save initial state
+  paintSaveState();
+
+  // Pointer events on canvas
+  paintCanvas.addEventListener('pointerdown', paintOnDown);
+  paintCanvas.addEventListener('pointermove', paintOnMove);
+  paintCanvas.addEventListener('pointerup', paintOnUp);
+  paintCanvas.addEventListener('pointercancel', paintOnUp);
+
+  // Keyboard shortcuts
+  document.getElementById('paint').addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey) {
+      if (e.key === 'z') { e.preventDefault(); paintUndo(); }
+      else if (e.key === 'y') { e.preventDefault(); paintRedo(); }
+      else if (e.key === 's') { e.preventDefault(); paintSave(); }
+      else if (e.key === 'n') { e.preventDefault(); paintNew(); }
+    }
+  });
+
+  paintUpdateStatus();
+}
+
+function paintGetPos(e) {
+  var rect = paintCanvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) * (paintW / rect.width),
+    y: (e.clientY - rect.top) * (paintH / rect.height)
+  };
+}
+
+function paintSaveState() {
+  paintUndoStack.push(paintCanvas.toDataURL());
+  if (paintUndoStack.length > 20) paintUndoStack.shift();
+  paintRedoStack = [];
+  paintUpdateUndoButtons();
+}
+
+function paintUpdateUndoButtons() {
+  document.getElementById('paintUndoBtn').disabled = paintUndoStack.length <= 1;
+  document.getElementById('paintRedoBtn').disabled = paintRedoStack.length === 0;
+}
+
+function paintRestoreState(dataUrl) {
+  var img = new Image();
+  img.onload = function () {
+    var dpr = window.devicePixelRatio || 1;
+    paintCtx.setTransform(1, 0, 0, 1, 0, 0);
+    paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+    paintCtx.drawImage(img, 0, 0);
+    paintCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  img.src = dataUrl;
+}
+
+function paintUndo() {
+  if (paintUndoStack.length <= 1) return;
+  paintRedoStack.push(paintUndoStack.pop());
+  paintRestoreState(paintUndoStack[paintUndoStack.length - 1]);
+  paintUpdateUndoButtons();
+  paintDirty = true;
+  paintSetTitle();
+}
+
+function paintRedo() {
+  if (paintRedoStack.length === 0) return;
+  var state = paintRedoStack.pop();
+  paintUndoStack.push(state);
+  paintRestoreState(state);
+  paintUpdateUndoButtons();
+  paintDirty = true;
+  paintSetTitle();
+}
+
+function paintOnDown(e) {
+  paintCanvas.setPointerCapture(e.pointerId);
+  paintDrawing = true;
+  var pos = paintGetPos(e);
+
+  if (paintTool === 'fill') {
+    paintSaveState();
+    paintFloodFill(Math.round(pos.x), Math.round(pos.y), paintFg);
+    paintDrawing = false;
+    paintDirty = true;
+    paintSetTitle();
+    paintSaveState();
+    return;
+  }
+
+  if (paintTool === 'pencil' || paintTool === 'brush' || paintTool === 'eraser') {
+    paintSaveState();
+    paintPoints = [pos];
+    paintCtx.beginPath();
+    paintCtx.moveTo(pos.x, pos.y);
+    paintConfigStroke(paintCtx);
+  } else {
+    // Shape tools
+    paintSaveState();
+    paintStartPos = pos;
+  }
+}
+
+function paintOnMove(e) {
+  var pos = paintGetPos(e);
+  document.getElementById('paintCoords').textContent = Math.round(pos.x) + ', ' + Math.round(pos.y);
+
+  if (!paintDrawing) return;
+
+  if (paintTool === 'pencil' || paintTool === 'brush' || paintTool === 'eraser') {
+    paintPoints.push(pos);
+    paintDrawIncremental(paintCtx, paintPoints);
+  } else if (paintTool === 'line' || paintTool === 'rect' || paintTool === 'ellipse') {
+    var dpr = window.devicePixelRatio || 1;
+    paintPrevCtx.setTransform(1, 0, 0, 1, 0, 0);
+    paintPrevCtx.clearRect(0, 0, paintPreview.width, paintPreview.height);
+    paintPrevCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    paintConfigStroke(paintPrevCtx);
+    paintDrawShape(paintPrevCtx, paintStartPos, pos);
+  }
+}
+
+function paintOnUp(e) {
+  if (!paintDrawing) return;
+  paintDrawing = false;
+
+  if (paintTool === 'pencil' || paintTool === 'brush' || paintTool === 'eraser') {
+    // Single-click dot: if only one point, draw a dot
+    if (paintPoints.length === 1) {
+      paintConfigStroke(paintCtx);
+      var p = paintPoints[0];
+      var r = paintTool === 'pencil' ? 0.5 : paintSize / 2;
+      paintCtx.beginPath();
+      paintCtx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      paintCtx.fillStyle = paintTool === 'eraser' ? paintBgColor : paintFg;
+      paintCtx.fill();
+    }
+  } else if (paintTool === 'line' || paintTool === 'rect' || paintTool === 'ellipse') {
+    var pos = paintGetPos(e);
+    paintConfigStroke(paintCtx);
+    paintDrawShape(paintCtx, paintStartPos, pos);
+    // Clear preview
+    var dpr = window.devicePixelRatio || 1;
+    paintPrevCtx.setTransform(1, 0, 0, 1, 0, 0);
+    paintPrevCtx.clearRect(0, 0, paintPreview.width, paintPreview.height);
+    paintPrevCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  paintDirty = true;
+  paintSetTitle();
+  paintSaveState();
+}
+
+function paintConfigStroke(ctx) {
+  if (paintTool === 'pencil') {
+    ctx.strokeStyle = paintFg;
+    ctx.lineWidth = 1;
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'miter';
+  } else if (paintTool === 'brush') {
+    ctx.strokeStyle = paintFg;
+    ctx.lineWidth = paintSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  } else if (paintTool === 'eraser') {
+    ctx.strokeStyle = paintBgColor;
+    ctx.lineWidth = paintSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  } else if (paintTool === 'line') {
+    ctx.strokeStyle = paintFg;
+    ctx.lineWidth = paintSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  } else if (paintTool === 'rect') {
+    ctx.strokeStyle = paintFg;
+    ctx.lineWidth = paintSize;
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'miter';
+  } else if (paintTool === 'ellipse') {
+    ctx.strokeStyle = paintFg;
+    ctx.lineWidth = paintSize;
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'round';
+  }
+}
+
+function paintDrawIncremental(ctx, pts) {
+  var n = pts.length;
+  if (n < 2) return;
+  ctx.beginPath();
+  if (n === 2) {
+    ctx.moveTo(pts[0].x, pts[0].y);
+    ctx.lineTo(pts[1].x, pts[1].y);
+  } else {
+    // Draw only the last segment using quadratic midpoint interpolation
+    var prev = pts[n - 3];
+    var cur = pts[n - 2];
+    var next = pts[n - 1];
+    var mx0 = (prev.x + cur.x) / 2;
+    var my0 = (prev.y + cur.y) / 2;
+    var mx1 = (cur.x + next.x) / 2;
+    var my1 = (cur.y + next.y) / 2;
+    ctx.moveTo(mx0, my0);
+    ctx.quadraticCurveTo(cur.x, cur.y, mx1, my1);
+  }
+  ctx.stroke();
+}
+
+function paintDrawShape(ctx, start, end) {
+  ctx.beginPath();
+  if (paintTool === 'line') {
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.stroke();
+  } else if (paintTool === 'rect') {
+    ctx.strokeRect(start.x, start.y, end.x - start.x, end.y - start.y);
+  } else if (paintTool === 'ellipse') {
+    var cx = (start.x + end.x) / 2;
+    var cy = (start.y + end.y) / 2;
+    var rx = Math.abs(end.x - start.x) / 2;
+    var ry = Math.abs(end.y - start.y) / 2;
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+}
+
+function paintFloodFill(startX, startY, fillColor) {
+  var dpr = window.devicePixelRatio || 1;
+  var px = Math.round(startX * dpr);
+  var py = Math.round(startY * dpr);
+  var cw = paintCanvas.width;
+  var ch = paintCanvas.height;
+
+  if (px < 0 || py < 0 || px >= cw || py >= ch) return;
+
+  var imageData = paintCtx.getImageData(0, 0, cw, ch);
+  var data = imageData.data;
+
+  // Parse fill color
+  var tmp = document.createElement('canvas');
+  tmp.width = 1; tmp.height = 1;
+  var tmpCtx = tmp.getContext('2d');
+  tmpCtx.fillStyle = fillColor;
+  tmpCtx.fillRect(0, 0, 1, 1);
+  var fc = tmpCtx.getImageData(0, 0, 1, 1).data;
+  var fr = fc[0], fg = fc[1], fb = fc[2], fa = fc[3];
+
+  // Get target color
+  var idx = (py * cw + px) * 4;
+  var tr = data[idx], tg = data[idx + 1], tb = data[idx + 2], ta = data[idx + 3];
+
+  // If same, no-op
+  if (tr === fr && tg === fg && tb === fb && ta === fa) return;
+
+  var tolerance = 32;
+  function match(i) {
+    return Math.abs(data[i] - tr) <= tolerance &&
+           Math.abs(data[i + 1] - tg) <= tolerance &&
+           Math.abs(data[i + 2] - tb) <= tolerance &&
+           Math.abs(data[i + 3] - ta) <= tolerance;
+  }
+
+  function setPixel(i) {
+    data[i] = fr;
+    data[i + 1] = fg;
+    data[i + 2] = fb;
+    data[i + 3] = fa;
+  }
+
+  var stack = [[px, py]];
+  var visited = new Uint8Array(cw * ch);
+
+  while (stack.length > 0) {
+    var point = stack.pop();
+    var x = point[0];
+    var y = point[1];
+
+    var i = (y * cw + x) * 4;
+    if (visited[y * cw + x]) continue;
+    if (!match(i)) continue;
+
+    // Scan left
+    var lx = x;
+    while (lx > 0 && match((y * cw + lx - 1) * 4)) lx--;
+
+    // Scan right
+    var rx = x;
+    while (rx < cw - 1 && match((y * cw + rx + 1) * 4)) rx++;
+
+    // Fill the span
+    for (var sx = lx; sx <= rx; sx++) {
+      var si = (y * cw + sx) * 4;
+      setPixel(si);
+      visited[y * cw + sx] = 1;
+
+      // Check above and below
+      if (y > 0 && !visited[(y - 1) * cw + sx] && match(((y - 1) * cw + sx) * 4)) {
+        stack.push([sx, y - 1]);
+      }
+      if (y < ch - 1 && !visited[(y + 1) * cw + sx] && match(((y + 1) * cw + sx) * 4)) {
+        stack.push([sx, y + 1]);
+      }
+    }
+  }
+
+  paintCtx.putImageData(imageData, 0, 0);
+}
+
+function paintSetTool(tool) {
+  paintTool = tool;
+  var btns = document.querySelectorAll('.paint-tool');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].classList.toggle('active', btns[i].dataset.tool === tool);
+  }
+  paintUpdateStatus();
+}
+
+function paintSizeChange(val) {
+  paintSize = parseInt(val, 10);
+  document.getElementById('paintSizeVal').textContent = val;
+  paintUpdateStatus();
+}
+
+function paintUpdateStatus() {
+  var names = { pencil: 'Pencil', brush: 'Brush', eraser: 'Eraser', line: 'Line', rect: 'Rectangle', ellipse: 'Ellipse', fill: 'Fill' };
+  var name = names[paintTool] || paintTool;
+  var size = paintTool === 'pencil' ? '1' : (paintTool === 'fill' ? '' : paintSize);
+  document.getElementById('paintStatus').textContent = name + (size ? ': ' + size + 'px' : '');
+}
+
+function paintSetTitle() {
+  var name = paintCurrentFile || 'Untitled';
+  document.getElementById('paintTitle').textContent = name + (paintDirty ? '* ' : ' ') + '- Paint';
+}
+
+function paintClear() {
+  paintSaveState();
+  paintCtx.fillStyle = '#ffffff';
+  paintCtx.fillRect(0, 0, paintW, paintH);
+  paintDirty = true;
+  paintSetTitle();
+  paintSaveState();
+}
+
+/* Paint file operations */
+function paintGetFiles() {
+  try { return JSON.parse(localStorage.getItem('mpOS-paint-files')) || {}; }
+  catch (e) { return {}; }
+}
+
+function paintPersist(files) {
+  try { localStorage.setItem('mpOS-paint-files', JSON.stringify(files)); }
+  catch (e) { alert('Storage is full. Could not save.'); }
+}
+
+function paintNew() {
+  if (paintDirty && !confirm('You have unsaved changes. Discard them?')) return;
+  paintDismissDialog();
+  paintCtx.fillStyle = '#ffffff';
+  paintCtx.fillRect(0, 0, paintW, paintH);
+  paintCurrentFile = null;
+  paintDirty = false;
+  paintUndoStack = [];
+  paintRedoStack = [];
+  paintSaveState();
+  paintSetTitle();
+}
+
+function paintSave() {
+  if (paintCurrentFile) {
+    var files = paintGetFiles();
+    files[paintCurrentFile] = paintCanvas.toDataURL('image/png');
+    paintPersist(files);
+    paintDirty = false;
+    paintSetTitle();
+    document.getElementById('paintStatus').textContent = 'Saved';
+    setTimeout(paintUpdateStatus, 1500);
+  } else {
+    paintShowSaveAs();
+  }
+}
+
+function paintSaveAs(name) {
+  name = name.trim();
+  if (!name) return;
+  if (name === '__proto__' || name === 'constructor' || name === 'prototype') return;
+  if (name.indexOf('.') === -1) name += '.png';
+  var files = paintGetFiles();
+  if (files.hasOwnProperty(name) && name !== paintCurrentFile) {
+    if (!confirm('"' + name + '" already exists. Overwrite?')) return;
+  }
+  files[name] = paintCanvas.toDataURL('image/png');
+  paintPersist(files);
+  paintCurrentFile = name;
+  paintDismissDialog();
+  paintDirty = false;
+  paintSetTitle();
+  document.getElementById('paintStatus').textContent = 'Saved';
+  setTimeout(paintUpdateStatus, 1500);
+}
+
+function paintShowSaveAs() {
+  paintDismissDialog();
+  var d = document.createElement('div');
+  d.className = 'paint-dialog';
+
+  var label = document.createElement('label');
+  label.textContent = 'File name:';
+  d.appendChild(label);
+
+  var inp = document.createElement('input');
+  inp.type = 'text';
+  inp.value = paintCurrentFile || '';
+  d.appendChild(inp);
+
+  var spacer = document.createElement('div');
+  spacer.style.flex = '1';
+  d.appendChild(spacer);
+
+  var btnRow = document.createElement('div');
+  btnRow.className = 'button-row';
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'btn';
+  saveBtn.textContent = 'Save';
+  saveBtn.addEventListener('click', function () { paintSaveAs(inp.value); });
+  btnRow.appendChild(saveBtn);
+  btnRow.appendChild(document.createTextNode('\u00a0'));
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', paintDismissDialog);
+  btnRow.appendChild(cancelBtn);
+  d.appendChild(btnRow);
+
+  document.querySelector('#paint .window-body').appendChild(d);
+  inp.focus();
+  inp.select();
+  inp.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') paintSaveAs(inp.value);
+    else if (e.key === 'Escape') paintDismissDialog();
+  });
+}
+
+function paintLoad() {
+  if (paintDirty && !confirm('You have unsaved changes. Discard them?')) return;
+  paintShowOpen();
+}
+
+function paintShowOpen() {
+  paintDismissDialog();
+  var files = paintGetFiles();
+  var names = Object.keys(files).sort();
+
+  var d = document.createElement('div');
+  d.className = 'paint-dialog';
+
+  var label = document.createElement('label');
+  label.textContent = 'Open a file:';
+  d.appendChild(label);
+
+  var fileList = document.createElement('div');
+  fileList.className = 'paint-file-list';
+  if (names.length === 0) {
+    var emptyMsg = document.createElement('div');
+    emptyMsg.className = 'paint-empty';
+    emptyMsg.textContent = 'No saved files.';
+    fileList.appendChild(emptyMsg);
+  } else {
+    names.forEach(function (n) {
+      var row = document.createElement('div');
+      row.className = 'paint-file-item';
+      var thumb = document.createElement('img');
+      thumb.className = 'paint-file-thumb';
+      thumb.src = files[n];
+      thumb.alt = '';
+      row.appendChild(thumb);
+      var nameSpan = document.createElement('span');
+      nameSpan.textContent = n;
+      nameSpan.addEventListener('click', function () { paintOpenFile(n); });
+      row.appendChild(nameSpan);
+      var delBtn = document.createElement('button');
+      delBtn.className = 'btn';
+      delBtn.textContent = 'Del';
+      delBtn.addEventListener('click', function (e) { e.stopPropagation(); paintDeleteFile(n); });
+      row.appendChild(delBtn);
+      fileList.appendChild(row);
+    });
+  }
+  d.appendChild(fileList);
+
+  var btnRow = document.createElement('div');
+  btnRow.className = 'button-row';
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', paintDismissDialog);
+  btnRow.appendChild(cancelBtn);
+  d.appendChild(btnRow);
+
+  document.querySelector('#paint .window-body').appendChild(d);
+}
+
+function paintOpenFile(name) {
+  var files = paintGetFiles();
+  if (!files.hasOwnProperty(name)) return;
+  var img = new Image();
+  img.onload = function () {
+    var dpr = window.devicePixelRatio || 1;
+    paintCtx.setTransform(1, 0, 0, 1, 0, 0);
+    paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+    paintCtx.fillStyle = '#ffffff';
+    paintCtx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+    paintCtx.drawImage(img, 0, 0);
+    paintCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    paintCurrentFile = name;
+    paintDismissDialog();
+    paintDirty = false;
+    paintUndoStack = [];
+    paintRedoStack = [];
+    paintSaveState();
+    paintSetTitle();
+  };
+  img.src = files[name];
+}
+
+function paintDeleteFile(name) {
+  if (!confirm('Delete "' + name + '"?')) return;
+  var files = paintGetFiles();
+  delete files[name];
+  paintPersist(files);
+  if (paintCurrentFile === name) {
+    paintCurrentFile = null;
+    paintDirty = false;
+    paintSetTitle();
+  }
+  paintShowOpen();
+}
+
+function paintDismissDialog() {
+  var d = document.querySelector('#paint .paint-dialog');
+  if (d) d.remove();
+}
+
 /* ── Action lookup map (replaces new Function for FOLDER_ITEMS actions) ── */
 const ACTION_MAP = {
   openBrowser: openBrowser,
@@ -1938,7 +2592,8 @@ const ACTION_MAP = {
   openTimeZone: openTimeZone,
   openWeather: openWeather,
   openDiskUsage: openDiskUsage,
-  openHelp: openHelp
+  openHelp: openHelp,
+  openPaint: openPaint
 };
 
 /* ── Run Terminal ── */
@@ -1982,6 +2637,7 @@ const COMMANDS = {
   'timezone':    { run: openTimeZone,    desc: 'Open Time Zone' },
   'weather':     { run: openWeather,     desc: 'Open Weather' },
   'diskusage':   { run: openDiskUsage,  desc: 'Open Disk Usage' },
+  'paint':       { run: openPaint,     desc: 'Open Paint' },
   'hh':          { run: openHelp,       desc: 'Open mpOS Help' },
   'cls':         { run: cmdCls,          desc: 'Clear the screen' },
   'clear':       { run: cmdCls,          desc: 'Clear the screen' },
@@ -2163,7 +2819,8 @@ function buildLauncher() {
     { name: 'Fish Finder', action: openFishFinder },
     { name: 'On Target', action: null, href: 'target-game.html' },
     { name: 'Virtual Aquarium', action: openAquarium },
-    { name: 'Chicken Fingers', action: null, href: 'chicken-fingers.html' }
+    { name: 'Chicken Fingers', action: null, href: 'chicken-fingers.html' },
+    { name: 'Paint', action: openPaint }
   ];
   var utilities = [
     { name: 'Notepad', action: openNotepad },
@@ -2269,5 +2926,19 @@ window.helpHome = helpHome;
 window.helpToggleNav = helpToggleNav;
 window.helpSwitchTab = helpSwitchTab;
 window.openRun = openRun;
+window.openPaint = openPaint;
+window.closePaint = closePaint;
+window.paintNew = paintNew;
+window.paintSave = paintSave;
+window.paintLoad = paintLoad;
+window.paintSaveAs = paintSaveAs;
+window.paintOpenFile = paintOpenFile;
+window.paintDeleteFile = paintDeleteFile;
+window.paintDismissDialog = paintDismissDialog;
+window.paintSetTool = paintSetTool;
+window.paintUndo = paintUndo;
+window.paintRedo = paintRedo;
+window.paintClear = paintClear;
+window.paintSizeChange = paintSizeChange;
 
 })();

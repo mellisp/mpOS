@@ -1024,6 +1024,250 @@
 
 .help-topic-link:hover { text-decoration: underline; }
 
+/* Paint window */
+#paint { width: 720px; max-width: 95vw; left: 60px; top: 30px; }
+#paint .window-body { position: relative; display: flex; flex-direction: column; }
+
+.paint-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--silver);
+  border-bottom: 1px solid var(--shadow);
+  flex-shrink: 0;
+}
+
+.paint-toolbar .btn {
+  padding: 2px 10px;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.paint-tb-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--shadow);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.paint-size-label {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+#paintSize { width: 80px; }
+
+.paint-main {
+  display: flex;
+  height: 400px;
+  flex: 1;
+  min-height: 0;
+}
+
+.paint-sidebar {
+  width: 36px;
+  min-width: 36px;
+  background: var(--silver);
+  border-right: 1px solid var(--shadow);
+  display: flex;
+  flex-direction: column;
+  padding: 2px;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.paint-tool {
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  background: none;
+  padding: 2px;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.paint-tool svg {
+  width: 16px;
+  height: 16px;
+}
+
+.paint-tool:hover {
+  background: var(--silver);
+  border-color: var(--white) var(--shadow) var(--shadow) var(--white);
+}
+
+.paint-tool.active {
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  background: #d0ccc4;
+}
+
+.paint-canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: auto;
+  background: var(--shadow);
+}
+
+#paintCanvas, #paintPreview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: crosshair;
+  image-rendering: pixelated;
+}
+
+#paintCanvas { background: #fff; }
+#paintPreview { pointer-events: none; }
+
+.paint-palette-bar {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  gap: 8px;
+  background: var(--silver);
+  border-top: 1px solid var(--shadow);
+  flex-shrink: 0;
+}
+
+.paint-fg-bg {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.paint-fg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  z-index: 1;
+  cursor: default;
+}
+
+.paint-bg {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  cursor: default;
+}
+
+.paint-swatches {
+  display: grid;
+  grid-template-columns: repeat(14, 16px);
+  grid-template-rows: repeat(2, 16px);
+  gap: 1px;
+}
+
+.paint-swatch {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--shadow);
+  cursor: default;
+}
+
+.paint-swatch:hover { border-color: var(--dk-shadow); }
+
+/* Paint dialog (Save As / Open) */
+.paint-dialog {
+  position: absolute;
+  inset: 0;
+  background: var(--silver);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 8px;
+  z-index: 1;
+}
+
+.paint-dialog label {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.paint-dialog input[type="text"] {
+  width: 100%;
+  padding: 3px 4px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  box-sizing: border-box;
+}
+
+.paint-file-list {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--white);
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  padding: 2px;
+}
+
+.paint-file-item {
+  display: flex;
+  align-items: center;
+  padding: 3px 6px;
+  cursor: default;
+  font-size: 12px;
+  gap: 8px;
+}
+
+.paint-file-item:hover {
+  background: var(--highlight);
+  color: var(--highlight-text);
+}
+
+.paint-file-item span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.paint-file-item button {
+  font-size: 11px;
+  padding: 1px 6px;
+  flex-shrink: 0;
+}
+
+.paint-file-thumb {
+  width: 32px;
+  height: 24px;
+  border: 1px solid var(--shadow);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.paint-dialog .paint-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--shadow);
+  font-size: 12px;
+}
+
+.paint-dialog .button-row {
+  margin-top: 4px;
+}
+
 /* ── Mobile Launcher ── */
 .mobile-launcher { display: none; }
 
@@ -1131,4 +1375,9 @@
   .browser-viewport { height: auto; flex: 1; }
   .photo-frame { height: 200px; }
   #ontarget .game-embed { height: 100%; }
+
+  /* Paint mobile */
+  .paint-main { height: auto; flex: 1; }
+  .paint-sidebar { flex-direction: row; width: auto; min-width: 0; flex-wrap: wrap; }
+  .paint-swatches { grid-template-columns: repeat(7, 16px); grid-template-rows: repeat(4, 16px); }
 }
