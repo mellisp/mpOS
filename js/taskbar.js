@@ -74,6 +74,19 @@
   });
 
   // --- Window Management ---
+  let topZ = 10;
+
+  function bringToFront(win) {
+    if (!win || win.style.display === 'none') return;
+    topZ++;
+    win.style.zIndex = topZ;
+  }
+
+  document.addEventListener('mousedown', function (e) {
+    var win = e.target.closest('.window.draggable');
+    if (win) bringToFront(win);
+  });
+
   function onAnimEnd(el, cls, cb) {
     el.classList.add(cls);
     el.addEventListener('animationend', function handler() {
@@ -102,6 +115,7 @@
     const win = document.getElementById(id);
     if (!win) return;
     win.style.display = '';
+    bringToFront(win);
     onAnimEnd(win, 'restoring', function () {});
     if (taskbarItems) {
       const item = taskbarItems.querySelector('[data-window-id="' + id + '"]');
@@ -165,6 +179,7 @@
     minimizeWindow: minimizeWindow,
     restoreWindow: restoreWindow,
     closeWindow: closeWindow,
-    makeDraggable: makeDraggable
+    makeDraggable: makeDraggable,
+    bringToFront: bringToFront
   };
 })();

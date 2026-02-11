@@ -48,8 +48,13 @@ let notepadDirty = false;
 
 function openWindow(id) {
   var win = document.getElementById(id);
-  if (!win || win.style.display !== 'none') return;
+  if (!win) return;
+  if (win.style.display !== 'none') {
+    if (window.bbTaskbar) window.bbTaskbar.bringToFront(win);
+    return;
+  }
   win.style.display = '';
+  if (window.bbTaskbar) window.bbTaskbar.bringToFront(win);
   win.classList.add('restoring');
   win.addEventListener('animationend', function handler() {
     win.classList.remove('restoring');
