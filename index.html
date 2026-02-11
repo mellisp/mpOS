@@ -455,6 +455,75 @@
       </div>
     </div>
 
+    <!-- Paint Window (hidden initially) -->
+    <div class="window draggable" id="paint" tabindex="-1" style="display:none;">
+      <div class="titlebar">
+        <span id="paintTitle">Paint</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('paint')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closePaint()">X</div>
+        </div>
+      </div>
+      <div class="window-body" style="padding:0;">
+        <div class="paint-toolbar">
+          <button class="btn" onclick="paintNew()">New</button>
+          <button class="btn" onclick="paintSave()">Save</button>
+          <button class="btn" onclick="paintLoad()">Open</button>
+          <span class="paint-tb-sep"></span>
+          <button class="btn" id="paintUndoBtn" onclick="paintUndo()" disabled>Undo</button>
+          <button class="btn" id="paintRedoBtn" onclick="paintRedo()" disabled>Redo</button>
+          <span class="paint-tb-sep"></span>
+          <button class="btn" onclick="paintClear()">Clear</button>
+          <span class="paint-tb-sep"></span>
+          <label class="paint-size-label">Size:
+            <input type="range" id="paintSize" min="1" max="50" value="3" oninput="paintSizeChange(this.value)">
+            <span id="paintSizeVal">3</span>px
+          </label>
+        </div>
+        <div class="paint-main">
+          <div class="paint-sidebar">
+            <button class="paint-tool active" data-tool="pencil" onclick="paintSetTool('pencil')" title="Pencil (1px)">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M3 13 L11 5 L13 3 L11 5 L3 13Z" stroke="#444" stroke-width="1.5" stroke-linecap="round"/><path d="M2.5 13.5 L3 11 L5 13Z" fill="#444"/></svg>
+            </button>
+            <button class="paint-tool" data-tool="brush" onclick="paintSetTool('brush')" title="Brush">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 12 Q6 8 8 6 Q10 4 12 3" stroke="#444" stroke-width="2.5" stroke-linecap="round"/><path d="M2 14 Q3 12 4 12" stroke="#444" stroke-width="1" stroke-linecap="round"/></svg>
+            </button>
+            <button class="paint-tool" data-tool="eraser" onclick="paintSetTool('eraser')" title="Eraser">
+              <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="6" width="10" height="6" rx="1" fill="#e8e0d8" stroke="#888" stroke-width="1"/><rect x="3" y="10" width="10" height="3" rx="1" fill="#f8a0a0" stroke="#888" stroke-width="0.8"/></svg>
+            </button>
+            <button class="paint-tool" data-tool="line" onclick="paintSetTool('line')" title="Line">
+              <svg viewBox="0 0 16 16" fill="none"><line x1="3" y1="13" x2="13" y2="3" stroke="#444" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+            <button class="paint-tool" data-tool="rect" onclick="paintSetTool('rect')" title="Rectangle">
+              <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="8" stroke="#444" stroke-width="1.5" fill="none"/></svg>
+            </button>
+            <button class="paint-tool" data-tool="ellipse" onclick="paintSetTool('ellipse')" title="Ellipse">
+              <svg viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="8" rx="6" ry="4" stroke="#444" stroke-width="1.5" fill="none"/></svg>
+            </button>
+            <button class="paint-tool" data-tool="fill" onclick="paintSetTool('fill')" title="Fill">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 12 L4 6 L8 2 L12 6 L12 8" stroke="#444" stroke-width="1.2" fill="none" stroke-linejoin="round"/><path d="M12 8 Q14 10 12 12 Q10 14 8 12" fill="#4a8abe" stroke="#2a6898" stroke-width="0.8"/></svg>
+            </button>
+          </div>
+          <div class="paint-canvas-wrap">
+            <canvas id="paintCanvas"></canvas>
+            <canvas id="paintPreview"></canvas>
+          </div>
+        </div>
+        <div class="paint-palette-bar">
+          <div class="paint-fg-bg">
+            <div class="paint-bg" id="paintBg" title="Background color"></div>
+            <div class="paint-fg" id="paintFg" title="Foreground color"></div>
+          </div>
+          <div class="paint-swatches" id="paintSwatches"></div>
+        </div>
+        <input type="color" id="paintColorPicker" style="position:absolute;visibility:hidden;width:0;height:0;">
+      </div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="paintStatus">Pencil: 1px</div>
+        <div class="statusbar-section" id="paintCoords"></div>
+      </div>
+    </div>
+
     <!-- Chicken Fingers Error Dialog (hidden initially) -->
     <div class="window" id="chickenError" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;width:380px;max-width:95vw;">
       <div class="titlebar">
@@ -538,6 +607,10 @@
             <button class="start-menu-item" type="button" onclick="closeStartMenu(); if(openChickenFingers()) location.href='chicken-fingers.html';">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cf-body" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="30%" stop-color="#ffe68a"/><stop offset="70%" stop-color="#ffc840"/><stop offset="100%" stop-color="#e8a010"/></radialGradient></defs><ellipse cx="10" cy="12" rx="6" ry="5" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="8.5" cy="11" rx="3.5" ry="2" fill="white" opacity="0.2"/><circle cx="10" cy="6" r="4" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="9" cy="5" rx="2.5" ry="1.5" fill="white" opacity="0.25"/><circle cx="8.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="8.8" cy="5.2" r="0.2" fill="white"/><circle cx="11.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="11.8" cy="5.2" r="0.2" fill="white"/><path d="M9 7.5 L10 8.5 L11 7.5" stroke="#d45500" stroke-width="0.8" fill="#e67e22"/><path d="M5 4 Q7 2 9 3" stroke="#c49000" stroke-width="0.6" fill="none"/><path d="M11 3 Q13 2 15 4" stroke="#c49000" stroke-width="0.6" fill="none"/></svg>
               <span>Chicken Fingers</span>
+            </button>
+            <button class="start-menu-item" type="button" onclick="openPaint(); closeStartMenu();">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pt-pal" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffe082"/><stop offset="70%" stop-color="#f0c050"/><stop offset="100%" stop-color="#c49000"/></linearGradient></defs><ellipse cx="10" cy="11" rx="8" ry="7" fill="url(#pt-pal)" stroke="#a07000" stroke-width="0.8"/><ellipse cx="9" cy="8" rx="5" ry="3" fill="white" opacity="0.3"/><circle cx="6" cy="9" r="1.5" fill="#ef5350"/><circle cx="9" cy="7" r="1.3" fill="#4a8abe"/><circle cx="13" cy="8" r="1.4" fill="#5aaa80"/><circle cx="14" cy="11" r="1.3" fill="#ffc107"/><circle cx="6" cy="13" r="1.2" fill="#9c27b0"/><ellipse cx="11" cy="14" rx="1" ry="0.8" fill="#ff9800"/><path d="M15 5 Q16 3 17 2 Q18 1.5 18 3 Q17 4 16 6 Q15 7 15 5Z" fill="#a07000" stroke="#785000" stroke-width="0.5"/></svg>
+              <span>Paint</span>
             </button>
           </div>
         </div>
