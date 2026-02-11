@@ -8,6 +8,44 @@ const GEO_ERRORS = {
   3: 'Location request timed out.'
 };
 
+function getLocation(onSuccess, onError) {
+  var done = false;
+  function finish(lat, lon) {
+    if (done) return;
+    done = true;
+    onSuccess(lat, lon);
+  }
+  function fallbackToIP() {
+    if (done) return;
+    fetch('https://ipapi.co/json/')
+      .then(function (r) {
+        if (!r.ok) throw new Error('IP lookup failed');
+        return r.json();
+      })
+      .then(function (data) {
+        if (data.latitude != null && data.longitude != null) {
+          finish(data.latitude, data.longitude);
+        } else {
+          if (!done) { done = true; onError('Could not determine your location.'); }
+        }
+      })
+      .catch(function () {
+        if (!done) { done = true; onError('Could not determine your location.'); }
+      });
+  }
+
+  if (!navigator.geolocation) {
+    fallbackToIP();
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function (pos) { finish(pos.coords.latitude, pos.coords.longitude); },
+    function () { fallbackToIP(); },
+    { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }
+  );
+}
+
 function alertTriangleSVG(id) {
   return '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">' +
     '<defs><linearGradient id="' + id + '" x1="0.3" y1="0" x2="0.7" y2="1">' +
@@ -624,15 +662,8 @@ function populateFishFinder() {
   showLoadingMessage(body, 'Locating you...');
   status.textContent = '';
 
-  if (!navigator.geolocation) {
-    showErrorPanel(body, 'Geolocation is not supported by your browser.', 'al-tri-ff');
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    function (pos) {
-      var lat = pos.coords.latitude;
-      var lon = pos.coords.longitude;
+  getLocation(
+    function (lat, lon) {
       var nearest = null, furthest = null;
       var minDist = Infinity, maxDist = -1;
 
@@ -688,10 +719,9 @@ function populateFishFinder() {
 
       status.textContent = AQUARIUMS.length + ' aquariums in database';
     },
-    function (err) {
-      showErrorPanel(body, GEO_ERRORS[err.code] || 'An unknown error occurred.', 'al-tri-ff');
-    },
-    { enableHighAccuracy: false, timeout: 30000, maximumAge: 300000 }
+    function (msg) {
+      showErrorPanel(body, msg, 'al-tri-ff');
+    }
   );
 }
 
@@ -1319,17 +1349,12 @@ function fetchWeather() {
   var status = document.getElementById('weatherStatus');
   showLoadingMessage(body, 'Locating you...');
 
-  if (!navigator.geolocation) {
-    showErrorPanel(body, 'Geolocation is not supported by your browser.', 'al-tri-we');
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    function (pos) {
+  getLocation(
+    function (lat, lon) {
       showLoadingMessage(body, 'Fetching weather data...');
-      var lat = pos.coords.latitude.toFixed(2);
-      var lon = pos.coords.longitude.toFixed(2);
-      fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true&timezone=auto&forecast_days=3')
+      var flatLat = lat.toFixed(2);
+      var flatLon = lon.toFixed(2);
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=' + flatLat + '&longitude=' + flatLon + '&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true&timezone=auto&forecast_days=3')
         .then(function (r) { if (!r.ok) throw new Error('API error'); return r.json(); })
         .then(function (data) {
           weatherLoaded = true;
@@ -1340,10 +1365,9 @@ function fetchWeather() {
           showErrorPanel(body, 'Failed to fetch weather data. Please try again later.', 'al-tri-we');
         });
     },
-    function (err) {
-      showErrorPanel(body, GEO_ERRORS[err.code] || 'An unknown error occurred.', 'al-tri-we');
-    },
-    { enableHighAccuracy: false, timeout: 30000, maximumAge: 300000 }
+    function (msg) {
+      showErrorPanel(body, msg, 'al-tri-we');
+    }
   );
 }
 
