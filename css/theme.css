@@ -517,10 +517,12 @@ button.start-menu-item {
 .window.closing,
 .window.minimizing {
   animation: windowFadeOut 150ms ease-in forwards;
+  will-change: opacity;
 }
 
 .window.restoring {
   animation: windowRestore 150ms ease-out forwards;
+  will-change: opacity;
 }
 
 /* Draggable Window */

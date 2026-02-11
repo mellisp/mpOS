@@ -203,7 +203,8 @@ function todayKey() {
 const FISH_TODAY = FISH[fnv(todayKey()) % FISH.length];
 (function(){
   const k = "fotd-img-" + todayKey();
-  const u = FISH_TODAY[8] || localStorage.getItem(k);
+  const cached = localStorage.getItem(k);
+  const u = FISH_TODAY[8] || (cached && /^https:\/\/upload\.wikimedia\.org\//.test(cached) ? cached : null);
   if (u) {
     const l = document.createElement("link");
     l.rel = "preload";

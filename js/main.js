@@ -62,16 +62,17 @@ function openWindow(id) {
   });
 }
 
+const startMenuEl = document.querySelector('.start-menu');
+const startBtnEl = document.querySelector('.start-btn');
 function closeStartMenu() {
-  var m = document.querySelector('.start-menu');
-  var b = document.querySelector('.start-btn');
-  if (m) m.classList.remove('open');
-  if (b) b.classList.remove('pressed');
+  if (startMenuEl) startMenuEl.classList.remove('open');
+  if (startBtnEl) startBtnEl.classList.remove('pressed');
 }
 
 /* ── Explorer / Folder Browser ── */
 let explorerCurrentFolder = 'all';
 let explorerCurrentView = 'list';
+let explorerTreeItems = null;
 
 const FOLDER_ITEMS = {
   programs: [
@@ -117,9 +118,9 @@ function navigateExplorer(folder) {
   document.getElementById('explorerTitle').textContent = info.title;
   document.getElementById('explorerAddress').textContent = info.address;
 
-  var items = document.querySelectorAll('#explorer .tree-item');
+  if (!explorerTreeItems) explorerTreeItems = document.querySelectorAll('#explorer .tree-item');
   var folderIndex = { all: 0, programs: 1, documents: 2, utilities: 3 };
-  items.forEach(function (el, i) {
+  explorerTreeItems.forEach(function (el, i) {
     el.classList.toggle('active', i === folderIndex[folder]);
   });
 
@@ -560,7 +561,7 @@ function populateFish() {
     if (!cachedWikiLink) fetchWikiImage(wikiTitle)
       .catch(function () { return fetchWikiImage(f[0].replace(/ /g, "_")); })
       .catch(function () {});
-  } else if (localStorage.getItem(imgKey)) {
+  } else if (localStorage.getItem(imgKey) && /^https:\/\/upload\.wikimedia\.org\//.test(localStorage.getItem(imgKey))) {
     showFishImage(localStorage.getItem(imgKey));
     if (!cachedWikiLink) fetchWikiImage(wikiTitle)
       .catch(function () { return fetchWikiImage(f[0].replace(/ /g, "_")); })
@@ -1090,9 +1091,9 @@ function openCalendar() {
   calendarRender();
 }
 
+const CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 function calendarRender() {
-  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  calTitleEl.textContent = months[calMonth] + ' ' + calYear;
+  calTitleEl.textContent = CAL_MONTHS[calMonth] + ' ' + calYear;
 
   var frag = document.createDocumentFragment();
   var dayNames = ['Mo','Tu','We','Th','Fr','Sa','Su'];
@@ -1162,6 +1163,7 @@ let tzGridEl = null;
 let tzAnalog = true;
 let tzTimer = null;
 let tzBuilt = false;
+const tzRefs = { h: [], m: [], s: [], d: [], o: [] };
 
 function openTimeZone() {
   openWindow('timezone');
@@ -1211,11 +1213,14 @@ function tzBuildGrid() {
     }
 
     // Hour hand
-    svg.appendChild(svgEl('line', { id: 'tzH' + i, x1: '32', y1: '32', x2: '32', y2: '16', stroke: 'var(--dk-shadow)', 'stroke-width': '2.5', 'stroke-linecap': 'round' }));
+    var hHand = svgEl('line', { id: 'tzH' + i, x1: '32', y1: '32', x2: '32', y2: '16', stroke: 'var(--dk-shadow)', 'stroke-width': '2.5', 'stroke-linecap': 'round' });
+    svg.appendChild(hHand);
     // Minute hand
-    svg.appendChild(svgEl('line', { id: 'tzM' + i, x1: '32', y1: '32', x2: '32', y2: '10', stroke: 'var(--dk-shadow)', 'stroke-width': '1.5', 'stroke-linecap': 'round' }));
+    var mHand = svgEl('line', { id: 'tzM' + i, x1: '32', y1: '32', x2: '32', y2: '10', stroke: 'var(--dk-shadow)', 'stroke-width': '1.5', 'stroke-linecap': 'round' });
+    svg.appendChild(mHand);
     // Second hand
-    svg.appendChild(svgEl('line', { id: 'tzS' + i, x1: '32', y1: '32', x2: '32', y2: '8', stroke: 'var(--error)', 'stroke-width': '0.8', 'stroke-linecap': 'round' }));
+    var sHand = svgEl('line', { id: 'tzS' + i, x1: '32', y1: '32', x2: '32', y2: '8', stroke: 'var(--error)', 'stroke-width': '0.8', 'stroke-linecap': 'round' });
+    svg.appendChild(sHand);
     // Center dot
     svg.appendChild(svgEl('circle', { cx: '32', cy: '32', r: '2', fill: 'var(--dk-shadow)' }));
 
@@ -1237,6 +1242,13 @@ function tzBuildGrid() {
     offsetEl.id = 'tzO' + i;
     tile.appendChild(offsetEl);
 
+    // Cache element refs for tzTick() hot path
+    tzRefs.h[i] = hHand;
+    tzRefs.m[i] = mHand;
+    tzRefs.s[i] = sHand;
+    tzRefs.d[i] = digital;
+    tzRefs.o[i] = offsetEl;
+
     frag.appendChild(tile);
   }
 
@@ -1244,47 +1256,42 @@ function tzBuildGrid() {
   tzGridEl.appendChild(frag);
 }
 
+const tzUtcOpts = { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', hour12: false };
+const tzCityOpts = TZ_CITIES.map(function (c) {
+  return { timeZone: c.zone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+});
 function tzTick() {
   var now = new Date();
+  // Compute UTC time once outside the loop
+  var utcStr = now.toLocaleString('en-GB', tzUtcOpts);
+  var utcParts = utcStr.split(':');
+  var utcH = parseInt(utcParts[0], 10);
+  var utcM = parseInt(utcParts[1], 10);
+  var utcTotal = utcH * 60 + utcM;
+
   for (var i = 0; i < TZ_CITIES.length; i++) {
-    var zone = TZ_CITIES[i].zone;
-    var parts = now.toLocaleString('en-GB', { timeZone: zone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).split(':');
+    var parts = now.toLocaleString('en-GB', tzCityOpts[i]).split(':');
     var h = parseInt(parts[0], 10);
     var m = parseInt(parts[1], 10);
     var s = parseInt(parts[2], 10);
 
     // Analog hands
-    var hDeg = (h % 12) * 30 + m * 0.5;
-    var mDeg = m * 6 + s * 0.1;
-    var sDeg = s * 6;
-    var hEl = document.getElementById('tzH' + i);
-    var mEl = document.getElementById('tzM' + i);
-    var sEl = document.getElementById('tzS' + i);
-    if (hEl) hEl.style.transform = 'rotate(' + hDeg + 'deg)';
-    if (mEl) mEl.style.transform = 'rotate(' + mDeg + 'deg)';
-    if (sEl) sEl.style.transform = 'rotate(' + sDeg + 'deg)';
+    tzRefs.h[i].style.transform = 'rotate(' + ((h % 12) * 30 + m * 0.5) + 'deg)';
+    tzRefs.m[i].style.transform = 'rotate(' + (m * 6 + s * 0.1) + 'deg)';
+    tzRefs.s[i].style.transform = 'rotate(' + (s * 6) + 'deg)';
 
     // Digital
-    var dEl = document.getElementById('tzD' + i);
-    if (dEl) dEl.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    tzRefs.d[i].textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 
     // Offset
-    var oEl = document.getElementById('tzO' + i);
-    if (oEl) {
-      var utcStr = now.toLocaleString('en-GB', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', hour12: false });
-      var utcParts = utcStr.split(':');
-      var utcH = parseInt(utcParts[0], 10);
-      var utcM = parseInt(utcParts[1], 10);
-      var diff = (h * 60 + m) - (utcH * 60 + utcM);
-      // Handle day boundary
-      if (diff > 720) diff -= 1440;
-      if (diff < -720) diff += 1440;
-      var sign = diff >= 0 ? '+' : '-';
-      var absDiff = Math.abs(diff);
-      var offH = Math.floor(absDiff / 60);
-      var offM = absDiff % 60;
-      oEl.textContent = 'UTC' + sign + offH + (offM ? ':' + String(offM).padStart(2, '0') : '');
-    }
+    var diff = (h * 60 + m) - utcTotal;
+    if (diff > 720) diff -= 1440;
+    if (diff < -720) diff += 1440;
+    var sign = diff >= 0 ? '+' : '-';
+    var absDiff = Math.abs(diff);
+    var offH = Math.floor(absDiff / 60);
+    var offM = absDiff % 60;
+    tzRefs.o[i].textContent = 'UTC' + sign + offH + (offM ? ':' + String(offM).padStart(2, '0') : '');
   }
 }
 
@@ -1318,8 +1325,8 @@ function fetchWeather() {
   navigator.geolocation.getCurrentPosition(
     function (pos) {
       showLoadingMessage(body, 'Fetching weather data...');
-      var lat = pos.coords.latitude;
-      var lon = pos.coords.longitude;
+      var lat = pos.coords.latitude.toFixed(2);
+      var lon = pos.coords.longitude.toFixed(2);
       fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true&timezone=auto&forecast_days=3')
         .then(function (r) { if (!r.ok) throw new Error('API error'); return r.json(); })
         .then(function (data) {
@@ -1338,17 +1345,17 @@ function fetchWeather() {
   );
 }
 
+const WEATHER_CODES = {
+  0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+  45: 'Fog', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Dense drizzle',
+  61: 'Slight rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Light freezing rain', 67: 'Freezing rain',
+  71: 'Slight snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains',
+  80: 'Light showers', 81: 'Showers', 82: 'Heavy showers',
+  85: 'Snow showers', 86: 'Heavy snow showers',
+  95: 'Thunderstorm', 96: 'Thunderstorm w/ hail', 99: 'Severe thunderstorm'
+};
 function weatherCodeToDesc(code) {
-  var codes = {
-    0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
-    45: 'Fog', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Dense drizzle',
-    61: 'Slight rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Light freezing rain', 67: 'Freezing rain',
-    71: 'Slight snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains',
-    80: 'Light showers', 81: 'Showers', 82: 'Heavy showers',
-    85: 'Snow showers', 86: 'Heavy snow showers',
-    95: 'Thunderstorm', 96: 'Thunderstorm w/ hail', 99: 'Severe thunderstorm'
-  };
-  return codes[code] || 'Unknown';
+  return WEATHER_CODES[code] || 'Unknown';
 }
 
 function renderWeather(body, data) {
