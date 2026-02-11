@@ -93,7 +93,7 @@ const FOLDER_ITEMS = {
 };
 
 const FOLDER_NAMES = {
-  all: { title: 'Applications', address: 'C:\\mpOS' },
+  all: { title: 'Files', address: 'C:\\mpOS' },
   programs: { title: 'Programs', address: 'C:\\mpOS\\Programs' },
   documents: { title: 'Documents', address: 'C:\\mpOS\\Documents' },
   utilities: { title: 'Utilities', address: 'C:\\mpOS\\Utilities' }
@@ -1423,7 +1423,7 @@ const FILESYSTEM = {
   'C:\\mpOS\\Desktop': {
     items: [
       { name: 'My Computer', run: function () { openMyComputer(); } },
-      { name: 'Applications', run: function () { openExplorer(); } },
+      { name: 'Files', run: function () { openExplorer(); } },
       { name: 'WikiBrowser', run: function () { openBrowser(); } }
     ]
   },
@@ -1442,7 +1442,7 @@ const COMMANDS = {
   'aquarium':    { run: openAquarium,    desc: 'Launch Virtual Aquarium' },
   'browser':     { run: openBrowser,     desc: 'Launch WikiBrowser' },
   'mycomputer':  { run: function () { openMyComputer(); }, desc: 'Open My Computer' },
-  'explorer':    { run: openExplorer,    desc: 'Open Applications' },
+  'explorer':    { run: openExplorer,    desc: 'Open Files' },
   'programs':    { run: function () { openExplorerTo('programs'); },   desc: 'Open Programs folder' },
   'documents':   { run: function () { openExplorerTo('documents'); },  desc: 'Open Documents folder' },
   'utilities':   { run: function () { openExplorerTo('utilities'); },  desc: 'Open Utilities folder' },
@@ -1642,7 +1642,7 @@ function buildLauncher() {
   ];
   var system = [
     { name: 'My Computer', action: openMyComputer },
-    { name: 'Applications', action: openExplorer }
+    { name: 'Files', action: openExplorer }
   ];
 
   function populateGrid(gridId, items) {
