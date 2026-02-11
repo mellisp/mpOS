@@ -37,6 +37,8 @@ Every app window is a static `<div class="window draggable">` in `index.html`, i
 | Chicken Fingers | `chickenError` | Games | Touchscreen-only; desktop shows error dialog |
 | Notepad | `notepad` | Utilities | localStorage persistence (`mpOS-notepad`) |
 | Calculator | `calculator` | Utilities | Basic arithmetic |
+| Calendar | `calendar` | Utilities | Monthly calendar viewer |
+| Time Zone | `timezone` | Utilities | 8 world clocks, analog/digital toggle, 1s interval |
 | Weather | `weather` | Utilities | Open-Meteo API + Geolocation, 3-day forecast |
 | Run | `run` | System | Terminal emulator with command map |
 
@@ -130,3 +132,33 @@ The site uses a single unified **Explorer window** (`#explorer`) for all folder 
 **Icon rendering:** `getItemIcon(name)` returns inline SVG markup for each app, using `ei-` prefixed gradient IDs to avoid conflicts with start menu icon gradients.
 
 **Adding a new app:** Add an entry to the appropriate `FOLDER_ITEMS` array, add its icon SVG to `getItemIcon()`, and it will automatically appear in the explorer.
+
+### Adding a New Utility/App (Checklist)
+
+When adding a new window to mpOS, touch these 5 integration points:
+
+1. **`index.html`** — Add the window `<div class="window draggable" id="..." style="display:none;">` shell with titlebar, close/minimize buttons, and body. Also add a start menu `<a class="start-menu-item">` entry with a 20×20 SVG icon in the appropriate submenu.
+2. **`css/page.css`** — Add `#windowid { width: ...; left: ...; top: ...; }` positioning plus any app-specific styles.
+3. **`js/main.js`** — Add:
+   - `open*()` / `close*()` functions (close should clean up intervals/iframes)
+   - `FOLDER_ITEMS.<category>` entry (`name`, `desc`, `tag`, `action`)
+   - `getItemIcon()` entry with `ei-` prefixed gradient IDs
+   - `COMMANDS` entry for terminal access
+   - `window.*` exports at the bottom of the IIFE
+
+**Gradient ID conventions:** Each icon context uses a unique prefix to avoid SVG gradient collisions:
+- Start menu icons: 2-letter prefix (e.g., `tz-face`, `cl-bar`)
+- Explorer icons: `ei-` prefix (e.g., `ei-tz`, `ei-cl`)
+- Desktop icons: full prefix (e.g., `mc-body`, `af-tab`)
+
+**Timer/interval pattern:** Apps with live-updating data (Time Zone, Aquarium) start their interval in `open*()` and clear it in `close*()` to avoid wasted cycles when the window is hidden. The grid/DOM is built once on first open and reused on subsequent opens.
+
+### CSS Variables (from theme.css)
+
+Key variables used across components:
+- `--silver`, `--white`, `--shadow`, `--dk-shadow` — XP-style 3D border system
+- `--highlight`, `--highlight-text` — selection/hover colors
+- `--desktop` — blue desktop background
+- `--error` — `#c62828` dark red (used for error icons, second hands)
+- `--link` — link color
+- `--font` — system font stack
