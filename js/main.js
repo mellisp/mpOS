@@ -530,7 +530,7 @@ function populateFish() {
     fishName.title = 'Open in WikiBrowser';
     fishName.onclick = function () {
       openBrowser();
-      browserNavigate('https://en.m.wikipedia.org/wiki/' + encodeURIComponent(title));
+      browserNavigate('https://en.wikipedia.org/wiki/' + encodeURIComponent(title));
     };
   }
 
@@ -696,7 +696,7 @@ function populateFishFinder() {
 }
 
 /* ── WikiBrowser ── */
-const BROWSER_HOME = 'https://en.m.wikipedia.org/wiki/Main_Page';
+const BROWSER_HOME = 'https://en.wikipedia.org/wiki/Main_Page';
 const browserFrame = document.getElementById('browserFrame');
 const browserUrl = document.getElementById('browserUrl');
 const browserTitle = document.getElementById('browserTitle');
@@ -726,9 +726,9 @@ function browserNavigate(query) {
   if (!query) return;
   var url;
   if (/^https:\/\/[a-z]{2,}\.(?:m\.)?wikipedia\.org\//.test(query)) {
-    url = query;
+    url = query.replace('://en.m.wikipedia.org/', '://en.wikipedia.org/');
   } else {
-    url = 'https://en.m.wikipedia.org/wiki/Special:Search/' + encodeURIComponent(query);
+    url = 'https://en.wikipedia.org/wiki/Special:Search/' + encodeURIComponent(query);
   }
   browserFrame.src = url;
   browserUrl.value = url;
