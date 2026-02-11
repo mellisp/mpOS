@@ -10,6 +10,7 @@
   <meta property="og:description" content="Portfolio and experiments — a desktop OS-themed collection of games, tools, and interactive projects.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.matthewpritchard.com/">
+  <meta property="og:image" content="https://www.matthewpritchard.com/og-image.png">
   <link rel="canonical" href="https://www.matthewpritchard.com/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/theme.css">
@@ -31,7 +32,27 @@
   <script src="js/aquarium-data.js" defer></script>
 </head>
 <body>
-  <div class="desktop">
+  <noscript><div style="background:#3a6ea5;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:Tahoma,sans-serif;font-size:16px;text-align:center;padding:24px;">mpOS requires JavaScript to run.</div></noscript>
+  <div class="desktop" role="application">
+    <div class="mobile-launcher" id="mobileLauncher">
+      <div class="launcher-header">
+        <span class="launcher-title">mpOS</span>
+      </div>
+      <div class="launcher-content">
+        <div class="launcher-section">
+          <div class="launcher-section-title">Programs</div>
+          <div class="launcher-grid" id="launcherPrograms"></div>
+        </div>
+        <div class="launcher-section">
+          <div class="launcher-section-title">Utilities</div>
+          <div class="launcher-grid" id="launcherUtilities"></div>
+        </div>
+        <div class="launcher-section">
+          <div class="launcher-section-title">System</div>
+          <div class="launcher-grid" id="launcherSystem"></div>
+        </div>
+      </div>
+    </div>
     <div class="desktop-area">
       <!-- My Computer icon -->
       <div class="desktop-icon" role="button" tabindex="0" ondblclick="openMyComputer()" onkeydown="if(event.key==='Enter')openMyComputer()">
@@ -297,7 +318,7 @@
     </div>
 
     <!-- Calculator Window (hidden initially) -->
-    <div class="window draggable" id="calculator" style="display:none;">
+    <div class="window draggable" id="calculator" tabindex="-1" style="display:none;">
       <div class="titlebar">
         <span>Calculator</span>
         <div class="titlebar-buttons">
@@ -378,7 +399,7 @@
         </div>
       </div>
       <div class="window-body" id="weatherBody">
-        <div style="padding:16px;font-size:12px;color:#57606a;">Loading weather data...</div>
+        <div style="padding:16px;font-size:12px;color:var(--text-muted);">Loading weather data...</div>
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="weatherStatus">Powered by Open-Meteo</div>
@@ -445,30 +466,30 @@
           <span onclick="openExplorerTo('programs'); closeStartMenu(); event.stopPropagation();">Programs</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
-            <a class="start-menu-item" href="#" onclick="openBrowser(); closeStartMenu(); return false;">
+            <button class="start-menu-item" type="button" onclick="openBrowser(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="wbs-sphere" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="wbs-clip"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#wbs-sphere)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#wbs-clip)" opacity="0.35"><ellipse cx="8" cy="8" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="13" cy="11" rx="2" ry="3" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.7"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.7"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.5"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.5"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/></svg>
               <span>WikiBrowser</span>
-            </a>
-            <a class="start-menu-item" href="#" onclick="openFishOfDay(); closeStartMenu(); return false;">
+            </button>
+            <button class="start-menu-item" type="button" onclick="openFishOfDay(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="fd-fish" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#b0f0d0"/><stop offset="30%" stop-color="#70c898"/><stop offset="70%" stop-color="#40a068"/><stop offset="100%" stop-color="#2a8858"/></linearGradient></defs><path d="M1 7 Q3 10 1 14 L4 11 Z" fill="url(#fd-fish)" stroke="#1a5c42" stroke-width="0.6"/><ellipse cx="10" cy="11" rx="8" ry="5" fill="url(#fd-fish)" stroke="#1a5c42" stroke-width="0.8"/><ellipse cx="9" cy="9.5" rx="5" ry="2" fill="white" opacity="0.3"/><circle cx="15" cy="10" r="1" fill="#1a5c42"/><circle cx="15.3" cy="9.7" r="0.3" fill="white"/></svg>
               <span>Fish of the Day</span>
-            </a>
-            <a class="start-menu-item" href="#" onclick="openFishFinder(); closeStartMenu(); return false;">
+            </button>
+            <button class="start-menu-item" type="button" onclick="openFishFinder(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ff-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="30%" stop-color="#d8ecff"/><stop offset="60%" stop-color="#a8d0f0"/><stop offset="100%" stop-color="#78b0d8"/></radialGradient><linearGradient id="ff-handle" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d0c8"/><stop offset="50%" stop-color="#a0a098"/><stop offset="100%" stop-color="#787870"/></linearGradient></defs><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="url(#ff-handle)" stroke-width="3" stroke-linecap="round"/><circle cx="9" cy="9" r="6" fill="url(#ff-lens)" stroke="#1a4a6e" stroke-width="1.2"/><circle cx="9" cy="9" r="4.5" fill="none" stroke="#1a4a6e" stroke-width="0.4" opacity="0.3"/><ellipse cx="7" cy="7" rx="3.5" ry="2.5" fill="white" opacity="0.4"/></svg>
               <span>Fish Finder</span>
-            </a>
-            <a class="start-menu-item" href="#" onclick="openOnTarget(); closeStartMenu(); return false;">
+            </button>
+            <button class="start-menu-item" type="button" onclick="openOnTarget(); closeStartMenu();">
               <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ot-red" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ff8a8a"/><stop offset="40%" stop-color="#ef5350"/><stop offset="100%" stop-color="#b71c1c"/></radialGradient><radialGradient id="ot-wht" cx="0.4" cy="0.4" r="0.6"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e8e0e0"/></radialGradient></defs><circle cx="10" cy="10" r="9" fill="url(#ot-red)" stroke="#8b1a1a" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#ot-wht)" stroke="#c62828" stroke-width="0.3"/><circle cx="10" cy="10" r="5" fill="url(#ot-red)" stroke="#8b1a1a" stroke-width="0.3"/><circle cx="10" cy="10" r="3" fill="url(#ot-wht)" stroke="#c62828" stroke-width="0.3"/><circle cx="10" cy="10" r="1.5" fill="url(#ot-red)"/><ellipse cx="7.5" cy="6" rx="4" ry="2.5" fill="white" opacity="0.25"/></svg>
               <span>On Target</span>
-            </a>
-            <a class="start-menu-item" href="#" onclick="openAquarium(); closeStartMenu(); return false;">
+            </button>
+            <button class="start-menu-item" type="button" onclick="openAquarium(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="va-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="30%" stop-color="#6aafe0"/><stop offset="70%" stop-color="#3a8ac0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient><linearGradient id="va-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a8aaa"/><stop offset="40%" stop-color="#0d5a76"/><stop offset="100%" stop-color="#082a3e"/></linearGradient></defs><rect x="1" y="3" width="18" height="12" rx="2" fill="url(#va-body)" stroke="#1a4a6e" stroke-width="0.8"/><line x1="2" y1="4" x2="18" y2="4" stroke="white" stroke-width="0.5" opacity="0.4"/><rect x="3" y="5" width="14" height="8" rx="1" fill="url(#va-water)"/><ellipse cx="7" cy="9" rx="3" ry="1.5" fill="#ffa000" opacity="0.7"/><ellipse cx="12" cy="10" rx="2" ry="1" fill="#ffa000" opacity="0.6"/><path d="M4 7 Q6 6 8 7" stroke="#5ac8e0" stroke-width="0.4" opacity="0.4" fill="none"/><rect x="7" y="15.5" width="6" height="2" rx="0.5" fill="#a0a098" stroke="#8a8680" stroke-width="0.4"/></svg>
               <span>Virtual Aquarium</span>
-            </a>
-            <a class="start-menu-item" href="chicken-fingers.html" onclick="closeStartMenu(); return openChickenFingers();">
+            </button>
+            <button class="start-menu-item" type="button" onclick="closeStartMenu(); if(openChickenFingers()) location.href='chicken-fingers.html';">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cf-body" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="30%" stop-color="#ffe68a"/><stop offset="70%" stop-color="#ffc840"/><stop offset="100%" stop-color="#e8a010"/></radialGradient></defs><ellipse cx="10" cy="12" rx="6" ry="5" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="8.5" cy="11" rx="3.5" ry="2" fill="white" opacity="0.2"/><circle cx="10" cy="6" r="4" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="9" cy="5" rx="2.5" ry="1.5" fill="white" opacity="0.25"/><circle cx="8.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="8.8" cy="5.2" r="0.2" fill="white"/><circle cx="11.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="11.8" cy="5.2" r="0.2" fill="white"/><path d="M9 7.5 L10 8.5 L11 7.5" stroke="#d45500" stroke-width="0.8" fill="#e67e22"/><path d="M5 4 Q7 2 9 3" stroke="#c49000" stroke-width="0.6" fill="none"/><path d="M11 3 Q13 2 15 4" stroke="#c49000" stroke-width="0.6" fill="none"/></svg>
               <span>Chicken Fingers</span>
-            </a>
+            </button>
           </div>
         </div>
 
@@ -501,26 +522,26 @@
           <span onclick="openExplorerTo('utilities'); closeStartMenu(); event.stopPropagation();">Utilities</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
-            <a class="start-menu-item" href="#" onclick="openNotepad(); closeStartMenu(); return false;">
+            <button class="start-menu-item" type="button" onclick="openNotepad(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="np-doc" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="30%" stop-color="#f0f4ff"/><stop offset="70%" stop-color="#c8d8f0"/><stop offset="100%" stop-color="#a0b8d8"/></linearGradient></defs><path d="M3 1 L13 1 L17 5 L17 19 L3 19 Z" fill="url(#np-doc)" stroke="#4a6a8e" stroke-width="0.8"/><path d="M13 1 L13 5 L17 5" fill="#c8d8f0" stroke="#4a6a8e" stroke-width="0.5"/><rect x="4" y="2" width="6" height="2" rx="0.5" fill="white" opacity="0.4"/><line x1="6" y1="8" x2="14" y2="8" stroke="#8a9ab8" stroke-width="0.5"/><line x1="6" y1="11" x2="14" y2="11" stroke="#8a9ab8" stroke-width="0.5"/><line x1="6" y1="14" x2="11" y2="14" stroke="#8a9ab8" stroke-width="0.5"/></svg>
               <span>Notepad</span>
-            </a>
-            <a class="start-menu-item" href="#" onclick="openCalculator(); closeStartMenu(); return false;">
+            </button>
+            <button class="start-menu-item" type="button" onclick="openCalculator(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ca-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="30%" stop-color="#d8d4cc"/><stop offset="70%" stop-color="#b8b4ac"/><stop offset="100%" stop-color="#98948c"/></linearGradient><linearGradient id="ca-lcd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0f0d0"/><stop offset="100%" stop-color="#b0d098"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1.5" fill="url(#ca-body)" stroke="#787470" stroke-width="0.8"/><line x1="4" y1="2" x2="16" y2="2" stroke="white" stroke-width="0.5" opacity="0.5"/><rect x="5" y="3" width="10" height="3" rx="0.5" fill="url(#ca-lcd)" stroke="#6a8a5a" stroke-width="0.5"/><rect x="5" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="8" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="12" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="16" width="6" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="16" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/></svg>
               <span>Calculator</span>
-            </a>
-            <a class="start-menu-item" href="#" onclick="openCalendar(); closeStartMenu(); return false;">
+            </button>
+            <button class="start-menu-item" type="button" onclick="openCalendar(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="cl-page" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient><linearGradient id="cl-bar" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ef5350"/><stop offset="50%" stop-color="#d32f2f"/><stop offset="100%" stop-color="#b71c1c"/></linearGradient></defs><rect x="3" y="3" width="14" height="16" rx="1" fill="url(#cl-page)" stroke="#8a8680" stroke-width="0.8"/><rect x="3" y="3" width="14" height="3.5" rx="1" fill="url(#cl-bar)"/><line x1="4" y1="3.8" x2="10" y2="3.8" stroke="white" stroke-width="0.5" opacity="0.4"/><circle cx="7" cy="10" r="0.6" fill="#808080"/><circle cx="10" cy="10" r="0.6" fill="#808080"/><circle cx="13" cy="10" r="0.6" fill="#808080"/><circle cx="7" cy="13" r="0.6" fill="#808080"/><circle cx="10" cy="13" r="0.6" fill="#808080"/><circle cx="13" cy="13" r="0.6" fill="#808080"/><circle cx="7" cy="16" r="0.6" fill="#808080"/><circle cx="10" cy="16" r="0.6" fill="#808080"/></svg>
               <span>Calendar</span>
-            </a>
-            <a class="start-menu-item" href="#" onclick="openTimeZone(); closeStartMenu(); return false;">
+            </button>
+            <button class="start-menu-item" type="button" onclick="openTimeZone(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tz-face" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient><linearGradient id="tz-rim" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#tz-rim)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#tz-face)"/><ellipse cx="8.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><line x1="10" y1="10" x2="10" y2="5" stroke="#2a4a6e" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="10" x2="14" y2="10" stroke="#2a4a6e" stroke-width="0.9" stroke-linecap="round"/><circle cx="10" cy="10" r="0.8" fill="#2a4a6e"/><path d="M3.5 13 Q10 15.5 16.5 13" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/><path d="M3.5 7 Q10 4.5 16.5 7" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/></svg>
               <span>Time Zone</span>
-            </a>
-            <a class="start-menu-item" href="#" onclick="openWeather(); closeStartMenu(); return false;">
+            </button>
+            <button class="start-menu-item" type="button" onclick="openWeather(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="we-sun" cx="0.3" cy="0.3" r="0.7"><stop offset="0%" stop-color="#fffde0"/><stop offset="40%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f9a825"/></radialGradient><radialGradient id="we-cloud" cx="0.4" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#e8e4dc"/><stop offset="100%" stop-color="#c8c4bc"/></radialGradient></defs><line x1="7" y1="1" x2="7" y2="3" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><line x1="2" y1="3" x2="3.5" y2="4.5" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><line x1="12" y1="3" x2="10.5" y2="4.5" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><line x1="1" y1="7" x2="3" y2="7" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><circle cx="7" cy="7" r="3.5" fill="url(#we-sun)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="6" cy="5.5" rx="2" ry="1.5" fill="white" opacity="0.35"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="url(#we-cloud)" stroke="#8a8680" stroke-width="0.6"/><ellipse cx="10" cy="14" rx="4" ry="1.5" fill="white" opacity="0.3"/></svg>
               <span>Weather</span>
-            </a>
+            </button>
           </div>
         </div>
 
