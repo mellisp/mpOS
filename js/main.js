@@ -817,7 +817,7 @@ const COMMANDS = {
   'weather':     { run: openWeather,     desc: 'Open Weather' },
   'cls':         { run: cmdCls,          desc: 'Clear the screen' },
   'clear':       { run: cmdCls,          desc: 'Clear the screen' },
-  'exit':        { run: function () { bbTaskbar.closeWindow('run'); }, desc: 'Close this window' },
+  'exit':        { run: function () { stopMatrix(); bbTaskbar.closeWindow('run'); }, desc: 'Close this window' },
   'ver':         { run: cmdVer,          desc: 'Show version' },
 };
 
@@ -835,7 +835,7 @@ function cmdHelp() {
   termPrint('');
 }
 
-function cmdCls() { termOutput.textContent = ''; }
+function cmdCls() { stopMatrix(); termOutput.textContent = ''; }
 
 function cmdVer() { termPrint('mpOS [Version 1.0.8]\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
@@ -848,6 +848,44 @@ function openRun() {
   setTimeout(function () { termInput.focus(); }, 100);
 }
 
+var matrixInterval = null;
+function cmdMatrix() {
+  var term = document.querySelector('#run .term');
+  var existing = term.querySelector('.matrix-canvas');
+  if (existing) { stopMatrix(); return; }
+  var canvas = document.createElement('canvas');
+  canvas.className = 'matrix-canvas';
+  canvas.style.cssText = 'position:absolute;inset:0;z-index:10;background:#000;';
+  canvas.width = term.offsetWidth;
+  canvas.height = term.offsetHeight;
+  term.style.position = 'relative';
+  term.appendChild(canvas);
+  var ctx = canvas.getContext('2d');
+  var fontSize = 14;
+  var cols = Math.floor(canvas.width / fontSize);
+  var drops = [];
+  for (var i = 0; i < cols; i++) drops[i] = Math.random() * -20 | 0;
+  matrixInterval = setInterval(function () {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#0f0';
+    ctx.font = fontSize + 'px monospace';
+    for (var i = 0; i < cols; i++) {
+      var ch = Math.random() > 0.5 ? '1' : '0';
+      ctx.fillText(ch, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }, 50);
+  canvas.addEventListener('click', stopMatrix);
+}
+
+function stopMatrix() {
+  if (matrixInterval) { clearInterval(matrixInterval); matrixInterval = null; }
+  var c = document.querySelector('#run .matrix-canvas');
+  if (c) c.remove();
+}
+
 termInput.addEventListener('keydown', function (e) {
   if (e.key !== 'Enter') return;
   const raw = termInput.value.trim();
@@ -855,7 +893,9 @@ termInput.addEventListener('keydown', function (e) {
   termPrint('C:\\mpOS> ' + raw);
   if (!raw) return;
   const cmd = raw.toLowerCase();
-  if (COMMANDS[cmd]) {
+  if (cmd === 'matrix') {
+    cmdMatrix();
+  } else if (COMMANDS[cmd]) {
     COMMANDS[cmd].run();
   } else {
     termPrint("'" + raw + "' is not recognized as an internal or external command,\noperable program or batch file.\n");
