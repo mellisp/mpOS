@@ -164,17 +164,25 @@ function populateSysInfo() {
   else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Apple Safari';
 
   let html = '<div class="sysinfo-hero">';
-  html += '<svg width="80" height="64" viewBox="0 0 80 64" fill="none" xmlns="http://www.w3.org/2000/svg">';
-  html += '<defs><linearGradient id="si-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="35%" stop-color="#5a9ece"/><stop offset="70%" stop-color="#3a7ab0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient>';
-  html += '<linearGradient id="si-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0f0ff"/><stop offset="50%" stop-color="#b0d4f0"/><stop offset="100%" stop-color="#88bbe0"/></linearGradient>';
-  html += '<linearGradient id="si-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="50%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient></defs>';
-  html += '<rect x="4" y="2" width="72" height="44" rx="3" fill="url(#si-body)" stroke="#1a4a6e" stroke-width="2"/>';
-  html += '<rect x="6" y="4" width="48" height="12" rx="1" fill="white" opacity="0.4"/>';
-  html += '<rect x="8" y="6" width="64" height="36" rx="1" fill="url(#si-screen)"/>';
-  html += '<rect x="8" y="6" width="64" height="10" rx="1" fill="white" opacity="0.2"/>';
-  html += '<rect x="28" y="48" width="24" height="5" rx="1" fill="url(#si-base)" stroke="#8a8680" stroke-width="0.75"/>';
-  html += '<rect x="16" y="53" width="48" height="4" rx="1.5" fill="url(#si-base)" stroke="#8a8680" stroke-width="0.75"/>';
-  html += '<line x1="18" y1="53.5" x2="62" y2="53.5" stroke="white" stroke-width="0.5" opacity="0.5"/>';
+  html += '<svg width="80" height="80" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">';
+  html += '<defs><linearGradient id="si-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="25%" stop-color="#6aafe0"/><stop offset="60%" stop-color="#3a7ab0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient>';
+  html += '<linearGradient id="si-screen" x1="0" y1="0" x2="0.2" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="30%" stop-color="#c0ddf0"/><stop offset="70%" stop-color="#90bce0"/><stop offset="100%" stop-color="#6898c0"/></linearGradient>';
+  html += '<linearGradient id="si-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b8d0e0"/><stop offset="100%" stop-color="#7a9ab8"/></linearGradient>';
+  html += '<linearGradient id="si-stand" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="50%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient>';
+  html += '<linearGradient id="si-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="40%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient></defs>';
+  html += '<ellipse cx="24" cy="43" rx="16" ry="2" fill="#00000020"/>';
+  html += '<rect x="4" y="4" width="40" height="28" rx="3" fill="url(#si-body)" stroke="#1a4a6e" stroke-width="1.5"/>';
+  html += '<line x1="6" y1="5" x2="42" y2="5" stroke="white" stroke-width="0.8" opacity="0.5" stroke-linecap="round"/>';
+  html += '<line x1="5" y1="6" x2="5" y2="30" stroke="white" stroke-width="0.6" opacity="0.3"/>';
+  html += '<ellipse cx="18" cy="10" rx="14" ry="6" fill="white" opacity="0.35"/>';
+  html += '<rect x="7" y="7" width="34" height="22" rx="1.5" fill="url(#si-bezel)" stroke="#1a4a6e" stroke-width="0.5"/>';
+  html += '<rect x="8" y="8" width="32" height="20" rx="1" fill="url(#si-screen)"/>';
+  html += '<ellipse cx="18" cy="14" rx="12" ry="7" fill="white" opacity="0.15"/>';
+  html += '<circle cx="24" cy="30" r="1" fill="#4ade80" opacity="0.8"/>';
+  html += '<rect x="18" y="34" width="12" height="4" rx="1" fill="url(#si-stand)" stroke="#8a8680" stroke-width="0.75"/>';
+  html += '<line x1="19" y1="34.5" x2="29" y2="34.5" stroke="white" stroke-width="0.5" opacity="0.4"/>';
+  html += '<rect x="11" y="38" width="26" height="3" rx="1.5" fill="url(#si-base)" stroke="#8a8680" stroke-width="0.75"/>';
+  html += '<line x1="12" y1="38.5" x2="36" y2="38.5" stroke="white" stroke-width="0.5" opacity="0.5"/>';
   html += '</svg>';
   if (os) html += '<div class="sysinfo-os">' + os + '</div>';
   if (browser) html += '<div class="sysinfo-browser">' + browser + '</div>';
@@ -375,7 +383,7 @@ function showFinderError(body, msg) {
   body.innerHTML =
     '<div style="padding:16px;">' +
       '<div class="error-row">' +
-        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri-ff" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="35%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri-ff)" stroke="#c49000" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 5 L10 17 L16 17 Z" fill="white" opacity="0.25"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>' +
+        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri-ff" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="20%" stop-color="#ffe88a"/><stop offset="50%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#e8a000"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri-ff)" stroke="#a07000" stroke-width="1.5" stroke-linejoin="round"/><line x1="6" y1="26" x2="16" y2="5" stroke="white" stroke-width="1" opacity="0.3" stroke-linecap="round"/><ellipse cx="13" cy="14" rx="5" ry="6" fill="white" opacity="0.15"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>' +
         '<div class="error-text">' + msg + '</div>' +
       '</div>' +
     '</div>';
@@ -625,7 +633,7 @@ function showWeatherError(body, msg) {
   body.innerHTML =
     '<div style="padding:16px;">' +
       '<div class="error-row">' +
-        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri-we" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="35%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri-we)" stroke="#c49000" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 5 L10 17 L16 17 Z" fill="white" opacity="0.25"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>' +
+        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri-we" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="20%" stop-color="#ffe88a"/><stop offset="50%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#e8a000"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri-we)" stroke="#a07000" stroke-width="1.5" stroke-linejoin="round"/><line x1="6" y1="26" x2="16" y2="5" stroke="white" stroke-width="1" opacity="0.3" stroke-linecap="round"/><ellipse cx="13" cy="14" rx="5" ry="6" fill="white" opacity="0.15"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>' +
         '<div class="error-text">' + msg + '</div>' +
       '</div>' +
     '</div>';
