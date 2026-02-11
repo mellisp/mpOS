@@ -640,7 +640,7 @@ function populateFishFinder() {
           var link = document.createElement('a');
           link.href = aq[4];
           link.target = '_blank';
-          link.rel = 'noopener';
+          link.rel = 'noopener noreferrer';
           link.style.cssText = 'color:var(--link);text-decoration:none;';
           link.textContent = aq[0];
           nameEl.appendChild(link);
@@ -713,7 +713,7 @@ function browserNavigate(query) {
   query = query.trim();
   if (!query) return;
   var url;
-  if (/^https?:\/\/[a-z]+\.(?:m\.)?wikipedia\.org\//i.test(query)) {
+  if (/^https:\/\/[a-z]{2,}\.(?:m\.)?wikipedia\.org\//.test(query)) {
     url = query;
   } else {
     url = 'https://en.m.wikipedia.org/wiki/Special:Search/' + encodeURIComponent(query);
@@ -828,6 +828,7 @@ function notepadSave() {
 function notepadSaveAs(name) {
   name = name.trim();
   if (!name) return;
+  if (name === '__proto__' || name === 'constructor' || name === 'prototype') return;
   if (name.indexOf('.') === -1) name += '.txt';
   var files = notepadGetFiles();
   if (files.hasOwnProperty(name) && name !== notepadCurrentFile) {
@@ -1167,35 +1168,71 @@ function closeTimeZone() {
 }
 
 function tzBuildGrid() {
-  var html = '';
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  var frag = document.createDocumentFragment();
+
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS(SVG_NS, tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
   for (var i = 0; i < TZ_CITIES.length; i++) {
     var c = TZ_CITIES[i];
-    html += '<div class="tz-tile">';
-    html += '<div class="tz-clock-face">';
-    html += '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">';
-    html += '<circle cx="32" cy="32" r="30" fill="#fff" stroke="var(--dk-shadow)" stroke-width="1.5"/>';
+
+    var tile = document.createElement('div');
+    tile.className = 'tz-tile';
+
+    var face = document.createElement('div');
+    face.className = 'tz-clock-face';
+
+    var svg = svgEl('svg', { viewBox: '0 0 64 64' });
+    svg.appendChild(svgEl('circle', { cx: '32', cy: '32', r: '30', fill: '#fff', stroke: 'var(--dk-shadow)', 'stroke-width': '1.5' }));
+
     // Tick marks
     for (var h = 0; h < 12; h++) {
-      var a = h * 30;
-      var rad = a * Math.PI / 180;
-      var x1 = 32 + 26 * Math.sin(rad);
-      var y1 = 32 - 26 * Math.cos(rad);
-      var x2 = 32 + 29 * Math.sin(rad);
-      var y2 = 32 - 29 * Math.cos(rad);
-      html += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="var(--dk-shadow)" stroke-width="1"/>';
+      var rad = h * 30 * Math.PI / 180;
+      svg.appendChild(svgEl('line', {
+        x1: String(32 + 26 * Math.sin(rad)),
+        y1: String(32 - 26 * Math.cos(rad)),
+        x2: String(32 + 29 * Math.sin(rad)),
+        y2: String(32 - 29 * Math.cos(rad)),
+        stroke: 'var(--dk-shadow)', 'stroke-width': '1'
+      }));
     }
-    html += '<line id="tzH' + i + '" x1="32" y1="32" x2="32" y2="16" stroke="var(--dk-shadow)" stroke-width="2.5" stroke-linecap="round"/>';
-    html += '<line id="tzM' + i + '" x1="32" y1="32" x2="32" y2="10" stroke="var(--dk-shadow)" stroke-width="1.5" stroke-linecap="round"/>';
-    html += '<line id="tzS' + i + '" x1="32" y1="32" x2="32" y2="8" stroke="var(--error)" stroke-width="0.8" stroke-linecap="round"/>';
-    html += '<circle cx="32" cy="32" r="2" fill="var(--dk-shadow)"/>';
-    html += '</svg>';
-    html += '</div>';
-    html += '<span class="tz-digital" id="tzD' + i + '"></span>';
-    html += '<div class="tz-city">' + c.city + '</div>';
-    html += '<div class="tz-offset" id="tzO' + i + '"></div>';
-    html += '</div>';
+
+    // Hour hand
+    svg.appendChild(svgEl('line', { id: 'tzH' + i, x1: '32', y1: '32', x2: '32', y2: '16', stroke: 'var(--dk-shadow)', 'stroke-width': '2.5', 'stroke-linecap': 'round' }));
+    // Minute hand
+    svg.appendChild(svgEl('line', { id: 'tzM' + i, x1: '32', y1: '32', x2: '32', y2: '10', stroke: 'var(--dk-shadow)', 'stroke-width': '1.5', 'stroke-linecap': 'round' }));
+    // Second hand
+    svg.appendChild(svgEl('line', { id: 'tzS' + i, x1: '32', y1: '32', x2: '32', y2: '8', stroke: 'var(--error)', 'stroke-width': '0.8', 'stroke-linecap': 'round' }));
+    // Center dot
+    svg.appendChild(svgEl('circle', { cx: '32', cy: '32', r: '2', fill: 'var(--dk-shadow)' }));
+
+    face.appendChild(svg);
+    tile.appendChild(face);
+
+    var digital = document.createElement('span');
+    digital.className = 'tz-digital';
+    digital.id = 'tzD' + i;
+    tile.appendChild(digital);
+
+    var cityEl = document.createElement('div');
+    cityEl.className = 'tz-city';
+    cityEl.textContent = c.city;
+    tile.appendChild(cityEl);
+
+    var offsetEl = document.createElement('div');
+    offsetEl.className = 'tz-offset';
+    offsetEl.id = 'tzO' + i;
+    tile.appendChild(offsetEl);
+
+    frag.appendChild(tile);
   }
-  tzGridEl.innerHTML = html;
+
+  tzGridEl.textContent = '';
+  tzGridEl.appendChild(frag);
 }
 
 function tzTick() {
