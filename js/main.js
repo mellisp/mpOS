@@ -74,6 +74,8 @@ var FOLDER_ITEMS = {
   utilities: [
     { name: 'Notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad()' },
     { name: 'Calculator', desc: 'Basic arithmetic calculator.', tag: 'HTML', action: 'openCalculator()' },
+    { name: 'Calendar', desc: 'Monthly calendar viewer.', tag: 'HTML', action: 'openCalendar()' },
+    { name: 'Time Zone', desc: 'World clocks for 8 cities.', tag: 'HTML', action: 'openTimeZone()' },
     { name: 'Weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather()' }
   ]
 };
@@ -177,7 +179,9 @@ function getItemIcon(name) {
     'Virtual Aquarium': '<defs><linearGradient id="ei-va" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="50%" stop-color="#5a9ece"/><stop offset="100%" stop-color="#2a6898"/></linearGradient><linearGradient id="ei-vw" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a8aaa"/><stop offset="50%" stop-color="#0d5a76"/><stop offset="100%" stop-color="#082a3e"/></linearGradient></defs><rect x="1" y="3" width="18" height="12" rx="2" fill="url(#ei-va)" stroke="#1a4a6e" stroke-width="0.6"/><rect x="3" y="5" width="14" height="8" rx="1" fill="url(#ei-vw)"/><circle cx="8" cy="9" r="1.5" fill="#ffc107"/><circle cx="13" cy="10" r="1" fill="#ffc107"/>',
     'Chicken Fingers': '<defs><radialGradient id="ei-cf" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="50%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><ellipse cx="10" cy="12" rx="6" ry="5" fill="url(#ei-cf)" stroke="#c49000" stroke-width="0.6"/><circle cx="10" cy="6" r="4" fill="url(#ei-cf)" stroke="#c49000" stroke-width="0.6"/><circle cx="8.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="11.5" cy="5.5" r="0.8" fill="#5d4037"/><path d="M9 7.5 L10 8.5 L11 7.5" stroke="#e67e22" stroke-width="0.8" fill="#e67e22"/>',
     'Notepad': '<defs><linearGradient id="ei-np" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#f0f4ff"/><stop offset="100%" stop-color="#a0b8d8"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1" fill="url(#ei-np)" stroke="#4a6a8e" stroke-width="0.8"/><line x1="6" y1="7" x2="14" y2="7" stroke="#4a6a8e" stroke-width="0.6"/><line x1="6" y1="10" x2="14" y2="10" stroke="#4a6a8e" stroke-width="0.6"/><line x1="6" y1="13" x2="11" y2="13" stroke="#4a6a8e" stroke-width="0.6"/>',
+    'Calendar': '<defs><linearGradient id="ei-cl" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient><linearGradient id="ei-clb" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ef5350"/><stop offset="50%" stop-color="#d32f2f"/><stop offset="100%" stop-color="#b71c1c"/></linearGradient></defs><rect x="3" y="3" width="14" height="16" rx="1" fill="url(#ei-cl)" stroke="#8a8680" stroke-width="0.8"/><rect x="3" y="3" width="14" height="3.5" rx="1" fill="url(#ei-clb)"/><circle cx="7" cy="10" r="0.6" fill="#808080"/><circle cx="10" cy="10" r="0.6" fill="#808080"/><circle cx="13" cy="10" r="0.6" fill="#808080"/><circle cx="7" cy="13" r="0.6" fill="#808080"/><circle cx="10" cy="13" r="0.6" fill="#808080"/><circle cx="13" cy="13" r="0.6" fill="#808080"/><circle cx="7" cy="16" r="0.6" fill="#808080"/><circle cx="10" cy="16" r="0.6" fill="#808080"/>',
     'Calculator': '<defs><linearGradient id="ei-ca" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#e8e4dc"/><stop offset="100%" stop-color="#a8a49c"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1.5" fill="url(#ei-ca)" stroke="#8a8680" stroke-width="0.8"/><rect x="5" y="3" width="10" height="3" rx="0.5" fill="#d0e8c0" stroke="#6a8a5a" stroke-width="0.5"/><rect x="5" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="8" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/>',
+    'Time Zone': '<defs><linearGradient id="ei-tz" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient><linearGradient id="ei-tzr" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#ei-tzr)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#ei-tz)"/><ellipse cx="8.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><line x1="10" y1="10" x2="10" y2="5" stroke="#2a4a6e" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="10" x2="14" y2="10" stroke="#2a4a6e" stroke-width="0.9" stroke-linecap="round"/><circle cx="10" cy="10" r="0.8" fill="#2a4a6e"/><path d="M3.5 13 Q10 15.5 16.5 13" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/><path d="M3.5 7 Q10 4.5 16.5 7" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/>',
     'Weather': '<defs><radialGradient id="ei-we" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><circle cx="7" cy="6" r="4" fill="url(#ei-we)" stroke="#c49000" stroke-width="0.8"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="#e8e4dc" stroke="#8a8680" stroke-width="0.7"/>'
   };
   return icons[name] || '';
@@ -899,6 +903,186 @@ function calcBackspace() {
   calcUpdateDisplay();
 }
 
+/* ── Calendar ── */
+var calYear, calMonth, calTitleEl, calGridEl;
+
+function openCalendar() {
+  openWindow('calendar');
+  if (!calTitleEl) {
+    calTitleEl = document.getElementById('calTitle');
+    calGridEl = document.getElementById('calGrid');
+    var now = new Date();
+    calYear = now.getFullYear();
+    calMonth = now.getMonth();
+  }
+  calendarRender();
+}
+
+function calendarRender() {
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  calTitleEl.textContent = months[calMonth] + ' ' + calYear;
+
+  var html = '';
+  var days = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+  for (var i = 0; i < 7; i++) {
+    html += '<div class="cal-day-header">' + days[i] + '</div>';
+  }
+
+  var firstOfMonth = new Date(calYear, calMonth, 1);
+  var dow = firstOfMonth.getDay();
+  // Convert Sunday=0..Saturday=6 to Monday=0..Sunday=6
+  var startOffset = (dow + 6) % 7;
+  var startDate = new Date(calYear, calMonth, 1 - startOffset);
+
+  var today = new Date();
+  var todayStr = today.getFullYear() + '-' + today.getMonth() + '-' + today.getDate();
+
+  for (var r = 0; r < 6; r++) {
+    for (var c = 0; c < 7; c++) {
+      var d = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + r * 7 + c);
+      var cls = 'cal-day';
+      if (d.getMonth() !== calMonth) cls += ' other-month';
+      if (d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() === todayStr) cls += ' today';
+      html += '<div class="' + cls + '">' + d.getDate() + '</div>';
+    }
+  }
+
+  calGridEl.innerHTML = html;
+}
+
+function calendarPrev() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  calendarRender();
+}
+
+function calendarNext() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  calendarRender();
+}
+
+function calendarToday() {
+  var now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  calendarRender();
+}
+
+/* ── Time Zone ── */
+var TZ_CITIES = [
+  { city: 'London',      zone: 'Europe/London' },
+  { city: 'New York',    zone: 'America/New_York' },
+  { city: 'Los Angeles', zone: 'America/Los_Angeles' },
+  { city: 'Tokyo',       zone: 'Asia/Tokyo' },
+  { city: 'Sydney',      zone: 'Australia/Sydney' },
+  { city: 'Dubai',       zone: 'Asia/Dubai' },
+  { city: 'Paris',       zone: 'Europe/Paris' },
+  { city: 'Singapore',   zone: 'Asia/Singapore' }
+];
+
+var tzGridEl = null;
+var tzAnalog = true;
+var tzTimer = null;
+var tzBuilt = false;
+
+function openTimeZone() {
+  openWindow('timezone');
+  if (!tzGridEl) tzGridEl = document.getElementById('tzGrid');
+  if (!tzBuilt) { tzBuildGrid(); tzBuilt = true; }
+  if (!tzTimer) tzTimer = setInterval(tzTick, 1000);
+  tzTick();
+}
+
+function closeTimeZone() {
+  if (tzTimer) { clearInterval(tzTimer); tzTimer = null; }
+  bbTaskbar.closeWindow('timezone');
+}
+
+function tzBuildGrid() {
+  var html = '';
+  for (var i = 0; i < TZ_CITIES.length; i++) {
+    var c = TZ_CITIES[i];
+    html += '<div class="tz-tile">';
+    html += '<div class="tz-clock-face">';
+    html += '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">';
+    html += '<circle cx="32" cy="32" r="30" fill="#fff" stroke="var(--dk-shadow)" stroke-width="1.5"/>';
+    // Tick marks
+    for (var h = 0; h < 12; h++) {
+      var a = h * 30;
+      var rad = a * Math.PI / 180;
+      var x1 = 32 + 26 * Math.sin(rad);
+      var y1 = 32 - 26 * Math.cos(rad);
+      var x2 = 32 + 29 * Math.sin(rad);
+      var y2 = 32 - 29 * Math.cos(rad);
+      html += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="var(--dk-shadow)" stroke-width="1"/>';
+    }
+    html += '<line id="tzH' + i + '" x1="32" y1="32" x2="32" y2="16" stroke="var(--dk-shadow)" stroke-width="2.5" stroke-linecap="round"/>';
+    html += '<line id="tzM' + i + '" x1="32" y1="32" x2="32" y2="10" stroke="var(--dk-shadow)" stroke-width="1.5" stroke-linecap="round"/>';
+    html += '<line id="tzS' + i + '" x1="32" y1="32" x2="32" y2="8" stroke="var(--error)" stroke-width="0.8" stroke-linecap="round"/>';
+    html += '<circle cx="32" cy="32" r="2" fill="var(--dk-shadow)"/>';
+    html += '</svg>';
+    html += '</div>';
+    html += '<span class="tz-digital" id="tzD' + i + '"></span>';
+    html += '<div class="tz-city">' + c.city + '</div>';
+    html += '<div class="tz-offset" id="tzO' + i + '"></div>';
+    html += '</div>';
+  }
+  tzGridEl.innerHTML = html;
+}
+
+function tzTick() {
+  var now = new Date();
+  for (var i = 0; i < TZ_CITIES.length; i++) {
+    var zone = TZ_CITIES[i].zone;
+    var parts = now.toLocaleString('en-GB', { timeZone: zone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).split(':');
+    var h = parseInt(parts[0], 10);
+    var m = parseInt(parts[1], 10);
+    var s = parseInt(parts[2], 10);
+
+    // Analog hands
+    var hDeg = (h % 12) * 30 + m * 0.5;
+    var mDeg = m * 6 + s * 0.1;
+    var sDeg = s * 6;
+    var hEl = document.getElementById('tzH' + i);
+    var mEl = document.getElementById('tzM' + i);
+    var sEl = document.getElementById('tzS' + i);
+    if (hEl) hEl.style.transform = 'rotate(' + hDeg + 'deg)';
+    if (mEl) mEl.style.transform = 'rotate(' + mDeg + 'deg)';
+    if (sEl) sEl.style.transform = 'rotate(' + sDeg + 'deg)';
+
+    // Digital
+    var dEl = document.getElementById('tzD' + i);
+    if (dEl) dEl.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+
+    // Offset
+    var oEl = document.getElementById('tzO' + i);
+    if (oEl) {
+      var utcStr = now.toLocaleString('en-GB', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', hour12: false });
+      var utcParts = utcStr.split(':');
+      var utcH = parseInt(utcParts[0], 10);
+      var utcM = parseInt(utcParts[1], 10);
+      var diff = (h * 60 + m) - (utcH * 60 + utcM);
+      // Handle day boundary
+      if (diff > 720) diff -= 1440;
+      if (diff < -720) diff += 1440;
+      var sign = diff >= 0 ? '+' : '-';
+      var absDiff = Math.abs(diff);
+      var offH = Math.floor(absDiff / 60);
+      var offM = absDiff % 60;
+      oEl.textContent = 'UTC' + sign + offH + (offM ? ':' + String(offM).padStart(2, '0') : '');
+    }
+  }
+}
+
+function tzToggleView() {
+  tzAnalog = !tzAnalog;
+  tzGridEl.classList.toggle('tz-digital-mode', !tzAnalog);
+  var btn = document.querySelector('.tz-toggle');
+  btn.textContent = tzAnalog ? 'Digital' : 'Analog';
+  tzTick();
+}
+
 /* ── Weather ── */
 var weatherLoaded = false;
 
@@ -1012,6 +1196,8 @@ var COMMANDS = {
   'utilities':   { run: function () { openExplorerTo('utilities'); },  desc: 'Open Utilities folder' },
   'notepad':     { run: openNotepad,     desc: 'Open Notepad' },
   'calculator':  { run: openCalculator,  desc: 'Open Calculator' },
+  'calendar':    { run: openCalendar,    desc: 'Open Calendar' },
+  'timezone':    { run: openTimeZone,    desc: 'Open Time Zone' },
   'weather':     { run: openWeather,     desc: 'Open Weather' },
   'cls':         { run: cmdCls,          desc: 'Clear the screen' },
   'clear':       { run: cmdCls,          desc: 'Clear the screen' },
@@ -1214,6 +1400,10 @@ window.notepadOpenFile = notepadOpenFile;
 window.notepadDeleteFile = notepadDeleteFile;
 window.notepadDismissDialog = notepadDismissDialog;
 window.openCalculator = openCalculator;
+window.openCalendar = openCalendar;
+window.calendarPrev = calendarPrev;
+window.calendarNext = calendarNext;
+window.calendarToday = calendarToday;
 window.calcDigit = calcDigit;
 window.calcDecimal = calcDecimal;
 window.calcOp = calcOp;
@@ -1221,6 +1411,9 @@ window.calcEquals = calcEquals;
 window.calcClear = calcClear;
 window.calcClearEntry = calcClearEntry;
 window.calcBackspace = calcBackspace;
+window.openTimeZone = openTimeZone;
+window.closeTimeZone = closeTimeZone;
+window.tzToggleView = tzToggleView;
 window.openWeather = openWeather;
 window.openRun = openRun;
 
