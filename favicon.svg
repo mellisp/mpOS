@@ -1,6 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <circle cx="32" cy="32" r="31" fill="#fdd835"/>
-  <circle cx="22" cy="26" r="4" fill="#333"/>
-  <circle cx="42" cy="26" r="4" fill="#333"/>
-  <path d="M18 38 Q32 50 46 38" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+  <defs><radialGradient id="sm-face" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="40%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs>
+  <circle cx="32" cy="32" r="31" fill="url(#sm-face)" stroke="#c49000" stroke-width="2"/>
+  <ellipse cx="26" cy="20" rx="12" ry="8" fill="white" opacity="0.3"/>
+  <circle cx="22" cy="26" r="4" fill="#5d4037"/>
+  <circle cx="42" cy="26" r="4" fill="#5d4037"/>
+  <path d="M18 38 Q32 50 46 38" fill="none" stroke="#5d4037" stroke-width="3" stroke-linecap="round"/>
 </svg>
