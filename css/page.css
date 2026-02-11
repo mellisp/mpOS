@@ -754,6 +754,75 @@
   margin-top: 2px;
 }
 
+/* Disk Usage window */
+#diskusage { width: 340px; max-width: 95vw; left: 150px; top: 60px; }
+
+.du-header {
+  padding: 12px 12px 0;
+  font-size: 12px;
+}
+
+.du-header-title {
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.du-header-sub {
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.du-pie-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.du-pie-wrap svg { display: block; }
+
+.du-legend {
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.du-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.du-chip {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border: 1px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+}
+
+.du-legend-label { flex: 1; }
+.du-legend-size { width: 70px; text-align: right; }
+.du-legend-pct { width: 36px; text-align: right; color: var(--text-muted); }
+
+.du-bar {
+  margin: 12px;
+  height: 16px;
+  display: flex;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  overflow: hidden;
+}
+
+.du-bar-seg { height: 100%; }
+
+.du-total {
+  padding: 0 12px 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 /* ── Mobile Launcher ── */
 .mobile-launcher { display: none; }
 
