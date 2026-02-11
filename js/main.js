@@ -644,7 +644,10 @@ function calcOp(op) {
 }
 
 function calcEquals() {
-  if (calcPrev === null || !calcOperation) return;
+  if (calcPrev === null || !calcOperation) {
+    if (calcCurrent === '58008') { calcCurrent = '(.Y.)'; calcReset = true; calcUpdateDisplay(); return; }
+    return;
+  }
   var curr = parseFloat(calcCurrent);
   var result;
   switch (calcOperation) {
