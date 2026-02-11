@@ -2,7 +2,48 @@
 
 ## Project Overview
 
-**Bits-and-bobs** is a collection of miscellaneous utilities, scripts, and small projects. This repository serves as a general-purpose workspace for standalone tools and experiments.
+**mpOS** — a desktop OS-themed portfolio site by Matthew Pritchard, live at **www.matthewpritchard.com**. Styled after Windows 2000/XP with draggable windows, a taskbar, start menu, and system tray. Built with vanilla HTML, CSS, and JS (no frameworks, no build step).
+
+## Site Architecture
+
+### Key Files
+| File | Purpose |
+|------|---------|
+| `index.html` | Main page — all window shells, desktop icons, start menu, taskbar |
+| `css/theme.css` | Shared XP-style theme (windows, buttons, scrollbars, CSS variables) |
+| `css/page.css` | Page-specific styles (explorer, apps, folder browser) |
+| `js/main.js` | All application logic (window openers, explorer, apps, terminal) |
+| `js/taskbar.js` | Taskbar, start menu toggle, window minimize/restore, drag |
+| `js/audio.js` | Sound effects (click, startup) |
+| `js/fish-data.js` | Fish of the Day dataset (auto-generated) |
+| `js/aquarium-data.js` | Aquarium locations dataset |
+| `404.html` | Custom 404 error page |
+| `error-pages/500.html` | Custom 500 error page |
+| `target-game.html` | On Target game (loaded in iframe) |
+| `chicken-fingers.html` | Chicken Fingers game (separate page, touchscreen only) |
+
+### Window System
+Every app window is a static `<div class="window draggable">` in `index.html`, initially hidden (`display:none`). `openWindow(id)` shows it with a restore animation. The taskbar tracks open windows for minimize/restore. No dynamic window creation — all shells exist in the DOM from page load.
+
+### Applications
+| App | Window ID | Category | Notes |
+|-----|-----------|----------|-------|
+| My Computer | `mycomputer` | System | Shows browser/system info via `populateSysInfo()` |
+| WikiBrowser | `browser` | Internet | Wikipedia iframe browser with URL bar |
+| Fish of the Day | `fishofday` | Games | Daily fish from Wikipedia API |
+| Fish Finder | `fishfinder` | Games | Nearest/furthest aquarium via Geolocation |
+| On Target | `ontarget` | Games | iframe to `target-game.html` |
+| Virtual Aquarium | `aquarium` | Media | YouTube IFrame Player API (live fish cam) |
+| Chicken Fingers | `chickenError` | Games | Touchscreen-only; desktop shows error dialog |
+| Notepad | `notepad` | Utilities | localStorage persistence (`mpOS-notepad`) |
+| Calculator | `calculator` | Utilities | Basic arithmetic |
+| Weather | `weather` | Utilities | Open-Meteo API + Geolocation, 3-day forecast |
+| Run | `run` | System | Terminal emulator with command map |
+
+### Viewport & Layout
+- `--vh` CSS custom property set via inline `<script>` in `<head>` to `window.innerHeight` (fixes mobile browser chrome).
+- `.desktop` background is `var(--desktop)` (blue). `.desktop-area` inherits from it.
+- Taskbar has extra bottom padding (6px) to prevent clipping on macOS Chrome rounded corners.
 
 ## Repository Structure
 
@@ -68,3 +109,24 @@ All inline SVG icons must follow these principles. The style is original — ins
 **Gradient IDs:** Every gradient ID must be globally unique within the page. Use a 2–3 letter prefix per icon (e.g., `mc-` for My Computer, `af-` for Applications Folder).
 
 **Never use `<text>` elements in SVGs** — always use vector `<path>`, `<rect>`, `<circle>`, or `<line>` elements for consistent cross-browser rendering.
+
+### Explorer / Folder Browser (mpOS)
+
+The site uses a single unified **Explorer window** (`#explorer`) for all folder browsing — modeled after Windows 2000 Explorer.
+
+**Architecture:**
+- One window with a **sidebar tree** (left pane) and a **content area** (right pane).
+- The sidebar lists: mpOS (root/all), Programs, Documents, Utilities.
+- Clicking a sidebar item calls `navigateExplorer(folder)` which updates the title, address bar, sidebar active state, and content.
+- Content can be toggled between **icon view** (grid of 80px tiles) and **list view** (rows with icon, name, description, tag).
+
+**Folder data** is defined in `js/main.js` as `FOLDER_ITEMS` — an object mapping folder keys (`programs`, `documents`, `utilities`) to arrays of item objects with `name`, `desc`, `tag`, `action`, and optionally `href`.
+
+**Entry points:**
+- Desktop "Applications" icon → `openExplorer()` → shows "all" (every item across all folders).
+- Start menu Programs/Documents/Utilities → `openExplorerTo(folder)` → opens explorer navigated to that specific folder.
+- Terminal commands: `explorer`, `programs`, `documents`, `utilities`.
+
+**Icon rendering:** `getItemIcon(name)` returns inline SVG markup for each app, using `ei-` prefixed gradient IDs to avoid conflicts with start menu icon gradients.
+
+**Adding a new app:** Add an entry to the appropriate `FOLDER_ITEMS` array, add its icon SVG to `getItemIcon()`, and it will automatically appear in the explorer.
