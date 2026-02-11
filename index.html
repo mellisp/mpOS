@@ -81,7 +81,7 @@
         <span class="desktop-icon-label">My Computer</span>
       </div>
 
-      <!-- Applications folder icon -->
+      <!-- Files folder icon -->
       <div class="desktop-icon" id="folderIcon" role="button" tabindex="0" ondblclick="openExplorer()" onkeydown="if(event.key==='Enter')openExplorer()">
         <svg class="desktop-icon-img" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -103,7 +103,7 @@
           <line x1="5" y1="20.5" x2="43" y2="20.5" stroke="white" stroke-width="0.8" opacity="0.5"/>
           <ellipse cx="16" cy="25" rx="14" ry="5" fill="white" opacity="0.25"/>
         </svg>
-        <span class="desktop-icon-label">Applications</span>
+        <span class="desktop-icon-label">Files</span>
       </div>
       <!-- WikiBrowser icon -->
       <div class="desktop-icon" role="button" tabindex="0" ondblclick="openBrowser()" onkeydown="if(event.key==='Enter')openBrowser()">
@@ -146,7 +146,7 @@
     <!-- Explorer Window (hidden initially) -->
     <div class="window draggable" id="explorer" style="display:none;">
       <div class="titlebar">
-        <span id="explorerTitle">Applications</span>
+        <span id="explorerTitle">Files</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('explorer')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('explorer')">X</div>
