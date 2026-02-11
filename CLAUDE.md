@@ -122,7 +122,7 @@ The site uses a single unified **Explorer window** (`#explorer`) for all folder 
 - Clicking a sidebar item calls `navigateExplorer(folder)` which updates the title, address bar, sidebar active state, and content.
 - Content can be toggled between **icon view** (grid of 80px tiles) and **list view** (rows with icon, name, description, tag).
 
-**Folder data** is defined in `js/main.js` as `FOLDER_ITEMS` — an object mapping folder keys (`programs`, `documents`, `utilities`) to arrays of item objects with `name`, `desc`, `tag`, `action`, and optionally `href`.
+**Folder data** is defined in `js/main.js` as `FOLDER_ITEMS` — an object mapping folder keys (`programs`, `documents`, `utilities`) to arrays of item objects with `name`, `desc`, `tag`, `action` (a string key into `ACTION_MAP`), and optionally `href`.
 
 **Entry points:**
 - Desktop "Applications" icon → `openExplorer()` → shows "all" (every item across all folders).
@@ -137,14 +137,16 @@ The site uses a single unified **Explorer window** (`#explorer`) for all folder 
 
 When adding a new window to mpOS, touch these 5 integration points:
 
-1. **`index.html`** — Add the window `<div class="window draggable" id="..." style="display:none;">` shell with titlebar, close/minimize buttons, and body. Also add a start menu `<a class="start-menu-item">` entry with a 20×20 SVG icon in the appropriate submenu.
+1. **`index.html`** — Add the window `<div class="window draggable" id="..." style="display:none;">` shell with titlebar, close/minimize buttons, and body. Also add a start menu `<button class="start-menu-item" type="button">` entry with a 20×20 SVG icon in the appropriate submenu. Start menu items are `<button>` elements, not `<a>` tags.
 2. **`css/page.css`** — Add `#windowid { width: ...; left: ...; top: ...; }` positioning plus any app-specific styles.
 3. **`js/main.js`** — Add:
    - `open*()` / `close*()` functions (close should clean up intervals/iframes)
-   - `FOLDER_ITEMS.<category>` entry (`name`, `desc`, `tag`, `action`)
+   - `FOLDER_ITEMS.<category>` entry — `action` is a **string key** (e.g., `'openMyApp'`), not executable code
+   - `ACTION_MAP` entry mapping the action key to the function
    - `getItemIcon()` entry with `ei-` prefixed gradient IDs
    - `COMMANDS` entry for terminal access
    - `window.*` exports at the bottom of the IIFE
+   - Mobile launcher entry in `buildLauncher()` (Programs, Utilities, or System array)
 
 **Gradient ID conventions:** Each icon context uses a unique prefix to avoid SVG gradient collisions:
 - Start menu icons: 2-letter prefix (e.g., `tz-face`, `cl-bar`)
@@ -162,3 +164,38 @@ Key variables used across components:
 - `--error` — `#c62828` dark red (used for error icons, second hands)
 - `--link` — link color
 - `--font` — system font stack
+- `--text-muted` — `#57606a` secondary/muted text color (never hardcode the hex)
+- `--mono` — `"Consolas", "Courier New", monospace` monospace font stack (never hardcode the font list)
+
+### Security & DOM Conventions
+
+- **Never use `innerHTML` with data-driven content.** Use `createElement` + `textContent` for any content from APIs, user input, or `FOLDER_ITEMS`. Hardcoded SVG markup via `innerHTML` on detached elements is acceptable.
+- **Never use `new Function()` or `eval()`.** App actions use `ACTION_MAP` — a plain object mapping string keys to function references.
+- **`FOLDER_ITEMS.action` values are string keys** (e.g., `'openBrowser'`), not executable code. The terminal and explorer both resolve actions via `ACTION_MAP[action]()`.
+- Use `showLoadingMessage(container, text)` helper for loading states instead of inline HTML strings.
+- Use `showErrorPanel(body, msg, gradientId)` for error states — it builds DOM nodes, not HTML strings.
+
+### JavaScript Conventions
+
+- **`const`/`let` only** — no `var` at the top level of main.js. Inner function vars may still use `var` for compatibility.
+- All code is inside an IIFE `(function () { ... })()` — functions are exported to `window.*` at the bottom.
+
+### Mobile Launcher
+
+Below 768px viewport width, the desktop area and taskbar are hidden and replaced by a scrollable launcher grid (`.mobile-launcher`). Defined in `index.html` (HTML shell), `css/page.css` (`@media (max-width: 767px)`), and `js/main.js` (`buildLauncher()`).
+
+- Three sections: **Programs**, **Utilities**, **System**
+- Apps open full-screen (`position: fixed; inset: 0`); minimize button is hidden
+- Chicken Fingers and On Target use `location.href` to navigate to standalone pages on mobile
+- When adding a new app, add it to the appropriate array in `buildLauncher()`
+- The launcher is built lazily on first match of the media query
+
+### Touch & Drag Support
+
+`js/taskbar.js` handles both mouse and touch drag via a shared `onDragMove(clientX, clientY)` helper. Touch listeners use `{ passive: false }` on `touchmove` to prevent page scroll during drag. On mobile (< 768px), the CSS `position: fixed !important` overrides drag positioning, so there's no conflict.
+
+### Accessibility
+
+- `:focus-visible` styles defined in `theme.css` for buttons, titlebar buttons, desktop icons, start menu items, and calculator keys
+- `prefers-reduced-motion: reduce` disables window open/close/minimize animations and aquarium shield transition
+- Calculator supports keyboard input (digits, operators, Enter/=, Escape, Backspace) via a `keydown` listener on the `#calculator` element (`tabindex="-1"`)
