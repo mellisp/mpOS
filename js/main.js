@@ -1473,7 +1473,7 @@ function cmdHelp() {
 
 function cmdCls() { stopMatrix(); termOutput.textContent = ''; }
 
-function cmdVer() { termPrint('mpOS [Version 1.1.9]\n(c) Matthew Pritchard. All rights reserved.\n'); }
+function cmdVer() { termPrint('mpOS [Version 1.2.0]\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
 function cmdCd(args) {
   if (!args) { termPrint(termCwd + '\n'); return; }
