@@ -278,10 +278,10 @@
     <!-- Notepad Window (hidden initially) -->
     <div class="window draggable" id="notepad" style="display:none;">
       <div class="titlebar">
-        <span>Notepad</span>
+        <span id="notepadTitle">Notepad</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('notepad')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('notepad')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeNotepad()">X</div>
         </div>
       </div>
       <div class="window-body" style="padding:0;">
