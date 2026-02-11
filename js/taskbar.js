@@ -122,16 +122,27 @@
   // --- Dragging ---
   let dragState = null;
 
-  document.addEventListener('mousemove', function (e) {
+  function onDragMove(clientX, clientY) {
     if (!dragState) return;
     const win = dragState.win;
-    const x = Math.max(0, Math.min(e.clientX - dragState.ox, window.innerWidth - win.offsetWidth));
-    const y = Math.max(0, Math.min(e.clientY - dragState.oy, window.innerHeight - win.offsetHeight));
+    const x = Math.max(0, Math.min(clientX - dragState.ox, window.innerWidth - win.offsetWidth));
+    const y = Math.max(0, Math.min(clientY - dragState.oy, window.innerHeight - win.offsetHeight));
     win.style.left = x + 'px';
     win.style.top = y + 'px';
-  });
+  }
 
+  document.addEventListener('mousemove', function (e) { onDragMove(e.clientX, e.clientY); });
   document.addEventListener('mouseup', function () { dragState = null; });
+
+  document.addEventListener('touchmove', function (e) {
+    if (!dragState) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    onDragMove(t.clientX, t.clientY);
+  }, { passive: false });
+
+  document.addEventListener('touchend', function () { dragState = null; });
+  document.addEventListener('touchcancel', function () { dragState = null; });
 
   function makeDraggable(win) {
     const titlebar = win.querySelector('.titlebar');
@@ -141,6 +152,11 @@
       dragState = { win: win, ox: e.clientX - win.offsetLeft, oy: e.clientY - win.offsetTop };
       e.preventDefault();
     });
+    titlebar.addEventListener('touchstart', function (e) {
+      if (e.target.classList.contains('titlebar-btn') || e.target.closest('.titlebar-buttons')) return;
+      const t = e.touches[0];
+      dragState = { win: win, ox: t.clientX - win.offsetLeft, oy: t.clientY - win.offsetTop };
+    }, { passive: true });
   }
 
   document.querySelectorAll('.window.draggable').forEach(makeDraggable);

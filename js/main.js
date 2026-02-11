@@ -2,7 +2,7 @@
 (function () {
 
 /* ── Shared helpers ── */
-var GEO_ERRORS = {
+const GEO_ERRORS = {
   1: 'Location access was denied.',
   2: 'Location information is unavailable.',
   3: 'Location request timed out.'
@@ -22,22 +22,29 @@ function alertTriangleSVG(id) {
 }
 
 function showErrorPanel(body, msg, gradientId) {
-  body.innerHTML =
-    '<div style="padding:16px;">' +
-      '<div class="error-row">' +
-        alertTriangleSVG(gradientId) +
-        '<div class="error-text">' + msg + '</div>' +
-      '</div>' +
-    '</div>';
+  body.textContent = '';
+  var wrap = document.createElement('div');
+  wrap.style.padding = '16px';
+  var row = document.createElement('div');
+  row.className = 'error-row';
+  var svgWrap = document.createElement('span');
+  svgWrap.innerHTML = alertTriangleSVG(gradientId);
+  row.appendChild(svgWrap);
+  var text = document.createElement('div');
+  text.className = 'error-text';
+  text.textContent = msg;
+  row.appendChild(text);
+  wrap.appendChild(row);
+  body.appendChild(wrap);
 }
 
 /* ── Cached DOM refs ── */
-var calcDisplay = document.getElementById('calcDisplay');
-var notepadEditor = document.getElementById('notepadEditor');
-var notepadStatus = document.getElementById('notepadStatus');
-var notepadTitle = document.getElementById('notepadTitle');
-var notepadCurrentFile = null;
-var notepadDirty = false;
+const calcDisplay = document.getElementById('calcDisplay');
+const notepadEditor = document.getElementById('notepadEditor');
+const notepadStatus = document.getElementById('notepadStatus');
+const notepadTitle = document.getElementById('notepadTitle');
+let notepadCurrentFile = null;
+let notepadDirty = false;
 
 function openWindow(id) {
   var win = document.getElementById(id);
@@ -58,29 +65,29 @@ function closeStartMenu() {
 }
 
 /* ── Explorer / Folder Browser ── */
-var explorerCurrentFolder = 'all';
-var explorerCurrentView = 'list';
+let explorerCurrentFolder = 'all';
+let explorerCurrentView = 'list';
 
-var FOLDER_ITEMS = {
+const FOLDER_ITEMS = {
   programs: [
-    { name: 'WikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'HTML', action: 'openBrowser()' },
-    { name: 'Fish of the Day', desc: 'A new fish every day, powered by Wikipedia.', tag: 'HTML', action: 'openFishOfDay()' },
-    { name: 'Fish Finder', desc: 'Find the closest aquarium near you.', tag: 'HTML', action: 'openFishFinder()' },
-    { name: 'On Target', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget()' },
-    { name: 'Virtual Aquarium', desc: 'Watch real fish, in real-time.', tag: 'HTML', action: 'openAquarium()' },
-    { name: 'Chicken Fingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers()', href: 'chicken-fingers.html' }
+    { name: 'WikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'HTML', action: 'openBrowser' },
+    { name: 'Fish of the Day', desc: 'A new fish every day, powered by Wikipedia.', tag: 'HTML', action: 'openFishOfDay' },
+    { name: 'Fish Finder', desc: 'Find the closest aquarium near you.', tag: 'HTML', action: 'openFishFinder' },
+    { name: 'On Target', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget' },
+    { name: 'Virtual Aquarium', desc: 'Watch real fish, in real-time.', tag: 'HTML', action: 'openAquarium' },
+    { name: 'Chicken Fingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers', href: 'chicken-fingers.html' }
   ],
   documents: [],
   utilities: [
-    { name: 'Notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad()' },
-    { name: 'Calculator', desc: 'Basic arithmetic calculator.', tag: 'HTML', action: 'openCalculator()' },
-    { name: 'Calendar', desc: 'Monthly calendar viewer.', tag: 'HTML', action: 'openCalendar()' },
-    { name: 'Time Zone', desc: 'World clocks for 8 cities.', tag: 'HTML', action: 'openTimeZone()' },
-    { name: 'Weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather()' }
+    { name: 'Notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad' },
+    { name: 'Calculator', desc: 'Basic arithmetic calculator.', tag: 'HTML', action: 'openCalculator' },
+    { name: 'Calendar', desc: 'Monthly calendar viewer.', tag: 'HTML', action: 'openCalendar' },
+    { name: 'Time Zone', desc: 'World clocks for 8 cities.', tag: 'HTML', action: 'openTimeZone' },
+    { name: 'Weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather' }
   ]
 };
 
-var FOLDER_NAMES = {
+const FOLDER_NAMES = {
   all: { title: 'Applications', address: 'C:\\mpOS' },
   programs: { title: 'Programs', address: 'C:\\mpOS\\Programs' },
   documents: { title: 'Documents', address: 'C:\\mpOS\\Documents' },
@@ -112,6 +119,16 @@ function navigateExplorer(folder) {
   renderExplorerContent();
 }
 
+function explorerItemAction(item) {
+  var fn = item.action && ACTION_MAP[item.action];
+  if (!fn) return;
+  if (item.href) {
+    if (fn()) location.href = item.href;
+  } else {
+    fn();
+  }
+}
+
 function renderExplorerContent() {
   var body = document.getElementById('explorerBody');
   var status = document.getElementById('explorerStatus');
@@ -124,7 +141,11 @@ function renderExplorerContent() {
   }
 
   if (!items.length) {
-    body.innerHTML = '<div class="folder-empty">This folder is empty.</div>';
+    body.textContent = '';
+    var empty = document.createElement('div');
+    empty.className = 'folder-empty';
+    empty.textContent = 'This folder is empty.';
+    body.appendChild(empty);
     status.textContent = '0 item(s)';
     return;
   }
@@ -132,33 +153,53 @@ function renderExplorerContent() {
   status.textContent = items.length + ' item(s)';
 
   if (explorerCurrentView === 'icon') {
-    var html = '<div class="folder-icon-view">';
+    var container = document.createElement('div');
+    container.className = 'folder-icon-view';
     items.forEach(function (item) {
-      var dblAction = item.href
-        ? 'if(' + item.action + ')location.href=&quot;' + item.href + '&quot;'
-        : item.action;
-      html += '<div class="folder-icon-tile" ondblclick="' + dblAction + '">';
-      html += '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">' + getItemIcon(item.name) + '</svg>';
-      html += '<span class="folder-icon-label">' + item.name + '</span>';
-      html += '</div>';
+      var tile = document.createElement('div');
+      tile.className = 'folder-icon-tile';
+      tile.addEventListener('dblclick', function () { explorerItemAction(item); });
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 20 20');
+      svg.setAttribute('fill', 'none');
+      svg.innerHTML = getItemIcon(item.name);
+      tile.appendChild(svg);
+      var label = document.createElement('span');
+      label.className = 'folder-icon-label';
+      label.textContent = item.name;
+      tile.appendChild(label);
+      container.appendChild(tile);
     });
-    html += '</div>';
-    body.innerHTML = html;
+    body.textContent = '';
+    body.appendChild(container);
   } else {
-    var html = '<div class="folder-list-view">';
+    var container = document.createElement('div');
+    container.className = 'folder-list-view';
     items.forEach(function (item) {
-      var dblAction = item.href
-        ? 'if(' + item.action + ')location.href=&quot;' + item.href + '&quot;'
-        : item.action;
-      html += '<div class="folder-list-item" ondblclick="' + dblAction + '">';
-      html += '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">' + getItemIcon(item.name) + '</svg>';
-      html += '<span class="folder-list-name">' + item.name + '</span>';
-      html += '<span class="folder-list-desc">' + item.desc + '</span>';
-      html += '<span class="tag">' + item.tag + '</span>';
-      html += '</div>';
+      var row = document.createElement('div');
+      row.className = 'folder-list-item';
+      row.addEventListener('dblclick', function () { explorerItemAction(item); });
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 20 20');
+      svg.setAttribute('fill', 'none');
+      svg.innerHTML = getItemIcon(item.name);
+      row.appendChild(svg);
+      var nameEl = document.createElement('span');
+      nameEl.className = 'folder-list-name';
+      nameEl.textContent = item.name;
+      row.appendChild(nameEl);
+      var descEl = document.createElement('span');
+      descEl.className = 'folder-list-desc';
+      descEl.textContent = item.desc;
+      row.appendChild(descEl);
+      var tagEl = document.createElement('span');
+      tagEl.className = 'tag';
+      tagEl.textContent = item.tag;
+      row.appendChild(tagEl);
+      container.appendChild(row);
     });
-    html += '</div>';
-    body.innerHTML = html;
+    body.textContent = '';
+    body.appendChild(container);
   }
 }
 
@@ -220,8 +261,8 @@ function loadYouTubeAPI() {
 }
 
 /* ── Virtual Aquarium (YouTube IFrame Player API) ── */
-var aquariumPlayer = null;
-var aquariumTimer = null;
+let aquariumPlayer = null;
+let aquariumTimer = null;
 
 function openAquarium() {
   var embed = document.getElementById('aquariumEmbed');
@@ -308,12 +349,29 @@ function populateSysInfo() {
 
   function makeSection(title, rows) {
     var valid = rows.filter(function (r) { return r[1] != null; });
-    if (!valid.length) return '';
-    var html = '<div class="section-title">' + title + '</div><div class="sunken"><table class="sysinfo-table">';
+    if (!valid.length) return null;
+    var frag = document.createDocumentFragment();
+    var titleEl = document.createElement('div');
+    titleEl.className = 'section-title';
+    titleEl.textContent = title;
+    frag.appendChild(titleEl);
+    var sunken = document.createElement('div');
+    sunken.className = 'sunken';
+    var table = document.createElement('table');
+    table.className = 'sysinfo-table';
     valid.forEach(function (r) {
-      html += '<tr><th>' + r[0] + '</th><td>' + r[1] + '</td></tr>';
+      var tr = document.createElement('tr');
+      var th = document.createElement('th');
+      th.textContent = r[0];
+      tr.appendChild(th);
+      var td = document.createElement('td');
+      td.textContent = r[1];
+      tr.appendChild(td);
+      table.appendChild(tr);
     });
-    return html + '</table></div>';
+    sunken.appendChild(table);
+    frag.appendChild(sunken);
+    return frag;
   }
 
   var os = null;
@@ -330,45 +388,67 @@ function populateSysInfo() {
   else if (/Firefox\//.test(ua)) browser = 'Mozilla Firefox';
   else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Apple Safari';
 
-  var html = '<div class="sysinfo-hero">';
-  html += '<svg width="80" height="80" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">';
-  html += '<defs><linearGradient id="si-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="25%" stop-color="#6aafe0"/><stop offset="60%" stop-color="#3a7ab0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient>';
-  html += '<linearGradient id="si-screen" x1="0" y1="0" x2="0.2" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="30%" stop-color="#c0ddf0"/><stop offset="70%" stop-color="#90bce0"/><stop offset="100%" stop-color="#6898c0"/></linearGradient>';
-  html += '<linearGradient id="si-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b8d0e0"/><stop offset="100%" stop-color="#7a9ab8"/></linearGradient>';
-  html += '<linearGradient id="si-stand" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="50%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient>';
-  html += '<linearGradient id="si-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="40%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient></defs>';
-  html += '<ellipse cx="24" cy="43" rx="16" ry="2" fill="#00000020"/>';
-  html += '<rect x="4" y="4" width="40" height="28" rx="3" fill="url(#si-body)" stroke="#1a4a6e" stroke-width="1.5"/>';
-  html += '<line x1="6" y1="5" x2="42" y2="5" stroke="white" stroke-width="0.8" opacity="0.5" stroke-linecap="round"/>';
-  html += '<line x1="5" y1="6" x2="5" y2="30" stroke="white" stroke-width="0.6" opacity="0.3"/>';
-  html += '<ellipse cx="18" cy="10" rx="14" ry="6" fill="white" opacity="0.35"/>';
-  html += '<rect x="7" y="7" width="34" height="22" rx="1.5" fill="url(#si-bezel)" stroke="#1a4a6e" stroke-width="0.5"/>';
-  html += '<rect x="8" y="8" width="32" height="20" rx="1" fill="url(#si-screen)"/>';
-  html += '<ellipse cx="18" cy="14" rx="12" ry="7" fill="white" opacity="0.15"/>';
-  html += '<rect x="18" y="34" width="12" height="4" rx="1" fill="url(#si-stand)" stroke="#8a8680" stroke-width="0.75"/>';
-  html += '<line x1="19" y1="34.5" x2="29" y2="34.5" stroke="white" stroke-width="0.5" opacity="0.4"/>';
-  html += '<rect x="11" y="38" width="26" height="3" rx="1.5" fill="url(#si-base)" stroke="#8a8680" stroke-width="0.75"/>';
-  html += '<line x1="12" y1="38.5" x2="36" y2="38.5" stroke="white" stroke-width="0.5" opacity="0.5"/>';
-  html += '</svg>';
-  if (os) html += '<div class="sysinfo-os">' + os + '</div>';
-  if (browser) html += '<div class="sysinfo-browser">' + browser + '</div>';
-  html += '</div><div class="separator"></div>';
+  body.textContent = '';
 
-  html += makeSection('System', [
+  // Hero section — SVG is hardcoded so innerHTML on a detached element is safe
+  var hero = document.createElement('div');
+  hero.className = 'sysinfo-hero';
+  hero.innerHTML = '<svg width="80" height="80" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="si-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="25%" stop-color="#6aafe0"/><stop offset="60%" stop-color="#3a7ab0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient>' +
+    '<linearGradient id="si-screen" x1="0" y1="0" x2="0.2" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="30%" stop-color="#c0ddf0"/><stop offset="70%" stop-color="#90bce0"/><stop offset="100%" stop-color="#6898c0"/></linearGradient>' +
+    '<linearGradient id="si-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b8d0e0"/><stop offset="100%" stop-color="#7a9ab8"/></linearGradient>' +
+    '<linearGradient id="si-stand" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="50%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient>' +
+    '<linearGradient id="si-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="40%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient></defs>' +
+    '<ellipse cx="24" cy="43" rx="16" ry="2" fill="#00000020"/>' +
+    '<rect x="4" y="4" width="40" height="28" rx="3" fill="url(#si-body)" stroke="#1a4a6e" stroke-width="1.5"/>' +
+    '<line x1="6" y1="5" x2="42" y2="5" stroke="white" stroke-width="0.8" opacity="0.5" stroke-linecap="round"/>' +
+    '<line x1="5" y1="6" x2="5" y2="30" stroke="white" stroke-width="0.6" opacity="0.3"/>' +
+    '<ellipse cx="18" cy="10" rx="14" ry="6" fill="white" opacity="0.35"/>' +
+    '<rect x="7" y="7" width="34" height="22" rx="1.5" fill="url(#si-bezel)" stroke="#1a4a6e" stroke-width="0.5"/>' +
+    '<rect x="8" y="8" width="32" height="20" rx="1" fill="url(#si-screen)"/>' +
+    '<ellipse cx="18" cy="14" rx="12" ry="7" fill="white" opacity="0.15"/>' +
+    '<rect x="18" y="34" width="12" height="4" rx="1" fill="url(#si-stand)" stroke="#8a8680" stroke-width="0.75"/>' +
+    '<line x1="19" y1="34.5" x2="29" y2="34.5" stroke="white" stroke-width="0.5" opacity="0.4"/>' +
+    '<rect x="11" y="38" width="26" height="3" rx="1.5" fill="url(#si-base)" stroke="#8a8680" stroke-width="0.75"/>' +
+    '<line x1="12" y1="38.5" x2="36" y2="38.5" stroke="white" stroke-width="0.5" opacity="0.5"/>' +
+    '</svg>';
+  if (os) {
+    var osEl = document.createElement('div');
+    osEl.className = 'sysinfo-os';
+    osEl.textContent = os;
+    hero.appendChild(osEl);
+  }
+  if (browser) {
+    var brEl = document.createElement('div');
+    brEl.className = 'sysinfo-browser';
+    brEl.textContent = browser;
+    hero.appendChild(brEl);
+  }
+  body.appendChild(hero);
+
+  var sep = document.createElement('div');
+  sep.className = 'separator';
+  body.appendChild(sep);
+
+  var sysSection = makeSection('System', [
     ['CPU Cores', nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : null],
     ['Language', nav.language || null]
   ]);
+  if (sysSection) body.appendChild(sysSection);
 
   var dpr = window.devicePixelRatio || 1;
-  html += makeSection('Display', [
+  var dispSection = makeSection('Display', [
     ['Resolution', scr.width + ' \u00d7 ' + scr.height],
     ['Pixel Ratio', dpr + 'x' + (dpr > 1 ? ' (HiDPI)' : '')]
   ]);
+  if (dispSection) body.appendChild(dispSection);
 
-  html += '<div id="sysNetSection"></div>';
-  html += '<div id="sysBatSection"></div>';
-
-  body.innerHTML = html;
+  var netContainer = document.createElement('div');
+  netContainer.id = 'sysNetSection';
+  body.appendChild(netContainer);
+  var batContainer = document.createElement('div');
+  batContainer.id = 'sysBatSection';
+  body.appendChild(batContainer);
 
   var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
   if (conn) {
@@ -376,21 +456,23 @@ function populateSysInfo() {
     if (conn.effectiveType) netRows.push(['Type', conn.effectiveType.toUpperCase()]);
     else if (conn.type) netRows.push(['Type', conn.type]);
     if (conn.downlink) netRows.push(['Downlink', conn.downlink + ' Mbps']);
-    document.getElementById('sysNetSection').innerHTML = makeSection('Network', netRows);
+    var netSection = makeSection('Network', netRows);
+    if (netSection) netContainer.appendChild(netSection);
   }
 
   if (nav.getBattery) {
     nav.getBattery().then(function (bat) {
-      document.getElementById('sysBatSection').innerHTML = makeSection('Battery', [
+      var batSection = makeSection('Battery', [
         ['Level', Math.round(bat.level * 100) + '%'],
         ['Charging', bat.charging ? 'Yes' : 'No']
       ]);
+      if (batSection) batContainer.appendChild(batSection);
     });
   }
 }
 
 /* ── Fish of the Day ── */
-var fishPopulated = false;
+let fishPopulated = false;
 function populateFish() {
   if (fishPopulated) return;
   fishPopulated = true;
@@ -440,6 +522,7 @@ function populateFish() {
     };
   }
 
+  // todayKey() and FISH_TODAY are defined in fish-data.js (loaded via <script defer>)
   var imgKey = "fotd-img-" + todayKey();
   var wikiLinkKey = "fotd-wiki-" + todayKey();
 
@@ -514,11 +597,19 @@ function formatFinderDistance(km) {
          mi.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' mi)';
 }
 
+function showLoadingMessage(container, text) {
+  container.textContent = '';
+  var msg = document.createElement('div');
+  msg.style.cssText = 'padding:16px;font-size:12px;color:var(--text-muted);';
+  msg.textContent = text;
+  container.appendChild(msg);
+}
+
 function populateFishFinder() {
   var body = document.getElementById('fishFinderBody');
   var status = document.getElementById('fishFinderStatus');
 
-  body.innerHTML = '<div style="padding:16px;font-size:12px;color:#57606a;">Locating you...</div>';
+  showLoadingMessage(body, 'Locating you...');
   status.textContent = '';
 
   if (!navigator.geolocation) {
@@ -540,23 +631,48 @@ function populateFishFinder() {
       }
 
       function finderCard(aq, dist) {
-        var name = aq[4] ? '<a href="' + aq[4] + '" target="_blank" rel="noopener" style="color:var(--link);text-decoration:none;">' + aq[0] + '</a>' : aq[0];
-        var meta = aq[1];
-        if (aq[5]) meta += ' &middot; Est. ' + aq[5];
-        return '<div class="sunken" style="padding:10px;margin-bottom:10px;">' +
-          '<div class="finder-name">' + name + '</div>' +
-          '<div class="finder-location">' + meta + '</div>' +
-          '<div class="finder-distance">' + formatFinderDistance(dist) + '</div>' +
-        '</div>';
+        var card = document.createElement('div');
+        card.className = 'sunken';
+        card.style.cssText = 'padding:10px;margin-bottom:10px;';
+        var nameEl = document.createElement('div');
+        nameEl.className = 'finder-name';
+        if (aq[4]) {
+          var link = document.createElement('a');
+          link.href = aq[4];
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.style.cssText = 'color:var(--link);text-decoration:none;';
+          link.textContent = aq[0];
+          nameEl.appendChild(link);
+        } else {
+          nameEl.textContent = aq[0];
+        }
+        card.appendChild(nameEl);
+        var locEl = document.createElement('div');
+        locEl.className = 'finder-location';
+        locEl.textContent = aq[1] + (aq[5] ? ' \u00b7 Est. ' + aq[5] : '');
+        card.appendChild(locEl);
+        var distEl = document.createElement('div');
+        distEl.className = 'finder-distance';
+        distEl.textContent = formatFinderDistance(dist);
+        card.appendChild(distEl);
+        return card;
       }
 
-      body.innerHTML =
-        '<div style="padding:10px;">' +
-          '<div class="finder-label">Nearest Aquarium</div>' +
-          finderCard(nearest, minDist) +
-          '<div class="finder-label">Furthest Aquarium</div>' +
-          finderCard(furthest, maxDist) +
-        '</div>';
+      body.textContent = '';
+      var wrap = document.createElement('div');
+      wrap.style.padding = '10px';
+      var nearLabel = document.createElement('div');
+      nearLabel.className = 'finder-label';
+      nearLabel.textContent = 'Nearest Aquarium';
+      wrap.appendChild(nearLabel);
+      wrap.appendChild(finderCard(nearest, minDist));
+      var farLabel = document.createElement('div');
+      farLabel.className = 'finder-label';
+      farLabel.textContent = 'Furthest Aquarium';
+      wrap.appendChild(farLabel);
+      wrap.appendChild(finderCard(furthest, maxDist));
+      body.appendChild(wrap);
 
       status.textContent = AQUARIUMS.length + ' aquariums in database';
     },
@@ -568,10 +684,10 @@ function populateFishFinder() {
 }
 
 /* ── WikiBrowser ── */
-var BROWSER_HOME = 'https://en.m.wikipedia.org/wiki/Main_Page';
-var browserFrame = document.getElementById('browserFrame');
-var browserUrl = document.getElementById('browserUrl');
-var browserTitle = document.getElementById('browserTitle');
+const BROWSER_HOME = 'https://en.m.wikipedia.org/wiki/Main_Page';
+const browserFrame = document.getElementById('browserFrame');
+const browserUrl = document.getElementById('browserUrl');
+const browserTitle = document.getElementById('browserTitle');
 
 function openBrowser() {
   var vp = document.getElementById('browserViewport');
@@ -667,14 +783,6 @@ function notepadGuardDirty() {
   return confirm('You have unsaved changes. Discard them?');
 }
 
-function notepadEscHtml(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
-function notepadEscAttr(str) {
-  return notepadEscHtml(str.replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
-}
-
 function notepadDismissDialog() {
   var d = document.querySelector('#notepad .notepad-dialog');
   if (d) d.remove();
@@ -737,20 +845,39 @@ function notepadSaveAs(name) {
 
 function notepadShowSaveAs() {
   notepadDismissDialog();
-  var defaultName = notepadCurrentFile || '';
-  var html =
-    '<label>File name:</label>' +
-    '<input type="text" id="notepadSaveAsInput" value="' + notepadEscHtml(defaultName) + '">' +
-    '<div style="flex:1"></div>' +
-    '<div class="button-row">' +
-      '<button class="btn" onclick="notepadSaveAs(document.getElementById(\'notepadSaveAsInput\').value)">Save</button>&nbsp;' +
-      '<button class="btn" onclick="notepadDismissDialog()">Cancel</button>' +
-    '</div>';
   var d = document.createElement('div');
   d.className = 'notepad-dialog';
-  d.innerHTML = html;
+
+  var label = document.createElement('label');
+  label.textContent = 'File name:';
+  d.appendChild(label);
+
+  var inp = document.createElement('input');
+  inp.type = 'text';
+  inp.id = 'notepadSaveAsInput';
+  inp.value = notepadCurrentFile || '';
+  d.appendChild(inp);
+
+  var spacer = document.createElement('div');
+  spacer.style.flex = '1';
+  d.appendChild(spacer);
+
+  var btnRow = document.createElement('div');
+  btnRow.className = 'button-row';
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'btn';
+  saveBtn.textContent = 'Save';
+  saveBtn.addEventListener('click', function () { notepadSaveAs(inp.value); });
+  btnRow.appendChild(saveBtn);
+  btnRow.appendChild(document.createTextNode('\u00a0'));
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', notepadDismissDialog);
+  btnRow.appendChild(cancelBtn);
+  d.appendChild(btnRow);
+
   document.querySelector('#notepad .window-body').appendChild(d);
-  var inp = document.getElementById('notepadSaveAsInput');
   inp.focus();
   inp.select();
   inp.addEventListener('keydown', function (e) {
@@ -768,27 +895,48 @@ function notepadShowOpen() {
   notepadDismissDialog();
   var files = notepadGetFiles();
   var names = Object.keys(files).sort();
-  var listHtml;
-  if (names.length === 0) {
-    listHtml = '<div class="notepad-empty">No saved files.</div>';
-  } else {
-    listHtml = names.map(function (n) {
-      var safe = notepadEscAttr(n);
-      return '<div class="notepad-file-item">' +
-        '<span onclick="notepadOpenFile(\'' + safe + '\')">' + notepadEscHtml(n) + '</span>' +
-        '<button class="btn" onclick="event.stopPropagation();notepadDeleteFile(\'' + safe + '\')">Del</button>' +
-      '</div>';
-    }).join('');
-  }
-  var html =
-    '<label>Open a file:</label>' +
-    '<div class="notepad-file-list">' + listHtml + '</div>' +
-    '<div class="button-row">' +
-      '<button class="btn" onclick="notepadDismissDialog()">Cancel</button>' +
-    '</div>';
+
   var d = document.createElement('div');
   d.className = 'notepad-dialog';
-  d.innerHTML = html;
+
+  var label = document.createElement('label');
+  label.textContent = 'Open a file:';
+  d.appendChild(label);
+
+  var fileList = document.createElement('div');
+  fileList.className = 'notepad-file-list';
+  if (names.length === 0) {
+    var emptyMsg = document.createElement('div');
+    emptyMsg.className = 'notepad-empty';
+    emptyMsg.textContent = 'No saved files.';
+    fileList.appendChild(emptyMsg);
+  } else {
+    names.forEach(function (n) {
+      var row = document.createElement('div');
+      row.className = 'notepad-file-item';
+      var nameSpan = document.createElement('span');
+      nameSpan.textContent = n;
+      nameSpan.addEventListener('click', function () { notepadOpenFile(n); });
+      row.appendChild(nameSpan);
+      var delBtn = document.createElement('button');
+      delBtn.className = 'btn';
+      delBtn.textContent = 'Del';
+      delBtn.addEventListener('click', function (e) { e.stopPropagation(); notepadDeleteFile(n); });
+      row.appendChild(delBtn);
+      fileList.appendChild(row);
+    });
+  }
+  d.appendChild(fileList);
+
+  var btnRow = document.createElement('div');
+  btnRow.className = 'button-row';
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', notepadDismissDialog);
+  btnRow.appendChild(cancelBtn);
+  d.appendChild(btnRow);
+
   document.querySelector('#notepad .window-body').appendChild(d);
 }
 
@@ -834,12 +982,26 @@ notepadEditor.addEventListener('input', function () {
 });
 
 /* ── Calculator ── */
-var calcCurrent = '0';
-var calcPrev = null;
-var calcOperation = null;
-var calcReset = false;
+let calcCurrent = '0';
+let calcPrev = null;
+let calcOperation = null;
+let calcReset = false;
 
-function openCalculator() { openWindow('calculator'); }
+function openCalculator() {
+  openWindow('calculator');
+  var calcWin = document.getElementById('calculator');
+  calcWin.focus();
+}
+
+document.getElementById('calculator').addEventListener('keydown', function (e) {
+  var key = e.key;
+  if (key >= '0' && key <= '9') { calcDigit(key); e.preventDefault(); }
+  else if (key === '.') { calcDecimal(); e.preventDefault(); }
+  else if (key === '+' || key === '-' || key === '*' || key === '/') { calcOp(key); e.preventDefault(); }
+  else if (key === 'Enter' || key === '=') { calcEquals(); e.preventDefault(); }
+  else if (key === 'Escape') { calcClear(); e.preventDefault(); }
+  else if (key === 'Backspace') { calcBackspace(); e.preventDefault(); }
+});
 
 function calcUpdateDisplay() {
   calcDisplay.textContent = calcCurrent;
@@ -904,7 +1066,7 @@ function calcBackspace() {
 }
 
 /* ── Calendar ── */
-var calYear, calMonth, calTitleEl, calGridEl;
+let calYear, calMonth, calTitleEl, calGridEl;
 
 function openCalendar() {
   openWindow('calendar');
@@ -922,15 +1084,17 @@ function calendarRender() {
   var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   calTitleEl.textContent = months[calMonth] + ' ' + calYear;
 
-  var html = '';
-  var days = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+  var frag = document.createDocumentFragment();
+  var dayNames = ['Mo','Tu','We','Th','Fr','Sa','Su'];
   for (var i = 0; i < 7; i++) {
-    html += '<div class="cal-day-header">' + days[i] + '</div>';
+    var hdr = document.createElement('div');
+    hdr.className = 'cal-day-header';
+    hdr.textContent = dayNames[i];
+    frag.appendChild(hdr);
   }
 
   var firstOfMonth = new Date(calYear, calMonth, 1);
   var dow = firstOfMonth.getDay();
-  // Convert Sunday=0..Saturday=6 to Monday=0..Sunday=6
   var startOffset = (dow + 6) % 7;
   var startDate = new Date(calYear, calMonth, 1 - startOffset);
 
@@ -940,14 +1104,17 @@ function calendarRender() {
   for (var r = 0; r < 6; r++) {
     for (var c = 0; c < 7; c++) {
       var d = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + r * 7 + c);
-      var cls = 'cal-day';
-      if (d.getMonth() !== calMonth) cls += ' other-month';
-      if (d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() === todayStr) cls += ' today';
-      html += '<div class="' + cls + '">' + d.getDate() + '</div>';
+      var cell = document.createElement('div');
+      cell.className = 'cal-day';
+      if (d.getMonth() !== calMonth) cell.className += ' other-month';
+      if (d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() === todayStr) cell.className += ' today';
+      cell.textContent = d.getDate();
+      frag.appendChild(cell);
     }
   }
 
-  calGridEl.innerHTML = html;
+  calGridEl.textContent = '';
+  calGridEl.appendChild(frag);
 }
 
 function calendarPrev() {
@@ -970,7 +1137,7 @@ function calendarToday() {
 }
 
 /* ── Time Zone ── */
-var TZ_CITIES = [
+const TZ_CITIES = [
   { city: 'London',      zone: 'Europe/London' },
   { city: 'New York',    zone: 'America/New_York' },
   { city: 'Los Angeles', zone: 'America/Los_Angeles' },
@@ -981,10 +1148,10 @@ var TZ_CITIES = [
   { city: 'Singapore',   zone: 'Asia/Singapore' }
 ];
 
-var tzGridEl = null;
-var tzAnalog = true;
-var tzTimer = null;
-var tzBuilt = false;
+let tzGridEl = null;
+let tzAnalog = true;
+let tzTimer = null;
+let tzBuilt = false;
 
 function openTimeZone() {
   openWindow('timezone');
@@ -1084,7 +1251,7 @@ function tzToggleView() {
 }
 
 /* ── Weather ── */
-var weatherLoaded = false;
+let weatherLoaded = false;
 
 function openWeather() {
   openWindow('weather');
@@ -1095,7 +1262,7 @@ function fetchWeather() {
   if (weatherLoaded) return;
   var body = document.getElementById('weatherBody');
   var status = document.getElementById('weatherStatus');
-  body.innerHTML = '<div style="padding:16px;font-size:12px;color:#57606a;">Locating you...</div>';
+  showLoadingMessage(body, 'Locating you...');
 
   if (!navigator.geolocation) {
     showErrorPanel(body, 'Geolocation is not supported by your browser.', 'al-tri-we');
@@ -1104,7 +1271,7 @@ function fetchWeather() {
 
   navigator.geolocation.getCurrentPosition(
     function (pos) {
-      body.innerHTML = '<div style="padding:16px;font-size:12px;color:#57606a;">Fetching weather data...</div>';
+      showLoadingMessage(body, 'Fetching weather data...');
       var lat = pos.coords.latitude;
       var lon = pos.coords.longitude;
       fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true&timezone=auto&forecast_days=3')
@@ -1141,30 +1308,73 @@ function weatherCodeToDesc(code) {
 function renderWeather(body, data) {
   var current = data.current_weather;
   var daily = data.daily;
-  var html = '<div class="weather-current">';
-  html += '<div class="weather-temp">' + Math.round(current.temperature) + '\u00b0C</div>';
-  html += '<div class="weather-desc">' + weatherCodeToDesc(current.weathercode) + '</div>';
-  html += '</div><div class="separator"></div><div class="weather-forecast">';
+  body.textContent = '';
+
+  var curDiv = document.createElement('div');
+  curDiv.className = 'weather-current';
+  var tempEl = document.createElement('div');
+  tempEl.className = 'weather-temp';
+  tempEl.textContent = Math.round(current.temperature) + '\u00b0C';
+  curDiv.appendChild(tempEl);
+  var descEl = document.createElement('div');
+  descEl.className = 'weather-desc';
+  descEl.textContent = weatherCodeToDesc(current.weathercode);
+  curDiv.appendChild(descEl);
+  body.appendChild(curDiv);
+
+  var sep = document.createElement('div');
+  sep.className = 'separator';
+  body.appendChild(sep);
+
+  var forecast = document.createElement('div');
+  forecast.className = 'weather-forecast';
   for (var i = 0; i < daily.time.length; i++) {
     var date = new Date(daily.time[i] + 'T00:00:00');
     var dayName = date.toLocaleDateString(undefined, { weekday: 'short' });
-    html += '<div class="weather-day">';
-    html += '<div class="weather-day-name">' + dayName + '</div>';
-    html += '<div class="weather-day-temp">' + Math.round(daily.temperature_2m_max[i]) + '\u00b0</div>';
-    html += '<div class="weather-day-range">' + Math.round(daily.temperature_2m_min[i]) + '\u00b0 / ' + Math.round(daily.temperature_2m_max[i]) + '\u00b0</div>';
-    html += '<div class="weather-day-desc">' + weatherCodeToDesc(daily.weathercode[i]) + '</div>';
-    html += '</div>';
+    var dayDiv = document.createElement('div');
+    dayDiv.className = 'weather-day';
+    var nameEl = document.createElement('div');
+    nameEl.className = 'weather-day-name';
+    nameEl.textContent = dayName;
+    dayDiv.appendChild(nameEl);
+    var dayTempEl = document.createElement('div');
+    dayTempEl.className = 'weather-day-temp';
+    dayTempEl.textContent = Math.round(daily.temperature_2m_max[i]) + '\u00b0';
+    dayDiv.appendChild(dayTempEl);
+    var rangeEl = document.createElement('div');
+    rangeEl.className = 'weather-day-range';
+    rangeEl.textContent = Math.round(daily.temperature_2m_min[i]) + '\u00b0 / ' + Math.round(daily.temperature_2m_max[i]) + '\u00b0';
+    dayDiv.appendChild(rangeEl);
+    var dayDescEl = document.createElement('div');
+    dayDescEl.className = 'weather-day-desc';
+    dayDescEl.textContent = weatherCodeToDesc(daily.weathercode[i]);
+    dayDiv.appendChild(dayDescEl);
+    forecast.appendChild(dayDiv);
   }
-  html += '</div>';
-  body.innerHTML = html;
+  body.appendChild(forecast);
 }
 
-/* ── Run Terminal ── */
-var termOutput = document.getElementById('termOutput');
-var termInput = document.getElementById('termInput');
+/* ── Action lookup map (replaces new Function for FOLDER_ITEMS actions) ── */
+const ACTION_MAP = {
+  openBrowser: openBrowser,
+  openFishOfDay: openFishOfDay,
+  openFishFinder: openFishFinder,
+  openOnTarget: openOnTarget,
+  openAquarium: openAquarium,
+  openChickenFingers: openChickenFingers,
+  openNotepad: openNotepad,
+  openCalculator: openCalculator,
+  openCalendar: openCalendar,
+  openTimeZone: openTimeZone,
+  openWeather: openWeather
+};
 
-var termCwd = 'C:\\mpOS';
-var FILESYSTEM = {
+/* ── Run Terminal ── */
+const termOutput = document.getElementById('termOutput');
+const termInput = document.getElementById('termInput');
+
+let termCwd = 'C:\\mpOS';
+const FILESYSTEM = {
   'C:\\mpOS': {
     children: ['Desktop', 'Programs', 'Documents', 'Utilities']
   },
@@ -1180,7 +1390,7 @@ var FILESYSTEM = {
   'C:\\mpOS\\Utilities': { items: FOLDER_ITEMS.utilities }
 };
 
-var COMMANDS = {
+const COMMANDS = {
   'help':        { run: cmdHelp,        desc: 'List available commands' },
   'cd':          { run: cmdCd,          desc: 'Change directory' },
   'ls':          { run: cmdLs,          desc: 'List directory contents' },
@@ -1291,7 +1501,7 @@ function openRun() {
   setTimeout(function () { termInput.focus(); }, 100);
 }
 
-var matrixInterval = null;
+let matrixInterval = null;
 function cmdMatrix() {
   var term = document.querySelector('#run .term');
   var existing = term.querySelector('.matrix-canvas');
@@ -1355,8 +1565,8 @@ termInput.addEventListener('keydown', function (e) {
     if (localItem) {
       if (localItem.run) {
         localItem.run();
-      } else if (localItem.action) {
-        new Function(localItem.action)();
+      } else if (localItem.action && ACTION_MAP[localItem.action]) {
+        ACTION_MAP[localItem.action]();
       }
     } else {
       termPrint("'" + raw + "' is not recognized as an internal or external command,\noperable program or batch file.\n");
@@ -1368,6 +1578,66 @@ termInput.addEventListener('keydown', function (e) {
 document.addEventListener('click', function (e) {
   if (e.target.closest('.btn, .start-btn, .titlebar-btn, .project-list li')) {
     if (window.bbAudio) window.bbAudio.playSound('click');
+  }
+});
+
+/* ── Mobile Launcher ── */
+function buildLauncher() {
+  var programs = [
+    { name: 'WikiBrowser', action: openBrowser },
+    { name: 'Fish of the Day', action: openFishOfDay },
+    { name: 'Fish Finder', action: openFishFinder },
+    { name: 'On Target', action: null, href: 'target-game.html' },
+    { name: 'Virtual Aquarium', action: openAquarium },
+    { name: 'Chicken Fingers', action: null, href: 'chicken-fingers.html' }
+  ];
+  var utilities = [
+    { name: 'Notepad', action: openNotepad },
+    { name: 'Calculator', action: openCalculator },
+    { name: 'Calendar', action: openCalendar },
+    { name: 'Time Zone', action: openTimeZone },
+    { name: 'Weather', action: openWeather }
+  ];
+  var system = [
+    { name: 'My Computer', action: openMyComputer },
+    { name: 'Applications', action: openExplorer }
+  ];
+
+  function populateGrid(gridId, items) {
+    var grid = document.getElementById(gridId);
+    if (!grid) return;
+    items.forEach(function (item) {
+      var tile = document.createElement('button');
+      tile.className = 'launcher-tile';
+      tile.type = 'button';
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 20 20');
+      svg.setAttribute('fill', 'none');
+      svg.innerHTML = getItemIcon(item.name);
+      tile.appendChild(svg);
+      var label = document.createElement('span');
+      label.className = 'launcher-tile-label';
+      label.textContent = item.name;
+      tile.appendChild(label);
+      if (item.href) {
+        tile.addEventListener('click', function () { location.href = item.href; });
+      } else if (item.action) {
+        tile.addEventListener('click', function () { item.action(); });
+      }
+      grid.appendChild(tile);
+    });
+  }
+
+  populateGrid('launcherPrograms', programs);
+  populateGrid('launcherUtilities', utilities);
+  populateGrid('launcherSystem', system);
+}
+
+const mobileQuery = window.matchMedia('(max-width: 767px)');
+if (mobileQuery.matches) buildLauncher();
+mobileQuery.addEventListener('change', function (e) {
+  if (e.matches && !document.getElementById('launcherPrograms').children.length) {
+    buildLauncher();
   }
 });
 

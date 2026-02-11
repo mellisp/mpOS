@@ -11,6 +11,8 @@
   --link: #00f;
   --error: #c62828;
   --font: "Trebuchet MS", Tahoma, Geneva, sans-serif;
+  --text-muted: #57606a;
+  --mono: "Consolas", "Courier New", monospace;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -99,6 +101,34 @@ body {
   border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
   box-shadow: inset 1px 1px 0 var(--shadow);
   padding: 5px 15px 3px 17px;
+}
+
+/* Focus-visible styles */
+:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -2px;
+}
+
+.titlebar-btn:focus-visible {
+  outline: 1px dotted #fff;
+  outline-offset: -2px;
+}
+
+.desktop-icon:focus-visible {
+  background: rgba(0,0,0,0.15);
+  border-color: rgba(255,255,255,0.3);
+  outline: 1px dotted #fff;
+  outline-offset: 2px;
+}
+
+.start-menu-item:focus-visible {
+  background: var(--highlight);
+  color: var(--highlight-text);
+}
+
+.calc-btn:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -3px;
 }
 
 /* Section Title */
@@ -335,6 +365,15 @@ body {
   color: var(--highlight-text);
 }
 
+button.start-menu-item {
+  background: none;
+  border: none;
+  font: inherit;
+  width: 100%;
+  text-align: left;
+  cursor: default;
+}
+
 .start-menu-item svg { width: 20px; height: 20px; flex-shrink: 0; }
 .start-menu-item .arrow { margin-left: auto; font-size: 10px; }
 
@@ -496,4 +535,9 @@ body {
 
 .window.draggable .titlebar-btn {
   cursor: default;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .window.closing, .window.minimizing, .window.restoring { animation: none; }
 }
