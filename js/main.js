@@ -1,7 +1,43 @@
 /* Main application logic — mpOS */
+(function () {
+
+/* ── Shared helpers ── */
+var GEO_ERRORS = {
+  1: 'Location access was denied.',
+  2: 'Location information is unavailable.',
+  3: 'Location request timed out.'
+};
+
+function alertTriangleSVG(id) {
+  return '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="' + id + '" x1="0.3" y1="0" x2="0.7" y2="1">' +
+    '<stop offset="0%" stop-color="#fffde0"/><stop offset="20%" stop-color="#ffe88a"/>' +
+    '<stop offset="50%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#e8a000"/>' +
+    '</linearGradient></defs>' +
+    '<path d="M16 2 L30 28 L2 28 Z" fill="url(#' + id + ')" stroke="#a07000" stroke-width="1.5" stroke-linejoin="round"/>' +
+    '<line x1="6" y1="26" x2="16" y2="5" stroke="white" stroke-width="1" opacity="0.3" stroke-linecap="round"/>' +
+    '<ellipse cx="13" cy="14" rx="5" ry="6" fill="white" opacity="0.15"/>' +
+    '<rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/>' +
+    '<rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>';
+}
+
+function showErrorPanel(body, msg, gradientId) {
+  body.innerHTML =
+    '<div style="padding:16px;">' +
+      '<div class="error-row">' +
+        alertTriangleSVG(gradientId) +
+        '<div class="error-text">' + msg + '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+/* ── Cached DOM refs ── */
+var calcDisplay = document.getElementById('calcDisplay');
+var notepadEditor = document.getElementById('notepadEditor');
+var notepadStatus = document.getElementById('notepadStatus');
 
 function openWindow(id) {
-  const win = document.getElementById(id);
+  var win = document.getElementById(id);
   if (!win || win.style.display !== 'none') return;
   win.style.display = '';
   win.classList.add('restoring');
@@ -12,8 +48,8 @@ function openWindow(id) {
 }
 
 function closeStartMenu() {
-  const m = document.querySelector('.start-menu');
-  const b = document.querySelector('.start-btn');
+  var m = document.querySelector('.start-menu');
+  var b = document.querySelector('.start-btn');
   if (m) m.classList.remove('open');
   if (b) b.classList.remove('pressed');
 }
@@ -62,7 +98,6 @@ function navigateExplorer(folder) {
   document.getElementById('explorerTitle').textContent = info.title;
   document.getElementById('explorerAddress').textContent = info.address;
 
-  // Update sidebar active state
   var items = document.querySelectorAll('#explorer .tree-item');
   var folderIndex = { all: 0, programs: 1, documents: 2, utilities: 3 };
   items.forEach(function (el, i) {
@@ -171,25 +206,25 @@ function loadYouTubeAPI() {
   return new Promise(function (resolve) {
     if (window.YT && window.YT.Player) { resolve(); return; }
     window.onYouTubeIframeAPIReady = resolve;
-    const tag = document.createElement('script');
+    var tag = document.createElement('script');
     tag.src = 'https://www.youtube.com/iframe_api';
     document.head.appendChild(tag);
   });
 }
 
 /* ── Virtual Aquarium (YouTube IFrame Player API) ── */
-let aquariumPlayer = null;
-let aquariumTimer = null;
+var aquariumPlayer = null;
+var aquariumTimer = null;
 
 function openAquarium() {
-  const embed = document.getElementById('aquariumEmbed');
-  const shield = document.getElementById('aquariumShield');
+  var embed = document.getElementById('aquariumEmbed');
+  var shield = document.getElementById('aquariumShield');
   openWindow('aquarium');
   if (!embed.dataset.loaded) {
     shield.classList.remove('loaded');
     embed.dataset.loaded = '1';
     loadYouTubeAPI().then(function () {
-      const playerDiv = document.createElement('div');
+      var playerDiv = document.createElement('div');
       playerDiv.id = 'ytAquariumPlayer';
       embed.appendChild(playerDiv);
       aquariumPlayer = new YT.Player('ytAquariumPlayer', {
@@ -210,13 +245,13 @@ function openAquarium() {
 }
 
 function closeAquarium() {
-  const embed = document.getElementById('aquariumEmbed');
-  const shield = document.getElementById('aquariumShield');
+  var embed = document.getElementById('aquariumEmbed');
+  var shield = document.getElementById('aquariumShield');
   if (aquariumPlayer && aquariumPlayer.destroy) {
     aquariumPlayer.destroy();
     aquariumPlayer = null;
   }
-  const iframe = embed.querySelector('iframe');
+  var iframe = embed.querySelector('iframe');
   if (iframe) iframe.remove();
   clearTimeout(aquariumTimer);
   shield.classList.remove('loaded');
@@ -226,14 +261,14 @@ function closeAquarium() {
 
 /* ── On Target (embedded game) ── */
 function openOnTarget() {
-  const embed = document.getElementById('ontargetEmbed');
+  var embed = document.getElementById('ontargetEmbed');
   openWindow('ontarget');
   if (!embed.dataset.loaded) {
     embed.dataset.loaded = '1';
-    const iframe = document.createElement('iframe');
+    var iframe = document.createElement('iframe');
     iframe.src = 'target-game.html';
     iframe.title = 'On Target';
-    let initialLoad = true;
+    var initialLoad = true;
     iframe.addEventListener('load', function () {
       if (initialLoad) { initialLoad = false; return; }
       closeOnTarget();
@@ -243,8 +278,8 @@ function openOnTarget() {
 }
 
 function closeOnTarget() {
-  const embed = document.getElementById('ontargetEmbed');
-  const iframe = embed.querySelector('iframe');
+  var embed = document.getElementById('ontargetEmbed');
+  var iframe = embed.querySelector('iframe');
   if (iframe) iframe.remove();
   embed.dataset.loaded = '';
   bbTaskbar.closeWindow('ontarget');
@@ -256,25 +291,25 @@ function openFishOfDay() {
 }
 
 function populateSysInfo() {
-  const body = document.getElementById('sysInfoBody');
+  var body = document.getElementById('sysInfoBody');
   if (body.dataset.populated) return;
   body.dataset.populated = '1';
 
-  const ua = navigator.userAgent;
-  const nav = navigator;
-  const scr = screen;
+  var ua = navigator.userAgent;
+  var nav = navigator;
+  var scr = screen;
 
   function makeSection(title, rows) {
-    const valid = rows.filter(function (r) { return r[1] != null; });
+    var valid = rows.filter(function (r) { return r[1] != null; });
     if (!valid.length) return '';
-    let html = '<div class="section-title">' + title + '</div><div class="sunken"><table class="sysinfo-table">';
+    var html = '<div class="section-title">' + title + '</div><div class="sunken"><table class="sysinfo-table">';
     valid.forEach(function (r) {
       html += '<tr><th>' + r[0] + '</th><td>' + r[1] + '</td></tr>';
     });
     return html + '</table></div>';
   }
 
-  let os = null;
+  var os = null;
   if (/Windows/.test(ua)) os = 'Windows';
   else if (/Mac OS X/.test(ua)) os = 'macOS';
   else if (/Android/.test(ua)) os = 'Android';
@@ -282,13 +317,13 @@ function populateSysInfo() {
   else if (/CrOS/.test(ua)) os = 'Chrome OS';
   else if (/Linux/.test(ua)) os = 'Linux';
 
-  let browser = null;
+  var browser = null;
   if (/Edg\//.test(ua)) browser = 'Microsoft Edge';
   else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) browser = 'Google Chrome';
   else if (/Firefox\//.test(ua)) browser = 'Mozilla Firefox';
   else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Apple Safari';
 
-  let html = '<div class="sysinfo-hero">';
+  var html = '<div class="sysinfo-hero">';
   html += '<svg width="80" height="80" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">';
   html += '<defs><linearGradient id="si-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="25%" stop-color="#6aafe0"/><stop offset="60%" stop-color="#3a7ab0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient>';
   html += '<linearGradient id="si-screen" x1="0" y1="0" x2="0.2" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="30%" stop-color="#c0ddf0"/><stop offset="70%" stop-color="#90bce0"/><stop offset="100%" stop-color="#6898c0"/></linearGradient>';
@@ -318,7 +353,7 @@ function populateSysInfo() {
     ['Language', nav.language || null]
   ]);
 
-  const dpr = window.devicePixelRatio || 1;
+  var dpr = window.devicePixelRatio || 1;
   html += makeSection('Display', [
     ['Resolution', scr.width + ' \u00d7 ' + scr.height],
     ['Pixel Ratio', dpr + 'x' + (dpr > 1 ? ' (HiDPI)' : '')]
@@ -329,9 +364,9 @@ function populateSysInfo() {
 
   body.innerHTML = html;
 
-  const conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+  var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
   if (conn) {
-    const netRows = [];
+    var netRows = [];
     if (conn.effectiveType) netRows.push(['Type', conn.effectiveType.toUpperCase()]);
     else if (conn.type) netRows.push(['Type', conn.type]);
     if (conn.downlink) netRows.push(['Downlink', conn.downlink + ' Mbps']);
@@ -349,31 +384,31 @@ function populateSysInfo() {
 }
 
 /* ── Fish of the Day ── */
-let fishPopulated = false;
+var fishPopulated = false;
 function populateFish() {
   if (fishPopulated) return;
   fishPopulated = true;
 
-  const f = FISH_TODAY;
-  const fishPhoto = document.getElementById('fishPhoto');
-  const photoPlaceholder = document.getElementById('photoPlaceholder');
-  const fishName = document.getElementById('fishName');
-  const fishScientific = document.getElementById('fishScientific');
-  const fishDetails = document.getElementById('fishDetails');
-  const fishDateText = document.getElementById('fishDateText');
+  var f = FISH_TODAY;
+  var fishPhoto = document.getElementById('fishPhoto');
+  var photoPlaceholder = document.getElementById('photoPlaceholder');
+  var fishName = document.getElementById('fishName');
+  var fishScientific = document.getElementById('fishScientific');
+  var fishDetails = document.getElementById('fishDetails');
+  var fishDateText = document.getElementById('fishDateText');
 
-  const sciName = f[1] + " " + f[2];
+  var sciName = f[1] + " " + f[2];
   fishName.textContent = f[0];
   fishScientific.textContent = sciName;
 
-  const now = new Date();
+  var now = new Date();
   fishDateText.textContent = now.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 
   function addDetail(label, value) {
     if (!value && value !== 0) return;
-    const dt = document.createElement("dt");
+    var dt = document.createElement("dt");
     dt.textContent = label;
-    const dd = document.createElement("dd");
+    var dd = document.createElement("dd");
     dd.textContent = value;
     fishDetails.appendChild(dt);
     fishDetails.appendChild(dd);
@@ -385,7 +420,7 @@ function populateFish() {
   addDetail("Habitat", f[6]);
   addDetail("Depth", f[7]);
 
-  const wikiTitle = f[1] + "_" + f[2];
+  var wikiTitle = f[1] + "_" + f[2];
 
   function linkFishName(title) {
     if (fishName.dataset.linked) return;
@@ -399,46 +434,43 @@ function populateFish() {
     };
   }
 
-  const imgKey = "fotd-img-" + todayKey();
+  var imgKey = "fotd-img-" + todayKey();
   var wikiLinkKey = "fotd-wiki-" + todayKey();
 
   var cachedWikiLink = localStorage.getItem(wikiLinkKey);
   if (cachedWikiLink) linkFishName(cachedWikiLink);
 
-  if (f[8]) {
-    showFishImage(f[8]);
-    if (!cachedWikiLink) checkWikiPage(wikiTitle)
-      .catch(function () { return checkWikiPage(f[0].replace(/ /g, "_")); })
-      .catch(function () {});
-  } else if (localStorage.getItem(imgKey)) {
-    showFishImage(localStorage.getItem(imgKey));
-    if (!cachedWikiLink) checkWikiPage(wikiTitle)
-      .catch(function () { return checkWikiPage(f[0].replace(/ /g, "_")); })
-      .catch(function () {});
-  } else {
-    fetchWikiImage(wikiTitle)
-      .catch(function () { return fetchWikiImage(f[0].replace(/ /g, "_")); })
-      .catch(function () { photoPlaceholder.textContent = "No photo available"; });
-  }
-
-  function checkWikiPage(title) {
-    return fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + title)
-      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-      .then(function () { localStorage.setItem(wikiLinkKey, title); linkFishName(title); });
-  }
-
+  /* fetchWikiImage doubles as a wiki-existence check (it calls linkFishName
+     on success), so we reuse it for all paths instead of a separate checkWikiPage. */
   function fetchWikiImage(title) {
     return fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + title)
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (data) {
         localStorage.setItem(wikiLinkKey, title);
         linkFishName(title);
-        let src = data.thumbnail && data.thumbnail.source;
-        if (!src) throw 0;
-        src = src.replace(/\/\d+px-/, "/480px-");
-        localStorage.setItem(imgKey, src);
-        showFishImage(src);
+        var src = data.thumbnail && data.thumbnail.source;
+        if (src) {
+          src = src.replace(/\/\d+px-/, "/480px-");
+          localStorage.setItem(imgKey, src);
+          showFishImage(src);
+        }
       });
+  }
+
+  if (f[8]) {
+    showFishImage(f[8]);
+    if (!cachedWikiLink) fetchWikiImage(wikiTitle)
+      .catch(function () { return fetchWikiImage(f[0].replace(/ /g, "_")); })
+      .catch(function () {});
+  } else if (localStorage.getItem(imgKey)) {
+    showFishImage(localStorage.getItem(imgKey));
+    if (!cachedWikiLink) fetchWikiImage(wikiTitle)
+      .catch(function () { return fetchWikiImage(f[0].replace(/ /g, "_")); })
+      .catch(function () {});
+  } else {
+    fetchWikiImage(wikiTitle)
+      .catch(function () { return fetchWikiImage(f[0].replace(/ /g, "_")); })
+      .catch(function () { photoPlaceholder.textContent = "No photo available"; });
   }
 
   function showFishImage(src) {
@@ -461,49 +493,49 @@ function openFishFinder() {
 }
 
 function haversineDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  var R = 6371;
+  var dLat = (lat2 - lat1) * Math.PI / 180;
+  var dLon = (lon2 - lon1) * Math.PI / 180;
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function formatFinderDistance(km) {
-  const mi = km * 0.621371;
+  var mi = km * 0.621371;
   return km.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' km (' +
          mi.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' mi)';
 }
 
 function populateFishFinder() {
-  const body = document.getElementById('fishFinderBody');
-  const status = document.getElementById('fishFinderStatus');
+  var body = document.getElementById('fishFinderBody');
+  var status = document.getElementById('fishFinderStatus');
 
   body.innerHTML = '<div style="padding:16px;font-size:12px;color:#57606a;">Locating you...</div>';
   status.textContent = '';
 
   if (!navigator.geolocation) {
-    showFinderError(body, 'Geolocation is not supported by your browser.');
+    showErrorPanel(body, 'Geolocation is not supported by your browser.', 'al-tri-ff');
     return;
   }
 
   navigator.geolocation.getCurrentPosition(
     function (pos) {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      let nearest = null, furthest = null;
-      let minDist = Infinity, maxDist = -1;
+      var lat = pos.coords.latitude;
+      var lon = pos.coords.longitude;
+      var nearest = null, furthest = null;
+      var minDist = Infinity, maxDist = -1;
 
-      for (let i = 0; i < AQUARIUMS.length; i++) {
-        const d = haversineDistance(lat, lon, AQUARIUMS[i][2], AQUARIUMS[i][3]);
+      for (var i = 0; i < AQUARIUMS.length; i++) {
+        var d = haversineDistance(lat, lon, AQUARIUMS[i][2], AQUARIUMS[i][3]);
         if (d < minDist) { minDist = d; nearest = AQUARIUMS[i]; }
         if (d > maxDist) { maxDist = d; furthest = AQUARIUMS[i]; }
       }
 
       function finderCard(aq, dist) {
-        const name = aq[4] ? '<a href="' + aq[4] + '" target="_blank" rel="noopener" style="color:var(--link);text-decoration:none;">' + aq[0] + '</a>' : aq[0];
-        let meta = aq[1];
+        var name = aq[4] ? '<a href="' + aq[4] + '" target="_blank" rel="noopener" style="color:var(--link);text-decoration:none;">' + aq[0] + '</a>' : aq[0];
+        var meta = aq[1];
         if (aq[5]) meta += ' &middot; Est. ' + aq[5];
         return '<div class="sunken" style="padding:10px;margin-bottom:10px;">' +
           '<div class="finder-name">' + name + '</div>' +
@@ -523,35 +555,20 @@ function populateFishFinder() {
       status.textContent = AQUARIUMS.length + ' aquariums in database';
     },
     function (err) {
-      const msgs = {
-        1: 'Location access was denied.',
-        2: 'Location information is unavailable.',
-        3: 'Location request timed out.'
-      };
-      showFinderError(body, msgs[err.code] || 'An unknown error occurred.');
+      showErrorPanel(body, GEO_ERRORS[err.code] || 'An unknown error occurred.', 'al-tri-ff');
     },
     { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
   );
 }
 
-function showFinderError(body, msg) {
-  body.innerHTML =
-    '<div style="padding:16px;">' +
-      '<div class="error-row">' +
-        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri-ff" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="20%" stop-color="#ffe88a"/><stop offset="50%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#e8a000"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri-ff)" stroke="#a07000" stroke-width="1.5" stroke-linejoin="round"/><line x1="6" y1="26" x2="16" y2="5" stroke="white" stroke-width="1" opacity="0.3" stroke-linecap="round"/><ellipse cx="13" cy="14" rx="5" ry="6" fill="white" opacity="0.15"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>' +
-        '<div class="error-text">' + msg + '</div>' +
-      '</div>' +
-    '</div>';
-}
-
 /* ── WikiBrowser ── */
-const BROWSER_HOME = 'https://en.m.wikipedia.org/wiki/Main_Page';
-const browserFrame = document.getElementById('browserFrame');
-const browserUrl = document.getElementById('browserUrl');
-const browserTitle = document.getElementById('browserTitle');
+var BROWSER_HOME = 'https://en.m.wikipedia.org/wiki/Main_Page';
+var browserFrame = document.getElementById('browserFrame');
+var browserUrl = document.getElementById('browserUrl');
+var browserTitle = document.getElementById('browserTitle');
 
 function openBrowser() {
-  const vp = document.getElementById('browserViewport');
+  var vp = document.getElementById('browserViewport');
   openWindow('browser');
   if (!vp.dataset.loaded) {
     vp.dataset.loaded = '1';
@@ -562,7 +579,7 @@ function openBrowser() {
 }
 
 function closeBrowser() {
-  const vp = document.getElementById('browserViewport');
+  var vp = document.getElementById('browserViewport');
   browserFrame.src = 'about:blank';
   vp.dataset.loaded = '';
   browserUrl.value = '';
@@ -573,7 +590,7 @@ function closeBrowser() {
 function browserNavigate(query) {
   query = query.trim();
   if (!query) return;
-  let url;
+  var url;
   if (/^https?:\/\/[a-z]+\.wikipedia\.org\//i.test(query)) {
     url = query;
   } else {
@@ -592,11 +609,11 @@ browserUrl.addEventListener('keydown', function (e) {
 
 browserFrame.addEventListener('load', function () {
   try {
-    const loc = browserFrame.contentWindow.location.href;
+    var loc = browserFrame.contentWindow.location.href;
     if (loc && loc !== 'about:blank') {
       browserUrl.value = loc;
-      const title = browserFrame.contentDocument && browserFrame.contentDocument.title;
-      browserTitle.textContent = title ? 'WikiBrowser — ' + title : 'WikiBrowser';
+      var title = browserFrame.contentDocument && browserFrame.contentDocument.title;
+      browserTitle.textContent = title ? 'WikiBrowser \u2014 ' + title : 'WikiBrowser';
     }
   } catch (e) {
     /* cross-origin — can't read iframe location */
@@ -606,39 +623,38 @@ browserFrame.addEventListener('load', function () {
 /* ── Notepad ── */
 function openNotepad() {
   openWindow('notepad');
-  var editor = document.getElementById('notepadEditor');
-  if (!editor.dataset.loaded) {
-    editor.dataset.loaded = '1';
+  if (!notepadEditor.dataset.loaded) {
+    notepadEditor.dataset.loaded = '1';
     var saved = localStorage.getItem('mpOS-notepad');
-    if (saved !== null) editor.value = saved;
+    if (saved !== null) notepadEditor.value = saved;
     updateNotepadStatus();
   }
-  setTimeout(function () { editor.focus(); }, 100);
+  setTimeout(function () { notepadEditor.focus(); }, 100);
 }
 
 function notepadNew() {
-  document.getElementById('notepadEditor').value = '';
+  notepadEditor.value = '';
   updateNotepadStatus();
 }
 
 function notepadSave() {
-  localStorage.setItem('mpOS-notepad', document.getElementById('notepadEditor').value);
-  document.getElementById('notepadStatus').textContent = 'Saved';
+  localStorage.setItem('mpOS-notepad', notepadEditor.value);
+  notepadStatus.textContent = 'Saved';
   setTimeout(updateNotepadStatus, 1500);
 }
 
 function notepadLoad() {
   var text = localStorage.getItem('mpOS-notepad');
-  if (text !== null) document.getElementById('notepadEditor').value = text;
+  if (text !== null) notepadEditor.value = text;
   updateNotepadStatus();
 }
 
 function updateNotepadStatus() {
-  var len = document.getElementById('notepadEditor').value.length;
-  document.getElementById('notepadStatus').textContent = len + ' character' + (len !== 1 ? 's' : '');
+  var len = notepadEditor.value.length;
+  notepadStatus.textContent = len + ' character' + (len !== 1 ? 's' : '');
 }
 
-document.getElementById('notepadEditor').addEventListener('input', updateNotepadStatus);
+notepadEditor.addEventListener('input', updateNotepadStatus);
 
 /* ── Calculator ── */
 var calcCurrent = '0';
@@ -649,7 +665,7 @@ var calcReset = false;
 function openCalculator() { openWindow('calculator'); }
 
 function calcUpdateDisplay() {
-  document.getElementById('calcDisplay').textContent = calcCurrent;
+  calcDisplay.textContent = calcCurrent;
 }
 
 function calcDigit(d) {
@@ -725,7 +741,7 @@ function fetchWeather() {
   body.innerHTML = '<div style="padding:16px;font-size:12px;color:#57606a;">Locating you...</div>';
 
   if (!navigator.geolocation) {
-    showWeatherError(body, 'Geolocation is not supported by your browser.');
+    showErrorPanel(body, 'Geolocation is not supported by your browser.', 'al-tri-we');
     return;
   }
 
@@ -742,12 +758,11 @@ function fetchWeather() {
           status.textContent = 'Powered by Open-Meteo';
         })
         .catch(function () {
-          showWeatherError(body, 'Failed to fetch weather data. Please try again later.');
+          showErrorPanel(body, 'Failed to fetch weather data. Please try again later.', 'al-tri-we');
         });
     },
     function (err) {
-      var msgs = { 1: 'Location access was denied.', 2: 'Location information is unavailable.', 3: 'Location request timed out.' };
-      showWeatherError(body, msgs[err.code] || 'An unknown error occurred.');
+      showErrorPanel(body, GEO_ERRORS[err.code] || 'An unknown error occurred.', 'al-tri-we');
     },
     { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
   );
@@ -787,20 +802,10 @@ function renderWeather(body, data) {
   body.innerHTML = html;
 }
 
-function showWeatherError(body, msg) {
-  body.innerHTML =
-    '<div style="padding:16px;">' +
-      '<div class="error-row">' +
-        '<svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri-we" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="20%" stop-color="#ffe88a"/><stop offset="50%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#e8a000"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri-we)" stroke="#a07000" stroke-width="1.5" stroke-linejoin="round"/><line x1="6" y1="26" x2="16" y2="5" stroke="white" stroke-width="1" opacity="0.3" stroke-linecap="round"/><ellipse cx="13" cy="14" rx="5" ry="6" fill="white" opacity="0.15"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>' +
-        '<div class="error-text">' + msg + '</div>' +
-      '</div>' +
-    '</div>';
-}
-
 /* ── Run Terminal ── */
-const termOutput = document.getElementById('termOutput');
-const termInput = document.getElementById('termInput');
-const COMMANDS = {
+var termOutput = document.getElementById('termOutput');
+var termInput = document.getElementById('termInput');
+var COMMANDS = {
   'help':        { run: cmdHelp,        desc: 'List available commands' },
   'ontarget':    { run: openOnTarget,    desc: 'Launch On Target' },
   'fishofday':   { run: openFishOfDay,   desc: 'Launch Fish of the Day' },
@@ -828,7 +833,7 @@ function termPrint(text) {
 
 function cmdHelp() {
   termPrint('Available commands:\n');
-  const names = Object.keys(COMMANDS).filter(function (k) { return k !== 'clear'; });
+  var names = Object.keys(COMMANDS).filter(function (k) { return k !== 'clear'; });
   names.forEach(function (name) {
     termPrint('  ' + name.toUpperCase().padEnd(14) + COMMANDS[name].desc);
   });
@@ -888,11 +893,11 @@ function stopMatrix() {
 
 termInput.addEventListener('keydown', function (e) {
   if (e.key !== 'Enter') return;
-  const raw = termInput.value.trim();
+  var raw = termInput.value.trim();
   termInput.value = '';
   termPrint('C:\\mpOS> ' + raw);
   if (!raw) return;
-  const cmd = raw.toLowerCase();
+  var cmd = raw.toLowerCase();
   if (cmd === 'matrix') {
     cmdMatrix();
   } else if (COMMANDS[cmd]) {
@@ -908,3 +913,39 @@ document.addEventListener('click', function (e) {
     if (window.bbAudio) window.bbAudio.playSound('click');
   }
 });
+
+/* ── Export public API to window (called from HTML onclick handlers) ── */
+window.openWindow = openWindow;
+window.closeStartMenu = closeStartMenu;
+window.openExplorer = openExplorer;
+window.openExplorerTo = openExplorerTo;
+window.navigateExplorer = navigateExplorer;
+window.setExplorerView = setExplorerView;
+window.openMyComputer = openMyComputer;
+window.openChickenFingers = openChickenFingers;
+window.exitSite = exitSite;
+window.openAquarium = openAquarium;
+window.closeAquarium = closeAquarium;
+window.openOnTarget = openOnTarget;
+window.closeOnTarget = closeOnTarget;
+window.openFishOfDay = openFishOfDay;
+window.openFishFinder = openFishFinder;
+window.openBrowser = openBrowser;
+window.closeBrowser = closeBrowser;
+window.browserNavigate = browserNavigate;
+window.openNotepad = openNotepad;
+window.notepadNew = notepadNew;
+window.notepadSave = notepadSave;
+window.notepadLoad = notepadLoad;
+window.openCalculator = openCalculator;
+window.calcDigit = calcDigit;
+window.calcDecimal = calcDecimal;
+window.calcOp = calcOp;
+window.calcEquals = calcEquals;
+window.calcClear = calcClear;
+window.calcClearEntry = calcClearEntry;
+window.calcBackspace = calcBackspace;
+window.openWeather = openWeather;
+window.openRun = openRun;
+
+})();
