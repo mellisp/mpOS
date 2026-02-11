@@ -594,7 +594,7 @@ function browserNavigate(query) {
   query = query.trim();
   if (!query) return;
   var url;
-  if (/^https?:\/\/[a-z]+\.wikipedia\.org\//i.test(query)) {
+  if (/^https?:\/\/[a-z]+\.(?:m\.)?wikipedia\.org\//i.test(query)) {
     url = query;
   } else {
     url = 'https://en.m.wikipedia.org/wiki/Special:Search/' + encodeURIComponent(query);
