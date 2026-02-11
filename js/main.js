@@ -837,7 +837,7 @@ function cmdHelp() {
 
 function cmdCls() { termOutput.textContent = ''; }
 
-function cmdVer() { termPrint('mpOS [Version 1.0.6]\n(c) Matthew Pritchard. All rights reserved.\n'); }
+function cmdVer() { termPrint('mpOS [Version 1.0.7]\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
 function openRun() {
   openWindow('run');
