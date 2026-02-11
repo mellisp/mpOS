@@ -805,8 +805,28 @@ function renderWeather(body, data) {
 /* ── Run Terminal ── */
 var termOutput = document.getElementById('termOutput');
 var termInput = document.getElementById('termInput');
+
+var termCwd = 'C:\\mpOS';
+var FILESYSTEM = {
+  'C:\\mpOS': {
+    children: ['Desktop', 'Programs', 'Documents', 'Utilities']
+  },
+  'C:\\mpOS\\Desktop': {
+    items: [
+      { name: 'My Computer', run: function () { openMyComputer(); } },
+      { name: 'Applications', run: function () { openExplorer(); } },
+      { name: 'WikiBrowser', run: function () { openBrowser(); } }
+    ]
+  },
+  'C:\\mpOS\\Programs': { items: FOLDER_ITEMS.programs },
+  'C:\\mpOS\\Documents': { items: FOLDER_ITEMS.documents },
+  'C:\\mpOS\\Utilities': { items: FOLDER_ITEMS.utilities }
+};
+
 var COMMANDS = {
   'help':        { run: cmdHelp,        desc: 'List available commands' },
+  'cd':          { run: cmdCd,          desc: 'Change directory' },
+  'ls':          { run: cmdLs,          desc: 'List directory contents' },
   'ontarget':    { run: openOnTarget,    desc: 'Launch On Target' },
   'fishofday':   { run: openFishOfDay,   desc: 'Launch Fish of the Day' },
   'fishfinder':  { run: openFishFinder,  desc: 'Launch Fish Finder' },
@@ -844,9 +864,68 @@ function cmdCls() { stopMatrix(); termOutput.textContent = ''; }
 
 function cmdVer() { termPrint('mpOS [Version 1.1.0]\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
+function cmdCd(args) {
+  if (!args) { termPrint(termCwd + '\n'); return; }
+  var target = args.trim();
+  var newPath;
+  if (target === '\\' || target === '/') {
+    newPath = 'C:\\mpOS';
+  } else if (target === '..') {
+    newPath = 'C:\\mpOS';
+  } else if (target.match(/^[Cc]:\\/i)) {
+    // Absolute path — normalise separators and case-insensitive lookup
+    var normalized = target.replace(/\//g, '\\');
+    var fsKeys = Object.keys(FILESYSTEM);
+    var found = fsKeys.find(function (k) {
+      return k.toLowerCase() === normalized.toLowerCase();
+    });
+    newPath = found || normalized;
+  } else {
+    // Relative — match against children of current dir
+    var cur = FILESYSTEM[termCwd];
+    if (cur && cur.children) {
+      var match = cur.children.find(function (c) {
+        return c.toLowerCase() === target.toLowerCase();
+      });
+      if (match) {
+        newPath = termCwd + '\\' + match;
+      }
+    }
+  }
+  if (newPath && FILESYSTEM[newPath]) {
+    termCwd = newPath;
+    document.querySelector('#run .term-prompt').textContent = termCwd + '> ';
+    termPrint('');
+  } else {
+    termPrint('The system cannot find the path specified.\n');
+  }
+}
+
+function cmdLs() {
+  var cur = FILESYSTEM[termCwd];
+  if (!cur) { termPrint('Error reading directory.\n'); return; }
+  termPrint('');
+  termPrint(' Directory of ' + termCwd);
+  termPrint('');
+  if (cur.children) {
+    cur.children.forEach(function (c) {
+      termPrint('  <DIR>    ' + c);
+    });
+  } else if (cur.items && cur.items.length > 0) {
+    cur.items.forEach(function (item) {
+      termPrint('           ' + item.name);
+    });
+  } else {
+    termPrint('  Directory is empty.');
+  }
+  termPrint('');
+}
+
 function openRun() {
   openWindow('run');
   termOutput.textContent = '';
+  termCwd = 'C:\\mpOS';
+  document.querySelector('#run .term-prompt').textContent = 'C:\\mpOS> ';
   cmdVer();
   termPrint('Type HELP for a list of available commands.\n');
   termInput.value = '';
@@ -895,15 +974,34 @@ termInput.addEventListener('keydown', function (e) {
   if (e.key !== 'Enter') return;
   var raw = termInput.value.trim();
   termInput.value = '';
-  termPrint('C:\\mpOS> ' + raw);
+  termPrint(termCwd + '> ' + raw);
   if (!raw) return;
-  var cmd = raw.toLowerCase();
+  var parts = raw.match(/^(\S+)\s*(.*)?$/);
+  var cmd = parts[1].toLowerCase();
+  var args = parts[2] || '';
   if (cmd === 'matrix') {
     cmdMatrix();
   } else if (COMMANDS[cmd]) {
-    COMMANDS[cmd].run();
+    COMMANDS[cmd].run(args);
   } else {
-    termPrint("'" + raw + "' is not recognized as an internal or external command,\noperable program or batch file.\n");
+    // Try local item execution in current directory
+    var cur = FILESYSTEM[termCwd];
+    var localItem = null;
+    if (cur && cur.items) {
+      var input = raw.toLowerCase();
+      localItem = cur.items.find(function (item) {
+        return item.name.toLowerCase() === input;
+      });
+    }
+    if (localItem) {
+      if (localItem.run) {
+        localItem.run();
+      } else if (localItem.action) {
+        new Function(localItem.action)();
+      }
+    } else {
+      termPrint("'" + raw + "' is not recognized as an internal or external command,\noperable program or batch file.\n");
+    }
   }
 });
 
