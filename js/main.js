@@ -35,6 +35,9 @@ function showErrorPanel(body, msg, gradientId) {
 var calcDisplay = document.getElementById('calcDisplay');
 var notepadEditor = document.getElementById('notepadEditor');
 var notepadStatus = document.getElementById('notepadStatus');
+var notepadTitle = document.getElementById('notepadTitle');
+var notepadCurrentFile = null;
+var notepadDirty = false;
 
 function openWindow(id) {
   var win = document.getElementById(id);
@@ -621,32 +624,200 @@ browserFrame.addEventListener('load', function () {
 });
 
 /* ── Notepad ── */
+
+function notepadGetFiles() {
+  try { return JSON.parse(localStorage.getItem('mpOS-notepad-files')) || {}; }
+  catch (e) { return {}; }
+}
+
+function notepadPersist(files) {
+  localStorage.setItem('mpOS-notepad-files', JSON.stringify(files));
+}
+
+function notepadMigrateLegacy() {
+  if (localStorage.getItem('mpOS-notepad-files') !== null) return;
+  var legacy = localStorage.getItem('mpOS-notepad');
+  if (legacy !== null) {
+    notepadPersist({ 'untitled.txt': legacy });
+    localStorage.removeItem('mpOS-notepad');
+    notepadCurrentFile = 'untitled.txt';
+    notepadEditor.value = legacy;
+  }
+}
+
+function notepadSetTitle() {
+  var name = notepadCurrentFile || 'Untitled';
+  notepadTitle.textContent = name + (notepadDirty ? '* ' : ' ') + '- Notepad';
+}
+
+function notepadMarkDirty() {
+  if (!notepadDirty) { notepadDirty = true; notepadSetTitle(); }
+}
+
+function notepadMarkClean() {
+  notepadDirty = false;
+  notepadSetTitle();
+}
+
+function notepadGuardDirty() {
+  if (!notepadDirty) return true;
+  return confirm('You have unsaved changes. Discard them?');
+}
+
+function notepadEscHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function notepadEscAttr(str) {
+  return notepadEscHtml(str.replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
+}
+
+function notepadDismissDialog() {
+  var d = document.querySelector('#notepad .notepad-dialog');
+  if (d) d.remove();
+}
+
 function openNotepad() {
   openWindow('notepad');
   if (!notepadEditor.dataset.loaded) {
     notepadEditor.dataset.loaded = '1';
-    var saved = localStorage.getItem('mpOS-notepad');
-    if (saved !== null) notepadEditor.value = saved;
+    notepadMigrateLegacy();
+    if (notepadCurrentFile) {
+      notepadEditor.value = notepadGetFiles()[notepadCurrentFile] || '';
+    }
+    notepadSetTitle();
     updateNotepadStatus();
   }
   setTimeout(function () { notepadEditor.focus(); }, 100);
 }
 
 function notepadNew() {
+  if (!notepadGuardDirty()) return;
+  notepadDismissDialog();
   notepadEditor.value = '';
+  notepadCurrentFile = null;
+  notepadMarkClean();
   updateNotepadStatus();
+  notepadEditor.focus();
 }
 
 function notepadSave() {
-  localStorage.setItem('mpOS-notepad', notepadEditor.value);
+  if (notepadCurrentFile) {
+    var files = notepadGetFiles();
+    files[notepadCurrentFile] = notepadEditor.value;
+    notepadPersist(files);
+    notepadMarkClean();
+    notepadStatus.textContent = 'Saved';
+    setTimeout(updateNotepadStatus, 1500);
+  } else {
+    notepadShowSaveAs();
+  }
+}
+
+function notepadSaveAs(name) {
+  name = name.trim();
+  if (!name) return;
+  if (name.indexOf('.') === -1) name += '.txt';
+  var files = notepadGetFiles();
+  if (files.hasOwnProperty(name) && name !== notepadCurrentFile) {
+    if (!confirm('"' + name + '" already exists. Overwrite?')) return;
+  }
+  files[name] = notepadEditor.value;
+  notepadPersist(files);
+  notepadCurrentFile = name;
+  notepadDismissDialog();
+  notepadMarkClean();
   notepadStatus.textContent = 'Saved';
   setTimeout(updateNotepadStatus, 1500);
+  notepadEditor.focus();
+}
+
+function notepadShowSaveAs() {
+  notepadDismissDialog();
+  var defaultName = notepadCurrentFile || '';
+  var html =
+    '<label>File name:</label>' +
+    '<input type="text" id="notepadSaveAsInput" value="' + notepadEscHtml(defaultName) + '">' +
+    '<div style="flex:1"></div>' +
+    '<div class="button-row">' +
+      '<button class="btn" onclick="notepadSaveAs(document.getElementById(\'notepadSaveAsInput\').value)">Save</button>&nbsp;' +
+      '<button class="btn" onclick="notepadDismissDialog()">Cancel</button>' +
+    '</div>';
+  var d = document.createElement('div');
+  d.className = 'notepad-dialog';
+  d.innerHTML = html;
+  document.querySelector('#notepad .window-body').appendChild(d);
+  var inp = document.getElementById('notepadSaveAsInput');
+  inp.focus();
+  inp.select();
+  inp.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') notepadSaveAs(inp.value);
+    else if (e.key === 'Escape') notepadDismissDialog();
+  });
 }
 
 function notepadLoad() {
-  var text = localStorage.getItem('mpOS-notepad');
-  if (text !== null) notepadEditor.value = text;
+  if (!notepadGuardDirty()) return;
+  notepadShowOpen();
+}
+
+function notepadShowOpen() {
+  notepadDismissDialog();
+  var files = notepadGetFiles();
+  var names = Object.keys(files).sort();
+  var listHtml;
+  if (names.length === 0) {
+    listHtml = '<div class="notepad-empty">No saved files.</div>';
+  } else {
+    listHtml = names.map(function (n) {
+      var safe = notepadEscAttr(n);
+      return '<div class="notepad-file-item">' +
+        '<span onclick="notepadOpenFile(\'' + safe + '\')">' + notepadEscHtml(n) + '</span>' +
+        '<button class="btn" onclick="event.stopPropagation();notepadDeleteFile(\'' + safe + '\')">Del</button>' +
+      '</div>';
+    }).join('');
+  }
+  var html =
+    '<label>Open a file:</label>' +
+    '<div class="notepad-file-list">' + listHtml + '</div>' +
+    '<div class="button-row">' +
+      '<button class="btn" onclick="notepadDismissDialog()">Cancel</button>' +
+    '</div>';
+  var d = document.createElement('div');
+  d.className = 'notepad-dialog';
+  d.innerHTML = html;
+  document.querySelector('#notepad .window-body').appendChild(d);
+}
+
+function notepadOpenFile(name) {
+  var files = notepadGetFiles();
+  if (!files.hasOwnProperty(name)) return;
+  notepadEditor.value = files[name];
+  notepadCurrentFile = name;
+  notepadDismissDialog();
+  notepadMarkClean();
   updateNotepadStatus();
+  notepadEditor.focus();
+}
+
+function notepadDeleteFile(name) {
+  if (!confirm('Delete "' + name + '"?')) return;
+  var files = notepadGetFiles();
+  delete files[name];
+  notepadPersist(files);
+  if (notepadCurrentFile === name) {
+    notepadCurrentFile = null;
+    notepadEditor.value = '';
+    notepadMarkClean();
+    updateNotepadStatus();
+  }
+  notepadShowOpen();
+}
+
+function closeNotepad() {
+  if (!notepadGuardDirty()) return;
+  notepadDismissDialog();
+  bbTaskbar.closeWindow('notepad');
 }
 
 function updateNotepadStatus() {
@@ -654,7 +825,10 @@ function updateNotepadStatus() {
   notepadStatus.textContent = len + ' character' + (len !== 1 ? 's' : '');
 }
 
-notepadEditor.addEventListener('input', updateNotepadStatus);
+notepadEditor.addEventListener('input', function () {
+  notepadMarkDirty();
+  updateNotepadStatus();
+});
 
 /* ── Calculator ── */
 var calcCurrent = '0';
@@ -1035,6 +1209,11 @@ window.openNotepad = openNotepad;
 window.notepadNew = notepadNew;
 window.notepadSave = notepadSave;
 window.notepadLoad = notepadLoad;
+window.closeNotepad = closeNotepad;
+window.notepadSaveAs = notepadSaveAs;
+window.notepadOpenFile = notepadOpenFile;
+window.notepadDeleteFile = notepadDeleteFile;
+window.notepadDismissDialog = notepadDismissDialog;
 window.openCalculator = openCalculator;
 window.calcDigit = calcDigit;
 window.calcDecimal = calcDecimal;

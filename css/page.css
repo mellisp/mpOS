@@ -266,6 +266,83 @@
   background: #fff;
 }
 
+#notepad .window-body { position: relative; }
+
+.notepad-dialog {
+  position: absolute;
+  inset: 0;
+  background: var(--silver);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 8px;
+  z-index: 1;
+}
+
+.notepad-dialog label {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.notepad-dialog input[type="text"] {
+  width: 100%;
+  padding: 3px 4px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  box-sizing: border-box;
+}
+
+.notepad-file-list {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--white);
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  padding: 2px;
+}
+
+.notepad-file-item {
+  display: flex;
+  align-items: center;
+  padding: 3px 6px;
+  cursor: default;
+  font-size: 12px;
+}
+
+.notepad-file-item:hover {
+  background: var(--highlight);
+  color: var(--highlight-text);
+}
+
+.notepad-file-item span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notepad-file-item button {
+  font-size: 11px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  flex-shrink: 0;
+}
+
+.notepad-dialog .notepad-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--shadow);
+  font-size: 12px;
+}
+
+.notepad-dialog .button-row {
+  margin-top: 4px;
+}
+
 /* Calculator window */
 #calculator { width: 240px; max-width: 95vw; left: 140px; top: 70px; }
 
