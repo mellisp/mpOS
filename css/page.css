@@ -205,6 +205,8 @@
   margin-top: 10px;
 }
 
+.fish-name[data-linked]:hover { text-decoration: underline; }
+
 .fish-scientific {
   font-style: italic;
   color: #57606a;

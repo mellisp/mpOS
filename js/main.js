@@ -387,22 +387,52 @@ function populateFish() {
 
   const wikiTitle = f[1] + "_" + f[2];
 
+  function linkFishName(title) {
+    if (fishName.dataset.linked) return;
+    fishName.dataset.linked = '1';
+    fishName.style.cursor = 'pointer';
+    fishName.style.color = 'var(--link)';
+    fishName.title = 'Open in WikiBrowser';
+    fishName.onclick = function () {
+      openBrowser();
+      browserNavigate('https://en.m.wikipedia.org/wiki/' + encodeURIComponent(title));
+    };
+  }
+
   const imgKey = "fotd-img-" + todayKey();
+  var wikiLinkKey = "fotd-wiki-" + todayKey();
+
+  var cachedWikiLink = localStorage.getItem(wikiLinkKey);
+  if (cachedWikiLink) linkFishName(cachedWikiLink);
 
   if (f[8]) {
     showFishImage(f[8]);
+    if (!cachedWikiLink) checkWikiPage(wikiTitle)
+      .catch(function () { return checkWikiPage(f[0].replace(/ /g, "_")); })
+      .catch(function () {});
   } else if (localStorage.getItem(imgKey)) {
     showFishImage(localStorage.getItem(imgKey));
+    if (!cachedWikiLink) checkWikiPage(wikiTitle)
+      .catch(function () { return checkWikiPage(f[0].replace(/ /g, "_")); })
+      .catch(function () {});
   } else {
     fetchWikiImage(wikiTitle)
       .catch(function () { return fetchWikiImage(f[0].replace(/ /g, "_")); })
       .catch(function () { photoPlaceholder.textContent = "No photo available"; });
   }
 
+  function checkWikiPage(title) {
+    return fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + title)
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function () { localStorage.setItem(wikiLinkKey, title); linkFishName(title); });
+  }
+
   function fetchWikiImage(title) {
     return fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + title)
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (data) {
+        localStorage.setItem(wikiLinkKey, title);
+        linkFishName(title);
         let src = data.thumbnail && data.thumbnail.source;
         if (!src) throw 0;
         src = src.replace(/\/\d+px-/, "/480px-");
