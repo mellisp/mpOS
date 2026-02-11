@@ -121,90 +121,43 @@
     <!-- Explorer Window (hidden initially) -->
     <div class="window draggable" id="explorer" style="display:none;">
       <div class="titlebar">
-        <span>Applications</span>
+        <span id="explorerTitle">Applications</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('explorer')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('explorer')">X</div>
         </div>
       </div>
-      <div class="window-body">
-        <div class="section-title">Games</div>
-        <div class="sunken">
-          <ul class="project-list">
-            <li>
-              <a href="#" onclick="openOnTarget(); return false;">On Target</a>
-              <span class="desc">A two-player target shooting game. Arrow keys vs mouse.</span>
-              <span class="tag">HTML</span>
-            </li>
-            <li>
-              <a href="chicken-fingers.html" onclick="return openChickenFingers()">Chicken Fingers</a>
-              <span class="desc">A two-player touch game. Hold your finger down. First to lift loses!</span>
-              <span class="tag">HTML</span>
-            </li>
-            <li>
-              <a href="#" onclick="openFishOfDay(); return false;">Fish of the Day</a>
-              <span class="desc">A new fish every day, powered by Wikipedia.</span>
-              <span class="tag">HTML</span>
-            </li>
-            <li>
-              <a href="#" onclick="openFishFinder(); return false;">Fish Finder</a>
-              <span class="desc">Find the closest aquarium near you. Also finds the furthest.</span>
-              <span class="tag">HTML</span>
-            </li>
-          </ul>
+      <div class="folder-toolbar">
+        <div class="folder-address">
+          <span class="folder-address-label">Address</span>
+          <div class="folder-address-bar" id="explorerAddress">C:\mpOS</div>
         </div>
-
-        <div class="section-title">Media</div>
-        <div class="sunken">
-          <ul class="project-list">
-            <li>
-              <a href="#" onclick="openAquarium(); return false;">Virtual Aquarium</a>
-              <span class="desc">Watch real fish, in real-time.</span>
-              <span class="tag">HTML</span>
-            </li>
-          </ul>
+        <div class="folder-view-btns">
+          <button class="folder-view-btn" onclick="setExplorerView('icon')" title="Icons">&#9638;</button>
+          <button class="folder-view-btn active" onclick="setExplorerView('list')" title="List">&#9776;</button>
         </div>
-
-        <div class="section-title">Internet</div>
-        <div class="sunken">
-          <ul class="project-list">
-            <li>
-              <a href="#" onclick="openBrowser(); return false;">WikiBrowser</a>
-              <span class="desc">Browse Wikipedia from within mpOS.</span>
-              <span class="tag">HTML</span>
-            </li>
-          </ul>
+      </div>
+      <div class="explorer-panes">
+        <div class="explorer-sidebar">
+          <div class="sidebar-tree">
+            <div class="tree-item" onclick="navigateExplorer('all')">
+              <span class="tree-icon">&#128187;</span> mpOS
+            </div>
+            <div class="tree-item tree-child" onclick="navigateExplorer('programs')">
+              <span class="tree-icon">&#128194;</span> Programs
+            </div>
+            <div class="tree-item tree-child" onclick="navigateExplorer('documents')">
+              <span class="tree-icon">&#128194;</span> Documents
+            </div>
+            <div class="tree-item tree-child" onclick="navigateExplorer('utilities')">
+              <span class="tree-icon">&#128194;</span> Utilities
+            </div>
+          </div>
         </div>
-
-        <div class="section-title">Utilities</div>
-        <div class="sunken">
-          <ul class="project-list">
-            <li>
-              <a href="#" onclick="openNotepad(); return false;">Notepad</a>
-              <span class="desc">A simple text editor with save and load.</span>
-              <span class="tag">HTML</span>
-            </li>
-            <li>
-              <a href="#" onclick="openCalculator(); return false;">Calculator</a>
-              <span class="desc">Basic arithmetic calculator.</span>
-              <span class="tag">HTML</span>
-            </li>
-            <li>
-              <a href="#" onclick="openWeather(); return false;">Weather</a>
-              <span class="desc">Three-day forecast for your location.</span>
-              <span class="tag">API</span>
-            </li>
-          </ul>
-        </div>
-
-        <div class="separator"></div>
-
-        <div class="section-title">About</div>
-        <p class="about">This site hosts miscellaneous experiments. Play at your own risk.</p>
+        <div class="explorer-content folder-body" id="explorerBody"></div>
       </div>
       <div class="statusbar">
-        <div class="statusbar-section">&copy; Matthew Pritchard</div>
-        <div class="statusbar-section" style="flex:0;min-width:90px;text-align:right;">8 item(s)</div>
+        <div class="statusbar-section" id="explorerStatus"></div>
       </div>
     </div>
 
@@ -449,7 +402,7 @@
             <rect x="1.8" y="11.8" width="4" height="2" rx="0.5" fill="white" opacity="0.35"/>
             <rect x="11.8" y="11.8" width="4" height="2" rx="0.5" fill="white" opacity="0.35"/>
           </svg>
-          <span>Programs</span>
+          <span onclick="openExplorerTo('programs'); closeStartMenu(); event.stopPropagation();">Programs</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <a class="start-menu-item" href="#" onclick="openBrowser(); closeStartMenu(); return false;">
@@ -490,7 +443,7 @@
             <line x1="5" y1="18.5" x2="43" y2="18.5" stroke="white" stroke-width="0.8" opacity="0.45"/>
             <ellipse cx="16" cy="24" rx="12" ry="5" fill="white" opacity="0.2"/>
           </svg>
-          <span>Documents</span>
+          <span onclick="openExplorerTo('documents'); closeStartMenu(); event.stopPropagation();">Documents</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <div class="start-menu-empty">No documents yet</div>
@@ -505,7 +458,7 @@
             <circle cx="10" cy="9" r="3" fill="#e0f0ff" stroke="#1a4a6e" stroke-width="0.6"/>
             <ellipse cx="8.5" cy="7" rx="3" ry="2" fill="white" opacity="0.3"/>
           </svg>
-          <span>Utilities</span>
+          <span onclick="openExplorerTo('utilities'); closeStartMenu(); event.stopPropagation();">Utilities</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <a class="start-menu-item" href="#" onclick="openNotepad(); closeStartMenu(); return false;">
