@@ -211,11 +211,4 @@ function checkFishDay() {
   return true;
 }
 
-(function(){
-  const k = "fotd-img-" + todayKey();
-  const cached = localStorage.getItem(k);
-  const u = FISH_TODAY[8] || (cached && /^https:\/\/upload\.wikimedia\.org\//.test(cached) ? cached : null);
-  if (u) {
-    new Image().src = u;
-  }
-})();
+/* Image preload moved to fetch-based loading in main.js showFishImage() */

@@ -567,6 +567,7 @@ function populateFish() {
   /* Reset UI for day-change re-population (harmless on first run) */
   fishDetails.textContent = '';
   fishPhoto.style.display = 'none';
+  if (fishPhoto.src && fishPhoto.src.indexOf('blob:') === 0) URL.revokeObjectURL(fishPhoto.src);
   fishPhoto.removeAttribute('src');
   photoPlaceholder.textContent = 'Loading image...';
   photoPlaceholder.style.display = '';
@@ -654,14 +655,22 @@ function populateFish() {
 
   function showFishImage(src) {
     fishPhoto.alt = f[0] + " (" + sciName + ")";
-    fishPhoto.onload = function () {
-      fishPhoto.style.display = "block";
-      photoPlaceholder.style.display = "none";
-    };
-    fishPhoto.onerror = function () {
-      photoPlaceholder.textContent = "Photo unavailable";
-    };
-    fishPhoto.src = src;
+    function applyImage(url) {
+      fishPhoto.onload = function () {
+        fishPhoto.style.display = "block";
+        photoPlaceholder.style.display = "none";
+      };
+      fishPhoto.onerror = function () {
+        photoPlaceholder.textContent = "Photo unavailable";
+      };
+      fishPhoto.src = url;
+    }
+    /* Fetch as blob to bypass iOS ITP blocking cross-origin set-cookie
+       responses; fall back to direct <img> load on fetch failure. */
+    fetch(src, { mode: "cors", credentials: "omit" })
+      .then(function (r) { if (!r.ok) throw 0; return r.blob(); })
+      .then(function (blob) { applyImage(URL.createObjectURL(blob)); })
+      .catch(function () { applyImage(src); });
   }
 }
 
