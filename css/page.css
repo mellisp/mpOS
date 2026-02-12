@@ -110,6 +110,12 @@
 #ontarget .game-embed { position: relative; width: 100%; height: 400px; }
 #ontarget .game-embed iframe { width: 100%; height: 100%; border: none; }
 
+/* Brick Breaker window */
+#brickbreaker { width: 520px; max-width: 95vw; left: 100px; top: 30px; }
+#brickbreaker .window-body { padding: 0; }
+#brickbreaker .game-embed { position: relative; width: 100%; height: 440px; }
+#brickbreaker .game-embed iframe { width: 100%; height: 100%; border: none; }
+
 /* WikiBrowser window */
 #browser { width: 720px; max-width: 95vw; left: 60px; top: 30px; }
 #browser .window-body { padding: 0; display: flex; flex-direction: column; }
@@ -1375,6 +1381,7 @@
   .browser-viewport { height: auto; flex: 1; }
   .photo-frame { height: 200px; }
   #ontarget .game-embed { height: 100%; }
+  #brickbreaker .game-embed { height: 100%; }
 
   /* Paint mobile */
   .paint-main { height: auto; flex: 1; }

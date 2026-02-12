@@ -120,7 +120,8 @@ const FOLDER_ITEMS = {
     { name: 'On Target', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget' },
     { name: 'Virtual Aquarium', desc: 'Watch real fish, in real-time.', tag: 'HTML', action: 'openAquarium' },
     { name: 'Chicken Fingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers', href: 'chicken-fingers.html' },
-    { name: 'Paint', desc: 'Create and edit images.', tag: 'HTML', action: 'openPaint' }
+    { name: 'Paint', desc: 'Create and edit images.', tag: 'HTML', action: 'openPaint' },
+    { name: 'Brick Breaker', desc: 'Daily brick-breaking challenge.', tag: 'HTML', action: 'openBrickBreaker' }
   ],
   documents: [],
   utilities: [
@@ -272,6 +273,7 @@ function getItemIcon(name) {
     'Time Zone': '<defs><linearGradient id="ei-tz" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient><linearGradient id="ei-tzr" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#ei-tzr)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#ei-tz)"/><ellipse cx="8.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><line x1="10" y1="10" x2="10" y2="5" stroke="#2a4a6e" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="10" x2="14" y2="10" stroke="#2a4a6e" stroke-width="0.9" stroke-linecap="round"/><circle cx="10" cy="10" r="0.8" fill="#2a4a6e"/><path d="M3.5 13 Q10 15.5 16.5 13" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/><path d="M3.5 7 Q10 4.5 16.5 7" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/>',
     'Weather': '<defs><radialGradient id="ei-we" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs><circle cx="7" cy="6" r="4" fill="url(#ei-we)" stroke="#c49000" stroke-width="0.8"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="#e8e4dc" stroke="#8a8680" stroke-width="0.7"/>',
     'Disk Usage': '<defs><linearGradient id="ei-du" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="30%" stop-color="#c8c4bc"/><stop offset="70%" stop-color="#a8a49c"/><stop offset="100%" stop-color="#8a8680"/></linearGradient><linearGradient id="ei-dup" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient></defs><rect x="2" y="6" width="16" height="10" rx="1.5" fill="url(#ei-du)" stroke="#6a6660" stroke-width="0.8"/><rect x="4" y="8" width="8" height="5" rx="0.5" fill="url(#ei-dup)" stroke="#4a4a4a" stroke-width="0.5"/><circle cx="8" cy="10.5" r="1.8" fill="none" stroke="#555" stroke-width="0.4"/><circle cx="8" cy="10.5" r="0.5" fill="#888"/><circle cx="15" cy="13" r="0.8" fill="#5aaa80" stroke="#2a7a52" stroke-width="0.3"/>',
+    'Brick Breaker': '<defs><radialGradient id="ei-bb-red" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ff8a80"/><stop offset="50%" stop-color="#ef5350"/><stop offset="100%" stop-color="#c62828"/></radialGradient><radialGradient id="ei-bb-yellow" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ffd54f"/><stop offset="50%" stop-color="#ffc107"/><stop offset="100%" stop-color="#e8a000"/></radialGradient><radialGradient id="ei-bb-green" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#9ccc9c"/><stop offset="50%" stop-color="#66bb6a"/><stop offset="100%" stop-color="#2e7d32"/></radialGradient><linearGradient id="ei-bb-paddle" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8e0f8"/><stop offset="100%" stop-color="#4a8abe"/></linearGradient><radialGradient id="ei-bb-ball" cx="0.3" cy="0.3" r="0.7"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e8e8e8"/></radialGradient></defs><rect x="2" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="7" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="12" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="2" y="5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="7" y="5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="12" y="5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="2" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-green)" stroke="#1b5e20" stroke-width="0.6"/><rect x="7" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-green)" stroke="#1b5e20" stroke-width="0.6"/><rect x="12" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-green)" stroke="#1b5e20" stroke-width="0.6"/><circle cx="10" cy="13" r="1.8" fill="url(#ei-bb-ball)" stroke="#bdbdbd" stroke-width="0.6"/><rect x="6.5" y="16" width="7" height="1.8" rx="0.5" fill="url(#ei-bb-paddle)" stroke="#1a4a6e" stroke-width="0.7"/><ellipse cx="3.5" cy="3" rx="1.5" ry="0.6" fill="white" opacity="0.35"/><ellipse cx="8.5" cy="3" rx="1.5" ry="0.6" fill="white" opacity="0.35"/><ellipse cx="13.5" cy="3" rx="1.5" ry="0.6" fill="white" opacity="0.35"/><ellipse cx="9.3" cy="12.3" rx="0.9" ry="0.7" fill="white" opacity="0.5"/><ellipse cx="8.5" cy="16.4" rx="2.5" ry="0.5" fill="white" opacity="0.3"/>',
     'Paint': '<defs><linearGradient id="ei-pt" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffe082"/><stop offset="70%" stop-color="#f0c050"/><stop offset="100%" stop-color="#c49000"/></linearGradient></defs><ellipse cx="10" cy="11" rx="8" ry="7" fill="url(#ei-pt)" stroke="#a07000" stroke-width="0.8"/><ellipse cx="9" cy="8" rx="5" ry="3" fill="white" opacity="0.25"/><circle cx="6" cy="9" r="1.5" fill="#ef5350"/><circle cx="9" cy="7" r="1.3" fill="#4a8abe"/><circle cx="13" cy="8" r="1.4" fill="#5aaa80"/><circle cx="14" cy="11" r="1.3" fill="#ffc107"/><circle cx="6" cy="13" r="1.2" fill="#9c27b0"/><ellipse cx="11" cy="14" rx="1" ry="0.8" fill="#ff9800"/><path d="M15 5 Q16 3 17 2 Q18 1.5 18 3 Q17 4 16 6 Q15 7 15 5Z" fill="#a07000" stroke="#785000" stroke-width="0.5"/>',
     'Help': '<defs><linearGradient id="ei-hp" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffc107"/><stop offset="70%" stop-color="#e8a010"/><stop offset="100%" stop-color="#c49000"/></linearGradient><linearGradient id="ei-hpp" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient></defs><rect x="2" y="3" width="3" height="14" rx="0.5" fill="url(#ei-hp)" stroke="#c49000" stroke-width="0.6"/><rect x="5" y="4" width="11" height="12" rx="1" fill="url(#ei-hpp)" stroke="#8a8680" stroke-width="0.6"/><path d="M9.5 8 Q9.5 6.5 11 6.5 Q12.5 6.5 12.5 8 Q12.5 9 11 9.5 L11 10.5" fill="none" stroke="#4a8abe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="12.5" r="0.7" fill="#4a8abe"/>'
   };
@@ -381,6 +383,32 @@ function closeOnTarget() {
   if (iframe) iframe.remove();
   embed.dataset.loaded = '';
   bbTaskbar.closeWindow('ontarget');
+}
+
+/* ── Brick Breaker (embedded game) ── */
+function openBrickBreaker() {
+  var embed = document.getElementById('brickbreakerEmbed');
+  openWindow('brickbreaker');
+  if (!embed.dataset.loaded) {
+    embed.dataset.loaded = '1';
+    var iframe = document.createElement('iframe');
+    iframe.src = 'brick-breaker.html';
+    iframe.title = 'Brick Breaker';
+    var initialLoad = true;
+    iframe.addEventListener('load', function () {
+      if (initialLoad) { initialLoad = false; return; }
+      closeBrickBreaker();
+    });
+    embed.appendChild(iframe);
+  }
+}
+
+function closeBrickBreaker() {
+  var embed = document.getElementById('brickbreakerEmbed');
+  var iframe = embed.querySelector('iframe');
+  if (iframe) iframe.remove();
+  embed.dataset.loaded = '';
+  bbTaskbar.closeWindow('brickbreaker');
 }
 
 function openFishOfDay() {
@@ -2617,7 +2645,8 @@ const ACTION_MAP = {
   openWeather: openWeather,
   openDiskUsage: openDiskUsage,
   openHelp: openHelp,
-  openPaint: openPaint
+  openPaint: openPaint,
+  openBrickBreaker: openBrickBreaker
 };
 
 /* ── Run Terminal ── */
@@ -2662,6 +2691,7 @@ const COMMANDS = {
   'weather':     { run: openWeather,     desc: 'Open Weather' },
   'diskusage':   { run: openDiskUsage,  desc: 'Open Disk Usage' },
   'paint':       { run: openPaint,     desc: 'Open Paint' },
+  'brickbreaker': { run: openBrickBreaker, desc: 'Launch Brick Breaker' },
   'hh':          { run: openHelp,       desc: 'Open mpOS Help' },
   'cls':         { run: cmdCls,          desc: 'Clear the screen' },
   'clear':       { run: cmdCls,          desc: 'Clear the screen' },
@@ -2844,7 +2874,8 @@ function buildLauncher() {
     { name: 'On Target', action: null, href: 'target-game.html' },
     { name: 'Virtual Aquarium', action: openAquarium },
     { name: 'Chicken Fingers', action: null, href: 'chicken-fingers.html' },
-    { name: 'Paint', action: openPaint }
+    { name: 'Paint', action: openPaint },
+    { name: 'Brick Breaker', action: null, href: 'brick-breaker.html' }
   ];
   var utilities = [
     { name: 'Notepad', action: openNotepad },
@@ -2912,6 +2943,8 @@ window.openAquarium = openAquarium;
 window.closeAquarium = closeAquarium;
 window.openOnTarget = openOnTarget;
 window.closeOnTarget = closeOnTarget;
+window.openBrickBreaker = openBrickBreaker;
+window.closeBrickBreaker = closeBrickBreaker;
 window.openFishOfDay = openFishOfDay;
 window.openFishFinder = openFishFinder;
 window.openBrowser = openBrowser;
