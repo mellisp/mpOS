@@ -20,6 +20,7 @@
 | `404.html` | Custom 404 error page |
 | `error-pages/500.html` | Custom 500 error page |
 | `target-game.html` | On Target game (loaded in iframe) |
+| `brick-breaker.html` | Brick Breaker game (loaded in iframe) |
 | `chicken-fingers.html` | Chicken Fingers game (separate page, touchscreen only) |
 
 ### Window System
@@ -33,6 +34,7 @@ Every app window is a static `<div class="window draggable">` in `index.html`, i
 | Fish of the Day | `fishofday` | Games | Daily fish from Wikipedia API |
 | Fish Finder | `fishfinder` | Games | Nearest/furthest aquarium via Geolocation |
 | On Target | `ontarget` | Games | iframe to `target-game.html` |
+| Brick Breaker | `brickbreaker` | Games | iframe to `brick-breaker.html`, daily seeded layout |
 | Virtual Aquarium | `aquarium` | Media | YouTube IFrame Player API (live fish cam) |
 | Chicken Fingers | `chickenError` | Games | Touchscreen-only; desktop shows error dialog |
 | Notepad | `notepad` | Utilities | localStorage persistence (`mpOS-notepad`) |
@@ -166,6 +168,20 @@ Key variables used across components:
 - `--font` — system font stack
 - `--text-muted` — `#57606a` secondary/muted text color (never hardcode the hex)
 - `--mono` — `"Consolas", "Courier New", monospace` monospace font stack (never hardcode the font list)
+
+### Cross-Origin Image Loading & iOS ITP
+
+**Problem:** iOS WebKit's Intelligent Tracking Prevention (ITP) blocks cross-origin resources when the server sends `SameSite=None` cookies — it rejects the *entire resource load*, not just the cookie. Wikimedia (`upload.wikimedia.org`) sets `WMF-Uniq` with `SameSite=None; Secure`, which causes `<img>`, `<img crossorigin="anonymous">`, `fetch()` with `credentials: "omit"`, and blob URL workarounds to all fail on iOS Safari and Chrome.
+
+**Solution:** Route images through **wsrv.nl** (`https://wsrv.nl/?url=<encoded-url>`), a free open-source image CDN that fetches server-side and serves from its own domain with `access-control-allow-origin: *` and no tracking cookies. Used in `showFishImage()` in `js/main.js`.
+
+**Debugging methodology — when a resource loads on desktop but fails on iOS:**
+1. Check if the server sends `SameSite=None` cookies (`curl -v` the resource URL and inspect `set-cookie` headers)
+2. If yes, iOS ITP will block the load from a third-party context — no client-side CORS/fetch trick will fix it
+3. The fix must avoid the problematic domain entirely: use an image proxy (wsrv.nl), server-side proxy, or self-hosting
+4. When evaluating a proxy, test with diverse URL patterns (URL-encoded characters, different extensions, non-thumb paths, SVG-to-PNG conversions) to confirm universal compatibility
+
+**CSP note:** `https://wsrv.nl` is in `img-src`. Direct `upload.wikimedia.org` is kept in `img-src` as a desktop fallback but removed from `connect-src` (no longer fetching directly).
 
 ### Security & DOM Conventions
 
