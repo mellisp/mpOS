@@ -642,7 +642,6 @@ function populateFish() {
 
   function showFishImage(src) {
     fishPhoto.alt = f[0] + " (" + sciName + ")";
-    fishPhoto.src = src;
     fishPhoto.onload = function () {
       fishPhoto.style.display = "block";
       photoPlaceholder.style.display = "none";
@@ -650,6 +649,7 @@ function populateFish() {
     fishPhoto.onerror = function () {
       photoPlaceholder.textContent = "Photo unavailable";
     };
+    fishPhoto.src = src;
   }
 }
 
