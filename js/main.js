@@ -569,6 +569,7 @@ function populateFish() {
   fishPhoto.style.display = 'none';
   if (fishPhoto.src && fishPhoto.src.indexOf('blob:') === 0) URL.revokeObjectURL(fishPhoto.src);
   fishPhoto.removeAttribute('src');
+  fishPhoto.removeAttribute('crossorigin');
   photoPlaceholder.textContent = 'Loading image...';
   photoPlaceholder.style.display = '';
   fishName.onclick = null;
@@ -655,22 +656,30 @@ function populateFish() {
 
   function showFishImage(src) {
     fishPhoto.alt = f[0] + " (" + sciName + ")";
-    function applyImage(url) {
-      fishPhoto.onload = function () {
-        fishPhoto.style.display = "block";
-        photoPlaceholder.style.display = "none";
-      };
+    function onLoad() {
+      fishPhoto.style.display = "block";
+      photoPlaceholder.style.display = "none";
+    }
+    function tryDirectCors() {
+      /* Fallback: CORS anonymous img — no cookies sent/accepted,
+         bypasses ITP when there is no preload cache mismatch. */
+      fishPhoto.crossOrigin = "anonymous";
+      fishPhoto.onload = onLoad;
       fishPhoto.onerror = function () {
         photoPlaceholder.textContent = "Photo unavailable";
       };
-      fishPhoto.src = url;
+      fishPhoto.src = src;
     }
-    /* Fetch as blob to bypass iOS ITP blocking cross-origin set-cookie
-       responses; fall back to direct <img> load on fetch failure. */
+    /* Primary: fetch blob with credentials omitted so iOS ITP never
+       sees a set-cookie to reject. Needs connect-src allowance. */
     fetch(src, { mode: "cors", credentials: "omit" })
       .then(function (r) { if (!r.ok) throw 0; return r.blob(); })
-      .then(function (blob) { applyImage(URL.createObjectURL(blob)); })
-      .catch(function () { applyImage(src); });
+      .then(function (blob) {
+        fishPhoto.onload = onLoad;
+        fishPhoto.onerror = tryDirectCors;
+        fishPhoto.src = URL.createObjectURL(blob);
+      })
+      .catch(tryDirectCors);
   }
 }
 
