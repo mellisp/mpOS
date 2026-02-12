@@ -412,6 +412,7 @@ function closeBrickBreaker() {
 }
 
 function openFishOfDay() {
+  if (checkFishDay()) fishPopulated = false;
   openWindow('fishofday');
   populateFish();
 }
@@ -562,6 +563,17 @@ function populateFish() {
   var fishScientific = document.getElementById('fishScientific');
   var fishDetails = document.getElementById('fishDetails');
   var fishDateText = document.getElementById('fishDateText');
+
+  /* Reset UI for day-change re-population (harmless on first run) */
+  fishDetails.textContent = '';
+  fishPhoto.style.display = 'none';
+  fishPhoto.removeAttribute('src');
+  photoPlaceholder.textContent = 'Loading image...';
+  photoPlaceholder.style.display = '';
+  fishName.onclick = null;
+  fishName.style.cursor = '';
+  fishName.style.color = '';
+  delete fishName.dataset.linked;
 
   var sciName = f[1] + " " + f[2];
   fishName.textContent = f[0];
