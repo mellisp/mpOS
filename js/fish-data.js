@@ -200,7 +200,17 @@ function todayKey() {
 }
 
 /* ── Pick today's fish and preload image immediately ── */
-const FISH_TODAY = FISH[fnv(todayKey()) % FISH.length];
+let FISH_TODAY = FISH[fnv(todayKey()) % FISH.length];
+let _fishDay = todayKey();
+
+function checkFishDay() {
+  const d = todayKey();
+  if (d === _fishDay) return false;
+  _fishDay = d;
+  FISH_TODAY = FISH[fnv(d) % FISH.length];
+  return true;
+}
+
 (function(){
   const k = "fotd-img-" + todayKey();
   const cached = localStorage.getItem(k);
