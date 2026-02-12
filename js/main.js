@@ -567,9 +567,7 @@ function populateFish() {
   /* Reset UI for day-change re-population (harmless on first run) */
   fishDetails.textContent = '';
   fishPhoto.style.display = 'none';
-  if (fishPhoto.src && fishPhoto.src.indexOf('blob:') === 0) URL.revokeObjectURL(fishPhoto.src);
   fishPhoto.removeAttribute('src');
-  fishPhoto.removeAttribute('crossorigin');
   photoPlaceholder.textContent = 'Loading image...';
   photoPlaceholder.style.display = '';
   fishName.onclick = null;
@@ -656,30 +654,20 @@ function populateFish() {
 
   function showFishImage(src) {
     fishPhoto.alt = f[0] + " (" + sciName + ")";
-    function onLoad() {
+    /* Route through wsrv.nl image proxy to bypass iOS ITP blocking
+       of upload.wikimedia.org (Wikimedia sets SameSite=None cookies
+       that cause WebKit to reject the entire resource load). */
+    var proxied = src.indexOf("upload.wikimedia.org") !== -1
+      ? "https://wsrv.nl/?url=" + encodeURIComponent(src)
+      : src;
+    fishPhoto.onload = function () {
       fishPhoto.style.display = "block";
       photoPlaceholder.style.display = "none";
-    }
-    function tryDirectCors() {
-      /* Fallback: CORS anonymous img — no cookies sent/accepted,
-         bypasses ITP when there is no preload cache mismatch. */
-      fishPhoto.crossOrigin = "anonymous";
-      fishPhoto.onload = onLoad;
-      fishPhoto.onerror = function () {
-        photoPlaceholder.textContent = "Photo unavailable";
-      };
-      fishPhoto.src = src;
-    }
-    /* Primary: fetch blob with credentials omitted so iOS ITP never
-       sees a set-cookie to reject. Needs connect-src allowance. */
-    fetch(src, { mode: "cors", credentials: "omit" })
-      .then(function (r) { if (!r.ok) throw 0; return r.blob(); })
-      .then(function (blob) {
-        fishPhoto.onload = onLoad;
-        fishPhoto.onerror = tryDirectCors;
-        fishPhoto.src = URL.createObjectURL(blob);
-      })
-      .catch(tryDirectCors);
+    };
+    fishPhoto.onerror = function () {
+      photoPlaceholder.textContent = "Photo unavailable";
+    };
+    fishPhoto.src = proxied;
   }
 }
 
