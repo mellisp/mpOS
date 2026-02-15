@@ -3074,7 +3074,7 @@ const FILESYSTEM = {
   'C:\\mpOS\\Documents': {
     items: FOLDER_ITEMS.documents,
     files: [
-      { name: 'about.txt', size: 246, content: 'About the Developer\n--------------------\nMatthew Pritchard\nSoftware Engineer\n\nThis site was hand-coded as a creative portfolio\nproject. Every app is built from scratch using\nvanilla web technologies.\n\nContact: matthew.pritchard079@gmail.com\nGitHub:  github.com/mellisp' }
+      { name: 'about.txt', size: 150, content: 'About This Site\n--------------------\nThis site was hand-coded as a creative portfolio\nproject. Every app is built from scratch using\nvanilla web technologies.' }
     ]
   },
   'C:\\mpOS\\Utilities': { items: FOLDER_ITEMS.utilities }
