@@ -26,8 +26,14 @@ body {
   background: var(--desktop);
 }
 
-/* Window */
-.window {
+/* XP raised panel — shared border + shadow */
+.window,
+.device-dialog,
+.btn,
+.start-btn,
+.start-menu,
+.start-submenu,
+.volume-popup {
   background: var(--silver);
   border: 2px solid;
   border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
@@ -35,10 +41,14 @@ body {
 }
 
 /* Title Bar */
-.titlebar {
+.titlebar,
+.hud-titlebar {
   background: linear-gradient(to right, var(--title-dark), var(--title-light));
   color: var(--white);
   font-weight: bold;
+}
+
+.titlebar {
   font-size: 13px;
   padding: 4px 6px;
   display: flex;
@@ -81,13 +91,8 @@ body {
 
 /* Buttons */
 .btn {
-  font-family: var(--font);
-  font-size: 13px;
+  font: inherit;
   color: #000;
-  background: var(--silver);
-  border: 2px solid;
-  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-  box-shadow: inset -1px -1px 0 var(--shadow), inset 1px 1px 0 var(--silver);
   padding: 4px 16px;
   cursor: default;
   min-width: 75px;
@@ -133,7 +138,6 @@ body {
 
 /* Section Title */
 .section-title {
-  font-size: 13px;
   font-weight: bold;
   margin: 12px 0 6px 0;
 }
@@ -153,17 +157,18 @@ body {
   border-top: 2px solid var(--shadow);
   padding: 2px 3px;
   font-size: 12px;
-  color: #000;
   display: flex;
   gap: 4px;
 }
 
-.statusbar-section {
+.statusbar-section,
+.hud-statusbar-section {
   border: 1px solid;
   border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  padding: 1px 8px;
   flex: 1;
 }
+
+.statusbar-section { padding: 1px 8px; }
 
 /* Error Dialog Pattern */
 .error-row {
@@ -178,7 +183,7 @@ body {
   flex-shrink: 0;
 }
 
-.error-text { font-size: 13px; line-height: 1.5; }
+.error-text { line-height: 1.5; }
 .error-text h1, .error-text strong { font-size: 14px; font-weight: bold; margin-bottom: 6px; }
 .error-text strong { display: block; }
 
@@ -190,9 +195,6 @@ body {
 
 /* HUD (mini-window for game overlays) */
 .hud-titlebar {
-  background: linear-gradient(to right, var(--title-dark), var(--title-light));
-  color: var(--white);
-  font-weight: bold;
   font-size: 12px;
   padding: 3px 6px;
 }
@@ -206,12 +208,7 @@ body {
   display: flex;
 }
 
-.hud-statusbar-section {
-  border: 1px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  padding: 1px 6px;
-  flex: 1;
-}
+.hud-statusbar-section { padding: 1px 6px; }
 
 /* Device-gate overlay (shown/hidden via media query per page) */
 .device-overlay {
@@ -225,13 +222,7 @@ body {
   padding: 24px;
 }
 
-.device-dialog {
-  background: var(--silver);
-  border: 2px solid;
-  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
-  max-width: 95vw;
-}
+.device-dialog { max-width: 95vw; }
 
 /* ============================================================
    Desktop OS Layout
@@ -308,17 +299,6 @@ body {
   color: #000;
   cursor: default;
   user-select: none;
-}
-
-/* XP raised panel — shared border + shadow */
-.start-btn,
-.start-menu,
-.start-submenu,
-.volume-popup {
-  background: var(--silver);
-  border: 2px solid;
-  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
 }
 
 /* Start Button */

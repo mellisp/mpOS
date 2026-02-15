@@ -40,6 +40,136 @@
 
 .about { line-height: 1.5; padding: 4px; }
 
+/* XP sunken border — shared inset border + shadow */
+.calc-display,
+.tz-clock-face,
+.photo-frame,
+.browser-url,
+.folder-address-bar,
+.notepad-dialog input[type="text"],
+.notepad-file-list,
+.paint-dialog input[type="text"],
+.paint-file-list,
+.help-index-input,
+.help-search-input,
+.weather-day,
+.du-bar,
+.vm-map-wrap {
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+}
+
+/* XP toolbar — shared flex + background + border */
+.browser-toolbar,
+.notepad-toolbar,
+.folder-toolbar,
+.help-toolbar,
+.paint-toolbar {
+  display: flex;
+  background: var(--silver);
+  border-bottom: 1px solid var(--shadow);
+}
+
+/* XP raised button — shared border + shadow */
+.calc-btn,
+.folder-view-btn {
+  font-family: var(--font);
+  font-size: 14px;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+  cursor: default;
+  outline: none;
+}
+
+.calc-btn:active,
+.folder-view-btn:active,
+.folder-view-btn.active {
+  border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
+  box-shadow: inset 1px 1px 0 var(--shadow);
+}
+
+/* Shared file dialog (Notepad + Paint) */
+.notepad-dialog,
+.paint-dialog {
+  position: absolute;
+  inset: 0;
+  background: var(--silver);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 8px;
+  z-index: 1;
+}
+
+.notepad-dialog label,
+.paint-dialog label {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.notepad-dialog input[type="text"],
+.paint-dialog input[type="text"] {
+  width: 100%;
+  padding: 3px 4px;
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.notepad-file-list,
+.paint-file-list {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--white);
+  padding: 2px;
+}
+
+.notepad-file-item,
+.paint-file-item {
+  display: flex;
+  align-items: center;
+  padding: 3px 6px;
+  cursor: default;
+  font-size: 12px;
+}
+
+.notepad-file-item:hover,
+.paint-file-item:hover {
+  background: var(--highlight);
+  color: var(--highlight-text);
+}
+
+.notepad-file-item span,
+.paint-file-item span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notepad-file-item button,
+.paint-file-item button {
+  font-size: 11px;
+  padding: 1px 6px;
+  flex-shrink: 0;
+}
+
+.notepad-dialog .notepad-empty,
+.paint-dialog .paint-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--shadow);
+  font-size: 12px;
+}
+
+.notepad-dialog .button-row,
+.paint-dialog .button-row {
+  margin-top: 4px;
+}
+
 /* My Computer window */
 #mycomputer { width: 380px; max-width: 95vw; left: 120px; top: 40px; }
 
@@ -121,11 +251,8 @@
 #browser .window-body { padding: 0; display: flex; flex-direction: column; }
 
 .browser-toolbar {
-  display: flex;
   gap: 4px;
   padding: 4px;
-  background: var(--silver);
-  border-bottom: 1px solid var(--shadow);
 }
 
 .browser-url {
@@ -133,9 +260,6 @@
   font-size: 12px;
   font-family: inherit;
   padding: 2px 6px;
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
   background: #fff;
   outline: none;
 }
@@ -186,9 +310,6 @@
 
 .photo-frame {
   background: #1a1a2e;
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
   height: 280px;
   display: flex;
   align-items: center;
@@ -252,11 +373,8 @@
 #notepad { width: 480px; max-width: 95vw; left: 100px; top: 60px; }
 
 .notepad-toolbar {
-  display: flex;
   gap: 4px;
   padding: 4px;
-  background: var(--silver);
-  border-bottom: 1px solid var(--shadow);
 }
 
 .notepad-toolbar .btn {
@@ -279,89 +397,13 @@
 
 #notepad .window-body { position: relative; }
 
-.notepad-dialog {
-  position: absolute;
-  inset: 0;
-  background: var(--silver);
-  display: flex;
-  flex-direction: column;
-  padding: 12px;
-  gap: 8px;
-  z-index: 1;
-}
-
-.notepad-dialog label {
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.notepad-dialog input[type="text"] {
-  width: 100%;
-  padding: 3px 4px;
-  font-size: 13px;
-  font-family: inherit;
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
-  box-sizing: border-box;
-}
-
-.notepad-file-list {
-  flex: 1;
-  overflow-y: auto;
-  background: var(--white);
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
-  padding: 2px;
-}
-
-.notepad-file-item {
-  display: flex;
-  align-items: center;
-  padding: 3px 6px;
-  cursor: default;
-  font-size: 12px;
-}
-
-.notepad-file-item:hover {
-  background: var(--highlight);
-  color: var(--highlight-text);
-}
-
-.notepad-file-item span {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.notepad-file-item button {
-  font-size: 11px;
-  padding: 1px 6px;
-  margin-left: 6px;
-  flex-shrink: 0;
-}
-
-.notepad-dialog .notepad-empty {
-  padding: 12px;
-  text-align: center;
-  color: var(--shadow);
-  font-size: 12px;
-}
-
-.notepad-dialog .button-row {
-  margin-top: 4px;
-}
+.notepad-file-item button { margin-left: 6px; }
 
 /* Calculator window */
 #calculator { width: 240px; max-width: 95vw; left: 140px; top: 70px; }
 
 .calc-display {
   background: #d8e8d0;
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
   padding: 6px 8px;
   font-size: 20px;
   font-family: var(--mono);
@@ -377,22 +419,7 @@
   gap: 3px;
 }
 
-.calc-btn {
-  font-family: var(--font);
-  font-size: 14px;
-  padding: 8px 0;
-  background: var(--silver);
-  border: 2px solid;
-  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-  box-shadow: inset -1px -1px 0 var(--shadow), inset 1px 1px 0 var(--silver);
-  cursor: default;
-  outline: none;
-}
-
-.calc-btn:active {
-  border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
-  box-shadow: inset 1px 1px 0 var(--shadow);
-}
+.calc-btn { padding: 8px 0; }
 
 .calc-btn.calc-op { background: #e8e0d8; }
 .calc-btn.calc-eq { background: #c8d8e8; }
@@ -482,9 +509,6 @@
   display: inline-block;
   width: 64px;
   height: 64px;
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
   border-radius: 50%;
   margin-bottom: 4px;
 }
@@ -523,12 +547,9 @@
 #explorer { width: 600px; max-width: 95vw; left: 80px; top: 60px; }
 
 .folder-toolbar {
-  display: flex;
   align-items: center;
   gap: 6px;
   padding: 4px 6px;
-  background: var(--silver);
-  border-bottom: 1px solid var(--shadow);
 }
 
 .folder-address {
@@ -550,9 +571,6 @@
   font-size: 12px;
   font-family: inherit;
   padding: 2px 6px;
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
   background: #fff;
   white-space: nowrap;
   overflow: hidden;
@@ -564,25 +582,12 @@
 }
 
 .folder-view-btn {
-  font-family: var(--font);
-  font-size: 14px;
   width: 24px;
   height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--silver);
-  border: 2px solid;
-  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-  box-shadow: inset -1px -1px 0 var(--shadow), inset 1px 1px 0 var(--silver);
-  cursor: default;
-  outline: none;
   padding: 0;
-}
-
-.folder-view-btn:active, .folder-view-btn.active {
-  border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
-  box-shadow: inset 1px 1px 0 var(--shadow);
 }
 
 /* Two-pane explorer layout */
@@ -734,9 +739,6 @@
   text-align: center;
   padding: 8px;
   background: var(--white);
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
 }
 
 .weather-day-name {
@@ -751,12 +753,7 @@
   font-weight: bold;
 }
 
-.weather-day-range {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
+.weather-day-range,
 .weather-day-desc {
   font-size: 11px;
   color: var(--text-muted);
@@ -818,9 +815,6 @@
   margin: 12px;
   height: 16px;
   display: flex;
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
   overflow: hidden;
 }
 
@@ -836,11 +830,8 @@
 #help { width: 640px; max-width: 95vw; left: 90px; top: 40px; }
 
 .help-toolbar {
-  display: flex;
   gap: 4px;
   padding: 4px 6px;
-  background: var(--silver);
-  border-bottom: 1px solid var(--shadow);
 }
 
 .help-tb-btn {
@@ -948,9 +939,6 @@
   font-size: 12px;
   font-family: inherit;
   padding: 2px 6px;
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
   background: #fff;
   outline: none;
   box-sizing: border-box;
@@ -1035,12 +1023,9 @@
 #paint .window-body { position: relative; display: flex; flex-direction: column; }
 
 .paint-toolbar {
-  display: flex;
   align-items: center;
   gap: 4px;
   padding: 4px;
-  background: var(--silver);
-  border-bottom: 1px solid var(--shadow);
   flex-shrink: 0;
 }
 
@@ -1189,70 +1174,8 @@
 
 .paint-swatch:hover { border-color: var(--dk-shadow); }
 
-/* Paint dialog (Save As / Open) */
-.paint-dialog {
-  position: absolute;
-  inset: 0;
-  background: var(--silver);
-  display: flex;
-  flex-direction: column;
-  padding: 12px;
-  gap: 8px;
-  z-index: 1;
-}
-
-.paint-dialog label {
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.paint-dialog input[type="text"] {
-  width: 100%;
-  padding: 3px 4px;
-  font-size: 13px;
-  font-family: inherit;
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
-  box-sizing: border-box;
-}
-
-.paint-file-list {
-  flex: 1;
-  overflow-y: auto;
-  background: var(--white);
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
-  padding: 2px;
-}
-
-.paint-file-item {
-  display: flex;
-  align-items: center;
-  padding: 3px 6px;
-  cursor: default;
-  font-size: 12px;
-  gap: 8px;
-}
-
-.paint-file-item:hover {
-  background: var(--highlight);
-  color: var(--highlight-text);
-}
-
-.paint-file-item span {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.paint-file-item button {
-  font-size: 11px;
-  padding: 1px 6px;
-  flex-shrink: 0;
-}
+/* Paint dialog — unique overrides (shared styles above) */
+.paint-file-item { gap: 8px; }
 
 .paint-file-thumb {
   width: 32px;
@@ -1263,17 +1186,6 @@
   background: #fff;
 }
 
-.paint-dialog .paint-empty {
-  padding: 12px;
-  text-align: center;
-  color: var(--shadow);
-  font-size: 12px;
-}
-
-.paint-dialog .button-row {
-  margin-top: 4px;
-}
-
 /* Visitor Map window */
 #visitormap { width: 720px; max-width: 95vw; left: 80px; top: 40px; }
 #visitormap .window-body { padding: 0; display: flex; flex-direction: row; overflow: hidden; }
@@ -1282,9 +1194,6 @@
   flex: 1;
   min-width: 0;
   background: var(--white);
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
   margin: 6px;
   position: relative;
   overflow: hidden;
