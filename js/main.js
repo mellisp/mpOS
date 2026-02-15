@@ -1486,6 +1486,7 @@ const DU_FILES = [
   { path: 'index.html', type: 'HTML' },
   { path: '404.html', type: 'HTML' },
   { path: 'target-game.html', type: 'HTML' },
+  { path: 'brick-breaker.html', type: 'HTML' },
   { path: 'chicken-fingers.html', type: 'HTML' },
   { path: 'error-pages/400.html', type: 'HTML' },
   { path: 'error-pages/403.html', type: 'HTML' },
@@ -1497,11 +1498,25 @@ const DU_FILES = [
   { path: 'js/audio.js', type: 'JS' },
   { path: 'js/fish-data.js', type: 'JS' },
   { path: 'js/aquarium-data.js', type: 'JS' },
-  { path: 'js/help-data.js', type: 'JS' }
+  { path: 'js/help-data.js', type: 'JS' },
+  { path: 'js/world-map-data.js', type: 'JS' }
 ];
 
 const DU_COLORS = { HTML: '#4a8abe', CSS: '#5aaa80', JS: '#e8a010' };
 const DU_LABELS = { HTML: 'HTML', CSS: 'CSS', JS: 'JavaScript' };
+
+function darkenHex(hex, factor) {
+  var r = parseInt(hex.slice(1, 3), 16);
+  var g = parseInt(hex.slice(3, 5), 16);
+  var b = parseInt(hex.slice(5, 7), 16);
+  return '#' + ((1 << 24) + (Math.round(r * factor) << 16) +
+    (Math.round(g * factor) << 8) + Math.round(b * factor)).toString(16).slice(1);
+}
+
+function formatDuSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  return (bytes / 1024).toFixed(1) + ' KB';
+}
 
 function openDiskUsage() {
   openWindow('diskusage');
@@ -1517,6 +1532,13 @@ function populateDiskUsage() {
   showLoadingMessage(body, 'Scanning disk...');
 
   var SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS(SVG_NS, tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
   var fetches = DU_FILES.map(function (f) {
     return fetch(f.path)
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
@@ -1527,12 +1549,10 @@ function populateDiskUsage() {
   Promise.all(fetches).then(function (results) {
     var files = results.filter(function (r) { return r !== null; });
     var totals = { HTML: 0, CSS: 0, JS: 0 };
-    var counts = { HTML: 0, CSS: 0, JS: 0 };
     var totalSize = 0;
 
     files.forEach(function (f) {
       totals[f.type] += f.size;
-      counts[f.type]++;
       totalSize += f.size;
     });
 
@@ -1542,96 +1562,194 @@ function populateDiskUsage() {
     }
 
     body.textContent = '';
+    var types = ['HTML', 'CSS', 'JS'];
 
-    // Header
+    // ── Drive header with HDD icon ──
     var header = document.createElement('div');
-    header.className = 'du-header';
-    var titleEl = document.createElement('div');
-    titleEl.className = 'du-header-title';
-    titleEl.textContent = 'mpOS Virtual Disk';
-    header.appendChild(titleEl);
-    var subEl = document.createElement('div');
-    subEl.className = 'du-header-sub';
-    subEl.textContent = 'File system: HTMLFS';
-    header.appendChild(subEl);
+    header.className = 'du-drive-header';
+
+    var iconSvg = svgEl('svg', { viewBox: '0 0 32 32', width: '32', height: '32', 'class': 'du-drive-icon' });
+    var defs = svgEl('defs', {});
+    var grad = svgEl('linearGradient', { id: 'du-hdd-g', x1: '0', y1: '0', x2: '0', y2: '1' });
+    grad.appendChild(svgEl('stop', { offset: '0%', 'stop-color': '#d8d4cc' }));
+    grad.appendChild(svgEl('stop', { offset: '100%', 'stop-color': '#a0a098' }));
+    defs.appendChild(grad);
+    iconSvg.appendChild(defs);
+    iconSvg.appendChild(svgEl('rect', { x: 2, y: 6, width: 28, height: 20, rx: 2, fill: 'url(#du-hdd-g)', stroke: '#888', 'stroke-width': '0.75' }));
+    iconSvg.appendChild(svgEl('rect', { x: 3, y: 7, width: 26, height: 8, rx: 1, fill: 'rgba(255,255,255,0.3)' }));
+    iconSvg.appendChild(svgEl('rect', { x: 7, y: 9, width: 14, height: 4, rx: 0.5, fill: '#f0eeea', stroke: '#ccc', 'stroke-width': '0.5' }));
+    iconSvg.appendChild(svgEl('rect', { x: 7, y: 20, width: 3, height: 2, rx: 0.5, fill: '#4a9' }));
+    [17, 19, 21].forEach(function (yy) {
+      iconSvg.appendChild(svgEl('line', { x1: 22, y1: yy, x2: 27, y2: yy, stroke: '#888', 'stroke-width': '0.5' }));
+    });
+    header.appendChild(iconSvg);
+
+    var labelEl = document.createElement('span');
+    labelEl.className = 'du-drive-label';
+    labelEl.textContent = 'mpOS Virtual Disk (C:)';
+    header.appendChild(labelEl);
     body.appendChild(header);
 
-    // Pie chart
-    var pieWrap = document.createElement('div');
-    pieWrap.className = 'du-pie-wrap';
-    var svg = document.createElementNS(SVG_NS, 'svg');
-    svg.setAttribute('viewBox', '0 0 120 120');
-    svg.setAttribute('width', '120');
-    svg.setAttribute('height', '120');
+    // ── Divider ──
+    var hr1 = document.createElement('div');
+    hr1.className = 'du-hr';
+    body.appendChild(hr1);
 
-    var types = ['HTML', 'CSS', 'JS'];
-    var cumulative = 0;
+    // ── Info section ──
+    var info = document.createElement('div');
+    info.className = 'du-info';
 
-    types.forEach(function (type) {
-      var pct = totals[type] / totalSize;
-      if (pct === 0) return;
-      var startAngle = cumulative * 2 * Math.PI;
-      var endAngle = (cumulative + pct) * 2 * Math.PI;
-      cumulative += pct;
+    var tLabel = document.createElement('span');
+    tLabel.className = 'du-info-label';
+    tLabel.textContent = 'Type:';
+    info.appendChild(tLabel);
+    var tVal = document.createElement('span');
+    tVal.textContent = 'Virtual Disk';
+    info.appendChild(tVal);
 
-      var x1 = 60 + 50 * Math.sin(startAngle);
-      var y1 = 60 - 50 * Math.cos(startAngle);
-      var x2 = 60 + 50 * Math.sin(endAngle);
-      var y2 = 60 - 50 * Math.cos(endAngle);
-      var largeArc = pct > 0.5 ? 1 : 0;
+    var fLabel = document.createElement('span');
+    fLabel.className = 'du-info-label';
+    fLabel.textContent = 'File system:';
+    info.appendChild(fLabel);
+    var fVal = document.createElement('span');
+    fVal.textContent = 'HTMLFS';
+    info.appendChild(fVal);
 
-      var path = document.createElementNS(SVG_NS, 'path');
-      if (pct >= 0.9999) {
-        // Full circle
-        path.setAttribute('d', 'M60,10 A50,50 0 1,1 59.99,10 Z');
-      } else {
-        path.setAttribute('d',
-          'M60,60 L' + x1 + ',' + y1 +
-          ' A50,50 0 ' + largeArc + ',1 ' + x2 + ',' + y2 + ' Z'
-        );
-      }
-      path.setAttribute('fill', DU_COLORS[type]);
-      svg.appendChild(path);
-    });
+    body.appendChild(info);
 
-    pieWrap.appendChild(svg);
-    body.appendChild(pieWrap);
-
-    // Legend
-    var legend = document.createElement('div');
-    legend.className = 'du-legend';
+    // ── Type breakdown ──
+    var typesDiv = document.createElement('div');
+    typesDiv.className = 'du-types';
 
     types.forEach(function (type) {
-      var pct = totals[type] / totalSize * 100;
       var row = document.createElement('div');
-      row.className = 'du-legend-row';
+      row.className = 'du-type-row';
 
       var chip = document.createElement('span');
-      chip.className = 'du-chip';
+      chip.className = 'du-type-chip';
       chip.style.background = DU_COLORS[type];
       row.appendChild(chip);
 
       var label = document.createElement('span');
-      label.className = 'du-legend-label';
-      label.textContent = DU_LABELS[type];
+      label.className = 'du-type-label';
+      label.textContent = DU_LABELS[type] + ':';
       row.appendChild(label);
 
-      var sizeEl = document.createElement('span');
-      sizeEl.className = 'du-legend-size';
-      sizeEl.textContent = formatDuSize(totals[type]);
-      row.appendChild(sizeEl);
+      var bytesEl = document.createElement('span');
+      bytesEl.className = 'du-type-bytes';
+      bytesEl.textContent = totals[type].toLocaleString('en-US') + ' bytes';
+      row.appendChild(bytesEl);
 
-      var pctEl = document.createElement('span');
-      pctEl.className = 'du-legend-pct';
-      pctEl.textContent = Math.round(pct) + '%';
-      row.appendChild(pctEl);
+      var kbEl = document.createElement('span');
+      kbEl.className = 'du-type-kb';
+      kbEl.textContent = formatDuSize(totals[type]);
+      row.appendChild(kbEl);
 
-      legend.appendChild(row);
+      typesDiv.appendChild(row);
     });
 
-    body.appendChild(legend);
+    body.appendChild(typesDiv);
 
-    // Capacity bar
+    // ── Divider ──
+    var hr2 = document.createElement('div');
+    hr2.className = 'du-hr';
+    body.appendChild(hr2);
+
+    // ── Capacity row ──
+    var capRow = document.createElement('div');
+    capRow.className = 'du-capacity-row';
+
+    var capLabel = document.createElement('span');
+    capLabel.className = 'du-capacity-label';
+    capLabel.textContent = 'Capacity:';
+    capRow.appendChild(capLabel);
+
+    var capBytes = document.createElement('span');
+    capBytes.className = 'du-capacity-bytes';
+    capBytes.textContent = totalSize.toLocaleString('en-US') + ' bytes';
+    capRow.appendChild(capBytes);
+
+    var capKb = document.createElement('span');
+    capKb.className = 'du-capacity-kb';
+    capKb.textContent = formatDuSize(totalSize);
+    capRow.appendChild(capKb);
+
+    body.appendChild(capRow);
+
+    // ── 3D Pie chart ──
+    var pieWrap = document.createElement('div');
+    pieWrap.className = 'du-pie-wrap';
+
+    var pieSvg = svgEl('svg', { viewBox: '0 0 200 130', width: '200', height: '130' });
+    var pieCx = 100, pieCy = 52, pieRx = 75, pieRy = 42, pieDepth = 12;
+
+    function piePt(angle, dy) {
+      return {
+        x: (pieCx + pieRx * Math.cos(angle)).toFixed(2),
+        y: (pieCy + pieRy * Math.sin(angle) + (dy || 0)).toFixed(2)
+      };
+    }
+
+    // Calculate slices (start from top, clockwise)
+    var slices = [];
+    var cumAngle = -Math.PI / 2;
+    types.forEach(function (type) {
+      var pct = totals[type] / totalSize;
+      if (pct === 0) return;
+      slices.push({ type: type, start: cumAngle, end: cumAngle + pct * 2 * Math.PI, pct: pct });
+      cumAngle += pct * 2 * Math.PI;
+    });
+
+    // Back rim (dark ellipse at depth level)
+    pieSvg.appendChild(svgEl('ellipse', { cx: pieCx, cy: pieCy + pieDepth, rx: pieRx, ry: pieRy, fill: '#686868' }));
+
+    // Front-facing side faces (visible where sin(angle) > 0, i.e. angles 0 to π)
+    slices.forEach(function (s) {
+      var visStart = Math.max(s.start, 0);
+      var visEnd = Math.min(s.end, Math.PI);
+      if (visStart >= visEnd) return;
+
+      var p1t = piePt(visStart, 0);
+      var p1b = piePt(visStart, pieDepth);
+      var p2t = piePt(visEnd, 0);
+      var p2b = piePt(visEnd, pieDepth);
+      var large = (visEnd - visStart) > Math.PI ? 1 : 0;
+
+      var d = 'M' + p1t.x + ',' + p1t.y +
+              ' A' + pieRx + ',' + pieRy + ' 0 ' + large + ',1 ' + p2t.x + ',' + p2t.y +
+              ' L' + p2b.x + ',' + p2b.y +
+              ' A' + pieRx + ',' + pieRy + ' 0 ' + large + ',0 ' + p1b.x + ',' + p1b.y + ' Z';
+
+      pieSvg.appendChild(svgEl('path', { d: d, fill: darkenHex(DU_COLORS[s.type], 0.7) }));
+    });
+
+    // Top face slices
+    slices.forEach(function (s) {
+      var p1 = piePt(s.start, 0);
+      var p2 = piePt(s.end, 0);
+      var large = s.pct > 0.5 ? 1 : 0;
+      var d;
+
+      if (s.pct >= 0.9999) {
+        d = 'M' + (pieCx - pieRx) + ',' + pieCy +
+            ' A' + pieRx + ',' + pieRy + ' 0 1,1 ' + (pieCx + pieRx) + ',' + pieCy +
+            ' A' + pieRx + ',' + pieRy + ' 0 1,1 ' + (pieCx - pieRx) + ',' + pieCy + ' Z';
+      } else {
+        d = 'M' + pieCx + ',' + pieCy +
+            ' L' + p1.x + ',' + p1.y +
+            ' A' + pieRx + ',' + pieRy + ' 0 ' + large + ',1 ' + p2.x + ',' + p2.y + ' Z';
+      }
+
+      pieSvg.appendChild(svgEl('path', { d: d, fill: DU_COLORS[s.type] }));
+    });
+
+    // Subtle highlight on upper-left of top face
+    pieSvg.appendChild(svgEl('ellipse', { cx: pieCx - 15, cy: pieCy - 8, rx: 30, ry: 18, fill: 'rgba(255,255,255,0.15)' }));
+
+    pieWrap.appendChild(pieSvg);
+    body.appendChild(pieWrap);
+
+    // ── Capacity bar ──
     var bar = document.createElement('div');
     bar.className = 'du-bar';
 
@@ -1647,19 +1765,28 @@ function populateDiskUsage() {
 
     body.appendChild(bar);
 
-    // Total line
-    var totalEl = document.createElement('div');
-    totalEl.className = 'du-total';
-    totalEl.textContent = 'Total: ' + formatDuSize(totalSize) + ' (' + files.length + ' files)';
-    body.appendChild(totalEl);
+    // ── Disk Cleanup button ──
+    var cleanupRow = document.createElement('div');
+    cleanupRow.className = 'du-cleanup-row';
+
+    var cleanupBtn = document.createElement('button');
+    cleanupBtn.className = 'calc-btn';
+    cleanupBtn.textContent = 'Disk Cleanup';
+    cleanupBtn.addEventListener('click', function () {
+      cleanupBtn.disabled = true;
+      cleanupBtn.textContent = 'Scanning\u2026';
+      setTimeout(function () {
+        cleanupBtn.textContent = 'Disk Cleanup';
+        cleanupBtn.disabled = false;
+        status.textContent = '0 bytes freed \u2014 no frameworks to remove';
+      }, 1500);
+    });
+
+    cleanupRow.appendChild(cleanupBtn);
+    body.appendChild(cleanupRow);
 
     status.textContent = files.length + ' files scanned';
   });
-}
-
-function formatDuSize(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  return (bytes / 1024).toFixed(1) + ' KB';
 }
 
 /* ── Visitor Map ── */
