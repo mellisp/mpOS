@@ -451,6 +451,11 @@ button.start-menu-item {
 
 .volume-popup.open { display: block; }
 
+.volume-title {
+  font-size: 12px;
+  font-weight: bold;
+}
+
 .volume-slider {
   writing-mode: vertical-lr;
   direction: rtl;
