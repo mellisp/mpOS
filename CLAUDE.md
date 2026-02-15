@@ -14,6 +14,8 @@
 | `js/main.js` | All app logic, explorer, terminal — inside one IIFE |
 | `js/taskbar.js` | Taskbar, start menu, window drag (mouse + touch) |
 | `js/fish-data.js` | Fish of the Day dataset (auto-generated) |
+| `js/world-map-data.js` | Visitor Map SVG country paths + country name lookup |
+| `worker.js` | Cloudflare Worker for visitor counting (deploy separately) |
 | `target-game.html` | On Target (iframe game) |
 | `brick-breaker.html` | Brick Breaker (iframe game) |
 | `chicken-fingers.html` | Chicken Fingers (standalone, touchscreen only) |
@@ -35,6 +37,7 @@
 | Calendar | `calendar` | Utilities |
 | Time Zone | `timezone` | Utilities |
 | Weather | `weather` | Utilities |
+| Visitor Map | `visitormap` | Utilities |
 | Run | `run` | System |
 
 ## Adding a New App (Checklist)
