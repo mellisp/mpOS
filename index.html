@@ -345,6 +345,26 @@
       </div>
       <div class="window-body">
         <div class="calc-display" id="calcDisplay">0</div>
+        <div class="calc-mode-bar">
+          <label class="calc-mode-toggle">
+            <input type="checkbox" id="calcSciToggle" onchange="calcToggleScientific()">
+            <span>Scientific</span>
+          </label>
+        </div>
+        <div class="calc-sci-buttons" id="calcSciButtons" style="display:none;">
+          <button class="calc-btn calc-sci" onclick="calcSciFn('sin')">sin</button>
+          <button class="calc-btn calc-sci" onclick="calcSciFn('cos')">cos</button>
+          <button class="calc-btn calc-sci" onclick="calcSciFn('tan')">tan</button>
+          <button class="calc-btn calc-sci" onclick="calcSciFn('sqrt')">&radic;</button>
+          <button class="calc-btn calc-sci" onclick="calcSciFn('sq')">x<sup>2</sup></button>
+          <button class="calc-btn calc-sci" onclick="calcOp('pow')">x<sup>y</sup></button>
+          <button class="calc-btn calc-sci" onclick="calcSciFn('pi')">&pi;</button>
+          <button class="calc-btn calc-sci" onclick="calcSciFn('negate')">&plusmn;</button>
+          <button class="calc-btn calc-sci" onclick="calcSciFn('log')">log</button>
+          <button class="calc-btn calc-sci" onclick="calcSciFn('ln')">ln</button>
+          <button class="calc-btn calc-sci" onclick="calcSciFn('inv')">1/x</button>
+          <button class="calc-btn calc-sci" onclick="calcSciFn('fact')">n!</button>
+        </div>
         <div class="calc-buttons">
           <button class="calc-btn calc-fn" onclick="calcClearEntry()">CE</button>
           <button class="calc-btn calc-fn" onclick="calcClear()">C</button>
