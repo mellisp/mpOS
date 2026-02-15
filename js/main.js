@@ -1432,13 +1432,144 @@ function weatherCodeToDesc(code) {
   return WEATHER_CODES[code] || 'Unknown';
 }
 
+function weatherIconType(code) {
+  if (code <= 1) return 'sun';
+  if (code === 2) return 'partcloud';
+  if (code === 3) return 'cloud';
+  if (code === 45 || code === 48) return 'fog';
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'rain';
+  if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return 'snow';
+  return 'thunder';
+}
+
 function renderWeather(body, data) {
   var current = data.current_weather;
   var daily = data.daily;
   body.textContent = '';
 
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs) {
+    var e = document.createElementNS(SVG_NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // Shared gradient defs (injected once, referenced by all icons)
+  var defsSvg = el('svg', { width: '0', height: '0' });
+  defsSvg.style.position = 'absolute';
+  var defs = el('defs', {});
+
+  var sunG = el('radialGradient', { id: 'wi-sun', cx: '0.35', cy: '0.35', r: '0.65' });
+  sunG.appendChild(el('stop', { offset: '0%', 'stop-color': '#fffde0' }));
+  sunG.appendChild(el('stop', { offset: '100%', 'stop-color': '#f9a825' }));
+  defs.appendChild(sunG);
+
+  var cloudG = el('linearGradient', { id: 'wi-cloud', x1: '0', y1: '0', x2: '1', y2: '1' });
+  cloudG.appendChild(el('stop', { offset: '0%', 'stop-color': '#f0eeea' }));
+  cloudG.appendChild(el('stop', { offset: '100%', 'stop-color': '#d0ccc4' }));
+  defs.appendChild(cloudG);
+
+  var dkG = el('linearGradient', { id: 'wi-dkcloud', x1: '0', y1: '0', x2: '1', y2: '1' });
+  dkG.appendChild(el('stop', { offset: '0%', 'stop-color': '#b0aca4' }));
+  dkG.appendChild(el('stop', { offset: '100%', 'stop-color': '#7a7670' }));
+  defs.appendChild(dkG);
+
+  var dropG = el('linearGradient', { id: 'wi-drop', x1: '0', y1: '0', x2: '0', y2: '1' });
+  dropG.appendChild(el('stop', { offset: '0%', 'stop-color': '#c8e0f8' }));
+  dropG.appendChild(el('stop', { offset: '100%', 'stop-color': '#4a8abe' }));
+  defs.appendChild(dropG);
+
+  var boltG = el('linearGradient', { id: 'wi-bolt', x1: '0', y1: '0', x2: '0', y2: '1' });
+  boltG.appendChild(el('stop', { offset: '0%', 'stop-color': '#fff3c4' }));
+  boltG.appendChild(el('stop', { offset: '100%', 'stop-color': '#ffc107' }));
+  defs.appendChild(boltG);
+
+  defsSvg.appendChild(defs);
+  body.appendChild(defsSvg);
+
+  // Cloud paths (Q-curve style matching explorer icon)
+  var CLOUD = 'M10 30 Q10 23 17 23 Q18 18 24 18 Q32 18 33 23 Q39 23 39 28 Q39 32 34 32 L15 32 Q10 32 10 30 Z';
+  var CLOUD_HI = 'M10 22 Q10 15 17 15 Q18 10 24 10 Q32 10 33 15 Q39 15 39 20 Q39 24 34 24 L15 24 Q10 24 10 22 Z';
+  var CLOUD_PC = 'M6 34 Q6 27 13 27 Q14 22 20 22 Q28 22 29 27 Q35 27 35 32 Q35 36 30 36 L11 36 Q6 36 6 34 Z';
+
+  function addSun(svg, cx, cy, r) {
+    for (var i = 0; i < 8; i++) {
+      var a = i * Math.PI / 4;
+      svg.appendChild(el('line', {
+        x1: (cx + (r + 3) * Math.cos(a)).toFixed(1),
+        y1: (cy + (r + 3) * Math.sin(a)).toFixed(1),
+        x2: (cx + (r + 7) * Math.cos(a)).toFixed(1),
+        y2: (cy + (r + 7) * Math.sin(a)).toFixed(1),
+        stroke: '#f9a825', 'stroke-width': '2.5', 'stroke-linecap': 'round'
+      }));
+    }
+    svg.appendChild(el('circle', { cx: cx, cy: cy, r: r, fill: 'url(#wi-sun)', stroke: '#c49000', 'stroke-width': '1' }));
+    svg.appendChild(el('ellipse', { cx: cx - r * 0.25, cy: cy - r * 0.25, rx: r * 0.35, ry: r * 0.3, fill: 'rgba(255,255,255,0.4)' }));
+  }
+
+  function addCloud(svg, path, dark) {
+    svg.appendChild(el('path', {
+      d: path,
+      fill: 'url(#' + (dark ? 'wi-dkcloud' : 'wi-cloud') + ')',
+      stroke: dark ? '#5a5650' : '#8a8680',
+      'stroke-width': '0.8'
+    }));
+  }
+
+  function makeIcon(code) {
+    var svg = el('svg', { viewBox: '0 0 48 48', 'class': 'weather-icon' });
+    var type = weatherIconType(code);
+
+    switch (type) {
+      case 'sun':
+        addSun(svg, 24, 24, 10);
+        break;
+      case 'partcloud':
+        addSun(svg, 33, 14, 9);
+        addCloud(svg, CLOUD_PC, false);
+        svg.appendChild(el('ellipse', { cx: 15, cy: 25, rx: 5, ry: 3, fill: 'rgba(255,255,255,0.3)' }));
+        break;
+      case 'cloud':
+        addCloud(svg, CLOUD, false);
+        svg.appendChild(el('ellipse', { cx: 20, cy: 21, rx: 5, ry: 3, fill: 'rgba(255,255,255,0.3)' }));
+        break;
+      case 'fog':
+        addCloud(svg, CLOUD_HI, false);
+        svg.appendChild(el('ellipse', { cx: 20, cy: 13, rx: 5, ry: 3, fill: 'rgba(255,255,255,0.3)' }));
+        svg.appendChild(el('line', { x1: 8, y1: 30, x2: 40, y2: 30, stroke: '#b0aca4', 'stroke-width': '2', 'stroke-linecap': 'round' }));
+        svg.appendChild(el('line', { x1: 12, y1: 35, x2: 36, y2: 35, stroke: '#c8c4bc', 'stroke-width': '2', 'stroke-linecap': 'round' }));
+        svg.appendChild(el('line', { x1: 10, y1: 40, x2: 38, y2: 40, stroke: '#d8d4cc', 'stroke-width': '2', 'stroke-linecap': 'round' }));
+        break;
+      case 'rain':
+        addCloud(svg, CLOUD_HI, false);
+        svg.appendChild(el('ellipse', { cx: 20, cy: 13, rx: 5, ry: 3, fill: 'rgba(255,255,255,0.3)' }));
+        svg.appendChild(el('ellipse', { cx: 16, cy: 32, rx: 1.5, ry: 2.5, fill: 'url(#wi-drop)' }));
+        svg.appendChild(el('ellipse', { cx: 24, cy: 36, rx: 1.5, ry: 2.5, fill: 'url(#wi-drop)' }));
+        svg.appendChild(el('ellipse', { cx: 32, cy: 32, rx: 1.5, ry: 2.5, fill: 'url(#wi-drop)' }));
+        break;
+      case 'snow':
+        addCloud(svg, CLOUD_HI, false);
+        svg.appendChild(el('ellipse', { cx: 20, cy: 13, rx: 5, ry: 3, fill: 'rgba(255,255,255,0.3)' }));
+        svg.appendChild(el('circle', { cx: 16, cy: 32, r: 2.5, fill: '#e8eef4', stroke: '#a0b8cc', 'stroke-width': '0.5' }));
+        svg.appendChild(el('circle', { cx: 24, cy: 37, r: 2.5, fill: '#e8eef4', stroke: '#a0b8cc', 'stroke-width': '0.5' }));
+        svg.appendChild(el('circle', { cx: 32, cy: 32, r: 2.5, fill: '#e8eef4', stroke: '#a0b8cc', 'stroke-width': '0.5' }));
+        break;
+      case 'thunder':
+        addCloud(svg, CLOUD_HI, true);
+        svg.appendChild(el('ellipse', { cx: 20, cy: 13, rx: 5, ry: 3, fill: 'rgba(255,255,255,0.2)' }));
+        svg.appendChild(el('path', {
+          d: 'M26 26 L22 33 L26 33 L21 42 L29 32 L25 32 L29 26 Z',
+          fill: 'url(#wi-bolt)', stroke: '#c49000', 'stroke-width': '0.7', 'stroke-linejoin': 'round'
+        }));
+        break;
+    }
+    return svg;
+  }
+
+  // Current weather
   var curDiv = document.createElement('div');
   curDiv.className = 'weather-current';
+  curDiv.appendChild(makeIcon(current.weathercode));
   var tempEl = document.createElement('div');
   tempEl.className = 'weather-temp';
   tempEl.textContent = Math.round(current.temperature) + '\u00b0C';
@@ -1453,6 +1584,7 @@ function renderWeather(body, data) {
   sep.className = 'separator';
   body.appendChild(sep);
 
+  // Forecast
   var forecast = document.createElement('div');
   forecast.className = 'weather-forecast';
   for (var i = 0; i < daily.time.length; i++) {
@@ -1464,6 +1596,7 @@ function renderWeather(body, data) {
     nameEl.className = 'weather-day-name';
     nameEl.textContent = dayName;
     dayDiv.appendChild(nameEl);
+    dayDiv.appendChild(makeIcon(daily.weathercode[i]));
     var dayTempEl = document.createElement('div');
     dayTempEl.className = 'weather-day-temp';
     dayTempEl.textContent = Math.round(daily.temperature_2m_max[i]) + '\u00b0';
