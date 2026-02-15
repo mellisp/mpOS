@@ -83,6 +83,12 @@ const notepadStatus = document.getElementById('notepadStatus');
 const notepadTitle = document.getElementById('notepadTitle');
 let notepadCurrentFile = null;
 let notepadDirty = false;
+let notepadFindTerm = '';
+let notepadReplaceTerm = '';
+let notepadFindMatches = [];
+let notepadFindIndex = -1;
+let notepadFindCaseSensitive = false;
+let notepadFindMode = '';
 
 function openWindow(id) {
   var win = document.getElementById(id);
@@ -1075,6 +1081,7 @@ function notepadDeleteFile(name) {
 
 function closeNotepad() {
   if (!notepadGuardDirty()) return;
+  notepadCloseFindBar();
   notepadDismissDialog();
   bbTaskbar.closeWindow('notepad');
 }
@@ -1087,6 +1094,236 @@ function updateNotepadStatus() {
 notepadEditor.addEventListener('input', function () {
   notepadMarkDirty();
   updateNotepadStatus();
+  if (notepadFindMode) {
+    notepadBuildFindMatches();
+    notepadUpdateFindCount();
+  }
+});
+
+/* ── Notepad Find/Replace ── */
+function notepadBuildFindMatches() {
+  notepadFindMatches = [];
+  if (!notepadFindTerm) return;
+  var text = notepadEditor.value;
+  var term = notepadFindTerm;
+  if (!notepadFindCaseSensitive) {
+    text = text.toLowerCase();
+    term = term.toLowerCase();
+  }
+  var pos = 0;
+  while (true) {
+    var idx = text.indexOf(term, pos);
+    if (idx === -1) break;
+    notepadFindMatches.push({ start: idx, end: idx + notepadFindTerm.length });
+    pos = idx + 1;
+  }
+}
+
+function notepadUpdateFindCount() {
+  var countEl = document.getElementById('notepadFindCount');
+  if (!countEl) return;
+  if (!notepadFindTerm || notepadFindMatches.length === 0) {
+    countEl.textContent = notepadFindTerm ? '0 matches' : '';
+    return;
+  }
+  countEl.textContent = (notepadFindIndex + 1) + ' of ' + notepadFindMatches.length;
+}
+
+function notepadHighlightMatch() {
+  if (notepadFindMatches.length === 0) { notepadUpdateFindCount(); return; }
+  if (notepadFindIndex < 0) notepadFindIndex = 0;
+  if (notepadFindIndex >= notepadFindMatches.length) notepadFindIndex = notepadFindMatches.length - 1;
+  var m = notepadFindMatches[notepadFindIndex];
+  notepadEditor.focus();
+  notepadEditor.setSelectionRange(m.start, m.end);
+  notepadUpdateFindCount();
+}
+
+function notepadFindNext() {
+  if (notepadFindMatches.length === 0) return;
+  notepadFindIndex = (notepadFindIndex + 1) % notepadFindMatches.length;
+  notepadHighlightMatch();
+}
+
+function notepadFindPrev() {
+  if (notepadFindMatches.length === 0) return;
+  notepadFindIndex = (notepadFindIndex - 1 + notepadFindMatches.length) % notepadFindMatches.length;
+  notepadHighlightMatch();
+}
+
+function notepadReplace() {
+  if (notepadFindMatches.length === 0 || notepadFindIndex < 0) return;
+  var m = notepadFindMatches[notepadFindIndex];
+  var val = notepadEditor.value;
+  notepadEditor.value = val.substring(0, m.start) + notepadReplaceTerm + val.substring(m.end);
+  notepadMarkDirty();
+  updateNotepadStatus();
+  notepadBuildFindMatches();
+  if (notepadFindIndex >= notepadFindMatches.length) notepadFindIndex = 0;
+  if (notepadFindMatches.length > 0) notepadHighlightMatch();
+  else notepadUpdateFindCount();
+}
+
+function notepadReplaceAll() {
+  if (notepadFindMatches.length === 0) return;
+  var val = notepadEditor.value;
+  for (var i = notepadFindMatches.length - 1; i >= 0; i--) {
+    var m = notepadFindMatches[i];
+    val = val.substring(0, m.start) + notepadReplaceTerm + val.substring(m.end);
+  }
+  notepadEditor.value = val;
+  notepadMarkDirty();
+  updateNotepadStatus();
+  notepadBuildFindMatches();
+  notepadFindIndex = 0;
+  notepadUpdateFindCount();
+}
+
+function notepadShowFindBar(mode) {
+  var existing = document.querySelector('.notepad-findbar');
+  if (existing && notepadFindMode === mode) {
+    var input = existing.querySelector('.notepad-find-input');
+    if (input) input.focus();
+    return;
+  }
+  if (existing) existing.remove();
+  notepadFindMode = mode;
+
+  var bar = document.createElement('div');
+  bar.className = 'notepad-findbar';
+
+  var row1 = document.createElement('div');
+  row1.className = 'notepad-findbar-row';
+
+  var findLabel = document.createElement('span');
+  findLabel.textContent = 'Find:';
+  findLabel.style.fontSize = '12px';
+  row1.appendChild(findLabel);
+
+  var findInput = document.createElement('input');
+  findInput.type = 'text';
+  findInput.className = 'notepad-find-input';
+  findInput.value = notepadFindTerm;
+  findInput.addEventListener('input', function () {
+    notepadFindTerm = findInput.value;
+    notepadFindIndex = 0;
+    notepadBuildFindMatches();
+    if (notepadFindMatches.length > 0) notepadHighlightMatch();
+    else notepadUpdateFindCount();
+  });
+  findInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); notepadFindNext(); }
+    if (e.key === 'Escape') { e.preventDefault(); notepadCloseFindBar(); }
+  });
+  row1.appendChild(findInput);
+
+  var prevBtn = document.createElement('button');
+  prevBtn.className = 'btn';
+  prevBtn.textContent = '\u25C0';
+  prevBtn.title = 'Previous';
+  prevBtn.addEventListener('click', notepadFindPrev);
+  row1.appendChild(prevBtn);
+
+  var nextBtn = document.createElement('button');
+  nextBtn.className = 'btn';
+  nextBtn.textContent = '\u25B6';
+  nextBtn.title = 'Next';
+  nextBtn.addEventListener('click', notepadFindNext);
+  row1.appendChild(nextBtn);
+
+  var countSpan = document.createElement('span');
+  countSpan.className = 'notepad-findbar-count';
+  countSpan.id = 'notepadFindCount';
+  row1.appendChild(countSpan);
+
+  var caseLabel = document.createElement('label');
+  caseLabel.className = 'notepad-findbar-case';
+  var caseCheck = document.createElement('input');
+  caseCheck.type = 'checkbox';
+  caseCheck.checked = notepadFindCaseSensitive;
+  caseCheck.addEventListener('change', function () {
+    notepadFindCaseSensitive = caseCheck.checked;
+    notepadFindIndex = 0;
+    notepadBuildFindMatches();
+    if (notepadFindMatches.length > 0) notepadHighlightMatch();
+    else notepadUpdateFindCount();
+  });
+  caseLabel.appendChild(caseCheck);
+  var caseText = document.createElement('span');
+  caseText.textContent = 'Match case';
+  caseLabel.appendChild(caseText);
+  row1.appendChild(caseLabel);
+
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'notepad-findbar-close';
+  closeBtn.textContent = '\u00D7';
+  closeBtn.title = 'Close';
+  closeBtn.addEventListener('click', notepadCloseFindBar);
+  row1.appendChild(closeBtn);
+
+  bar.appendChild(row1);
+
+  if (mode === 'replace') {
+    var row2 = document.createElement('div');
+    row2.className = 'notepad-findbar-row';
+
+    var repLabel = document.createElement('span');
+    repLabel.textContent = 'Replace:';
+    repLabel.style.fontSize = '12px';
+    row2.appendChild(repLabel);
+
+    var repInput = document.createElement('input');
+    repInput.type = 'text';
+    repInput.value = notepadReplaceTerm;
+    repInput.addEventListener('input', function () {
+      notepadReplaceTerm = repInput.value;
+    });
+    repInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); notepadCloseFindBar(); }
+    });
+    row2.appendChild(repInput);
+
+    var repBtn = document.createElement('button');
+    repBtn.className = 'btn';
+    repBtn.textContent = 'Replace';
+    repBtn.addEventListener('click', notepadReplace);
+    row2.appendChild(repBtn);
+
+    var repAllBtn = document.createElement('button');
+    repAllBtn.className = 'btn';
+    repAllBtn.textContent = 'Replace All';
+    repAllBtn.addEventListener('click', notepadReplaceAll);
+    row2.appendChild(repAllBtn);
+
+    bar.appendChild(row2);
+  }
+
+  var toolbar = document.querySelector('#notepad .notepad-toolbar');
+  toolbar.insertAdjacentElement('afterend', bar);
+  findInput.focus();
+
+  if (notepadFindTerm) {
+    notepadBuildFindMatches();
+    if (notepadFindMatches.length > 0) notepadHighlightMatch();
+    else notepadUpdateFindCount();
+  }
+}
+
+function notepadCloseFindBar() {
+  var bar = document.querySelector('.notepad-findbar');
+  if (bar) bar.remove();
+  notepadFindMode = '';
+  notepadFindMatches = [];
+  notepadFindIndex = -1;
+  notepadEditor.focus();
+}
+
+document.getElementById('notepad').addEventListener('keydown', function (e) {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 'f') { e.preventDefault(); notepadShowFindBar('find'); }
+    else if (e.key === 'h') { e.preventDefault(); notepadShowFindBar('replace'); }
+    else if (e.key === 's') { e.preventDefault(); notepadSave(); }
+  }
 });
 
 /* ── Calculator ── */
@@ -1148,7 +1385,9 @@ function calcEquals() {
     case '-': result = calcPrev - curr; break;
     case '*': result = calcPrev * curr; break;
     case '/': result = curr === 0 ? 'Error' : calcPrev / curr; break;
+    case 'pow': result = Math.pow(calcPrev, curr); break;
   }
+  if (typeof result === 'number' && !isFinite(result)) result = 'Error';
   calcCurrent = typeof result === 'string' ? result : String(result);
   if (calcCurrent !== 'Error' && calcCurrent.length > 15) calcCurrent = parseFloat(calcCurrent).toPrecision(10);
   calcPrev = null;
@@ -1170,6 +1409,69 @@ function calcClearEntry() {
 function calcBackspace() {
   if (calcReset) return;
   calcCurrent = calcCurrent.length > 1 ? calcCurrent.slice(0, -1) : '0';
+  calcUpdateDisplay();
+}
+
+/* ── Calculator Scientific Mode ── */
+let calcScientific = false;
+
+function calcToggleScientific() {
+  var toggle = document.getElementById('calcSciToggle');
+  calcScientific = toggle.checked;
+  var sciButtons = document.getElementById('calcSciButtons');
+  var calcWin = document.getElementById('calculator');
+  sciButtons.style.display = calcScientific ? '' : 'none';
+  if (calcScientific) calcWin.classList.add('calc-scientific');
+  else calcWin.classList.remove('calc-scientific');
+}
+
+function calcFactorial(n) {
+  if (n < 0 || n !== Math.floor(n)) return NaN;
+  if (n > 170) return Infinity;
+  var result = 1;
+  for (var i = 2; i <= n; i++) result *= i;
+  return result;
+}
+
+function calcSciFn(fn) {
+  var val = parseFloat(calcCurrent);
+  var result;
+  switch (fn) {
+    case 'sin': result = Math.sin(val * Math.PI / 180); break;
+    case 'cos': result = Math.cos(val * Math.PI / 180); break;
+    case 'tan':
+      if (Math.abs(val % 180) === 90) { result = Infinity; }
+      else { result = Math.tan(val * Math.PI / 180); }
+      break;
+    case 'sqrt':
+      if (val < 0) { result = NaN; }
+      else { result = Math.sqrt(val); }
+      break;
+    case 'sq': result = val * val; break;
+    case 'log':
+      if (val <= 0) { result = NaN; }
+      else { result = Math.log10(val); }
+      break;
+    case 'ln':
+      if (val <= 0) { result = NaN; }
+      else { result = Math.log(val); }
+      break;
+    case 'inv':
+      if (val === 0) { result = NaN; }
+      else { result = 1 / val; }
+      break;
+    case 'fact': result = calcFactorial(val); break;
+    case 'pi': result = Math.PI; break;
+    case 'negate': result = -val; break;
+    default: return;
+  }
+  if (isNaN(result) || !isFinite(result)) {
+    calcCurrent = 'Error';
+  } else {
+    calcCurrent = String(result);
+    if (calcCurrent.length > 15) calcCurrent = parseFloat(calcCurrent).toPrecision(10);
+  }
+  calcReset = true;
   calcUpdateDisplay();
 }
 
@@ -3878,6 +4180,8 @@ window.calcEquals = calcEquals;
 window.calcClear = calcClear;
 window.calcClearEntry = calcClearEntry;
 window.calcBackspace = calcBackspace;
+window.calcToggleScientific = calcToggleScientific;
+window.calcSciFn = calcSciFn;
 window.openTimeZone = openTimeZone;
 window.closeTimeZone = closeTimeZone;
 window.tzToggleView = tzToggleView;
