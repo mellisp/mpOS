@@ -792,11 +792,10 @@
   font-weight: bold;
 }
 
-.weather-day-range,
-.weather-day-desc {
-  font-size: 11px;
+.weather-day-low {
+  font-size: 13px;
   color: var(--text-muted);
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 /* Disk Usage window */

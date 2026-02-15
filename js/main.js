@@ -1597,18 +1597,14 @@ function renderWeather(body, data) {
     nameEl.textContent = dayName;
     dayDiv.appendChild(nameEl);
     dayDiv.appendChild(makeIcon(daily.weathercode[i]));
-    var dayTempEl = document.createElement('div');
-    dayTempEl.className = 'weather-day-temp';
-    dayTempEl.textContent = Math.round(daily.temperature_2m_max[i]) + '\u00b0';
-    dayDiv.appendChild(dayTempEl);
-    var rangeEl = document.createElement('div');
-    rangeEl.className = 'weather-day-range';
-    rangeEl.textContent = Math.round(daily.temperature_2m_min[i]) + '\u00b0 / ' + Math.round(daily.temperature_2m_max[i]) + '\u00b0';
-    dayDiv.appendChild(rangeEl);
-    var dayDescEl = document.createElement('div');
-    dayDescEl.className = 'weather-day-desc';
-    dayDescEl.textContent = weatherCodeToDesc(daily.weathercode[i]);
-    dayDiv.appendChild(dayDescEl);
+    var dayHiEl = document.createElement('div');
+    dayHiEl.className = 'weather-day-temp';
+    dayHiEl.textContent = Math.round(daily.temperature_2m_max[i]) + '\u00b0';
+    dayDiv.appendChild(dayHiEl);
+    var dayLoEl = document.createElement('div');
+    dayLoEl.className = 'weather-day-low';
+    dayLoEl.textContent = Math.round(daily.temperature_2m_min[i]) + '\u00b0';
+    dayDiv.appendChild(dayLoEl);
     forecast.appendChild(dayDiv);
   }
   body.appendChild(forecast);
