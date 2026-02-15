@@ -211,7 +211,7 @@
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="fishStatusText">Powered by Wikipedia</div>
-        <div class="statusbar-section" style="flex:0;text-align:right;white-space:nowrap;" id="fishDateText"></div>
+        <div class="statusbar-section" id="fishDateText"></div>
       </div>
     </div>
 
@@ -325,7 +325,7 @@
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeNotepad()">X</div>
         </div>
       </div>
-      <div class="window-body" style="padding:0;">
+      <div class="window-body">
         <div class="notepad-toolbar">
           <button class="btn" onclick="notepadNew()">New</button>
           <button class="btn" onclick="notepadSave()">Save</button>
@@ -347,7 +347,7 @@
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('calculator')">X</div>
         </div>
       </div>
-      <div class="window-body" style="padding:8px;">
+      <div class="window-body">
         <div class="calc-display" id="calcDisplay">0</div>
         <div class="calc-buttons">
           <button class="calc-btn" onclick="calcClearEntry()">CE</button>
@@ -382,7 +382,7 @@
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('calendar')">X</div>
         </div>
       </div>
-      <div class="window-body" style="padding:8px;">
+      <div class="window-body">
         <div class="cal-header">
           <button class="calc-btn cal-nav" onclick="calendarPrev()">&lsaquo;</button>
           <span class="cal-title" id="calTitle"></span>
@@ -402,7 +402,7 @@
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeTimeZone()">X</div>
         </div>
       </div>
-      <div class="window-body" style="padding:8px;">
+      <div class="window-body">
         <div class="tz-toolbar">
           <button class="calc-btn tz-toggle" onclick="tzToggleView()">Digital</button>
         </div>
@@ -420,7 +420,7 @@
         </div>
       </div>
       <div class="window-body" id="weatherBody">
-        <div style="padding:16px;font-size:12px;color:var(--text-muted);">Loading weather data...</div>
+        <div class="loading-msg">Loading weather data...</div>
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="weatherStatus">Powered by Open-Meteo</div>
@@ -437,7 +437,7 @@
         </div>
       </div>
       <div class="window-body" id="diskUsageBody">
-        <div style="padding:16px;font-size:12px;color:var(--text-muted);">Scanning disk...</div>
+        <div class="loading-msg">Scanning disk...</div>
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="diskUsageStatus"></div>
@@ -454,7 +454,7 @@
         </div>
       </div>
       <div class="window-body" id="visitorMapBody">
-        <div style="padding:16px;font-size:12px;color:var(--text-muted);">Loading visitor data...</div>
+        <div class="loading-msg">Loading visitor data...</div>
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="visitorMapStatus"></div>
@@ -498,7 +498,7 @@
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closePaint()">X</div>
         </div>
       </div>
-      <div class="window-body" style="padding:0;">
+      <div class="window-body">
         <div class="paint-toolbar">
           <button class="btn" onclick="paintNew()">New</button>
           <button class="btn" onclick="paintSave()">Save</button>
@@ -550,7 +550,7 @@
           </div>
           <div class="paint-swatches" id="paintSwatches"></div>
         </div>
-        <input type="color" id="paintColorPicker" style="position:absolute;visibility:hidden;width:0;height:0;">
+        <input type="color" id="paintColorPicker">
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="paintStatus">Pencil: 1px</div>
@@ -559,14 +559,14 @@
     </div>
 
     <!-- Chicken Fingers Error Dialog (hidden initially) -->
-    <div class="window" id="chickenError" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;width:380px;max-width:95vw;">
+    <div class="window" id="chickenError" style="display:none;">
       <div class="titlebar">
         <span>Chicken Fingers</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('chickenError')">X</div>
         </div>
       </div>
-      <div class="window-body" style="padding:16px">
+      <div class="window-body">
         <div class="error-row">
           <svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="20%" stop-color="#ffe88a"/><stop offset="50%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#e8a000"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri)" stroke="#a07000" stroke-width="1.5" stroke-linejoin="round"/><line x1="6" y1="26" x2="16" y2="5" stroke="white" stroke-width="1" opacity="0.3" stroke-linecap="round"/><ellipse cx="13" cy="14" rx="5" ry="6" fill="white" opacity="0.15"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>
           <div class="error-text">
@@ -733,15 +733,15 @@
         </button>
 
         <!-- Run -->
-        <div class="start-menu-item" onclick="openRun(); closeStartMenu();">
+        <button class="start-menu-item" type="button" onclick="openRun(); closeStartMenu();">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rt-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="70%" stop-color="#141414"/><stop offset="100%" stop-color="#050505"/></linearGradient></defs><rect x="1" y="4" width="18" height="13" rx="1.5" fill="url(#rt-body)" stroke="#606060" stroke-width="0.8"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.6" opacity="0.2"/><line x1="1.5" y1="5.5" x2="1.5" y2="15.5" stroke="white" stroke-width="0.4" opacity="0.1"/><path d="M4 8 L7.5 10.5 L4 13" stroke="#80c8a0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="9" y1="13" x2="14" y2="13" stroke="#80c8a0" stroke-width="1.5" stroke-linecap="round"/></svg>
           <span>Run...</span>
-        </div>
+        </button>
 
         <div class="start-menu-separator"></div>
 
         <!-- Exit Site -->
-        <div class="start-menu-item" onclick="exitSite();">
+        <button class="start-menu-item" type="button" onclick="exitSite();">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs><linearGradient id="ex-door" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="30%" stop-color="#d8d4cc"/><stop offset="70%" stop-color="#b8b4ac"/><stop offset="100%" stop-color="#98948c"/></linearGradient></defs>
             <rect x="3" y="2" width="14" height="16" rx="1" fill="url(#ex-door)" stroke="#787470" stroke-width="0.8"/>
@@ -751,7 +751,7 @@
             <path d="M7 10 L14 10 M12 7 L15 10 L12 13" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span>Exit Site</span>
-        </div>
+        </button>
       </div>
 
       <!-- Taskbar Items (minimized windows appear here) -->
@@ -770,7 +770,7 @@
 
         <!-- Volume Popup -->
         <div class="volume-popup">
-          <div style="font-size:12px;font-weight:bold;">Volume</div>
+          <div class="volume-title">Volume</div>
           <input class="volume-slider" type="range" min="0" max="100" value="10">
           <label><input class="volume-mute" type="checkbox"> Mute</label>
         </div>

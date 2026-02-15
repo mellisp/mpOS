@@ -170,6 +170,18 @@
   margin-top: 4px;
 }
 
+/* Utility */
+.loading-msg {
+  padding: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Compact window-body padding */
+#calculator .window-body,
+#calendar .window-body,
+#timezone .window-body { padding: 8px; }
+
 /* My Computer window */
 #mycomputer { width: 380px; max-width: 95vw; left: 120px; top: 40px; }
 
@@ -369,6 +381,12 @@
   display: block;
 }
 
+#fishDateText {
+  flex: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
 /* Notepad window */
 #notepad { width: 480px; max-width: 95vw; left: 100px; top: 60px; }
 
@@ -395,7 +413,7 @@
   background: #fff;
 }
 
-#notepad .window-body { position: relative; }
+#notepad .window-body { position: relative; padding: 0; }
 
 .notepad-file-item button { margin-left: 6px; }
 
@@ -1020,7 +1038,7 @@
 
 /* Paint window */
 #paint { width: 720px; max-width: 95vw; left: 60px; top: 30px; }
-#paint .window-body { position: relative; display: flex; flex-direction: column; }
+#paint .window-body { padding: 0; position: relative; display: flex; flex-direction: column; }
 
 .paint-toolbar {
   align-items: center;
@@ -1186,6 +1204,13 @@
   background: #fff;
 }
 
+#paintColorPicker {
+  position: absolute;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
 /* Visitor Map window */
 #visitormap { width: 720px; max-width: 95vw; left: 80px; top: 40px; }
 #visitormap .window-body { padding: 0; display: flex; flex-direction: row; overflow: hidden; }
@@ -1282,6 +1307,19 @@
   font-weight: bold;
   font-variant-numeric: tabular-nums;
 }
+
+/* Chicken Fingers error */
+#chickenError {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  width: 380px;
+  max-width: 95vw;
+}
+
+#chickenError .window-body { padding: 16px; }
 
 /* ── Mobile Launcher ── */
 .mobile-launcher { display: none; }
