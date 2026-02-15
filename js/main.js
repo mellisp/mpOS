@@ -1276,31 +1276,33 @@ function tzBuildGrid() {
     face.className = 'tz-clock-face';
 
     var svg = svgEl('svg', { viewBox: '0 0 64 64' });
-    svg.appendChild(svgEl('circle', { cx: '32', cy: '32', r: '30', fill: '#fff', stroke: 'var(--dk-shadow)', 'stroke-width': '1.5' }));
+    svg.appendChild(svgEl('circle', { cx: '32', cy: '32', r: '31', fill: '#fff' }));
 
     // Tick marks
     for (var h = 0; h < 12; h++) {
       var rad = h * 30 * Math.PI / 180;
+      var isQuarter = h % 3 === 0;
+      var inner = isQuarter ? 24 : 26;
       svg.appendChild(svgEl('line', {
-        x1: String(32 + 26 * Math.sin(rad)),
-        y1: String(32 - 26 * Math.cos(rad)),
+        x1: String(32 + inner * Math.sin(rad)),
+        y1: String(32 - inner * Math.cos(rad)),
         x2: String(32 + 29 * Math.sin(rad)),
         y2: String(32 - 29 * Math.cos(rad)),
-        stroke: 'var(--dk-shadow)', 'stroke-width': '1'
+        stroke: 'var(--dk-shadow)', 'stroke-width': isQuarter ? '1.5' : '0.7'
       }));
     }
 
     // Hour hand
-    var hHand = svgEl('line', { id: 'tzH' + i, x1: '32', y1: '32', x2: '32', y2: '16', stroke: 'var(--dk-shadow)', 'stroke-width': '2.5', 'stroke-linecap': 'round' });
+    var hHand = svgEl('line', { id: 'tzH' + i, x1: '32', y1: '32', x2: '32', y2: '16', stroke: 'var(--dk-shadow)', 'stroke-width': '2', 'stroke-linecap': 'round' });
     svg.appendChild(hHand);
     // Minute hand
-    var mHand = svgEl('line', { id: 'tzM' + i, x1: '32', y1: '32', x2: '32', y2: '10', stroke: 'var(--dk-shadow)', 'stroke-width': '1.5', 'stroke-linecap': 'round' });
+    var mHand = svgEl('line', { id: 'tzM' + i, x1: '32', y1: '32', x2: '32', y2: '10', stroke: 'var(--dk-shadow)', 'stroke-width': '1.2', 'stroke-linecap': 'round' });
     svg.appendChild(mHand);
     // Second hand
-    var sHand = svgEl('line', { id: 'tzS' + i, x1: '32', y1: '32', x2: '32', y2: '8', stroke: 'var(--error)', 'stroke-width': '0.8', 'stroke-linecap': 'round' });
+    var sHand = svgEl('line', { id: 'tzS' + i, x1: '32', y1: '38', x2: '32', y2: '8', stroke: 'var(--error)', 'stroke-width': '0.7', 'stroke-linecap': 'round' });
     svg.appendChild(sHand);
     // Center dot
-    svg.appendChild(svgEl('circle', { cx: '32', cy: '32', r: '2', fill: 'var(--dk-shadow)' }));
+    svg.appendChild(svgEl('circle', { cx: '32', cy: '32', r: '1.5', fill: 'var(--dk-shadow)' }));
 
     face.appendChild(svg);
     tile.appendChild(face);
