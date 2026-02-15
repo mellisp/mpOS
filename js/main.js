@@ -2912,7 +2912,7 @@ function cmdHelp() {
 
 function cmdCls() { stopMatrix(); termOutput.textContent = ''; }
 
-function cmdVer() { termPrint('mpOS [Version 1.3.7]\n(c) Matthew Pritchard. All rights reserved.\n'); }
+function cmdVer() { termPrint('mpOS [Version 1.3.8]\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
 function cmdCd(args) {
   if (!args) { termPrint(termCwd + '\n'); return; }
