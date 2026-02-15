@@ -795,70 +795,23 @@
   margin-top: 3px;
 }
 
-/* Disk Usage window — XP Disk Properties style */
-#diskusage { width: 380px; max-width: 95vw; left: 150px; top: 60px; }
+/* Disk Usage window */
+#diskusage { width: 340px; max-width: 95vw; left: 150px; top: 60px; }
 
-.du-drive-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 12px 8px;
-}
-
-.du-drive-icon { width: 32px; height: 32px; flex-shrink: 0; }
-.du-drive-label { font-size: 13px; font-weight: bold; }
-
-.du-hr {
-  height: 0;
-  border: none;
-  border-top: 1px solid var(--shadow);
-  border-bottom: 1px solid var(--white);
-  margin: 0 12px;
-}
-
-.du-info {
-  padding: 8px 12px 4px;
-  font-size: 12px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 2px 12px;
-}
-
-.du-info-label { color: var(--text-muted); }
-
-.du-types { padding: 8px 12px; font-size: 12px; }
-
-.du-type-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 0;
-}
-
-.du-type-chip {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-  border: 1px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-}
-
-.du-type-label { width: 72px; }
-.du-type-bytes { flex: 1; text-align: right; font-family: var(--mono); font-size: 11px; }
-.du-type-kb { width: 65px; text-align: right; }
-
-.du-capacity-row {
-  padding: 0 12px 4px;
-  padding-left: 32px;
-  display: flex;
-  gap: 8px;
+.du-header {
+  padding: 12px 12px 0;
   font-size: 12px;
 }
 
-.du-capacity-label { width: 72px; }
-.du-capacity-bytes { flex: 1; text-align: right; font-family: var(--mono); font-size: 11px; }
-.du-capacity-kb { width: 65px; text-align: right; }
+.du-header-title {
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.du-header-sub {
+  color: var(--text-muted);
+  margin-top: 2px;
+}
 
 .du-pie-wrap {
   display: flex;
@@ -868,8 +821,33 @@
 
 .du-pie-wrap svg { display: block; }
 
+.du-legend {
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.du-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.du-chip {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border: 1px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+}
+
+.du-legend-label { flex: 1; }
+.du-legend-size { width: 70px; text-align: right; }
+.du-legend-pct { width: 36px; text-align: right; color: var(--text-muted); }
+
 .du-bar {
-  margin: 0 12px 8px;
+  margin: 12px;
   height: 16px;
   display: flex;
   overflow: hidden;
@@ -877,10 +855,10 @@
 
 .du-bar-seg { height: 100%; }
 
-.du-cleanup-row {
-  padding: 4px 12px 12px;
-  display: flex;
-  justify-content: flex-end;
+.du-total {
+  padding: 0 12px 12px;
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 /* Help window */

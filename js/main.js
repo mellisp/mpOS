@@ -1564,117 +1564,18 @@ function populateDiskUsage() {
     body.textContent = '';
     var types = ['HTML', 'CSS', 'JS'];
 
-    // ── Drive header with HDD icon ──
+    // ── Header ──
     var header = document.createElement('div');
-    header.className = 'du-drive-header';
-
-    var iconSvg = svgEl('svg', { viewBox: '0 0 32 32', width: '32', height: '32', 'class': 'du-drive-icon' });
-    var defs = svgEl('defs', {});
-    var grad = svgEl('linearGradient', { id: 'du-hdd-g', x1: '0', y1: '0', x2: '0', y2: '1' });
-    grad.appendChild(svgEl('stop', { offset: '0%', 'stop-color': '#d8d4cc' }));
-    grad.appendChild(svgEl('stop', { offset: '100%', 'stop-color': '#a0a098' }));
-    defs.appendChild(grad);
-    iconSvg.appendChild(defs);
-    iconSvg.appendChild(svgEl('rect', { x: 2, y: 6, width: 28, height: 20, rx: 2, fill: 'url(#du-hdd-g)', stroke: '#888', 'stroke-width': '0.75' }));
-    iconSvg.appendChild(svgEl('rect', { x: 3, y: 7, width: 26, height: 8, rx: 1, fill: 'rgba(255,255,255,0.3)' }));
-    iconSvg.appendChild(svgEl('rect', { x: 7, y: 9, width: 14, height: 4, rx: 0.5, fill: '#f0eeea', stroke: '#ccc', 'stroke-width': '0.5' }));
-    iconSvg.appendChild(svgEl('rect', { x: 7, y: 20, width: 3, height: 2, rx: 0.5, fill: '#4a9' }));
-    [17, 19, 21].forEach(function (yy) {
-      iconSvg.appendChild(svgEl('line', { x1: 22, y1: yy, x2: 27, y2: yy, stroke: '#888', 'stroke-width': '0.5' }));
-    });
-    header.appendChild(iconSvg);
-
-    var labelEl = document.createElement('span');
-    labelEl.className = 'du-drive-label';
-    labelEl.textContent = 'mpOS Virtual Disk (C:)';
-    header.appendChild(labelEl);
+    header.className = 'du-header';
+    var titleEl = document.createElement('div');
+    titleEl.className = 'du-header-title';
+    titleEl.textContent = 'mpOS Virtual Disk';
+    header.appendChild(titleEl);
+    var subEl = document.createElement('div');
+    subEl.className = 'du-header-sub';
+    subEl.textContent = 'File system: HTMLFS';
+    header.appendChild(subEl);
     body.appendChild(header);
-
-    // ── Divider ──
-    var hr1 = document.createElement('div');
-    hr1.className = 'du-hr';
-    body.appendChild(hr1);
-
-    // ── Info section ──
-    var info = document.createElement('div');
-    info.className = 'du-info';
-
-    var tLabel = document.createElement('span');
-    tLabel.className = 'du-info-label';
-    tLabel.textContent = 'Type:';
-    info.appendChild(tLabel);
-    var tVal = document.createElement('span');
-    tVal.textContent = 'Virtual Disk';
-    info.appendChild(tVal);
-
-    var fLabel = document.createElement('span');
-    fLabel.className = 'du-info-label';
-    fLabel.textContent = 'File system:';
-    info.appendChild(fLabel);
-    var fVal = document.createElement('span');
-    fVal.textContent = 'HTMLFS';
-    info.appendChild(fVal);
-
-    body.appendChild(info);
-
-    // ── Type breakdown ──
-    var typesDiv = document.createElement('div');
-    typesDiv.className = 'du-types';
-
-    types.forEach(function (type) {
-      var row = document.createElement('div');
-      row.className = 'du-type-row';
-
-      var chip = document.createElement('span');
-      chip.className = 'du-type-chip';
-      chip.style.background = DU_COLORS[type];
-      row.appendChild(chip);
-
-      var label = document.createElement('span');
-      label.className = 'du-type-label';
-      label.textContent = DU_LABELS[type] + ':';
-      row.appendChild(label);
-
-      var bytesEl = document.createElement('span');
-      bytesEl.className = 'du-type-bytes';
-      bytesEl.textContent = totals[type].toLocaleString('en-US') + ' bytes';
-      row.appendChild(bytesEl);
-
-      var kbEl = document.createElement('span');
-      kbEl.className = 'du-type-kb';
-      kbEl.textContent = formatDuSize(totals[type]);
-      row.appendChild(kbEl);
-
-      typesDiv.appendChild(row);
-    });
-
-    body.appendChild(typesDiv);
-
-    // ── Divider ──
-    var hr2 = document.createElement('div');
-    hr2.className = 'du-hr';
-    body.appendChild(hr2);
-
-    // ── Capacity row ──
-    var capRow = document.createElement('div');
-    capRow.className = 'du-capacity-row';
-
-    var capLabel = document.createElement('span');
-    capLabel.className = 'du-capacity-label';
-    capLabel.textContent = 'Capacity:';
-    capRow.appendChild(capLabel);
-
-    var capBytes = document.createElement('span');
-    capBytes.className = 'du-capacity-bytes';
-    capBytes.textContent = totalSize.toLocaleString('en-US') + ' bytes';
-    capRow.appendChild(capBytes);
-
-    var capKb = document.createElement('span');
-    capKb.className = 'du-capacity-kb';
-    capKb.textContent = formatDuSize(totalSize);
-    capRow.appendChild(capKb);
-
-    body.appendChild(capRow);
 
     // ── 3D Pie chart ──
     var pieWrap = document.createElement('div');
@@ -1749,6 +1650,40 @@ function populateDiskUsage() {
     pieWrap.appendChild(pieSvg);
     body.appendChild(pieWrap);
 
+    // ── Legend ──
+    var legend = document.createElement('div');
+    legend.className = 'du-legend';
+
+    types.forEach(function (type) {
+      var pct = totals[type] / totalSize * 100;
+      var row = document.createElement('div');
+      row.className = 'du-legend-row';
+
+      var chip = document.createElement('span');
+      chip.className = 'du-chip';
+      chip.style.background = DU_COLORS[type];
+      row.appendChild(chip);
+
+      var label = document.createElement('span');
+      label.className = 'du-legend-label';
+      label.textContent = DU_LABELS[type];
+      row.appendChild(label);
+
+      var sizeEl = document.createElement('span');
+      sizeEl.className = 'du-legend-size';
+      sizeEl.textContent = formatDuSize(totals[type]);
+      row.appendChild(sizeEl);
+
+      var pctEl = document.createElement('span');
+      pctEl.className = 'du-legend-pct';
+      pctEl.textContent = Math.round(pct) + '%';
+      row.appendChild(pctEl);
+
+      legend.appendChild(row);
+    });
+
+    body.appendChild(legend);
+
     // ── Capacity bar ──
     var bar = document.createElement('div');
     bar.className = 'du-bar';
@@ -1765,25 +1700,11 @@ function populateDiskUsage() {
 
     body.appendChild(bar);
 
-    // ── Disk Cleanup button ──
-    var cleanupRow = document.createElement('div');
-    cleanupRow.className = 'du-cleanup-row';
-
-    var cleanupBtn = document.createElement('button');
-    cleanupBtn.className = 'calc-btn';
-    cleanupBtn.textContent = 'Disk Cleanup';
-    cleanupBtn.addEventListener('click', function () {
-      cleanupBtn.disabled = true;
-      cleanupBtn.textContent = 'Scanning\u2026';
-      setTimeout(function () {
-        cleanupBtn.textContent = 'Disk Cleanup';
-        cleanupBtn.disabled = false;
-        status.textContent = '0 bytes freed \u2014 no frameworks to remove';
-      }, 1500);
-    });
-
-    cleanupRow.appendChild(cleanupBtn);
-    body.appendChild(cleanupRow);
+    // ── Total line ──
+    var totalEl = document.createElement('div');
+    totalEl.className = 'du-total';
+    totalEl.textContent = 'Total: ' + formatDuSize(totalSize) + ' (' + files.length + ' files)';
+    body.appendChild(totalEl);
 
     status.textContent = files.length + ' files scanned';
   });
