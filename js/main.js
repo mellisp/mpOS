@@ -429,9 +429,9 @@ function closeBrickBreaker() {
 }
 
 function openFishOfDay() {
-  if (checkFishDay()) fishPopulated = false;
   openWindow('fishofday');
   loadDataScript('js/fish-data.js').then(function () {
+    if (checkFishDay()) fishPopulated = false;
     populateFish();
   });
 }
