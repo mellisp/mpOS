@@ -613,8 +613,10 @@ function populateFish() {
   }
 
   // todayKey() and FISH_TODAY are defined in fish-data.js (loaded via <script defer>)
-  var imgKey = "fotd-img-" + todayKey();
-  var wikiLinkKey = "fotd-wiki-" + todayKey();
+  // Cache keys include genus_species so array changes don't serve stale data
+  var fishId = f[1] + "_" + f[2];
+  var imgKey = "fotd-img-" + todayKey() + "-" + fishId;
+  var wikiLinkKey = "fotd-wiki-" + todayKey() + "-" + fishId;
 
   var cachedWikiLink = localStorage.getItem(wikiLinkKey);
   if (cachedWikiLink) linkFishName(cachedWikiLink);
