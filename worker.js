@@ -41,13 +41,18 @@ export default {
     }
 
     try {
-      // POST: record visit + return counts (skip blocked IPs)
+      // POST: record visit + return counts (skip blocked IPs, rate-limit per IP)
       if (request.method === 'POST') {
         const ip = request.headers.get('cf-connecting-ip') || '';
         if (!BLOCKED_IPS.has(ip)) {
-          const country = (request.headers.get('cf-ipcountry') || 'XX').toUpperCase();
-          const current = parseInt(await env.visitor_map.get(country) || '0', 10);
-          await env.visitor_map.put(country, String(current + 1));
+          const rateKey = 'rate:' + ip;
+          const limited = await env.visitor_map.get(rateKey);
+          if (!limited) {
+            const country = (request.headers.get('cf-ipcountry') || 'XX').toUpperCase();
+            const current = parseInt(await env.visitor_map.get(country) || '0', 10);
+            await env.visitor_map.put(country, String(current + 1));
+            await env.visitor_map.put(rateKey, '1', { expirationTtl: 60 });
+          }
         }
       }
 
@@ -55,6 +60,7 @@ export default {
       const list = await env.visitor_map.list();
       const counts = {};
       for (const key of list.keys) {
+        if (key.name.startsWith('rate:')) continue;
         counts[key.name] = parseInt(await env.visitor_map.get(key.name) || '0', 10);
       }
 

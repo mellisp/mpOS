@@ -314,6 +314,21 @@ function loadYouTubeAPI() {
   });
 }
 
+/* ── Data-file lazy loader ── */
+const dataScripts = {};
+function loadDataScript(src) {
+  if (!dataScripts[src]) {
+    dataScripts[src] = new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  return dataScripts[src];
+}
+
 /* ── Virtual Aquarium (YouTube IFrame Player API) ── */
 let aquariumPlayer = null;
 let aquariumTimer = null;
@@ -416,7 +431,9 @@ function closeBrickBreaker() {
 function openFishOfDay() {
   if (checkFishDay()) fishPopulated = false;
   openWindow('fishofday');
-  populateFish();
+  loadDataScript('js/fish-data.js').then(function () {
+    populateFish();
+  });
 }
 
 function populateSysInfo() {
@@ -676,7 +693,9 @@ function populateFish() {
 /* ── Fish Finder ── */
 function openFishFinder() {
   openWindow('fishfinder');
-  populateFishFinder();
+  loadDataScript('js/aquarium-data.js').then(function () {
+    populateFishFinder();
+  });
 }
 
 function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -1858,13 +1877,15 @@ function fetchVisitorData() {
     method = 'POST';
     sessionStorage.setItem('vm-visited', '1');
   }
-  fetch(VM_WORKER + '/visit', { method: method })
+  var dataReady = loadDataScript('js/world-map-data.js');
+  var countsReady = fetch(VM_WORKER + '/visit', { method: method })
     .then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
-    })
-    .then(function (counts) {
-      renderVisitorMap(body, counts);
+    });
+  Promise.all([dataReady, countsReady])
+    .then(function (results) {
+      renderVisitorMap(body, results[1]);
     })
     .catch(function () {
       showErrorPanel(body, 'Could not load visitor data. The server may be temporarily unavailable.', 'vm-err');
@@ -2025,12 +2046,14 @@ let helpIndexData = null;
 function openHelp() {
   openWindow('help');
   if (!helpBuilt) {
-    helpBuilt = true;
-    helpHistory = ['welcome'];
-    helpHistoryIndex = 0;
-    helpSwitchTab('contents');
-    helpRenderTopic('welcome');
-    helpUpdateButtons();
+    loadDataScript('js/help-data.js').then(function () {
+      helpBuilt = true;
+      helpHistory = ['welcome'];
+      helpHistoryIndex = 0;
+      helpSwitchTab('contents');
+      helpRenderTopic('welcome');
+      helpUpdateButtons();
+    });
   }
 }
 

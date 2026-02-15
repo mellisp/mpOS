@@ -70,15 +70,11 @@
   border-bottom: 1px solid var(--shadow);
 }
 
-/* XP raised button — shared border + shadow */
+/* XP raised button — border + shadow inherited from theme.css */
 .calc-btn,
 .folder-view-btn {
   font-family: var(--font);
   font-size: 14px;
-  background: var(--silver);
-  border: 2px solid;
-  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
   cursor: default;
   outline: none;
 }
