@@ -62,7 +62,7 @@ function alertTriangleSVG(id) {
 function showErrorPanel(body, msg, gradientId) {
   body.textContent = '';
   var wrap = document.createElement('div');
-  wrap.style.padding = '16px';
+  wrap.className = 'error-panel';
   var row = document.createElement('div');
   row.className = 'error-row';
   var svgWrap = document.createElement('span');
@@ -698,7 +698,7 @@ function formatFinderDistance(km) {
 function showLoadingMessage(container, text) {
   container.textContent = '';
   var msg = document.createElement('div');
-  msg.style.cssText = 'padding:16px;font-size:12px;color:var(--text-muted);';
+  msg.className = 'loading-msg';
   msg.textContent = text;
   container.appendChild(msg);
 }

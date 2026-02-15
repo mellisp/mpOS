@@ -177,6 +177,8 @@
   color: var(--text-muted);
 }
 
+.error-panel { padding: 16px; }
+
 /* Compact window-body padding */
 #calculator .window-body,
 #calendar .window-body,
