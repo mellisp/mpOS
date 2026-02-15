@@ -98,8 +98,7 @@ body {
   min-width: 75px;
   text-align: center;
   text-decoration: none;
-  outline: 1px dotted #000;
-  outline-offset: -4px;
+  outline: none;
 }
 
 .btn:active {
