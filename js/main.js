@@ -2852,26 +2852,85 @@ const termOutput = document.getElementById('termOutput');
 const termInput = document.getElementById('termInput');
 
 let termCwd = 'C:\\mpOS';
+let termHistory = [];
+let termHistoryIndex = -1;
+let termSavedInput = '';
+let tabMatches = [];
+let tabIndex = -1;
+
+const COLOR_TABLE = {
+  '0': '#000000', '1': '#000080', '2': '#008000', '3': '#008080',
+  '4': '#800000', '5': '#800080', '6': '#808000', '7': '#c0c0c0',
+  '8': '#808080', '9': '#0000ff', 'a': '#00ff00', 'b': '#00ffff',
+  'c': '#ff0000', 'd': '#ff00ff', 'e': '#ffff00', 'f': '#ffffff'
+};
+
+const WINDOW_NAMES = {
+  'mycomputer': 'My Computer', 'explorer': 'Files', 'fishofday': 'Fish of the Day',
+  'aquarium': 'Virtual Aquarium', 'fishfinder': 'Fish Finder', 'ontarget': 'On Target',
+  'brickbreaker': 'Brick Breaker', 'run': 'Run', 'browser': 'WikiBrowser',
+  'notepad': 'Notepad', 'calculator': 'Calculator', 'calendar': 'Calendar',
+  'timezone': 'Time Zone', 'weather': 'Weather', 'diskusage': 'Disk Usage',
+  'visitormap': 'Visitor Map', 'help': 'Help', 'paint': 'Paint'
+};
+
+function padTwo(n) { return n < 10 ? '0' + n : String(n); }
+
 const FILESYSTEM = {
   'C:\\mpOS': {
-    children: ['Desktop', 'Programs', 'Documents', 'Utilities']
+    children: ['Desktop', 'Programs', 'Documents', 'Utilities'],
+    files: [
+      { name: 'readme.txt', size: 312, content: 'Welcome to mpOS [Version 1.4.9]\n\nmpOS is a Windows 2000/XP-themed portfolio site built\nwith vanilla HTML, CSS, and JavaScript — no frameworks,\nno build step.\n\nExplore the desktop, open apps from the Start menu,\nor type HELP in this terminal for commands.\n\nCreated by Matthew Pritchard.\nhttps://www.matthewpritchard.com' }
+    ]
   },
   'C:\\mpOS\\Desktop': {
     items: [
       { name: 'My Computer', run: function () { openMyComputer(); } },
       { name: 'Files', run: function () { openExplorer(); } },
       { name: 'WikiBrowser', run: function () { openBrowser(); } }
+    ],
+    files: [
+      { name: 'shortcuts.txt', size: 198, content: 'Desktop Shortcuts\n-----------------\nMy Computer    View system properties and drives\nFiles          Browse programs, documents, utilities\nWikiBrowser    Search and read Wikipedia articles' }
     ]
   },
   'C:\\mpOS\\Programs': { items: FOLDER_ITEMS.programs },
-  'C:\\mpOS\\Documents': { items: FOLDER_ITEMS.documents },
+  'C:\\mpOS\\Documents': {
+    items: FOLDER_ITEMS.documents,
+    files: [
+      { name: 'about.txt', size: 246, content: 'About the Developer\n--------------------\nMatthew Pritchard\nSoftware Engineer\n\nThis site was hand-coded as a creative portfolio\nproject. Every app is built from scratch using\nvanilla web technologies.\n\nContact: matthew.pritchard079@gmail.com\nGitHub:  github.com/mellisp' }
+    ]
+  },
   'C:\\mpOS\\Utilities': { items: FOLDER_ITEMS.utilities }
+};
+
+/* ── Command help groups ── */
+const HELP_GROUPS = {
+  'NAVIGATION': ['cd', 'dir', 'ls', 'tree'],
+  'FILES':      ['type', 'echo'],
+  'SYSTEM':     ['systeminfo', 'whoami', 'hostname', 'ver', 'date', 'time', 'tasklist', 'taskkill'],
+  'PROGRAMS':   [],
+  'TERMINAL':   ['cls', 'color', 'title', 'start', 'ping', 'matrix', 'help', 'exit']
 };
 
 const COMMANDS = {
   'help':        { run: cmdHelp,        desc: 'List available commands' },
   'cd':          { run: cmdCd,          desc: 'Change directory' },
   'ls':          { run: cmdLs,          desc: 'List directory contents' },
+  'dir':         { run: cmdDir,         desc: 'Detailed directory listing' },
+  'echo':        { run: cmdEcho,        desc: 'Display a message' },
+  'date':        { run: cmdDate,        desc: 'Display the current date' },
+  'time':        { run: cmdTime,        desc: 'Display the current time' },
+  'type':        { run: cmdType,        desc: 'Display the contents of a file' },
+  'tree':        { run: cmdTree,        desc: 'Display directory structure' },
+  'whoami':      { run: cmdWhoami,      desc: 'Display current user' },
+  'hostname':    { run: cmdHostname,    desc: 'Display computer name' },
+  'systeminfo':  { run: cmdSysteminfo,  desc: 'Display system information' },
+  'ping':        { run: cmdPing,        desc: 'Simulate a ping to a host' },
+  'color':       { run: cmdColor,       desc: 'Set terminal colors' },
+  'title':       { run: cmdTitle,       desc: 'Set terminal window title' },
+  'tasklist':    { run: cmdTasklist,     desc: 'List running applications' },
+  'taskkill':    { run: cmdTaskkill,     desc: 'Close a running application' },
+  'start':       { run: cmdStart,        desc: 'Launch an application' },
   'ontarget':    { run: openOnTarget,    desc: 'Launch On Target' },
   'fishofday':   { run: openFishOfDay,   desc: 'Launch Fish of the Day' },
   'fishfinder':  { run: openFishFinder,  desc: 'Launch Fish Finder' },
@@ -2894,49 +2953,79 @@ const COMMANDS = {
   'hh':          { run: openHelp,       desc: 'Open mpOS Help' },
   'cls':         { run: cmdCls,          desc: 'Clear the screen' },
   'clear':       { run: cmdCls,          desc: 'Clear the screen' },
-  'exit':        { run: function () { stopMatrix(); bbTaskbar.closeWindow('run'); }, desc: 'Close this window' },
+  'exit':        { run: function () { closeRun(); }, desc: 'Close this window' },
   'ver':         { run: cmdVer,          desc: 'Show version' },
+  'matrix':      { run: cmdMatrix,       desc: 'Toggle matrix animation' }
 };
 
-function termPrint(text) {
-  termOutput.textContent += text + '\n';
+function termPrint(text, color) {
+  const span = document.createElement('span');
+  span.textContent = text + '\n';
+  if (color) span.style.color = color;
+  termOutput.appendChild(span);
   termOutput.scrollTop = termOutput.scrollHeight;
 }
 
 function cmdHelp() {
-  termPrint('Available commands:\n');
-  var names = Object.keys(COMMANDS).filter(function (k) { return k !== 'clear'; });
-  names.forEach(function (name) {
-    termPrint('  ' + name.toUpperCase().padEnd(14) + COMMANDS[name].desc);
-  });
   termPrint('');
+  const grouped = {};
+  Object.keys(HELP_GROUPS).forEach(function (g) { grouped[g] = []; });
+  grouped['PROGRAMS'] = [];
+
+  /* Assign every command (except 'clear') to a group */
+  const assigned = {};
+  Object.keys(HELP_GROUPS).forEach(function (g) {
+    HELP_GROUPS[g].forEach(function (c) { assigned[c] = g; });
+  });
+  Object.keys(COMMANDS).forEach(function (name) {
+    if (name === 'clear') return;
+    let group = assigned[name];
+    if (!group) group = 'PROGRAMS';
+    grouped[group].push(name);
+  });
+
+  Object.keys(grouped).forEach(function (g) {
+    if (grouped[g].length === 0) return;
+    termPrint(' ' + g, '#ffffff');
+    grouped[g].forEach(function (name) {
+      termPrint('  ' + name.toUpperCase().padEnd(16) + COMMANDS[name].desc);
+    });
+    termPrint('');
+  });
 }
 
-function cmdCls() { stopMatrix(); termOutput.textContent = ''; }
+function cmdCls() {
+  stopMatrix();
+  termOutput.textContent = '';
+}
 
 function cmdVer() { termPrint('mpOS [Version 1.5.0]\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
 function cmdCd(args) {
   if (!args) { termPrint(termCwd + '\n'); return; }
-  var target = args.trim();
-  var newPath;
+  let target = args.trim();
+  let newPath;
   if (target === '\\' || target === '/') {
     newPath = 'C:\\mpOS';
   } else if (target === '..') {
-    newPath = 'C:\\mpOS';
+    if (termCwd !== 'C:\\mpOS') {
+      let parts = termCwd.split('\\');
+      parts.pop();
+      newPath = parts.join('\\');
+    } else {
+      newPath = 'C:\\mpOS';
+    }
   } else if (target.match(/^[Cc]:\\/i)) {
-    // Absolute path — normalise separators and case-insensitive lookup
-    var normalized = target.replace(/\//g, '\\');
-    var fsKeys = Object.keys(FILESYSTEM);
-    var found = fsKeys.find(function (k) {
+    let normalized = target.replace(/\//g, '\\');
+    let fsKeys = Object.keys(FILESYSTEM);
+    let found = fsKeys.find(function (k) {
       return k.toLowerCase() === normalized.toLowerCase();
     });
     newPath = found || normalized;
   } else {
-    // Relative — match against children of current dir
-    var cur = FILESYSTEM[termCwd];
+    let cur = FILESYSTEM[termCwd];
     if (cur && cur.children) {
-      var match = cur.children.find(function (c) {
+      let match = cur.children.find(function (c) {
         return c.toLowerCase() === target.toLowerCase();
       });
       if (match) {
@@ -2954,7 +3043,7 @@ function cmdCd(args) {
 }
 
 function cmdLs() {
-  var cur = FILESYSTEM[termCwd];
+  let cur = FILESYSTEM[termCwd];
   if (!cur) { termPrint('Error reading directory.\n'); return; }
   termPrint('');
   termPrint(' Directory of ' + termCwd);
@@ -2963,49 +3052,385 @@ function cmdLs() {
     cur.children.forEach(function (c) {
       termPrint('  <DIR>    ' + c);
     });
-  } else if (cur.items && cur.items.length > 0) {
+  }
+  if (cur.items && cur.items.length > 0) {
     cur.items.forEach(function (item) {
       termPrint('           ' + item.name);
     });
-  } else {
+  }
+  if (cur.files && cur.files.length > 0) {
+    cur.files.forEach(function (f) {
+      termPrint('           ' + f.name);
+    });
+  }
+  if (!cur.children && (!cur.items || cur.items.length === 0) && (!cur.files || cur.files.length === 0)) {
     termPrint('  Directory is empty.');
   }
   termPrint('');
+}
+
+function cmdDir() {
+  let cur = FILESYSTEM[termCwd];
+  if (!cur) { termPrint('Error reading directory.\n'); return; }
+  let now = new Date();
+  let dateStr = padTwo(now.getMonth() + 1) + '/' + padTwo(now.getDate()) + '/' + now.getFullYear();
+  let timeStr = padTwo(now.getHours()) + ':' + padTwo(now.getMinutes());
+  let dirCount = 0;
+  let fileCount = 0;
+  let totalSize = 0;
+
+  termPrint('');
+  termPrint(' Volume in drive C is mpOS');
+  termPrint(' Volume Serial Number is 4D50-4F53');
+  termPrint('');
+  termPrint(' Directory of ' + termCwd);
+  termPrint('');
+
+  if (termCwd !== 'C:\\mpOS') {
+    termPrint(dateStr + '  ' + timeStr + '    <DIR>          .');
+    termPrint(dateStr + '  ' + timeStr + '    <DIR>          ..');
+    dirCount += 2;
+  }
+
+  if (cur.children) {
+    cur.children.forEach(function (c) {
+      termPrint(dateStr + '  ' + timeStr + '    <DIR>          ' + c);
+      dirCount++;
+    });
+  }
+
+  if (cur.files) {
+    cur.files.forEach(function (f) {
+      let sizeStr = String(f.size).padStart(14, ' ');
+      termPrint(dateStr + '  ' + timeStr + '    ' + sizeStr + ' ' + f.name);
+      fileCount++;
+      totalSize += f.size;
+    });
+  }
+
+  if (cur.items) {
+    cur.items.forEach(function (item) {
+      let lnkName = item.name + '.lnk';
+      let size = 1024;
+      let sizeStr = String(size).padStart(14, ' ');
+      termPrint(dateStr + '  ' + timeStr + '    ' + sizeStr + ' ' + lnkName);
+      fileCount++;
+      totalSize += size;
+    });
+  }
+
+  termPrint(String(fileCount).padStart(16, ' ') + ' File(s)  ' + String(totalSize).padStart(14, ' ') + ' bytes');
+  termPrint(String(dirCount).padStart(16, ' ') + ' Dir(s)   2,147,483,648 bytes free');
+  termPrint('');
+}
+
+function cmdEcho(args) {
+  if (!args || !args.trim()) {
+    termPrint('ECHO is on.');
+  } else {
+    termPrint(args);
+  }
+}
+
+function cmdDate() {
+  let now = new Date();
+  let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  termPrint('The current date is: ' + days[now.getDay()] + ' ' +
+    padTwo(now.getMonth() + 1) + '/' + padTwo(now.getDate()) + '/' + now.getFullYear());
+}
+
+function cmdTime() {
+  let now = new Date();
+  let ms = String(now.getMilliseconds()).padStart(3, '0').substring(0, 2);
+  termPrint('The current time is: ' + padTwo(now.getHours()) + ':' +
+    padTwo(now.getMinutes()) + ':' + padTwo(now.getSeconds()) + '.' + ms);
+}
+
+function cmdType(args) {
+  if (!args || !args.trim()) {
+    termPrint('The syntax of the command is incorrect.');
+    return;
+  }
+  let filename = args.trim();
+  let cur = FILESYSTEM[termCwd];
+  if (!cur || !cur.files) {
+    termPrint('The system cannot find the file specified.');
+    return;
+  }
+  let file = cur.files.find(function (f) {
+    return f.name.toLowerCase() === filename.toLowerCase();
+  });
+  if (!file) {
+    termPrint('The system cannot find the file specified.');
+    return;
+  }
+  termPrint(file.content);
+}
+
+function cmdTree() {
+  termPrint('Folder PATH listing for volume mpOS');
+  termPrint('Volume serial number is 4D50-4F53');
+
+  function printTree(path, prefix, isLast) {
+    let name = path.split('\\').pop();
+    let connector = isLast ? '\\---' : '+---';
+    if (prefix === '') {
+      termPrint(path);
+    } else {
+      termPrint(prefix + connector + name);
+    }
+    let node = FILESYSTEM[path];
+    if (node && node.children) {
+      let newPrefix = prefix === '' ? '' : prefix + (isLast ? '    ' : '|   ');
+      node.children.forEach(function (child, i) {
+        let childPath = path + '\\' + child;
+        let last = i === node.children.length - 1;
+        printTree(childPath, newPrefix, last);
+      });
+    }
+  }
+
+  printTree('C:\\mpOS', '', false);
+  termPrint('');
+}
+
+function cmdWhoami() { termPrint('mpos\\matthew'); }
+
+function cmdHostname() { termPrint('MPOS-PC'); }
+
+function cmdSysteminfo() {
+  let nav = navigator;
+  let scr = screen;
+  let conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+
+  termPrint('');
+  termPrint('Host Name:              MPOS-PC', '#ffffff');
+  termPrint('OS Name:                mpOS');
+  termPrint('OS Version:             1.4.9');
+
+  let browser = 'Unknown';
+  let ua = nav.userAgent;
+  if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
+  else if (ua.indexOf('Edg/') !== -1) browser = 'Microsoft Edge';
+  else if (ua.indexOf('Chrome') !== -1) browser = 'Chrome';
+  else if (ua.indexOf('Safari') !== -1) browser = 'Safari';
+  termPrint('Browser:                ' + browser);
+
+  termPrint('System Locale:          ' + (nav.language || 'unknown'));
+  termPrint('Processors:             ' + (nav.hardwareConcurrency || 'unknown'));
+  termPrint('Display:                ' + scr.width + 'x' + scr.height +
+    ' (' + devicePixelRatio + 'x DPR)');
+
+  if (conn) {
+    let netType = conn.effectiveType ? conn.effectiveType.toUpperCase() : 'Unknown';
+    let downlink = conn.downlink != null ? conn.downlink + ' Mbps' : 'unknown';
+    termPrint('Network Type:           ' + netType);
+    termPrint('Downlink:               ' + downlink);
+  }
+
+  termPrint('Time Zone:              ' + Intl.DateTimeFormat().resolvedOptions().timeZone);
+  termPrint('System Up Time:         ' + Math.floor(performance.now() / 1000) + ' seconds');
+  termPrint('');
+}
+
+function cmdPing(args) {
+  if (!args || !args.trim()) {
+    termPrint('Usage: ping <hostname>');
+    return;
+  }
+  let host = args.trim();
+  termPrint('');
+  termPrint('Pinging ' + host + ' with 32 bytes of data:');
+
+  let count = 0;
+  let times = [];
+  termInput.disabled = true;
+
+  function sendPing() {
+    if (count >= 4) {
+      termPrint('');
+      termPrint('Ping statistics for ' + host + ':');
+      let min = Math.min.apply(null, times);
+      let max = Math.max.apply(null, times);
+      let avg = Math.round(times.reduce(function (a, b) { return a + b; }, 0) / times.length);
+      termPrint('    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),');
+      termPrint('Approximate round trip times in milli-seconds:');
+      termPrint('    Minimum = ' + min + 'ms, Maximum = ' + max + 'ms, Average = ' + avg + 'ms');
+      termPrint('');
+      termInput.disabled = false;
+      termInput.focus();
+      return;
+    }
+    let ms = Math.floor(Math.random() * 40) + 10;
+    times.push(ms);
+    count++;
+    termPrint('Reply from ' + host + ': bytes=32 time=' + ms + 'ms TTL=128');
+    setTimeout(sendPing, 800 + Math.floor(Math.random() * 400));
+  }
+
+  setTimeout(sendPing, 500);
+}
+
+function cmdColor(args) {
+  let term = document.querySelector('#run .term');
+  if (!args || !args.trim()) {
+    termPrint('Sets the default console foreground and background colors.\n');
+    termPrint('COLOR [attr]\n');
+    termPrint('  attr  Specifies color attribute of console output (two hex digits)');
+    termPrint('        First digit = background, Second digit = foreground\n');
+    termPrint('  0 = Black       8 = Gray');
+    termPrint('  1 = Blue        9 = Light Blue');
+    termPrint('  2 = Green       A = Light Green');
+    termPrint('  3 = Aqua        B = Light Aqua');
+    termPrint('  4 = Red         C = Light Red');
+    termPrint('  5 = Purple      D = Light Purple');
+    termPrint('  6 = Yellow      E = Light Yellow');
+    termPrint('  7 = White       F = Bright White');
+    return;
+  }
+  let attr = args.trim().toLowerCase();
+  if (attr.length === 1) attr = '0' + attr;
+  if (attr.length !== 2 || !COLOR_TABLE[attr[0]] || !COLOR_TABLE[attr[1]]) {
+    termPrint('Invalid color attribute.');
+    return;
+  }
+  if (attr[0] === attr[1]) {
+    termPrint('The foreground and background colors cannot be the same.');
+    return;
+  }
+  term.style.backgroundColor = COLOR_TABLE[attr[0]];
+  term.style.color = COLOR_TABLE[attr[1]];
+}
+
+function cmdTitle(args) {
+  let titleSpan = document.querySelector('#run .titlebar span');
+  if (!args || !args.trim()) {
+    termPrint('Sets the window title.\n');
+    termPrint('TITLE [string]');
+    return;
+  }
+  titleSpan.textContent = args.trim();
+}
+
+function cmdTasklist() {
+  termPrint('');
+  termPrint('Image Name'.padEnd(28) + 'PID'.padEnd(10) + 'Status');
+  termPrint('='.repeat(27) + ' ' + '='.repeat(9) + ' ' + '='.repeat(10));
+
+  let pid = 1000;
+  Object.keys(WINDOW_NAMES).forEach(function (id) {
+    let win = document.getElementById(id);
+    if (win && win.style.display !== 'none') {
+      let name = (WINDOW_NAMES[id] + '.exe').padEnd(28);
+      let pidStr = String(pid).padEnd(10);
+      termPrint(name + pidStr + 'Running');
+      pid += 4;
+    }
+  });
+  termPrint('');
+}
+
+function cmdTaskkill(args) {
+  if (!args || !args.trim()) {
+    termPrint('Usage: taskkill <appname>');
+    return;
+  }
+  let target = args.trim().toLowerCase().replace(/\.exe$/, '');
+  let found = false;
+
+  Object.keys(WINDOW_NAMES).forEach(function (id) {
+    if (found) return;
+    let name = WINDOW_NAMES[id].toLowerCase();
+    if (name === target || id === target) {
+      let win = document.getElementById(id);
+      if (win && win.style.display !== 'none') {
+        bbTaskbar.closeWindow(id);
+        termPrint('SUCCESS: Sent termination signal to "' + WINDOW_NAMES[id] + '.exe".');
+        found = true;
+      }
+    }
+  });
+
+  if (!found) {
+    termPrint('ERROR: The process "' + args.trim() + '" not found.');
+  }
+}
+
+function cmdStart(args) {
+  if (!args || !args.trim()) {
+    termPrint('Usage: start <command>');
+    return;
+  }
+  let name = args.trim().toLowerCase();
+  if (COMMANDS[name]) {
+    COMMANDS[name].run('');
+    termPrint('Started "' + name + '".');
+  } else {
+    termPrint("'" + name + "' is not recognized as a launchable program.");
+  }
 }
 
 function openRun() {
   openWindow('run');
   termOutput.textContent = '';
   termCwd = 'C:\\mpOS';
+  let term = document.querySelector('#run .term');
+  term.style.backgroundColor = '';
+  term.style.color = '';
+  document.querySelector('#run .titlebar span').textContent = 'Run';
   document.querySelector('#run .term-prompt').textContent = 'C:\\mpOS> ';
+  termHistory = [];
+  termHistoryIndex = -1;
+  termSavedInput = '';
+  tabMatches = [];
+  tabIndex = -1;
   cmdVer();
   termPrint('Type HELP for a list of available commands.\n');
   termInput.value = '';
+  termInput.disabled = false;
   setTimeout(function () { termInput.focus(); }, 100);
+}
+
+function closeRun() {
+  stopMatrix();
+  termOutput.textContent = '';
+  let term = document.querySelector('#run .term');
+  term.style.backgroundColor = '';
+  term.style.color = '';
+  document.querySelector('#run .titlebar span').textContent = 'Run';
+  document.querySelector('#run .term-prompt').textContent = 'C:\\mpOS> ';
+  termCwd = 'C:\\mpOS';
+  termHistory = [];
+  termHistoryIndex = -1;
+  termSavedInput = '';
+  tabMatches = [];
+  tabIndex = -1;
+  termInput.disabled = false;
+  bbTaskbar.closeWindow('run');
 }
 
 let matrixInterval = null;
 function cmdMatrix() {
-  var term = document.querySelector('#run .term');
-  var existing = term.querySelector('.matrix-canvas');
+  let term = document.querySelector('#run .term');
+  let existing = term.querySelector('.matrix-canvas');
   if (existing) { stopMatrix(); return; }
-  var canvas = document.createElement('canvas');
+  let canvas = document.createElement('canvas');
   canvas.className = 'matrix-canvas';
   canvas.width = term.offsetWidth;
   canvas.height = term.offsetHeight;
   term.appendChild(canvas);
-  var ctx = canvas.getContext('2d');
-  var fontSize = 14;
-  var cols = Math.floor(canvas.width / fontSize);
-  var drops = [];
-  for (var i = 0; i < cols; i++) drops[i] = Math.random() * -20 | 0;
+  let ctx = canvas.getContext('2d');
+  let fontSize = 14;
+  let cols = Math.floor(canvas.width / fontSize);
+  let drops = [];
+  for (let i = 0; i < cols; i++) drops[i] = Math.random() * -20 | 0;
   matrixInterval = setInterval(function () {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#0f0';
     ctx.font = fontSize + 'px monospace';
-    for (var i = 0; i < cols; i++) {
-      var ch = Math.random() > 0.5 ? '1' : '0';
+    for (let i = 0; i < cols; i++) {
+      let ch = Math.random() > 0.5 ? '1' : '0';
       ctx.fillText(ch, i * fontSize, drops[i] * fontSize);
       if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
       drops[i]++;
@@ -3016,29 +3441,113 @@ function cmdMatrix() {
 
 function stopMatrix() {
   if (matrixInterval) { clearInterval(matrixInterval); matrixInterval = null; }
-  var c = document.querySelector('#run .matrix-canvas');
+  let c = document.querySelector('#run .matrix-canvas');
   if (c) c.remove();
 }
 
 termInput.addEventListener('keydown', function (e) {
+  /* Reset tab state on any key except Tab */
+  if (e.key !== 'Tab') {
+    tabMatches = [];
+    tabIndex = -1;
+  }
+
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (termHistory.length === 0) return;
+    if (termHistoryIndex === -1) {
+      termSavedInput = termInput.value;
+      termHistoryIndex = termHistory.length - 1;
+    } else if (termHistoryIndex > 0) {
+      termHistoryIndex--;
+    }
+    termInput.value = termHistory[termHistoryIndex];
+    return;
+  }
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (termHistoryIndex === -1) return;
+    if (termHistoryIndex < termHistory.length - 1) {
+      termHistoryIndex++;
+      termInput.value = termHistory[termHistoryIndex];
+    } else {
+      termHistoryIndex = -1;
+      termInput.value = termSavedInput;
+    }
+    return;
+  }
+
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    let val = termInput.value;
+
+    if (tabMatches.length === 0) {
+      /* Build match list */
+      let prefix = val.toLowerCase();
+      let matches = [];
+
+      /* Command names */
+      Object.keys(COMMANDS).forEach(function (name) {
+        if (name === 'clear') return;
+        if (name.indexOf(prefix) === 0) matches.push(name);
+      });
+
+      /* Current dir entries */
+      let cur = FILESYSTEM[termCwd];
+      if (cur) {
+        if (cur.children) {
+          cur.children.forEach(function (c) {
+            if (c.toLowerCase().indexOf(prefix) === 0) matches.push(c);
+          });
+        }
+        if (cur.items) {
+          cur.items.forEach(function (item) {
+            if (item.name.toLowerCase().indexOf(prefix) === 0) matches.push(item.name);
+          });
+        }
+        if (cur.files) {
+          cur.files.forEach(function (f) {
+            if (f.name.toLowerCase().indexOf(prefix) === 0) matches.push(f.name);
+          });
+        }
+      }
+
+      if (matches.length === 0) return;
+      tabMatches = matches;
+      tabIndex = 0;
+    } else {
+      tabIndex = (tabIndex + 1) % tabMatches.length;
+    }
+
+    termInput.value = tabMatches[tabIndex];
+    return;
+  }
+
   if (e.key !== 'Enter') return;
-  var raw = termInput.value.trim();
+  let raw = termInput.value.trim();
   termInput.value = '';
   termPrint(termCwd + '> ' + raw);
   if (!raw) return;
-  var parts = raw.match(/^(\S+)\s*(.*)?$/);
-  var cmd = parts[1].toLowerCase();
-  var args = parts[2] || '';
-  if (cmd === 'matrix') {
-    cmdMatrix();
-  } else if (COMMANDS[cmd]) {
+
+  /* Push to history */
+  if (termHistory.length === 0 || termHistory[termHistory.length - 1] !== raw) {
+    termHistory.push(raw);
+  }
+  termHistoryIndex = -1;
+  termSavedInput = '';
+
+  let parts = raw.match(/^(\S+)\s*(.*)?$/);
+  let cmd = parts[1].toLowerCase();
+  let args = parts[2] || '';
+  if (COMMANDS[cmd]) {
     COMMANDS[cmd].run(args);
   } else {
-    // Try local item execution in current directory
-    var cur = FILESYSTEM[termCwd];
-    var localItem = null;
+    /* Try local item execution in current directory */
+    let cur = FILESYSTEM[termCwd];
+    let localItem = null;
     if (cur && cur.items) {
-      var input = raw.toLowerCase();
+      let input = raw.toLowerCase();
       localItem = cur.items.find(function (item) {
         return item.name.toLowerCase() === input;
       });
@@ -3181,6 +3690,7 @@ window.helpHome = helpHome;
 window.helpToggleNav = helpToggleNav;
 window.helpSwitchTab = helpSwitchTab;
 window.openRun = openRun;
+window.closeRun = closeRun;
 window.openPaint = openPaint;
 window.closePaint = closePaint;
 window.paintNew = paintNew;
