@@ -429,29 +429,31 @@
 .notepad-file-item button { margin-left: 6px; }
 
 /* Calculator window */
-#calculator { width: 240px; max-width: 95vw; left: 140px; top: 70px; }
+#calculator { width: 260px; max-width: 95vw; left: 140px; top: 70px; }
 
 .calc-display {
-  background: #d8e8d0;
-  padding: 8px 10px;
-  font-size: 20px;
+  background: linear-gradient(180deg, #c8dcc0, #d8e8d0);
+  padding: 10px 12px;
+  font-size: 24px;
   font-family: var(--mono);
   text-align: right;
   overflow: hidden;
   white-space: nowrap;
   margin-bottom: 10px;
+  border-radius: 2px;
 }
 
 .calc-buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
+  gap: 5px;
 }
 
-.calc-btn { padding: 9px 0; }
+.calc-btn { padding: 12px 0; font-size: 15px; }
 
-.calc-btn.calc-op { background: #e8e0d8; }
-.calc-btn.calc-eq { background: #c8d8e8; }
+.calc-btn.calc-fn { background: #e4d4d0; }
+.calc-btn.calc-op { background: #e0d8cc; }
+.calc-btn.calc-eq { background: #b8cce0; }
 .calc-btn.calc-zero { grid-column: span 2; }
 
 /* Calendar window */
