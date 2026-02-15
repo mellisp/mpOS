@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.matthewpritchard.com/">
   <meta property="og:image" content="https://www.matthewpritchard.com/og-image.png">
   <link rel="canonical" href="https://www.matthewpritchard.com/">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.youtube.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://upload.wikimedia.org https://wsrv.nl data:; frame-src 'self' https://*.wikipedia.org https://*.wikimedia.org https://www.youtube.com; connect-src 'self' https://en.wikipedia.org https://en.m.wikipedia.org https://api.open-meteo.com https://ipapi.co; font-src 'self'; media-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.youtube.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://upload.wikimedia.org https://wsrv.nl data:; frame-src 'self' https://*.wikipedia.org https://*.wikimedia.org https://www.youtube.com; connect-src 'self' https://en.wikipedia.org https://en.m.wikipedia.org https://api.open-meteo.com https://ipapi.co https://visitor-map.matthew-pritchard079.workers.dev; font-src 'self'; media-src 'self'">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="css/page.css">
@@ -34,6 +34,7 @@
   <script src="js/fish-data.js" defer></script>
   <script src="js/aquarium-data.js" defer></script>
   <script src="js/help-data.js" defer></script>
+  <script src="js/world-map-data.js" defer></script>
 </head>
 <body>
   <noscript><div style="background:#3a6ea5;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:Tahoma,sans-serif;font-size:16px;text-align:center;padding:24px;">mpOS requires JavaScript to run.</div></noscript>
@@ -443,6 +444,23 @@
       </div>
     </div>
 
+    <!-- Visitor Map Window (hidden initially) -->
+    <div class="window draggable" id="visitormap" style="display:none;">
+      <div class="titlebar">
+        <span>Visitor Map</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('visitormap')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('visitormap')">X</div>
+        </div>
+      </div>
+      <div class="window-body" id="visitorMapBody">
+        <div style="padding:16px;font-size:12px;color:var(--text-muted);">Loading visitor data...</div>
+      </div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="visitorMapStatus"></div>
+      </div>
+    </div>
+
     <!-- Help Window (hidden initially) -->
     <div class="window draggable" id="help" style="display:none;">
       <div class="titlebar">
@@ -687,6 +705,10 @@
             <button class="start-menu-item" type="button" onclick="openDiskUsage(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="du-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="30%" stop-color="#c8c4bc"/><stop offset="70%" stop-color="#a8a49c"/><stop offset="100%" stop-color="#8a8680"/></linearGradient><linearGradient id="du-platter" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient></defs><rect x="2" y="6" width="16" height="10" rx="1.5" fill="url(#du-body)" stroke="#6a6660" stroke-width="0.8"/><line x1="3" y1="7" x2="17" y2="7" stroke="white" stroke-width="0.5" opacity="0.4"/><rect x="4" y="8" width="8" height="5" rx="0.5" fill="url(#du-platter)" stroke="#4a4a4a" stroke-width="0.5"/><circle cx="8" cy="10.5" r="1.8" fill="none" stroke="#555" stroke-width="0.4"/><circle cx="8" cy="10.5" r="0.5" fill="#888"/><circle cx="15" cy="13" r="0.8" fill="#5aaa80" stroke="#2a7a52" stroke-width="0.3"/><ellipse cx="7" cy="8.5" rx="3" ry="1.5" fill="white" opacity="0.15"/></svg>
               <span>Disk Usage</span>
+            </button>
+            <button class="start-menu-item" type="button" onclick="openVisitorMap(); closeStartMenu();">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="vm-globe" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="vm-clip"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#vm-globe)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#vm-clip)" opacity="0.35"><ellipse cx="6" cy="8" rx="4" ry="3" fill="#5aaa80"/><ellipse cx="14" cy="7" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="10" cy="14" rx="5" ry="2" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.6"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.6"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><circle cx="14" cy="6" r="2" fill="#ef5350" opacity="0.8"/><path d="M14 4 L14 6.5" stroke="#c62828" stroke-width="0.8" stroke-linecap="round"/><circle cx="14" cy="4" r="0.6" fill="#c62828"/></svg>
+              <span>Visitor Map</span>
             </button>
           </div>
         </div>

@@ -1274,6 +1274,106 @@
   margin-top: 4px;
 }
 
+/* Visitor Map window */
+#visitormap { width: 720px; max-width: 95vw; left: 80px; top: 40px; }
+#visitormap .window-body { padding: 0; display: flex; flex-direction: row; overflow: hidden; }
+
+.vm-map-wrap {
+  flex: 1;
+  min-width: 0;
+  background: var(--white);
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  margin: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vm-map-wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.vm-map-wrap .vm-country {
+  fill: #e0e0e0;
+  stroke: #fff;
+  stroke-width: 0.5;
+  transition: fill 0.15s;
+}
+
+.vm-map-wrap .vm-country.vm-has-visitors {
+  cursor: pointer;
+}
+
+.vm-map-wrap .vm-country.vm-has-visitors:hover {
+  stroke: #1a4a6e;
+  stroke-width: 1.5;
+}
+
+.vm-tooltip {
+  position: absolute;
+  background: #ffffee;
+  border: 1px solid var(--dk-shadow);
+  padding: 3px 6px;
+  font-size: 11px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 5;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  display: none;
+}
+
+.vm-list {
+  width: 200px;
+  min-width: 200px;
+  overflow-y: auto;
+  border-left: 1px solid var(--shadow);
+  font-size: 12px;
+}
+
+.vm-list-header {
+  font-weight: bold;
+  padding: 4px 8px;
+  background: var(--silver);
+  border-bottom: 1px solid var(--shadow);
+  font-size: 11px;
+  color: var(--dk-shadow);
+}
+
+.vm-list-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  cursor: default;
+}
+
+.vm-list-row:hover {
+  background: var(--highlight);
+  color: var(--highlight-text);
+}
+
+.vm-list-chip {
+  width: 10px;
+  height: 10px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.vm-list-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vm-list-count {
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Mobile Launcher ── */
 .mobile-launcher { display: none; }
 
@@ -1387,4 +1487,8 @@
   .paint-main { height: auto; flex: 1; }
   .paint-sidebar { flex-direction: row; width: auto; min-width: 0; flex-wrap: wrap; }
   .paint-swatches { grid-template-columns: repeat(7, 16px); grid-template-rows: repeat(4, 16px); }
+
+  /* Visitor Map mobile */
+  #visitormap .window-body { flex-direction: column; }
+  .vm-list { width: auto; min-width: 0; border-left: none; border-top: 1px solid var(--shadow); max-height: 200px; }
 }
