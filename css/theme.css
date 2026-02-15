@@ -397,8 +397,9 @@ button.start-menu-item {
 .taskbar-item {
   font-size: 12px;
   background: var(--silver);
-  border: 1px solid;
+  border: 2px solid;
   border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
   padding: 2px 8px;
   min-width: 120px;
   max-width: 180px;
