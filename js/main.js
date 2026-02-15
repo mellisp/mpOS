@@ -1840,7 +1840,7 @@ function populateDiskUsage() {
 }
 
 /* ── Visitor Map ── */
-const VM_WORKER = 'https://visitor-map.matthew-pritchard079.workers.dev';
+const VM_WORKER = 'https://visitor-map.matthewpritchard.workers.dev';
 let vmPopulated = false;
 
 function openVisitorMap() {
