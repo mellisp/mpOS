@@ -179,6 +179,10 @@
 
 .error-panel { padding: 16px; }
 
+/* Utility */
+.spacer { flex: 1; }
+.flex-scroll { flex: 1; overflow-y: auto; }
+
 /* Compact window-body padding */
 #calculator .window-body,
 #calendar .window-body,
@@ -299,6 +303,7 @@
   font-size: 13px; line-height: 1.4;
   padding: 8px; height: 260px;
   display: flex; flex-direction: column;
+  position: relative;
 }
 .term-output {
   flex: 1; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
@@ -311,6 +316,7 @@
   color: #c0c0c0; font: inherit; padding: 0; margin: 0;
   caret-color: #c0c0c0;
 }
+.matrix-canvas { position: absolute; inset: 0; z-index: 10; background: #000; }
 
 /* Fish Finder window */
 #fishfinder { width: 420px; max-width: 95vw; left: 100px; top: 50px; }
@@ -318,6 +324,9 @@
 .finder-name { font-size: 15px; font-weight: bold; }
 .finder-location { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 .finder-distance { font-size: 13px; margin-top: 4px; }
+.finder-card { padding: 10px; margin-bottom: 10px; }
+.finder-card a { color: var(--link); text-decoration: none; }
+.finder-wrap { padding: 10px; }
 
 /* Fish of the Day window */
 #fishofday { width: 480px; max-width: 95vw; left: 160px; top: 60px; }
@@ -351,7 +360,8 @@
   margin-top: 10px;
 }
 
-.fish-name[data-linked]:hover { text-decoration: underline; }
+.fish-name.linked { cursor: pointer; color: var(--link); }
+.fish-name.linked:hover { text-decoration: underline; }
 
 .fish-scientific {
   font-style: italic;
@@ -992,6 +1002,7 @@
   font-size: 12px;
   margin-top: 4px;
 }
+.help-search-results { margin-top: 4px; }
 
 /* Help topic content */
 .help-topic-title {

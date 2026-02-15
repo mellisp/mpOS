@@ -573,8 +573,7 @@ function populateFish() {
   photoPlaceholder.textContent = 'Loading image...';
   photoPlaceholder.style.display = '';
   fishName.onclick = null;
-  fishName.style.cursor = '';
-  fishName.style.color = '';
+  fishName.classList.remove('linked');
   delete fishName.dataset.linked;
 
   var sciName = f[1] + " " + f[2];
@@ -605,8 +604,7 @@ function populateFish() {
   function linkFishName(title) {
     if (fishName.dataset.linked) return;
     fishName.dataset.linked = '1';
-    fishName.style.cursor = 'pointer';
-    fishName.style.color = 'var(--link)';
+    fishName.classList.add('linked');
     fishName.title = 'Open in WikiBrowser';
     fishName.onclick = function () {
       openBrowser();
@@ -723,8 +721,7 @@ function populateFishFinder() {
 
       function finderCard(aq, dist) {
         var card = document.createElement('div');
-        card.className = 'sunken';
-        card.style.cssText = 'padding:10px;margin-bottom:10px;';
+        card.className = 'sunken finder-card';
         var nameEl = document.createElement('div');
         nameEl.className = 'finder-name';
         if (aq[4]) {
@@ -732,7 +729,6 @@ function populateFishFinder() {
           link.href = aq[4];
           link.target = '_blank';
           link.rel = 'noopener noreferrer';
-          link.style.cssText = 'color:var(--link);text-decoration:none;';
           link.textContent = aq[0];
           nameEl.appendChild(link);
         } else {
@@ -752,7 +748,7 @@ function populateFishFinder() {
 
       body.textContent = '';
       var wrap = document.createElement('div');
-      wrap.style.padding = '10px';
+      wrap.className = 'finder-wrap';
       var nearLabel = document.createElement('div');
       nearLabel.className = 'finder-label';
       nearLabel.textContent = 'Nearest Aquarium';
@@ -950,7 +946,7 @@ function notepadShowSaveAs() {
   d.appendChild(inp);
 
   var spacer = document.createElement('div');
-  spacer.style.flex = '1';
+  spacer.className = 'spacer';
   d.appendChild(spacer);
 
   var btnRow = document.createElement('div');
@@ -1789,7 +1785,7 @@ function renderVisitorMap(body, counts) {
     }
   } else {
     var noMap = document.createElement('div');
-    noMap.style.cssText = 'padding:24px;text-align:center;color:var(--text-muted);font-size:12px;';
+    noMap.className = 'folder-empty';
     noMap.textContent = 'Map data unavailable.';
     mapWrap.appendChild(noMap);
   }
@@ -2000,7 +1996,7 @@ function helpBuildIndex(body) {
   body.appendChild(input);
 
   var list = document.createElement('div');
-  list.style.cssText = 'flex:1;overflow-y:auto;';
+  list.className = 'flex-scroll';
   body.appendChild(list);
 
   function filterIndex() {
@@ -2051,7 +2047,7 @@ function helpBuildSearch(body) {
   body.appendChild(btn);
 
   var results = document.createElement('div');
-  results.style.cssText = 'flex:1;overflow-y:auto;margin-top:4px;';
+  results.className = 'flex-scroll help-search-results';
   body.appendChild(results);
 
   function doSearch() {
@@ -2185,6 +2181,7 @@ let paintCanvas = null;
 let paintPreview = null;
 let paintCtx = null;
 let paintPrevCtx = null;
+let paintCoordsEl = null;
 let paintBuilt = false;
 let paintTool = 'pencil';
 let paintFg = '#000000';
@@ -2220,6 +2217,7 @@ function paintSetup() {
   paintPreview = document.getElementById('paintPreview');
   paintCtx = paintCanvas.getContext('2d');
   paintPrevCtx = paintPreview.getContext('2d');
+  paintCoordsEl = document.getElementById('paintCoords');
 
   var dpr = window.devicePixelRatio || 1;
   paintCanvas.width = paintW * dpr;
@@ -2386,7 +2384,7 @@ function paintOnDown(e) {
 
 function paintOnMove(e) {
   var pos = paintGetPos(e);
-  document.getElementById('paintCoords').textContent = Math.round(pos.x) + ', ' + Math.round(pos.y);
+  paintCoordsEl.textContent = Math.round(pos.x) + ', ' + Math.round(pos.y);
 
   if (!paintDrawing) return;
 
@@ -2698,7 +2696,7 @@ function paintShowSaveAs() {
   d.appendChild(inp);
 
   var spacer = document.createElement('div');
-  spacer.style.flex = '1';
+  spacer.className = 'spacer';
   d.appendChild(spacer);
 
   var btnRow = document.createElement('div');
@@ -2989,10 +2987,8 @@ function cmdMatrix() {
   if (existing) { stopMatrix(); return; }
   var canvas = document.createElement('canvas');
   canvas.className = 'matrix-canvas';
-  canvas.style.cssText = 'position:absolute;inset:0;z-index:10;background:#000;';
   canvas.width = term.offsetWidth;
   canvas.height = term.offsetHeight;
-  term.style.position = 'relative';
   term.appendChild(canvas);
   var ctx = canvas.getContext('2d');
   var fontSize = 14;
