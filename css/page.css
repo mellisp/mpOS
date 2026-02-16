@@ -1080,8 +1080,8 @@
 .help-topic-link:hover { text-decoration: underline; }
 
 /* Paint window */
-#paint { width: 720px; max-width: 95vw; left: 60px; top: 30px; }
-#paint .window-body { padding: 0; position: relative; display: flex; flex-direction: column; }
+#paint { width: 720px; height: 540px; max-width: 95vw; left: 60px; top: 30px; display: flex; flex-direction: column; }
+#paint .window-body { padding: 0; position: relative; display: flex; flex-direction: column; flex: 1; min-height: 0; }
 
 .paint-toolbar {
   align-items: center;
@@ -1116,7 +1116,6 @@
 
 .paint-main {
   display: flex;
-  height: 400px;
   flex: 1;
   min-height: 0;
 }
@@ -1164,7 +1163,7 @@
 .paint-canvas-wrap {
   flex: 1;
   position: relative;
-  overflow: auto;
+  overflow: hidden;
   background: var(--shadow);
 }
 
@@ -1615,8 +1614,11 @@
   #ontarget .game-embed { height: 100%; }
   #brickbreaker .game-embed { height: 100%; }
 
+  /* Resize handles hidden on mobile */
+  .resize-handle { display: none; }
+
   /* Paint mobile */
-  .paint-main { height: auto; flex: 1; }
+  .paint-main { flex: 1; }
   .paint-sidebar { flex-direction: row; width: auto; min-width: 0; flex-wrap: wrap; }
   .paint-swatches { grid-template-columns: repeat(7, 16px); grid-template-rows: repeat(4, 16px); }
 

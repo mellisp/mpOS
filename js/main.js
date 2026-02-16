@@ -3317,12 +3317,57 @@ let paintStartPos = null;
 let paintW = 640;
 let paintH = 400;
 
+function paintResizeCanvas(newW, newH) {
+  if (newW === paintW && newH === paintH) return;
+  if (!paintCanvas || !paintCtx) return;
+  var dpr = window.devicePixelRatio || 1;
+
+  // Capture current drawing
+  var oldData = paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+  var temp = document.createElement('canvas');
+  temp.width = paintCanvas.width;
+  temp.height = paintCanvas.height;
+  temp.getContext('2d').putImageData(oldData, 0, 0);
+
+  // Update logical dimensions
+  paintW = newW;
+  paintH = newH;
+
+  // Resize main canvas
+  paintCanvas.width = paintW * dpr;
+  paintCanvas.height = paintH * dpr;
+  paintCanvas.style.width = paintW + 'px';
+  paintCanvas.style.height = paintH + 'px';
+  paintCtx.setTransform(1, 0, 0, 1, 0, 0);
+  paintCtx.fillStyle = '#ffffff';
+  paintCtx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+  paintCtx.drawImage(temp, 0, 0);
+  paintCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  // Resize preview canvas
+  paintPreview.width = paintW * dpr;
+  paintPreview.height = paintH * dpr;
+  paintPreview.style.width = paintW + 'px';
+  paintPreview.style.height = paintH + 'px';
+  paintPrevCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function paintFitCanvas() {
+  var wrap = document.querySelector('.paint-canvas-wrap');
+  if (!wrap || !paintCanvas) return;
+  var newW = Math.floor(wrap.clientWidth);
+  var newH = Math.floor(wrap.clientHeight);
+  if (newW < 1 || newH < 1) return;
+  paintResizeCanvas(newW, newH);
+}
+
 function openPaint() {
   openWindow('paint');
   if (!paintBuilt) {
     paintBuilt = true;
     paintSetup();
   }
+  requestAnimationFrame(paintFitCanvas);
   document.getElementById('paint').focus();
 }
 
@@ -3420,6 +3465,17 @@ function paintSetup() {
     }
   });
 
+  // Resize canvas when window is resized via handle
+  document.getElementById('paint').addEventListener('windowresize', paintFitCanvas);
+
+  // Resize canvas on orientation change / viewport resize (only when Paint is visible)
+  window.addEventListener('resize', function () {
+    var paintEl = document.getElementById('paint');
+    if (paintEl && paintEl.style.display !== 'none') {
+      paintFitCanvas();
+    }
+  });
+
   paintUpdateStatus();
 }
 
@@ -3449,6 +3505,8 @@ function paintRestoreState(dataUrl) {
     var dpr = window.devicePixelRatio || 1;
     paintCtx.setTransform(1, 0, 0, 1, 0, 0);
     paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+    paintCtx.fillStyle = '#ffffff';
+    paintCtx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
     paintCtx.drawImage(img, 0, 0);
     paintCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
@@ -4826,6 +4884,7 @@ window.paintUndo = paintUndo;
 window.paintRedo = paintRedo;
 window.paintClear = paintClear;
 window.paintSizeChange = paintSizeChange;
+window.paintFitCanvas = paintFitCanvas;
 window.openVisitorMap = openVisitorMap;
 
 /* ── System Properties: idle listeners + load saved settings ── */
