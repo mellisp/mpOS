@@ -2607,27 +2607,20 @@ function renderWeather(body, data) {
 
 /* ── Disk Usage ── */
 const DU_FILES = [
-  { path: 'index.html', type: 'HTML' },
-  { path: '404.html', type: 'HTML' },
-  { path: 'target-game.html', type: 'HTML' },
-  { path: 'brick-breaker.html', type: 'HTML' },
-  { path: 'chicken-fingers.html', type: 'HTML' },
-  { path: 'error-pages/400.html', type: 'HTML' },
-  { path: 'error-pages/403.html', type: 'HTML' },
-  { path: 'error-pages/500.html', type: 'HTML' },
-  { path: 'css/theme.css', type: 'CSS' },
-  { path: 'css/page.css', type: 'CSS' },
-  { path: 'js/main.js', type: 'JS' },
-  { path: 'js/taskbar.js', type: 'JS' },
-  { path: 'js/audio.js', type: 'JS' },
-  { path: 'js/fish-data.js', type: 'JS' },
-  { path: 'js/aquarium-data.js', type: 'JS' },
-  { path: 'js/help-data.js', type: 'JS' },
-  { path: 'js/world-map-data.js', type: 'JS' }
+  'index.html', '404.html', 'target-game.html', 'brick-breaker.html',
+  'chicken-fingers.html', 'error-pages/400.html', 'error-pages/403.html',
+  'error-pages/500.html', 'css/theme.css', 'css/page.css', 'js/main.js',
+  'js/taskbar.js', 'js/audio.js', 'js/fish-data.js', 'js/aquarium-data.js',
+  'js/help-data.js', 'js/world-map-data.js', 'favicon.svg', 'version.json'
 ];
 
-const DU_COLORS = { HTML: '#4a8abe', CSS: '#5aaa80', JS: '#e8a010' };
-const DU_LABELS = { HTML: 'HTML', CSS: 'CSS', JS: 'JavaScript' };
+const DU_TYPE_LABELS = { js: 'JavaScript', html: 'HTML', css: 'CSS', svg: 'SVG', json: 'JSON' };
+const DU_TYPE_COLORS = ['#4a8abe', '#5aaa80', '#e8a010', '#c06090', '#8a6abe', '#be6a4a', '#4abe8a'];
+
+function duFileType(path) {
+  var ext = path.split('.').pop().toLowerCase();
+  return ext;
+}
 
 function darkenHex(hex, factor) {
   var r = parseInt(hex.slice(1, 3), 16);
@@ -2663,20 +2656,20 @@ function populateDiskUsage() {
     return el;
   }
 
-  var fetches = DU_FILES.map(function (f) {
-    return fetch(f.path)
+  var fetches = DU_FILES.map(function (p) {
+    return fetch(p)
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
-      .then(function (b) { return { path: f.path, type: f.type, size: b.size }; })
+      .then(function (b) { return { path: p, type: duFileType(p), size: b.size }; })
       .catch(function () { return null; });
   });
 
   Promise.all(fetches).then(function (results) {
     var files = results.filter(function (r) { return r !== null; });
-    var totals = { HTML: 0, CSS: 0, JS: 0 };
+    var totals = {};
     var totalSize = 0;
 
     files.forEach(function (f) {
-      totals[f.type] += f.size;
+      totals[f.type] = (totals[f.type] || 0) + f.size;
       totalSize += f.size;
     });
 
@@ -2686,7 +2679,9 @@ function populateDiskUsage() {
     }
 
     body.textContent = '';
-    var types = ['HTML', 'CSS', 'JS'];
+    var types = Object.keys(totals).sort(function (a, b) { return totals[b] - totals[a]; });
+    var typeColor = {};
+    types.forEach(function (t, i) { typeColor[t] = DU_TYPE_COLORS[i % DU_TYPE_COLORS.length]; });
 
     // ── Header ──
     var header = document.createElement('div');
@@ -2745,7 +2740,7 @@ function populateDiskUsage() {
               ' L' + p2b.x + ',' + p2b.y +
               ' A' + pieRx + ',' + pieRy + ' 0 ' + large + ',0 ' + p1b.x + ',' + p1b.y + ' Z';
 
-      pieSvg.appendChild(svgEl('path', { d: d, fill: darkenHex(DU_COLORS[s.type], 0.7) }));
+      pieSvg.appendChild(svgEl('path', { d: d, fill: darkenHex(typeColor[s.type], 0.7) }));
     });
 
     // Top face slices
@@ -2765,7 +2760,7 @@ function populateDiskUsage() {
             ' A' + pieRx + ',' + pieRy + ' 0 ' + large + ',1 ' + p2.x + ',' + p2.y + ' Z';
       }
 
-      pieSvg.appendChild(svgEl('path', { d: d, fill: DU_COLORS[s.type] }));
+      pieSvg.appendChild(svgEl('path', { d: d, fill: typeColor[s.type] }));
     });
 
     // Subtle highlight on upper-left of top face
@@ -2793,12 +2788,12 @@ function populateDiskUsage() {
 
       var chip = document.createElement('span');
       chip.className = 'du-chip';
-      chip.style.background = DU_COLORS[type];
+      chip.style.background = typeColor[type];
       row.appendChild(chip);
 
       var label = document.createElement('span');
       label.className = 'du-legend-label';
-      label.textContent = DU_LABELS[type];
+      label.textContent = (DU_TYPE_LABELS[type] || type.toUpperCase());
       row.appendChild(label);
 
       var sizeEl = document.createElement('span');
@@ -2826,7 +2821,7 @@ function populateDiskUsage() {
       var seg = document.createElement('div');
       seg.className = 'du-bar-seg';
       seg.style.width = pct + '%';
-      seg.style.background = DU_COLORS[type];
+      seg.style.background = typeColor[type];
       bar.appendChild(seg);
     });
 
