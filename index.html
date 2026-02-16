@@ -131,16 +131,21 @@
       </div>
     </div>
 
-    <!-- My Computer Window (hidden initially) -->
+    <!-- My Computer / System Properties Window (hidden initially) -->
     <div class="window draggable" id="mycomputer" style="display:none;">
       <div class="titlebar">
-        <span>About My Computer</span>
+        <span>System Properties</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('mycomputer')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('mycomputer')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeMyComputer()">X</div>
         </div>
       </div>
-      <div class="window-body" id="sysInfoBody"></div>
+      <div class="mycomputer-tabs">
+        <button class="mycomputer-tab active" id="mcTabGeneral" onclick="mcSwitchTab('general')">General</button>
+        <button class="mycomputer-tab" id="mcTabDisplay" onclick="mcSwitchTab('display')">Display</button>
+        <button class="mycomputer-tab" id="mcTabScreenSaver" onclick="mcSwitchTab('screensaver')">Screen Saver</button>
+      </div>
+      <div class="mycomputer-tab-body" id="mcTabBody"></div>
     </div>
 
     <!-- Explorer Window (hidden initially) -->

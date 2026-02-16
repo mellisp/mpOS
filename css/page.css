@@ -184,7 +184,7 @@
 #timezone .window-body { padding: 8px; }
 
 /* My Computer window */
-#mycomputer { width: 380px; max-width: 95vw; left: 120px; top: 40px; }
+#mycomputer { width: 420px; max-width: 95vw; left: 120px; top: 40px; }
 
 .sysinfo-hero {
   text-align: center;
@@ -1363,6 +1363,148 @@
 }
 
 #chickenError .window-body { padding: 16px; }
+
+/* ── System Properties (My Computer) — Tabs ── */
+.mycomputer-tabs {
+  display: flex;
+  padding: 4px 4px 0;
+  border-bottom: 1px solid var(--shadow);
+  background: var(--silver);
+}
+
+.mycomputer-tab {
+  font-family: var(--font);
+  font-size: 11px;
+  padding: 3px 10px;
+  background: var(--silver);
+  border: 1px solid var(--shadow);
+  border-bottom: none;
+  margin-bottom: -1px;
+  cursor: default;
+  outline: none;
+}
+
+.mycomputer-tab.active {
+  background: #fff;
+  border-bottom: 1px solid #fff;
+  font-weight: bold;
+}
+
+.mycomputer-tab-body {
+  padding: 12px;
+  background: #fff;
+  min-height: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Display tab controls */
+.display-section-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--dk-shadow);
+  margin: 0 0 6px;
+}
+
+.display-color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.display-color-picker {
+  width: 60px;
+  height: 30px;
+  border: 2px solid var(--shadow);
+  cursor: pointer;
+  padding: 0;
+  background: none;
+}
+
+.display-color-hex {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dk-shadow);
+}
+
+.wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+}
+
+.wallpaper-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background: var(--silver);
+  border: 2px solid var(--shadow);
+  cursor: default;
+  font-family: var(--font);
+  font-size: 10px;
+}
+
+.wallpaper-btn.active {
+  border-color: var(--highlight);
+  border-width: 2px;
+  background: #e0eaf4;
+}
+
+.wallpaper-preview {
+  width: 80px;
+  height: 60px;
+  border: 1px solid var(--shadow);
+}
+
+/* Screen Saver tab controls */
+.ss-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+.ss-row label { font-weight: bold; color: var(--dk-shadow); }
+
+.ss-select {
+  font-family: var(--font);
+  font-size: 11px;
+  padding: 2px 4px;
+  border: 1px solid var(--shadow);
+  background: var(--white);
+}
+
+.ss-preview-wrap {
+  background: #000;
+  padding: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.ss-preview-canvas {
+  border: 1px solid var(--shadow);
+}
+
+.ss-checkbox-label {
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+}
+
+/* Wallpaper canvas overlay */
+.wallpaper-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
 
 /* ── Mobile Launcher ── */
 .mobile-launcher { display: none; }

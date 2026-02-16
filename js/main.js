@@ -288,9 +288,735 @@ function getItemIcon(name) {
   return icons[name] || '';
 }
 
+/* ── System Properties (My Computer) — Tab system ── */
+let mcCurrentTab = 'general';
+
+let displaySettings = { backgroundColor: '#3a6ea5', wallpaper: 'none' };
+let ssSettings = { enabled: true, type: 'starfield', timeout: 2 };
+let ssIdleTimer = null;
+let ssLastActivity = Date.now();
+let ssActive = false;
+let ssPreviewInterval = null;
+let ssFullscreenInterval = null;
+let ssOverlayFirstMove = true;
+
 function openMyComputer() {
   openWindow('mycomputer');
-  populateSysInfo();
+  var body = document.getElementById('mcTabBody');
+  if (!body.dataset.initialized) {
+    body.dataset.initialized = '1';
+    mcSwitchTab(mcCurrentTab);
+  } else if (mcCurrentTab === 'screensaver') {
+    // Restart preview if returning to screensaver tab after window was closed
+    var canvas = document.getElementById('ssPreviewCanvas');
+    if (canvas && !ssPreviewInterval) ssUpdatePreview(canvas);
+  }
+}
+
+function closeMyComputer() {
+  ssStopPreview();
+  bbTaskbar.closeWindow('mycomputer');
+}
+
+function mcSwitchTab(tab) {
+  mcCurrentTab = tab;
+  var tabs = { general: 'mcTabGeneral', display: 'mcTabDisplay', screensaver: 'mcTabScreenSaver' };
+  for (var key in tabs) {
+    document.getElementById(tabs[key]).classList.toggle('active', key === tab);
+  }
+  ssStopPreview();
+  var body = document.getElementById('mcTabBody');
+  body.textContent = '';
+  if (tab === 'general') mcBuildGeneral(body);
+  else if (tab === 'display') mcBuildDisplay(body);
+  else if (tab === 'screensaver') mcBuildScreenSaver(body);
+}
+
+/* ── General tab (former populateSysInfo) ── */
+let mcGeneralFrag = null;
+
+function mcBuildGeneral(body) {
+  if (mcGeneralFrag) {
+    body.appendChild(mcGeneralFrag.cloneNode(true));
+    return;
+  }
+
+  var ua = navigator.userAgent;
+  var nav = navigator;
+  var scr = screen;
+
+  function makeSection(title, rows) {
+    var valid = rows.filter(function (r) { return r[1] != null; });
+    if (!valid.length) return null;
+    var frag = document.createDocumentFragment();
+    var titleEl = document.createElement('div');
+    titleEl.className = 'section-title';
+    titleEl.textContent = title;
+    frag.appendChild(titleEl);
+    var sunken = document.createElement('div');
+    sunken.className = 'sunken';
+    var table = document.createElement('table');
+    table.className = 'sysinfo-table';
+    valid.forEach(function (r) {
+      var tr = document.createElement('tr');
+      var th = document.createElement('th');
+      th.textContent = r[0];
+      tr.appendChild(th);
+      var td = document.createElement('td');
+      td.textContent = r[1];
+      tr.appendChild(td);
+      table.appendChild(tr);
+    });
+    sunken.appendChild(table);
+    frag.appendChild(sunken);
+    return frag;
+  }
+
+  var os = null;
+  if (/Windows/.test(ua)) os = 'Windows';
+  else if (/Mac OS X/.test(ua)) os = 'macOS';
+  else if (/Android/.test(ua)) os = 'Android';
+  else if (/iPhone|iPad/.test(ua)) os = 'iOS';
+  else if (/CrOS/.test(ua)) os = 'Chrome OS';
+  else if (/Linux/.test(ua)) os = 'Linux';
+
+  var browser = null;
+  if (/Edg\//.test(ua)) browser = 'Microsoft Edge';
+  else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) browser = 'Google Chrome';
+  else if (/Firefox\//.test(ua)) browser = 'Mozilla Firefox';
+  else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Apple Safari';
+
+  var container = document.createElement('div');
+
+  // Hero section — SVG is hardcoded so innerHTML on a detached element is safe
+  var hero = document.createElement('div');
+  hero.className = 'sysinfo-hero';
+  hero.innerHTML = '<svg width="80" height="80" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="si-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="25%" stop-color="#6aafe0"/><stop offset="60%" stop-color="#3a7ab0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient>' +
+    '<linearGradient id="si-screen" x1="0" y1="0" x2="0.2" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="30%" stop-color="#c0ddf0"/><stop offset="70%" stop-color="#90bce0"/><stop offset="100%" stop-color="#6898c0"/></linearGradient>' +
+    '<linearGradient id="si-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b8d0e0"/><stop offset="100%" stop-color="#7a9ab8"/></linearGradient>' +
+    '<linearGradient id="si-stand" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="50%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient>' +
+    '<linearGradient id="si-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="40%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient></defs>' +
+    '<ellipse cx="24" cy="43" rx="16" ry="2" fill="#00000020"/>' +
+    '<rect x="4" y="4" width="40" height="28" rx="3" fill="url(#si-body)" stroke="#1a4a6e" stroke-width="1.5"/>' +
+    '<line x1="6" y1="5" x2="42" y2="5" stroke="white" stroke-width="0.8" opacity="0.5" stroke-linecap="round"/>' +
+    '<line x1="5" y1="6" x2="5" y2="30" stroke="white" stroke-width="0.6" opacity="0.3"/>' +
+    '<ellipse cx="18" cy="10" rx="14" ry="6" fill="white" opacity="0.35"/>' +
+    '<rect x="7" y="7" width="34" height="22" rx="1.5" fill="url(#si-bezel)" stroke="#1a4a6e" stroke-width="0.5"/>' +
+    '<rect x="8" y="8" width="32" height="20" rx="1" fill="url(#si-screen)"/>' +
+    '<ellipse cx="18" cy="14" rx="12" ry="7" fill="white" opacity="0.15"/>' +
+    '<rect x="18" y="34" width="12" height="4" rx="1" fill="url(#si-stand)" stroke="#8a8680" stroke-width="0.75"/>' +
+    '<line x1="19" y1="34.5" x2="29" y2="34.5" stroke="white" stroke-width="0.5" opacity="0.4"/>' +
+    '<rect x="11" y="38" width="26" height="3" rx="1.5" fill="url(#si-base)" stroke="#8a8680" stroke-width="0.75"/>' +
+    '<line x1="12" y1="38.5" x2="36" y2="38.5" stroke="white" stroke-width="0.5" opacity="0.5"/>' +
+    '</svg>';
+  if (os) {
+    var osEl = document.createElement('div');
+    osEl.className = 'sysinfo-os';
+    osEl.textContent = os;
+    hero.appendChild(osEl);
+  }
+  if (browser) {
+    var brEl = document.createElement('div');
+    brEl.className = 'sysinfo-browser';
+    brEl.textContent = browser;
+    hero.appendChild(brEl);
+  }
+  container.appendChild(hero);
+
+  var sep = document.createElement('div');
+  sep.className = 'separator';
+  container.appendChild(sep);
+
+  var sysSection = makeSection('System', [
+    ['CPU Cores', nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : null],
+    ['Language', nav.language || null]
+  ]);
+  if (sysSection) container.appendChild(sysSection);
+
+  var dpr = window.devicePixelRatio || 1;
+  var dispSection = makeSection('Display', [
+    ['Resolution', scr.width + ' \u00d7 ' + scr.height],
+    ['Pixel Ratio', dpr + 'x' + (dpr > 1 ? ' (HiDPI)' : '')]
+  ]);
+  if (dispSection) container.appendChild(dispSection);
+
+  var netContainer = document.createElement('div');
+  container.appendChild(netContainer);
+  var batContainer = document.createElement('div');
+  container.appendChild(batContainer);
+
+  var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+  if (conn) {
+    var netRows = [];
+    if (conn.effectiveType) netRows.push(['Type', conn.effectiveType.toUpperCase()]);
+    else if (conn.type) netRows.push(['Type', conn.type]);
+    if (conn.downlink) netRows.push(['Downlink', conn.downlink + ' Mbps']);
+    var netSection = makeSection('Network', netRows);
+    if (netSection) netContainer.appendChild(netSection);
+  }
+
+  if (nav.getBattery) {
+    nav.getBattery().then(function (bat) {
+      var batSection = makeSection('Battery', [
+        ['Level', Math.round(bat.level * 100) + '%'],
+        ['Charging', bat.charging ? 'Yes' : 'No']
+      ]);
+      if (batSection) batContainer.appendChild(batSection);
+      // Update cache after async battery info
+      mcGeneralFrag = container.cloneNode(true);
+    });
+  }
+
+  mcGeneralFrag = container.cloneNode(true);
+  body.appendChild(container);
+}
+
+/* ── Display tab ── */
+function mcBuildDisplay(body) {
+  // Background Color section
+  var colorLabel = document.createElement('div');
+  colorLabel.className = 'display-section-label';
+  colorLabel.textContent = 'Background Color';
+  body.appendChild(colorLabel);
+
+  var colorRow = document.createElement('div');
+  colorRow.className = 'display-color-row';
+
+  var picker = document.createElement('input');
+  picker.type = 'color';
+  picker.className = 'display-color-picker';
+  picker.value = displaySettings.backgroundColor;
+  colorRow.appendChild(picker);
+
+  var hexSpan = document.createElement('span');
+  hexSpan.className = 'display-color-hex';
+  hexSpan.textContent = displaySettings.backgroundColor;
+  colorRow.appendChild(hexSpan);
+
+  picker.addEventListener('input', function () {
+    displaySettings.backgroundColor = picker.value;
+    hexSpan.textContent = picker.value;
+    applyDisplaySettings();
+    mcSaveSettings();
+  });
+
+  body.appendChild(colorRow);
+
+  // Wallpaper section
+  var wpLabel = document.createElement('div');
+  wpLabel.className = 'display-section-label';
+  wpLabel.textContent = 'Wallpaper Pattern';
+  body.appendChild(wpLabel);
+
+  var grid = document.createElement('div');
+  grid.className = 'wallpaper-grid';
+
+  var wallpapers = ['none', 'bliss', 'grid', 'diagonal', 'waves'];
+  var wallpaperNames = { none: 'None', bliss: 'Bliss', grid: 'Grid', diagonal: 'Diagonal', waves: 'Waves' };
+  var wpBtns = [];
+
+  wallpapers.forEach(function (id) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'wallpaper-btn' + (displaySettings.wallpaper === id ? ' active' : '');
+
+    var canvas = document.createElement('canvas');
+    canvas.width = 80;
+    canvas.height = 60;
+    canvas.className = 'wallpaper-preview';
+    drawWallpaperPreview(canvas, id);
+    btn.appendChild(canvas);
+
+    var label = document.createElement('span');
+    label.textContent = wallpaperNames[id];
+    btn.appendChild(label);
+
+    btn.addEventListener('click', function () {
+      displaySettings.wallpaper = id;
+      wpBtns.forEach(function (b) { b.classList.toggle('active', b === btn); });
+      applyDisplaySettings();
+      mcSaveSettings();
+    });
+
+    wpBtns.push(btn);
+    grid.appendChild(btn);
+  });
+
+  body.appendChild(grid);
+}
+
+function drawWallpaperPreview(canvas, id) {
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.fillStyle = displaySettings.backgroundColor;
+  ctx.fillRect(0, 0, w, h);
+
+  if (id === 'none') return;
+
+  if (id === 'bliss') {
+    var sky = ctx.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, '#87CEEB');
+    sky.addColorStop(0.55, '#b8e0f0');
+    sky.addColorStop(0.6, '#7cba3f');
+    sky.addColorStop(1, '#3a7a1e');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, w, h);
+    // Gentle hill curve
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.65);
+    ctx.quadraticCurveTo(w * 0.3, h * 0.5, w * 0.6, h * 0.6);
+    ctx.quadraticCurveTo(w * 0.85, h * 0.68, w, h * 0.55);
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    ctx.fillStyle = '#5aaa30';
+    ctx.fill();
+    return;
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 1;
+
+  if (id === 'grid') {
+    var step = 10;
+    for (var x = step; x < w; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (var y = step; y < h; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+  } else if (id === 'diagonal') {
+    var spacing = 12;
+    for (var d = -h; d < w + h; d += spacing) {
+      ctx.beginPath(); ctx.moveTo(d, 0); ctx.lineTo(d + h, h); ctx.stroke();
+    }
+  } else if (id === 'waves') {
+    for (var row = 10; row < h; row += 12) {
+      ctx.beginPath();
+      ctx.moveTo(0, row);
+      for (var wx = 0; wx < w; wx += 2) {
+        ctx.lineTo(wx, row + Math.sin(wx * 0.15 + row * 0.1) * 4);
+      }
+      ctx.stroke();
+    }
+  }
+}
+
+function drawFullWallpaper(canvas, id) {
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.fillStyle = displaySettings.backgroundColor;
+  ctx.fillRect(0, 0, w, h);
+
+  if (id === 'none') return;
+
+  if (id === 'bliss') {
+    var sky = ctx.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, '#87CEEB');
+    sky.addColorStop(0.55, '#b8e0f0');
+    sky.addColorStop(0.6, '#7cba3f');
+    sky.addColorStop(1, '#3a7a1e');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, w, h);
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.65);
+    ctx.quadraticCurveTo(w * 0.3, h * 0.5, w * 0.6, h * 0.6);
+    ctx.quadraticCurveTo(w * 0.85, h * 0.68, w, h * 0.55);
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    ctx.fillStyle = '#5aaa30';
+    ctx.fill();
+    return;
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 1;
+
+  if (id === 'grid') {
+    var step = 40;
+    for (var x = step; x < w; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (var y = step; y < h; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+  } else if (id === 'diagonal') {
+    var spacing = 50;
+    for (var d = -h; d < w + h; d += spacing) {
+      ctx.beginPath(); ctx.moveTo(d, 0); ctx.lineTo(d + h, h); ctx.stroke();
+    }
+  } else if (id === 'waves') {
+    for (var row = 20; row < h; row += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, row);
+      for (var wx = 0; wx < w; wx += 2) {
+        ctx.lineTo(wx, row + Math.sin(wx * 0.04 + row * 0.02) * 15);
+      }
+      ctx.stroke();
+    }
+  }
+}
+
+function applyDisplaySettings() {
+  document.documentElement.style.setProperty('--desktop', displaySettings.backgroundColor);
+  var desktopArea = document.querySelector('.desktop-area');
+  if (!desktopArea) return;
+  var existing = desktopArea.querySelector('.wallpaper-canvas');
+  if (displaySettings.wallpaper === 'none') {
+    if (existing) existing.remove();
+    return;
+  }
+  var canvas;
+  if (existing) {
+    canvas = existing;
+  } else {
+    canvas = document.createElement('canvas');
+    canvas.className = 'wallpaper-canvas';
+    desktopArea.insertBefore(canvas, desktopArea.firstChild);
+  }
+  canvas.width = desktopArea.offsetWidth;
+  canvas.height = desktopArea.offsetHeight;
+  drawFullWallpaper(canvas, displaySettings.wallpaper);
+}
+
+/* ── Screen Saver tab ── */
+var SS_TYPES = [
+  { id: 'starfield', name: 'Starfield' },
+  { id: 'pipes', name: 'Pipes' },
+  { id: 'bouncing', name: 'Bouncing Logo' },
+  { id: 'colorcycle', name: 'Color Cycling' },
+  { id: 'matrix', name: 'Matrix Rain' }
+];
+
+function mcBuildScreenSaver(body) {
+  // Screensaver picker
+  var row1 = document.createElement('div');
+  row1.className = 'ss-row';
+  var lbl = document.createElement('label');
+  lbl.textContent = 'Screen Saver:';
+  row1.appendChild(lbl);
+
+  var sel = document.createElement('select');
+  sel.className = 'ss-select';
+  SS_TYPES.forEach(function (t) {
+    var opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = t.name;
+    if (t.id === ssSettings.type) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', function () {
+    ssSettings.type = sel.value;
+    ssUpdatePreview(previewCanvas);
+    mcSaveSettings();
+  });
+  row1.appendChild(sel);
+  body.appendChild(row1);
+
+  // Preview canvas
+  var wrap = document.createElement('div');
+  wrap.className = 'ss-preview-wrap';
+  var previewCanvas = document.createElement('canvas');
+  previewCanvas.width = 320;
+  previewCanvas.height = 180;
+  previewCanvas.className = 'ss-preview-canvas';
+  previewCanvas.id = 'ssPreviewCanvas';
+  wrap.appendChild(previewCanvas);
+  body.appendChild(wrap);
+
+  // Timeout row
+  var row2 = document.createElement('div');
+  row2.className = 'ss-row';
+  var waitLbl = document.createElement('label');
+  waitLbl.textContent = 'Wait:';
+  row2.appendChild(waitLbl);
+
+  var waitSel = document.createElement('select');
+  waitSel.className = 'ss-select';
+  [1, 2, 3, 5].forEach(function (m) {
+    var opt = document.createElement('option');
+    opt.value = String(m);
+    opt.textContent = m + (m === 1 ? ' minute' : ' minutes');
+    if (m === ssSettings.timeout) opt.selected = true;
+    waitSel.appendChild(opt);
+  });
+  waitSel.addEventListener('change', function () {
+    ssSettings.timeout = parseInt(waitSel.value, 10);
+    ssResetIdleTimer();
+    mcSaveSettings();
+  });
+  row2.appendChild(waitSel);
+  body.appendChild(row2);
+
+  // Enable checkbox
+  var row3 = document.createElement('div');
+  row3.className = 'ss-row';
+  var chkLabel = document.createElement('label');
+  chkLabel.className = 'ss-checkbox-label';
+  var chk = document.createElement('input');
+  chk.type = 'checkbox';
+  chk.checked = ssSettings.enabled;
+  chk.addEventListener('change', function () {
+    ssSettings.enabled = chk.checked;
+    ssResetIdleTimer();
+    mcSaveSettings();
+  });
+  chkLabel.appendChild(chk);
+  chkLabel.appendChild(document.createTextNode(' Enable screen saver'));
+  row3.appendChild(chkLabel);
+  body.appendChild(row3);
+
+  // Start preview
+  ssUpdatePreview(previewCanvas);
+}
+
+/* ── Screensaver rendering ── */
+function ssUpdatePreview(canvas) {
+  ssStopPreview();
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, w, h);
+
+  var type = ssSettings.type;
+  if (type === 'starfield') ssPreviewInterval = ssStartStarfield(ctx, w, h);
+  else if (type === 'pipes') ssPreviewInterval = ssStartPipes(ctx, w, h);
+  else if (type === 'bouncing') ssPreviewInterval = ssStartBouncing(ctx, w, h);
+  else if (type === 'colorcycle') ssPreviewInterval = ssStartColorCycle(ctx, w, h);
+  else if (type === 'matrix') ssPreviewInterval = ssStartMatrix(ctx, w, h);
+}
+
+function ssStopPreview() {
+  if (ssPreviewInterval) { clearInterval(ssPreviewInterval); ssPreviewInterval = null; }
+}
+
+/* Starfield */
+function ssStartStarfield(ctx, w, h) {
+  var stars = [];
+  for (var i = 0; i < 100; i++) {
+    stars.push({ x: (Math.random() - 0.5) * w * 2, y: (Math.random() - 0.5) * h * 2, z: Math.random() * w });
+  }
+  return setInterval(function () {
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.fillRect(0, 0, w, h);
+    for (var j = 0; j < stars.length; j++) {
+      var s = stars[j];
+      s.z -= 4;
+      if (s.z <= 0) { s.x = (Math.random() - 0.5) * w * 2; s.y = (Math.random() - 0.5) * h * 2; s.z = w; }
+      var sx = (s.x / s.z) * w / 2 + w / 2;
+      var sy = (s.y / s.z) * h / 2 + h / 2;
+      var r = Math.max(0.5, (1 - s.z / w) * 2.5);
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(sx, sy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }, 40);
+}
+
+/* Pipes */
+function ssStartPipes(ctx, w, h) {
+  var gridSize = 10;
+  var px = Math.floor(Math.random() * (w / gridSize)) * gridSize;
+  var py = Math.floor(Math.random() * (h / gridSize)) * gridSize;
+  var dir = Math.floor(Math.random() * 4); // 0=right,1=down,2=left,3=up
+  var hue = Math.random() * 360;
+  var segments = 0;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, w, h);
+  return setInterval(function () {
+    var dx = [gridSize, 0, -gridSize, 0];
+    var dy = [0, gridSize, 0, -gridSize];
+    // Occasionally change direction
+    if (Math.random() < 0.3) {
+      dir = (dir + (Math.random() < 0.5 ? 1 : 3)) % 4;
+    }
+    var nx = px + dx[dir];
+    var ny = py + dy[dir];
+    // Bounce off walls
+    if (nx < 0 || nx >= w || ny < 0 || ny >= h) {
+      dir = (dir + 2) % 4;
+      nx = px + dx[dir];
+      ny = py + dy[dir];
+    }
+    ctx.strokeStyle = 'hsl(' + hue + ',80%,60%)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(px + gridSize / 2, py + gridSize / 2);
+    ctx.lineTo(nx + gridSize / 2, ny + gridSize / 2);
+    ctx.stroke();
+    // Draw joint
+    ctx.fillStyle = 'hsl(' + hue + ',80%,75%)';
+    ctx.beginPath();
+    ctx.arc(nx + gridSize / 2, ny + gridSize / 2, 2, 0, Math.PI * 2);
+    ctx.fill();
+    px = nx;
+    py = ny;
+    segments++;
+    if (segments > 40) {
+      segments = 0;
+      hue = (hue + 60) % 360;
+      px = Math.floor(Math.random() * (w / gridSize)) * gridSize;
+      py = Math.floor(Math.random() * (h / gridSize)) * gridSize;
+    }
+  }, 60);
+}
+
+/* Bouncing Logo */
+function ssStartBouncing(ctx, w, h) {
+  var text = 'mpOS';
+  var fontSize = Math.max(16, Math.min(w, h) * 0.12) | 0;
+  ctx.font = 'bold ' + fontSize + 'px sans-serif';
+  var tw = ctx.measureText(text).width;
+  var th = fontSize;
+  var bx = Math.random() * (w - tw);
+  var by = th + Math.random() * (h - th * 2);
+  var vx = 1.5;
+  var vy = 1.2;
+  var hue = 0;
+  return setInterval(function () {
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.fillRect(0, 0, w, h);
+    bx += vx;
+    by += vy;
+    if (bx <= 0 || bx + tw >= w) { vx = -vx; hue = (hue + 50) % 360; }
+    if (by - th <= 0 || by >= h) { vy = -vy; hue = (hue + 50) % 360; }
+    ctx.font = 'bold ' + fontSize + 'px sans-serif';
+    ctx.fillStyle = 'hsl(' + hue + ',90%,60%)';
+    ctx.fillText(text, bx, by);
+  }, 30);
+}
+
+/* Color Cycling */
+function ssStartColorCycle(ctx, w, h) {
+  var t = 0;
+  return setInterval(function () {
+    t += 2;
+    var grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, 'hsl(' + (t % 360) + ',70%,50%)');
+    grad.addColorStop(0.5, 'hsl(' + ((t + 120) % 360) + ',70%,50%)');
+    grad.addColorStop(1, 'hsl(' + ((t + 240) % 360) + ',70%,50%)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+  }, 40);
+}
+
+/* Matrix Rain */
+function ssStartMatrix(ctx, w, h) {
+  var fontSize = Math.max(10, (w / 30) | 0);
+  var cols = Math.floor(w / fontSize);
+  var drops = [];
+  for (var i = 0; i < cols; i++) drops[i] = Math.random() * -20 | 0;
+  return setInterval(function () {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#0f0';
+    ctx.font = fontSize + 'px monospace';
+    for (var j = 0; j < cols; j++) {
+      var ch = Math.random() > 0.5 ? '1' : '0';
+      ctx.fillText(ch, j * fontSize, drops[j] * fontSize);
+      if (drops[j] * fontSize > h && Math.random() > 0.975) drops[j] = 0;
+      drops[j]++;
+    }
+  }, 50);
+}
+
+/* ── Idle timer + Fullscreen activation ── */
+function ssRecordActivity() {
+  ssLastActivity = Date.now();
+  if (ssActive) ssDeactivate();
+}
+
+function ssResetIdleTimer() {
+  if (ssIdleTimer) { clearInterval(ssIdleTimer); ssIdleTimer = null; }
+  if (!ssSettings.enabled) return;
+  ssLastActivity = Date.now();
+  ssIdleTimer = setInterval(function () {
+    if (ssActive) return;
+    if (Date.now() - ssLastActivity > ssSettings.timeout * 60000) {
+      ssActivate();
+    }
+  }, 1000);
+}
+
+function ssActivate() {
+  if (ssActive) return;
+  ssActive = true;
+  ssOverlayFirstMove = true;
+  var overlay = document.createElement('div');
+  overlay.id = 'ssOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;cursor:none;';
+  var canvas = document.createElement('canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.cssText = 'display:block;width:100%;height:100%;';
+  overlay.appendChild(canvas);
+  document.body.appendChild(overlay);
+
+  var ctx = canvas.getContext('2d');
+  var type = ssSettings.type;
+  if (type === 'starfield') ssFullscreenInterval = ssStartStarfield(ctx, canvas.width, canvas.height);
+  else if (type === 'pipes') ssFullscreenInterval = ssStartPipes(ctx, canvas.width, canvas.height);
+  else if (type === 'bouncing') ssFullscreenInterval = ssStartBouncing(ctx, canvas.width, canvas.height);
+  else if (type === 'colorcycle') ssFullscreenInterval = ssStartColorCycle(ctx, canvas.width, canvas.height);
+  else if (type === 'matrix') ssFullscreenInterval = ssStartMatrix(ctx, canvas.width, canvas.height);
+
+  function dismiss(e) {
+    // Ignore the very first mousemove to prevent instant dismiss
+    if (e.type === 'mousemove' && ssOverlayFirstMove) {
+      ssOverlayFirstMove = false;
+      return;
+    }
+    ssDeactivate();
+  }
+  overlay.addEventListener('mousemove', dismiss);
+  overlay.addEventListener('click', dismiss);
+  overlay.addEventListener('keydown', dismiss);
+  overlay.addEventListener('touchstart', dismiss);
+}
+
+function ssDeactivate() {
+  if (!ssActive) return;
+  ssActive = false;
+  if (ssFullscreenInterval) { clearInterval(ssFullscreenInterval); ssFullscreenInterval = null; }
+  var overlay = document.getElementById('ssOverlay');
+  if (overlay) overlay.remove();
+  ssResetIdleTimer();
+}
+
+/* ── Persistence ── */
+function mcSaveSettings() {
+  try {
+    localStorage.setItem('mpOS-system-settings', JSON.stringify({
+      display: displaySettings,
+      screenSaver: ssSettings
+    }));
+  } catch (e) { /* quota exceeded — ignore */ }
+}
+
+function mcLoadSettings() {
+  try {
+    var raw = localStorage.getItem('mpOS-system-settings');
+    if (raw) {
+      var data = JSON.parse(raw);
+      if (data.display) {
+        if (data.display.backgroundColor) displaySettings.backgroundColor = data.display.backgroundColor;
+        if (data.display.wallpaper) displaySettings.wallpaper = data.display.wallpaper;
+      }
+      if (data.screenSaver) {
+        if (typeof data.screenSaver.enabled === 'boolean') ssSettings.enabled = data.screenSaver.enabled;
+        if (data.screenSaver.type) ssSettings.type = data.screenSaver.type;
+        if (data.screenSaver.timeout) ssSettings.timeout = data.screenSaver.timeout;
+      }
+    }
+  } catch (e) { /* malformed data — use defaults */ }
+  applyDisplaySettings();
+  ssResetIdleTimer();
 }
 
 function openChickenFingers() {
@@ -442,138 +1168,6 @@ function openFishOfDay() {
   });
 }
 
-function populateSysInfo() {
-  var body = document.getElementById('sysInfoBody');
-  if (body.dataset.populated) return;
-  body.dataset.populated = '1';
-
-  var ua = navigator.userAgent;
-  var nav = navigator;
-  var scr = screen;
-
-  function makeSection(title, rows) {
-    var valid = rows.filter(function (r) { return r[1] != null; });
-    if (!valid.length) return null;
-    var frag = document.createDocumentFragment();
-    var titleEl = document.createElement('div');
-    titleEl.className = 'section-title';
-    titleEl.textContent = title;
-    frag.appendChild(titleEl);
-    var sunken = document.createElement('div');
-    sunken.className = 'sunken';
-    var table = document.createElement('table');
-    table.className = 'sysinfo-table';
-    valid.forEach(function (r) {
-      var tr = document.createElement('tr');
-      var th = document.createElement('th');
-      th.textContent = r[0];
-      tr.appendChild(th);
-      var td = document.createElement('td');
-      td.textContent = r[1];
-      tr.appendChild(td);
-      table.appendChild(tr);
-    });
-    sunken.appendChild(table);
-    frag.appendChild(sunken);
-    return frag;
-  }
-
-  var os = null;
-  if (/Windows/.test(ua)) os = 'Windows';
-  else if (/Mac OS X/.test(ua)) os = 'macOS';
-  else if (/Android/.test(ua)) os = 'Android';
-  else if (/iPhone|iPad/.test(ua)) os = 'iOS';
-  else if (/CrOS/.test(ua)) os = 'Chrome OS';
-  else if (/Linux/.test(ua)) os = 'Linux';
-
-  var browser = null;
-  if (/Edg\//.test(ua)) browser = 'Microsoft Edge';
-  else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) browser = 'Google Chrome';
-  else if (/Firefox\//.test(ua)) browser = 'Mozilla Firefox';
-  else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Apple Safari';
-
-  body.textContent = '';
-
-  // Hero section — SVG is hardcoded so innerHTML on a detached element is safe
-  var hero = document.createElement('div');
-  hero.className = 'sysinfo-hero';
-  hero.innerHTML = '<svg width="80" height="80" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-    '<defs><linearGradient id="si-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="25%" stop-color="#6aafe0"/><stop offset="60%" stop-color="#3a7ab0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient>' +
-    '<linearGradient id="si-screen" x1="0" y1="0" x2="0.2" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="30%" stop-color="#c0ddf0"/><stop offset="70%" stop-color="#90bce0"/><stop offset="100%" stop-color="#6898c0"/></linearGradient>' +
-    '<linearGradient id="si-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b8d0e0"/><stop offset="100%" stop-color="#7a9ab8"/></linearGradient>' +
-    '<linearGradient id="si-stand" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="50%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient>' +
-    '<linearGradient id="si-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="40%" stop-color="#d4d0c8"/><stop offset="100%" stop-color="#a0a098"/></linearGradient></defs>' +
-    '<ellipse cx="24" cy="43" rx="16" ry="2" fill="#00000020"/>' +
-    '<rect x="4" y="4" width="40" height="28" rx="3" fill="url(#si-body)" stroke="#1a4a6e" stroke-width="1.5"/>' +
-    '<line x1="6" y1="5" x2="42" y2="5" stroke="white" stroke-width="0.8" opacity="0.5" stroke-linecap="round"/>' +
-    '<line x1="5" y1="6" x2="5" y2="30" stroke="white" stroke-width="0.6" opacity="0.3"/>' +
-    '<ellipse cx="18" cy="10" rx="14" ry="6" fill="white" opacity="0.35"/>' +
-    '<rect x="7" y="7" width="34" height="22" rx="1.5" fill="url(#si-bezel)" stroke="#1a4a6e" stroke-width="0.5"/>' +
-    '<rect x="8" y="8" width="32" height="20" rx="1" fill="url(#si-screen)"/>' +
-    '<ellipse cx="18" cy="14" rx="12" ry="7" fill="white" opacity="0.15"/>' +
-    '<rect x="18" y="34" width="12" height="4" rx="1" fill="url(#si-stand)" stroke="#8a8680" stroke-width="0.75"/>' +
-    '<line x1="19" y1="34.5" x2="29" y2="34.5" stroke="white" stroke-width="0.5" opacity="0.4"/>' +
-    '<rect x="11" y="38" width="26" height="3" rx="1.5" fill="url(#si-base)" stroke="#8a8680" stroke-width="0.75"/>' +
-    '<line x1="12" y1="38.5" x2="36" y2="38.5" stroke="white" stroke-width="0.5" opacity="0.5"/>' +
-    '</svg>';
-  if (os) {
-    var osEl = document.createElement('div');
-    osEl.className = 'sysinfo-os';
-    osEl.textContent = os;
-    hero.appendChild(osEl);
-  }
-  if (browser) {
-    var brEl = document.createElement('div');
-    brEl.className = 'sysinfo-browser';
-    brEl.textContent = browser;
-    hero.appendChild(brEl);
-  }
-  body.appendChild(hero);
-
-  var sep = document.createElement('div');
-  sep.className = 'separator';
-  body.appendChild(sep);
-
-  var sysSection = makeSection('System', [
-    ['CPU Cores', nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : null],
-    ['Language', nav.language || null]
-  ]);
-  if (sysSection) body.appendChild(sysSection);
-
-  var dpr = window.devicePixelRatio || 1;
-  var dispSection = makeSection('Display', [
-    ['Resolution', scr.width + ' \u00d7 ' + scr.height],
-    ['Pixel Ratio', dpr + 'x' + (dpr > 1 ? ' (HiDPI)' : '')]
-  ]);
-  if (dispSection) body.appendChild(dispSection);
-
-  var netContainer = document.createElement('div');
-  netContainer.id = 'sysNetSection';
-  body.appendChild(netContainer);
-  var batContainer = document.createElement('div');
-  batContainer.id = 'sysBatSection';
-  body.appendChild(batContainer);
-
-  var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
-  if (conn) {
-    var netRows = [];
-    if (conn.effectiveType) netRows.push(['Type', conn.effectiveType.toUpperCase()]);
-    else if (conn.type) netRows.push(['Type', conn.type]);
-    if (conn.downlink) netRows.push(['Downlink', conn.downlink + ' Mbps']);
-    var netSection = makeSection('Network', netRows);
-    if (netSection) netContainer.appendChild(netSection);
-  }
-
-  if (nav.getBattery) {
-    nav.getBattery().then(function (bat) {
-      var batSection = makeSection('Battery', [
-        ['Level', Math.round(bat.level * 100) + '%'],
-        ['Charging', bat.charging ? 'Yes' : 'No']
-      ]);
-      if (batSection) batContainer.appendChild(batSection);
-    });
-  }
-}
 
 /* ── Fish of the Day ── */
 let fishPopulated = false;
@@ -3368,7 +3962,7 @@ const COLOR_TABLE = {
 };
 
 const WINDOW_NAMES = {
-  'mycomputer': 'My Computer', 'explorer': 'Files', 'fishofday': 'Fish of the Day',
+  'mycomputer': 'System Properties', 'explorer': 'Files', 'fishofday': 'Fish of the Day',
   'aquarium': 'Virtual Aquarium', 'fishfinder': 'Fish Finder', 'ontarget': 'On Target',
   'brickbreaker': 'Brick Breaker', 'run': 'Run', 'browser': 'WikiBrowser',
   'notepad': 'Notepad', 'calculator': 'Calculator', 'calendar': 'Calendar',
@@ -3438,7 +4032,7 @@ const COMMANDS = {
   'fishfinder':  { run: openFishFinder,  desc: 'Launch Fish Finder' },
   'aquarium':    { run: openAquarium,    desc: 'Launch Virtual Aquarium' },
   'browser':     { run: openBrowser,     desc: 'Launch WikiBrowser' },
-  'mycomputer':  { run: function () { openMyComputer(); }, desc: 'Open My Computer' },
+  'mycomputer':  { run: function () { openMyComputer(); }, desc: 'Open System Properties' },
   'explorer':    { run: openExplorer,    desc: 'Open Files' },
   'programs':    { run: function () { openExplorerTo('programs'); },   desc: 'Open Programs folder' },
   'documents':   { run: function () { openExplorerTo('documents'); },  desc: 'Open Documents folder' },
@@ -3846,7 +4440,8 @@ function cmdTaskkill(args) {
     if (name === target || id === target) {
       let win = document.getElementById(id);
       if (win && win.style.display !== 'none') {
-        bbTaskbar.closeWindow(id);
+        if (id === 'mycomputer') closeMyComputer();
+        else bbTaskbar.closeWindow(id);
         termPrint('SUCCESS: Sent termination signal to "' + WINDOW_NAMES[id] + '.exe".');
         found = true;
       }
@@ -4146,6 +4741,8 @@ window.openExplorerTo = openExplorerTo;
 window.navigateExplorer = navigateExplorer;
 window.setExplorerView = setExplorerView;
 window.openMyComputer = openMyComputer;
+window.closeMyComputer = closeMyComputer;
+window.mcSwitchTab = mcSwitchTab;
 window.openChickenFingers = openChickenFingers;
 window.exitSite = exitSite;
 window.openAquarium = openAquarium;
@@ -4210,5 +4807,15 @@ window.paintRedo = paintRedo;
 window.paintClear = paintClear;
 window.paintSizeChange = paintSizeChange;
 window.openVisitorMap = openVisitorMap;
+
+/* ── System Properties: idle listeners + load saved settings ── */
+document.addEventListener('mousemove', ssRecordActivity);
+document.addEventListener('keydown', ssRecordActivity);
+document.addEventListener('click', ssRecordActivity);
+document.addEventListener('touchstart', ssRecordActivity);
+window.addEventListener('resize', function () {
+  if (displaySettings.wallpaper !== 'none') applyDisplaySettings();
+});
+mcLoadSettings();
 
 })();

@@ -39,7 +39,7 @@ var HELP_TOPICS = {
         'Discover a new fish every day with Fish of the Day.',
         'Play games like On Target and Chicken Fingers.',
         'Use utilities such as Notepad, Calculator, Calendar, and more.',
-        'Explore system information with My Computer.'
+        'Explore system information, display settings, and screen savers with System Properties.'
       ]},
       { sa: ['desktop', 'startmenu', 'taskbar'] }
     ]
@@ -52,7 +52,7 @@ var HELP_TOPICS = {
       { p: 'The desktop is your main workspace. It displays a blue background with shortcut icons for frequently used applications.' },
       { h: 'Desktop Icons' },
       { ul: [
-        'My Computer \u2014 displays system and browser information.',
+        'My Computer \u2014 opens System Properties (system info, display settings, screen savers).',
         'Files \u2014 opens the file explorer to browse all applications.',
         'WikiBrowser \u2014 an in-app Wikipedia browser.'
       ]},
@@ -360,11 +360,12 @@ var HELP_TOPICS = {
   /* ── System ── */
 
   mycomputer: {
-    title: 'My Computer',
-    keywords: ['my computer', 'system', 'info', 'browser', 'cpu', 'display', 'battery', 'network', 'properties'],
+    title: 'System Properties',
+    keywords: ['my computer', 'system', 'info', 'browser', 'cpu', 'display', 'battery', 'network', 'properties', 'wallpaper', 'screensaver', 'screen saver', 'background', 'color'],
     body: [
-      { p: 'My Computer displays information about your system and browser, similar to the System Properties dialog in Windows.' },
-      { h: 'Information Shown' },
+      { p: 'System Properties is a tabbed settings hub accessed from the My Computer desktop icon or Start menu. It has three tabs: General, Display, and Screen Saver.' },
+      { h: 'General Tab' },
+      { p: 'Displays information about your system and browser:' },
       { ul: [
         'Operating system and browser name.',
         'CPU cores (logical processors) and browser language.',
@@ -373,6 +374,22 @@ var HELP_TOPICS = {
         'Battery level and charging status (if available).'
       ]},
       { p: 'Some values may be limited by browser privacy policies. For example, device memory is capped at 8 GB by specification.' },
+      { h: 'Display Tab' },
+      { p: 'Customize the desktop appearance:' },
+      { ul: [
+        'Background Color \u2014 pick any color for the desktop background using a color picker.',
+        'Wallpaper Pattern \u2014 choose from None, Bliss (sky and hill gradient), Grid, Diagonal Stripes, or Waves.'
+      ]},
+      { h: 'Screen Saver Tab' },
+      { p: 'Configure a screen saver that activates after a period of inactivity:' },
+      { ul: [
+        'Choose from 5 screen savers: Starfield, Pipes, Bouncing Logo, Color Cycling, and Matrix Rain.',
+        'Preview the selected screen saver in a mini canvas.',
+        'Set the idle timeout (1, 2, 3, or 5 minutes).',
+        'Enable or disable the screen saver with a checkbox.',
+        'Move the mouse, click, or press a key to dismiss the full-screen screen saver.'
+      ]},
+      { p: 'All display and screen saver settings are saved to your browser and persist across visits.' },
       { sa: ['diskusage', 'explorer'] }
     ]
   },
