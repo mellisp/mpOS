@@ -1524,12 +1524,12 @@
 .ss-checkbox-label input[type="checkbox"]:checked::after {
   content: '';
   position: absolute;
-  left: 2px;
+  left: 1px;
   top: 0;
-  width: 5px;
-  height: 8px;
+  width: 4px;
+  height: 7px;
   border: solid #000;
-  border-width: 0 2px 2px 0;
+  border-width: 0 1.5px 1.5px 0;
   transform: rotate(40deg);
 }
 

@@ -30,6 +30,16 @@
       setVh();
       window.addEventListener('resize', setVh);
     })();
+    // Restore saved desktop color before first paint to prevent FOUC
+    (function () {
+      try {
+        var raw = localStorage.getItem('mpOS-system-settings');
+        if (raw) {
+          var bg = JSON.parse(raw).display.backgroundColor;
+          if (bg) document.documentElement.style.setProperty('--desktop', bg);
+        }
+      } catch (e) {}
+    })();
   </script>
 </head>
 <body>
