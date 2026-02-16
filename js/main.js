@@ -4059,13 +4059,387 @@ const COLOR_TABLE = {
   'c': '#ff0000', 'd': '#ff00ff', 'e': '#ffff00', 'f': '#ffffff'
 };
 
+/* ── Task Manager (Ctrl+Alt+Del) ── */
+let tmInterval = null;
+let tmSelectedId = null;
+let tmFpsHistory = [];
+let tmMemHistory = [];
+let tmFrameCount = 0;
+let tmCurrentFps = 0;
+let tmRafId = null;
+let tmBuilt = false;
+let tmLastFrameTime = 0;
+
+function tmFpsLoop(now) {
+  tmFrameCount++;
+  tmRafId = requestAnimationFrame(tmFpsLoop);
+}
+
+function openTaskManager() {
+  if (!tmBuilt) {
+    tmBuildUI();
+    tmBuilt = true;
+  }
+  openWindow('taskmanager');
+  if (!tmRafId) {
+    tmFrameCount = 0;
+    tmLastFrameTime = performance.now();
+    tmRafId = requestAnimationFrame(tmFpsLoop);
+  }
+  if (!tmInterval) {
+    tmRefreshApps();
+    tmRefreshPerf();
+    tmInterval = setInterval(function () {
+      tmRefreshApps();
+      tmRefreshPerf();
+    }, 1000);
+  }
+}
+
+function closeTaskManager() {
+  if (tmInterval) { clearInterval(tmInterval); tmInterval = null; }
+  if (tmRafId) { cancelAnimationFrame(tmRafId); tmRafId = null; }
+  bbTaskbar.closeWindow('taskmanager');
+}
+
+function tmBuildUI() {
+  var body = document.getElementById('taskmanagerBody');
+
+  // Tab bar
+  var tabBar = document.createElement('div');
+  tabBar.className = 'mycomputer-tabs';
+
+  var tabApps = document.createElement('button');
+  tabApps.className = 'mycomputer-tab active';
+  tabApps.textContent = 'Applications';
+  tabApps.onclick = function () { tmSwitchTab('apps'); };
+
+  var tabPerf = document.createElement('button');
+  tabPerf.className = 'mycomputer-tab';
+  tabPerf.textContent = 'Performance';
+  tabPerf.onclick = function () { tmSwitchTab('perf'); };
+
+  tabBar.appendChild(tabApps);
+  tabBar.appendChild(tabPerf);
+  body.appendChild(tabBar);
+
+  // Tab body container
+  var tabBody = document.createElement('div');
+  tabBody.className = 'mycomputer-tab-body';
+  tabBody.style.padding = '0';
+  tabBody.style.flex = '1';
+  tabBody.style.display = 'flex';
+  tabBody.style.flexDirection = 'column';
+  tabBody.style.minHeight = '0';
+  body.appendChild(tabBody);
+
+  // Applications content
+  var appsContent = document.createElement('div');
+  appsContent.id = 'tmAppsContent';
+  appsContent.style.display = 'flex';
+  appsContent.style.flexDirection = 'column';
+  appsContent.style.flex = '1';
+  appsContent.style.minHeight = '0';
+
+  var appList = document.createElement('div');
+  appList.className = 'tm-app-list';
+  appList.id = 'tmAppList';
+  appsContent.appendChild(appList);
+
+  var btnRow = document.createElement('div');
+  btnRow.className = 'tm-btn-row';
+
+  var endBtn = document.createElement('button');
+  endBtn.className = 'btn';
+  endBtn.textContent = 'End Task';
+  endBtn.style.fontSize = '12px';
+  endBtn.style.padding = '2px 12px';
+  endBtn.onclick = function () { tmEndTask(); };
+
+  var switchBtn = document.createElement('button');
+  switchBtn.className = 'btn';
+  switchBtn.textContent = 'Switch To';
+  switchBtn.style.fontSize = '12px';
+  switchBtn.style.padding = '2px 12px';
+  switchBtn.onclick = function () { tmSwitchTo(); };
+
+  btnRow.appendChild(endBtn);
+  btnRow.appendChild(switchBtn);
+  appsContent.appendChild(btnRow);
+  tabBody.appendChild(appsContent);
+
+  // Performance content
+  var perfContent = document.createElement('div');
+  perfContent.id = 'tmPerfContent';
+  perfContent.className = 'tm-perf-wrap';
+  perfContent.style.display = 'none';
+
+  // CPU section
+  var cpuSection = document.createElement('div');
+  cpuSection.className = 'tm-graph-section';
+  var cpuLabel = document.createElement('div');
+  cpuLabel.className = 'tm-graph-label';
+  cpuLabel.textContent = 'CPU Usage';
+  cpuSection.appendChild(cpuLabel);
+  var cpuCanvas = document.createElement('canvas');
+  cpuCanvas.className = 'tm-graph-canvas';
+  cpuCanvas.id = 'tmCpuCanvas';
+  cpuSection.appendChild(cpuCanvas);
+  perfContent.appendChild(cpuSection);
+
+  // Memory section
+  var memSection = document.createElement('div');
+  memSection.className = 'tm-graph-section';
+  var memLabel = document.createElement('div');
+  memLabel.className = 'tm-graph-label';
+  memLabel.textContent = 'Memory Usage';
+  memSection.appendChild(memLabel);
+  var memCanvas = document.createElement('canvas');
+  memCanvas.className = 'tm-graph-canvas';
+  memCanvas.id = 'tmMemCanvas';
+  memSection.appendChild(memCanvas);
+  perfContent.appendChild(memSection);
+
+  // Stats row
+  var statsRow = document.createElement('div');
+  statsRow.className = 'tm-perf-stats';
+  statsRow.id = 'tmPerfStats';
+  perfContent.appendChild(statsRow);
+
+  tabBody.appendChild(perfContent);
+
+  // Store tab refs
+  body._tmTabApps = tabApps;
+  body._tmTabPerf = tabPerf;
+  body._tmAppsContent = appsContent;
+  body._tmPerfContent = perfContent;
+}
+
+function tmSwitchTab(tab) {
+  var body = document.getElementById('taskmanagerBody');
+  var tabApps = body._tmTabApps;
+  var tabPerf = body._tmTabPerf;
+  var appsContent = body._tmAppsContent;
+  var perfContent = body._tmPerfContent;
+
+  if (tab === 'apps') {
+    tabApps.classList.add('active');
+    tabPerf.classList.remove('active');
+    appsContent.style.display = 'flex';
+    perfContent.style.display = 'none';
+  } else {
+    tabApps.classList.remove('active');
+    tabPerf.classList.add('active');
+    appsContent.style.display = 'none';
+    perfContent.style.display = '';
+  }
+}
+
+function tmRefreshApps() {
+  var list = document.getElementById('tmAppList');
+  if (!list) return;
+  list.textContent = '';
+  var count = 0;
+  var names = Object.keys(WINDOW_NAMES);
+  for (var i = 0; i < names.length; i++) {
+    var id = names[i];
+    if (id === 'taskmanager') continue;
+    var el = document.getElementById(id);
+    if (!el || el.style.display === 'none') continue;
+    count++;
+    var row = document.createElement('div');
+    row.className = 'tm-app-row';
+    if (id === tmSelectedId) row.classList.add('selected');
+    row.dataset.winId = id;
+
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'tm-app-name';
+    nameSpan.textContent = WINDOW_NAMES[id];
+    row.appendChild(nameSpan);
+
+    var statusSpan = document.createElement('span');
+    statusSpan.className = 'tm-app-status';
+    statusSpan.textContent = 'Running';
+    row.appendChild(statusSpan);
+
+    row.onclick = (function (winId) {
+      return function () { tmSelectRow(winId); };
+    })(id);
+
+    list.appendChild(row);
+  }
+
+  // Clear selection if the selected window is no longer open
+  if (tmSelectedId) {
+    var selEl = document.getElementById(tmSelectedId);
+    if (!selEl || selEl.style.display === 'none') tmSelectedId = null;
+  }
+
+  var statusEl = document.getElementById('tmStatus');
+  if (statusEl) statusEl.textContent = 'Processes: ' + count;
+}
+
+function tmSelectRow(winId) {
+  tmSelectedId = winId;
+  var list = document.getElementById('tmAppList');
+  if (!list) return;
+  var rows = list.children;
+  for (var i = 0; i < rows.length; i++) {
+    rows[i].classList.toggle('selected', rows[i].dataset.winId === winId);
+  }
+}
+
+function tmEndTask() {
+  if (!tmSelectedId) return;
+  bbTaskbar.closeWindow(tmSelectedId);
+  tmSelectedId = null;
+  tmRefreshApps();
+}
+
+function tmSwitchTo() {
+  if (!tmSelectedId) return;
+  var win = document.getElementById(tmSelectedId);
+  if (win) bbTaskbar.bringToFront(win);
+}
+
+function tmRefreshPerf() {
+  var now = performance.now();
+  var elapsed = (now - tmLastFrameTime) / 1000;
+  if (elapsed > 0) {
+    tmCurrentFps = Math.round(tmFrameCount / elapsed);
+  }
+  tmFrameCount = 0;
+  tmLastFrameTime = now;
+
+  tmFpsHistory.push(tmCurrentFps);
+  if (tmFpsHistory.length > 60) tmFpsHistory.shift();
+
+  var mem = null;
+  if (performance.memory) {
+    mem = performance.memory.usedJSHeapSize / 1048576;
+    tmMemHistory.push(mem);
+    if (tmMemHistory.length > 60) tmMemHistory.shift();
+  }
+
+  // Draw graphs
+  var cpuCanvas = document.getElementById('tmCpuCanvas');
+  var memCanvas = document.getElementById('tmMemCanvas');
+  if (cpuCanvas) tmDrawGraph(cpuCanvas, tmFpsHistory, 80, 'FPS');
+  if (memCanvas) {
+    if (performance.memory) {
+      tmDrawGraph(memCanvas, tmMemHistory, performance.memory.jsHeapSizeLimit / 1048576, 'MB');
+    } else {
+      tmDrawUnavailable(memCanvas);
+    }
+  }
+
+  // Update statusbar
+  var cpuPct = Math.min(100, Math.round(tmCurrentFps / 60 * 100));
+  var cpuStatus = document.getElementById('tmCpuStatus');
+  if (cpuStatus) cpuStatus.textContent = 'CPU Usage: ' + cpuPct + '%';
+
+  var memStatus = document.getElementById('tmMemStatus');
+  if (memStatus) memStatus.textContent = 'Mem Usage: ' + (mem !== null ? Math.round(mem) + ' MB' : '\u2014');
+
+  // Update stats row
+  var statsRow = document.getElementById('tmPerfStats');
+  if (statsRow) {
+    statsRow.textContent = '';
+    var fpsStat = document.createElement('span');
+    fpsStat.textContent = 'FPS: ' + tmCurrentFps;
+    statsRow.appendChild(fpsStat);
+    if (mem !== null) {
+      var memStat = document.createElement('span');
+      memStat.textContent = 'Heap: ' + Math.round(mem) + ' MB';
+      statsRow.appendChild(memStat);
+    }
+  }
+}
+
+function tmDrawGraph(canvas, data, maxVal, unit) {
+  var w = canvas.clientWidth;
+  var h = canvas.clientHeight;
+  if (w === 0 || h === 0) return;
+  canvas.width = w;
+  canvas.height = h;
+  var ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, w, h);
+
+  // Grid
+  ctx.strokeStyle = '#003300';
+  ctx.lineWidth = 1;
+  var gridRows = 4;
+  for (var r = 1; r < gridRows; r++) {
+    var y = Math.round(h * r / gridRows) + 0.5;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+  var gridCols = 8;
+  for (var c = 1; c < gridCols; c++) {
+    var x = Math.round(w * c / gridCols) + 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+  }
+
+  // Data line
+  if (data.length > 1) {
+    ctx.strokeStyle = '#00ff00';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    var len = data.length;
+    var stepX = w / 59;
+    var startX = w - (len - 1) * stepX;
+    for (var i = 0; i < len; i++) {
+      var px = startX + i * stepX;
+      var val = Math.min(data[i], maxVal);
+      var py = h - (val / maxVal) * (h - 4) - 2;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+
+  // Current value text
+  if (data.length > 0) {
+    var current = data[data.length - 1];
+    ctx.fillStyle = '#00ff00';
+    ctx.font = '10px ' + getComputedStyle(document.documentElement).getPropertyValue('--mono').trim();
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(current) + ' ' + unit, w - 4, 12);
+  }
+}
+
+function tmDrawUnavailable(canvas) {
+  var w = canvas.clientWidth;
+  var h = canvas.clientHeight;
+  if (w === 0 || h === 0) return;
+  canvas.width = w;
+  canvas.height = h;
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#003300';
+  ctx.font = '11px ' + getComputedStyle(document.documentElement).getPropertyValue('--mono').trim();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Not available', w / 2, h / 2);
+}
+
 const WINDOW_NAMES = {
   'mycomputer': 'System Properties', 'explorer': 'Files', 'fishofday': 'Fish of the Day',
   'aquarium': 'Virtual Aquarium', 'fishfinder': 'Fish Finder', 'ontarget': 'On Target',
   'brickbreaker': 'Brick Breaker', 'run': 'Run', 'browser': 'WikiBrowser',
   'notepad': 'Notepad', 'calculator': 'Calculator', 'calendar': 'Calendar',
   'timezone': 'Time Zone', 'weather': 'Weather', 'diskusage': 'Disk Usage',
-  'visitormap': 'Visitor Map', 'help': 'Help', 'paint': 'Paint'
+  'visitormap': 'Visitor Map', 'help': 'Help', 'paint': 'Paint',
+  'taskmanager': 'Task Manager'
 };
 
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
@@ -4149,7 +4523,8 @@ const COMMANDS = {
   'clear':       { run: cmdCls,          desc: 'Clear the screen' },
   'exit':        { run: function () { closeRun(); }, desc: 'Close this window' },
   'ver':         { run: cmdVer,          desc: 'Show version' },
-  'matrix':      { run: cmdMatrix,       desc: 'Toggle matrix animation' }
+  'matrix':      { run: cmdMatrix,       desc: 'Toggle matrix animation' },
+  'taskmanager': { run: openTaskManager, desc: 'Open Task Manager' }
 };
 
 function termPrint(text, color) {
@@ -4905,6 +5280,16 @@ window.paintRedo = paintRedo;
 window.paintClear = paintClear;
 window.paintSizeChange = paintSizeChange;
 window.openVisitorMap = openVisitorMap;
+window.openTaskManager = openTaskManager;
+window.closeTaskManager = closeTaskManager;
+
+/* ── Ctrl+Alt+Del → Task Manager ── */
+document.addEventListener('keydown', function (e) {
+  if (e.ctrlKey && e.altKey && (e.key === 'Delete' || e.key === 'Backspace' || e.key === 'Escape')) {
+    e.preventDefault();
+    openTaskManager();
+  }
+});
 
 /* ── System Properties: idle listeners + load saved settings ── */
 document.addEventListener('mousemove', ssRecordActivity);

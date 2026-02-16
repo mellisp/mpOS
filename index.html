@@ -589,6 +589,23 @@
       </div>
     </div>
 
+    <!-- Task Manager Window (hidden initially) -->
+    <div class="window draggable resizable" id="taskmanager" tabindex="-1" style="display:none;">
+      <div class="titlebar">
+        <span>Task Manager</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="bbTaskbar.minimizeWindow('taskmanager')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeTaskManager()">X</div>
+        </div>
+      </div>
+      <div class="window-body" id="taskmanagerBody"></div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="tmStatus">Processes: 0</div>
+        <div class="statusbar-section" id="tmCpuStatus">CPU Usage: 0%</div>
+        <div class="statusbar-section" id="tmMemStatus">Mem Usage: —</div>
+      </div>
+    </div>
+
     <!-- Chicken Fingers Error Dialog (hidden initially) -->
     <div class="window" id="chickenError" style="display:none;">
       <div class="titlebar">
