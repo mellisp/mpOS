@@ -175,11 +175,83 @@
 
   document.querySelectorAll('.window.draggable').forEach(makeDraggable);
 
+  // --- Resizing ---
+  const RESIZE_DIRS = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
+  const MIN_W = 300;
+  const MIN_H = 250;
+  let resizeState = null;
+
+  function makeResizable(win) {
+    for (let i = 0; i < RESIZE_DIRS.length; i++) {
+      const dir = RESIZE_DIRS[i];
+      const handle = document.createElement('div');
+      handle.className = 'resize-handle resize-handle-' + dir;
+      handle.dataset.dir = dir;
+      handle.addEventListener('pointerdown', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        handle.setPointerCapture(e.pointerId);
+        resizeState = {
+          win: win,
+          dir: dir,
+          startX: e.clientX,
+          startY: e.clientY,
+          startW: win.offsetWidth,
+          startH: win.offsetHeight,
+          startLeft: win.offsetLeft,
+          startTop: win.offsetTop
+        };
+      });
+      handle.addEventListener('pointermove', function (e) {
+        if (!resizeState || resizeState.win !== win) return;
+        onResizeMove(e.clientX, e.clientY);
+      });
+      handle.addEventListener('pointerup', function () {
+        if (!resizeState || resizeState.win !== win) return;
+        var w = resizeState.win;
+        resizeState = null;
+        w.dispatchEvent(new Event('windowresize'));
+      });
+      win.appendChild(handle);
+    }
+  }
+
+  function onResizeMove(cx, cy) {
+    if (!resizeState) return;
+    var s = resizeState;
+    var dx = cx - s.startX;
+    var dy = cy - s.startY;
+    var dir = s.dir;
+    var newW = s.startW;
+    var newH = s.startH;
+    var newLeft = s.startLeft;
+    var newTop = s.startTop;
+
+    if (dir.indexOf('e') !== -1) newW = Math.max(MIN_W, s.startW + dx);
+    if (dir.indexOf('w') !== -1) {
+      newW = Math.max(MIN_W, s.startW - dx);
+      newLeft = s.startLeft + (s.startW - newW);
+    }
+    if (dir.indexOf('s') !== -1) newH = Math.max(MIN_H, s.startH + dy);
+    if (dir.indexOf('n') !== -1) {
+      newH = Math.max(MIN_H, s.startH - dy);
+      newTop = s.startTop + (s.startH - newH);
+    }
+
+    s.win.style.width = newW + 'px';
+    s.win.style.height = newH + 'px';
+    s.win.style.left = newLeft + 'px';
+    s.win.style.top = newTop + 'px';
+  }
+
+  document.querySelectorAll('.window.resizable').forEach(makeResizable);
+
   window.bbTaskbar = {
     minimizeWindow: minimizeWindow,
     restoreWindow: restoreWindow,
     closeWindow: closeWindow,
     makeDraggable: makeDraggable,
+    makeResizable: makeResizable,
     bringToFront: bringToFront
   };
 })();
