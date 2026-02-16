@@ -383,7 +383,7 @@ var HELP_TOPICS = {
       { h: 'Screen Saver Tab' },
       { p: 'Configure a screen saver that activates after a period of inactivity:' },
       { ul: [
-        'Choose from 5 screen savers: Starfield, Pipes, Bouncing Logo, Color Cycling, and Matrix Rain.',
+        'Choose from 5 screen savers: Starfield, Pipes, Bouncing Logo, Color Cycling, and Mystify.',
         'Preview the selected screen saver in a mini canvas.',
         'Set the idle timeout (1, 2, 3, or 5 minutes).',
         'Enable or disable the screen saver with a checkbox.',

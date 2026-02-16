@@ -262,6 +262,8 @@ body {
   user-select: none;
   border: 1px solid transparent;
   border-radius: 2px;
+  position: relative;
+  z-index: 1;
 }
 
 .desktop-icon:hover {

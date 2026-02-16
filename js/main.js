@@ -689,7 +689,7 @@ var SS_TYPES = [
   { id: 'pipes', name: 'Pipes' },
   { id: 'bouncing', name: 'Bouncing Logo' },
   { id: 'colorcycle', name: 'Color Cycling' },
-  { id: 'matrix', name: 'Matrix Rain' }
+  { id: 'mystify', name: 'Mystify' }
 ];
 
 function mcBuildScreenSaver(body) {
@@ -788,7 +788,7 @@ function ssUpdatePreview(canvas) {
   else if (type === 'pipes') ssPreviewInterval = ssStartPipes(ctx, w, h);
   else if (type === 'bouncing') ssPreviewInterval = ssStartBouncing(ctx, w, h);
   else if (type === 'colorcycle') ssPreviewInterval = ssStartColorCycle(ctx, w, h);
-  else if (type === 'matrix') ssPreviewInterval = ssStartMatrix(ctx, w, h);
+  else if (type === 'mystify') ssPreviewInterval = ssStartMystify(ctx, w, h);
 }
 
 function ssStopPreview() {
@@ -867,28 +867,52 @@ function ssStartPipes(ctx, w, h) {
   }, 60);
 }
 
-/* Bouncing Logo */
+/* Bouncing Logo — smiley face */
 function ssStartBouncing(ctx, w, h) {
-  var text = 'mpOS';
-  var fontSize = Math.max(16, Math.min(w, h) * 0.12) | 0;
-  ctx.font = 'bold ' + fontSize + 'px sans-serif';
-  var tw = ctx.measureText(text).width;
-  var th = fontSize;
-  var bx = Math.random() * (w - tw);
-  var by = th + Math.random() * (h - th * 2);
+  var size = Math.max(16, Math.min(w, h) * 0.15) | 0;
+  var bx = Math.random() * (w - size);
+  var by = Math.random() * (h - size);
   var vx = 1.5;
   var vy = 1.2;
-  var hue = 0;
+
+  function drawSmiley(x, y, r) {
+    // Face
+    var grad = ctx.createRadialGradient(x + r * 0.3, y + r * 0.3, r * 0.1, x, y, r);
+    grad.addColorStop(0, '#fffde0');
+    grad.addColorStop(0.4, '#ffe082');
+    grad.addColorStop(1, '#f9a825');
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = '#c49000';
+    ctx.lineWidth = Math.max(1, r * 0.06);
+    ctx.stroke();
+    // Eyes
+    ctx.fillStyle = '#5d4037';
+    ctx.beginPath();
+    ctx.arc(x - r * 0.3, y - r * 0.15, r * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + r * 0.3, y - r * 0.15, r * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+    // Smile
+    ctx.beginPath();
+    ctx.arc(x, y + r * 0.05, r * 0.45, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.strokeStyle = '#5d4037';
+    ctx.lineWidth = Math.max(1, r * 0.1);
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
+
   return setInterval(function () {
     ctx.fillStyle = 'rgba(0,0,0,0.15)';
     ctx.fillRect(0, 0, w, h);
     bx += vx;
     by += vy;
-    if (bx <= 0 || bx + tw >= w) { vx = -vx; hue = (hue + 50) % 360; }
-    if (by - th <= 0 || by >= h) { vy = -vy; hue = (hue + 50) % 360; }
-    ctx.font = 'bold ' + fontSize + 'px sans-serif';
-    ctx.fillStyle = 'hsl(' + hue + ',90%,60%)';
-    ctx.fillText(text, bx, by);
+    if (bx <= 0 || bx + size >= w) vx = -vx;
+    if (by <= 0 || by + size >= h) vy = -vy;
+    drawSmiley(bx + size / 2, by + size / 2, size / 2);
   }, 30);
 }
 
@@ -906,24 +930,49 @@ function ssStartColorCycle(ctx, w, h) {
   }, 40);
 }
 
-/* Matrix Rain */
-function ssStartMatrix(ctx, w, h) {
-  var fontSize = Math.max(10, (w / 30) | 0);
-  var cols = Math.floor(w / fontSize);
-  var drops = [];
-  for (var i = 0; i < cols; i++) drops[i] = Math.random() * -20 | 0;
-  return setInterval(function () {
-    ctx.fillStyle = 'rgba(0,0,0,0.05)';
-    ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = '#0f0';
-    ctx.font = fontSize + 'px monospace';
-    for (var j = 0; j < cols; j++) {
-      var ch = Math.random() > 0.5 ? '1' : '0';
-      ctx.fillText(ch, j * fontSize, drops[j] * fontSize);
-      if (drops[j] * fontSize > h && Math.random() > 0.975) drops[j] = 0;
-      drops[j]++;
+/* Mystify — bouncing connected lines */
+function ssStartMystify(ctx, w, h) {
+  var NUM = 2;
+  var PTS = 4;
+  var TRAIL = 12;
+  var shapes = [];
+  for (var s = 0; s < NUM; s++) {
+    var pts = [];
+    for (var p = 0; p < PTS; p++) {
+      pts.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3 });
     }
-  }, 50);
+    shapes.push({ pts: pts, hue: s * 180, trail: [] });
+  }
+  return setInterval(function () {
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    ctx.fillRect(0, 0, w, h);
+    for (var i = 0; i < shapes.length; i++) {
+      var sh = shapes[i];
+      var coords = [];
+      for (var j = 0; j < sh.pts.length; j++) {
+        var pt = sh.pts[j];
+        pt.x += pt.vx; pt.y += pt.vy;
+        if (pt.x <= 0 || pt.x >= w) pt.vx = -pt.vx;
+        if (pt.y <= 0 || pt.y >= h) pt.vy = -pt.vy;
+        coords.push({ x: pt.x, y: pt.y });
+      }
+      sh.trail.push(coords);
+      if (sh.trail.length > TRAIL) sh.trail.shift();
+      for (var t = 0; t < sh.trail.length; t++) {
+        var alpha = (t + 1) / sh.trail.length;
+        ctx.strokeStyle = 'hsla(' + sh.hue + ',80%,60%,' + alpha + ')';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(sh.trail[t][0].x, sh.trail[t][0].y);
+        for (var k = 1; k < sh.trail[t].length; k++) {
+          ctx.lineTo(sh.trail[t][k].x, sh.trail[t][k].y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+      sh.hue = (sh.hue + 0.3) % 360;
+    }
+  }, 40);
 }
 
 /* ── Idle timer + Fullscreen activation ── */
@@ -964,7 +1013,7 @@ function ssActivate() {
   else if (type === 'pipes') ssFullscreenInterval = ssStartPipes(ctx, canvas.width, canvas.height);
   else if (type === 'bouncing') ssFullscreenInterval = ssStartBouncing(ctx, canvas.width, canvas.height);
   else if (type === 'colorcycle') ssFullscreenInterval = ssStartColorCycle(ctx, canvas.width, canvas.height);
-  else if (type === 'matrix') ssFullscreenInterval = ssStartMatrix(ctx, canvas.width, canvas.height);
+  else if (type === 'mystify') ssFullscreenInterval = ssStartMystify(ctx, canvas.width, canvas.height);
 
   function dismiss(e) {
     // Ignore the very first mousemove to prevent instant dismiss
@@ -1010,7 +1059,9 @@ function mcLoadSettings() {
       }
       if (data.screenSaver) {
         if (typeof data.screenSaver.enabled === 'boolean') ssSettings.enabled = data.screenSaver.enabled;
-        if (data.screenSaver.type) ssSettings.type = data.screenSaver.type;
+        if (data.screenSaver.type) {
+          ssSettings.type = data.screenSaver.type === 'matrix' ? 'starfield' : data.screenSaver.type;
+        }
         if (data.screenSaver.timeout) ssSettings.timeout = data.screenSaver.timeout;
       }
     }
@@ -3317,57 +3368,12 @@ let paintStartPos = null;
 let paintW = 640;
 let paintH = 400;
 
-function paintResizeCanvas(newW, newH) {
-  if (newW === paintW && newH === paintH) return;
-  if (!paintCanvas || !paintCtx) return;
-  var dpr = window.devicePixelRatio || 1;
-
-  // Capture current drawing
-  var oldData = paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
-  var temp = document.createElement('canvas');
-  temp.width = paintCanvas.width;
-  temp.height = paintCanvas.height;
-  temp.getContext('2d').putImageData(oldData, 0, 0);
-
-  // Update logical dimensions
-  paintW = newW;
-  paintH = newH;
-
-  // Resize main canvas
-  paintCanvas.width = paintW * dpr;
-  paintCanvas.height = paintH * dpr;
-  paintCanvas.style.width = paintW + 'px';
-  paintCanvas.style.height = paintH + 'px';
-  paintCtx.setTransform(1, 0, 0, 1, 0, 0);
-  paintCtx.fillStyle = '#ffffff';
-  paintCtx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
-  paintCtx.drawImage(temp, 0, 0);
-  paintCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  // Resize preview canvas
-  paintPreview.width = paintW * dpr;
-  paintPreview.height = paintH * dpr;
-  paintPreview.style.width = paintW + 'px';
-  paintPreview.style.height = paintH + 'px';
-  paintPrevCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-
-function paintFitCanvas() {
-  var wrap = document.querySelector('.paint-canvas-wrap');
-  if (!wrap || !paintCanvas) return;
-  var newW = Math.floor(wrap.clientWidth);
-  var newH = Math.floor(wrap.clientHeight);
-  if (newW < 1 || newH < 1) return;
-  paintResizeCanvas(newW, newH);
-}
-
 function openPaint() {
   openWindow('paint');
   if (!paintBuilt) {
     paintBuilt = true;
     paintSetup();
   }
-  requestAnimationFrame(paintFitCanvas);
   document.getElementById('paint').focus();
 }
 
@@ -3465,17 +3471,6 @@ function paintSetup() {
     }
   });
 
-  // Resize canvas when window is resized via handle
-  document.getElementById('paint').addEventListener('windowresize', paintFitCanvas);
-
-  // Resize canvas on orientation change / viewport resize (only when Paint is visible)
-  window.addEventListener('resize', function () {
-    var paintEl = document.getElementById('paint');
-    if (paintEl && paintEl.style.display !== 'none') {
-      paintFitCanvas();
-    }
-  });
-
   paintUpdateStatus();
 }
 
@@ -3505,8 +3500,6 @@ function paintRestoreState(dataUrl) {
     var dpr = window.devicePixelRatio || 1;
     paintCtx.setTransform(1, 0, 0, 1, 0, 0);
     paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-    paintCtx.fillStyle = '#ffffff';
-    paintCtx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
     paintCtx.drawImage(img, 0, 0);
     paintCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
@@ -4384,10 +4377,10 @@ function cmdSysteminfo() {
 
   let browser = 'Unknown';
   let ua = nav.userAgent;
-  if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
+  if (ua.indexOf('Firefox') !== -1) browser = 'Mozilla Firefox';
   else if (ua.indexOf('Edg/') !== -1) browser = 'Microsoft Edge';
-  else if (ua.indexOf('Chrome') !== -1) browser = 'Chrome';
-  else if (ua.indexOf('Safari') !== -1) browser = 'Safari';
+  else if (ua.indexOf('Chrome') !== -1) browser = 'Google Chrome';
+  else if (ua.indexOf('Safari') !== -1) browser = 'Apple Safari';
   termPrint('Browser:                ' + browser);
 
   termPrint('System Locale:          ' + (nav.language || 'unknown'));
@@ -4884,7 +4877,6 @@ window.paintUndo = paintUndo;
 window.paintRedo = paintRedo;
 window.paintClear = paintClear;
 window.paintSizeChange = paintSizeChange;
-window.paintFitCanvas = paintFitCanvas;
 window.openVisitorMap = openVisitorMap;
 
 /* ── System Properties: idle listeners + load saved settings ── */
