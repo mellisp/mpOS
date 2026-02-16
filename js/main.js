@@ -4253,7 +4253,7 @@ let tmCurrentFps = 0;
 let tmRafId = null;
 let tmBuilt = false;
 let tmLastFrameTime = 0;
-const tmMonoFont = tmMonoFont;
+const tmMonoFont = getComputedStyle(document.documentElement).getPropertyValue('--mono').trim();
 
 function tmFpsLoop(now) {
   tmFrameCount++;
