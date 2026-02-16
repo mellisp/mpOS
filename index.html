@@ -17,7 +17,6 @@
   <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="css/page.css">
   <link rel="preconnect" href="https://en.wikipedia.org" crossorigin>
-  <link rel="dns-prefetch" href="https://upload.wikimedia.org">
   <link rel="dns-prefetch" href="https://api.open-meteo.com">
   <link rel="dns-prefetch" href="https://www.youtube.com">
   <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -92,7 +91,7 @@
       </div>
 
       <!-- Files folder icon -->
-      <div class="desktop-icon" id="folderIcon" role="button" tabindex="0" ondblclick="openExplorer()" onkeydown="if(event.key==='Enter')openExplorer()">
+      <div class="desktop-icon" role="button" tabindex="0" ondblclick="openExplorer()" onkeydown="if(event.key==='Enter')openExplorer()">
         <svg class="desktop-icon-img" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="af-back" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e8d070"/><stop offset="100%" stop-color="#c8a020"/></linearGradient>
@@ -151,9 +150,9 @@
         </div>
       </div>
       <div class="mycomputer-tabs">
-        <button class="mycomputer-tab active" id="mcTabGeneral" onclick="mcSwitchTab('general')">General</button>
-        <button class="mycomputer-tab" id="mcTabDisplay" onclick="mcSwitchTab('display')">Display</button>
-        <button class="mycomputer-tab" id="mcTabScreenSaver" onclick="mcSwitchTab('screensaver')">Screen Saver</button>
+        <button type="button" class="mycomputer-tab active" id="mcTabGeneral" onclick="mcSwitchTab('general')">General</button>
+        <button type="button" class="mycomputer-tab" id="mcTabDisplay" onclick="mcSwitchTab('display')">Display</button>
+        <button type="button" class="mycomputer-tab" id="mcTabScreenSaver" onclick="mcSwitchTab('screensaver')">Screen Saver</button>
       </div>
       <div class="mycomputer-tab-body" id="mcTabBody"></div>
     </div>
@@ -173,23 +172,23 @@
           <div class="folder-address-bar" id="explorerAddress">C:\mpOS</div>
         </div>
         <div class="folder-view-btns">
-          <button class="folder-view-btn" onclick="setExplorerView('icon')" title="Icons">&#9638;</button>
-          <button class="folder-view-btn active" onclick="setExplorerView('list')" title="List">&#9776;</button>
+          <button type="button" class="folder-view-btn" onclick="setExplorerView('icon')" title="Icons">&#9638;</button>
+          <button type="button" class="folder-view-btn active" onclick="setExplorerView('list')" title="List">&#9776;</button>
         </div>
       </div>
       <div class="explorer-panes">
         <div class="explorer-sidebar">
           <div class="sidebar-tree">
-            <div class="tree-item" onclick="navigateExplorer('all')">
+            <div class="tree-item" role="button" tabindex="0" onclick="navigateExplorer('all')" onkeydown="if(event.key==='Enter')navigateExplorer('all')">
               <span class="tree-icon">&#128187;</span> mpOS
             </div>
-            <div class="tree-item tree-child" onclick="navigateExplorer('programs')">
+            <div class="tree-item tree-child" role="button" tabindex="0" onclick="navigateExplorer('programs')" onkeydown="if(event.key==='Enter')navigateExplorer('programs')">
               <span class="tree-icon">&#128194;</span> Programs
             </div>
-            <div class="tree-item tree-child" onclick="navigateExplorer('documents')">
+            <div class="tree-item tree-child" role="button" tabindex="0" onclick="navigateExplorer('documents')" onkeydown="if(event.key==='Enter')navigateExplorer('documents')">
               <span class="tree-icon">&#128194;</span> Documents
             </div>
-            <div class="tree-item tree-child" onclick="navigateExplorer('utilities')">
+            <div class="tree-item tree-child" role="button" tabindex="0" onclick="navigateExplorer('utilities')" onkeydown="if(event.key==='Enter')navigateExplorer('utilities')">
               <span class="tree-icon">&#128194;</span> Utilities
             </div>
           </div>
@@ -210,7 +209,7 @@
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="bbTaskbar.closeWindow('fishofday')">X</div>
         </div>
       </div>
-      <div class="window-body" id="fishBody">
+      <div class="window-body">
         <div class="photo-frame">
           <img id="fishPhoto" alt="" style="display:none">
           <div class="placeholder" id="photoPlaceholder">Loading image...</div>
@@ -221,7 +220,7 @@
         <dl class="fish-details" id="fishDetails"></dl>
       </div>
       <div class="statusbar">
-        <div class="statusbar-section" id="fishStatusText">Powered by Wikipedia</div>
+        <div class="statusbar-section">Powered by Wikipedia</div>
         <div class="statusbar-section" id="fishDateText"></div>
       </div>
     </div>
@@ -338,9 +337,9 @@
       </div>
       <div class="window-body">
         <div class="notepad-toolbar">
-          <button class="btn" onclick="notepadNew()">New</button>
-          <button class="btn" onclick="notepadSave()">Save</button>
-          <button class="btn" onclick="notepadLoad()">Open</button>
+          <button type="button" class="btn" onclick="notepadNew()">New</button>
+          <button type="button" class="btn" onclick="notepadSave()">Save</button>
+          <button type="button" class="btn" onclick="notepadLoad()">Open</button>
         </div>
         <textarea class="notepad-editor" id="notepadEditor" spellcheck="false" placeholder="Type here..."></textarea>
       </div>
@@ -367,39 +366,39 @@
           </label>
         </div>
         <div class="calc-sci-buttons" id="calcSciButtons" style="display:none;">
-          <button class="calc-btn calc-sci" onclick="calcSciFn('sin')">sin</button>
-          <button class="calc-btn calc-sci" onclick="calcSciFn('cos')">cos</button>
-          <button class="calc-btn calc-sci" onclick="calcSciFn('tan')">tan</button>
-          <button class="calc-btn calc-sci" onclick="calcSciFn('sqrt')">&radic;</button>
-          <button class="calc-btn calc-sci" onclick="calcSciFn('sq')">x<sup>2</sup></button>
-          <button class="calc-btn calc-sci" onclick="calcOp('pow')">x<sup>y</sup></button>
-          <button class="calc-btn calc-sci" onclick="calcSciFn('pi')">&pi;</button>
-          <button class="calc-btn calc-sci" onclick="calcSciFn('negate')">&plusmn;</button>
-          <button class="calc-btn calc-sci" onclick="calcSciFn('log')">log</button>
-          <button class="calc-btn calc-sci" onclick="calcSciFn('ln')">ln</button>
-          <button class="calc-btn calc-sci" onclick="calcSciFn('inv')">1/x</button>
-          <button class="calc-btn calc-sci" onclick="calcSciFn('fact')">n!</button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('sin')">sin</button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('cos')">cos</button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('tan')">tan</button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('sqrt')">&radic;</button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('sq')">x<sup>2</sup></button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcOp('pow')">x<sup>y</sup></button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('pi')">&pi;</button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('negate')">&plusmn;</button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('log')">log</button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('ln')">ln</button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('inv')">1/x</button>
+          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('fact')">n!</button>
         </div>
         <div class="calc-buttons">
-          <button class="calc-btn calc-fn" onclick="calcClearEntry()">CE</button>
-          <button class="calc-btn calc-fn" onclick="calcClear()">C</button>
-          <button class="calc-btn calc-fn" onclick="calcBackspace()">&#9003;</button>
-          <button class="calc-btn calc-op" onclick="calcOp('/')">&divide;</button>
-          <button class="calc-btn" onclick="calcDigit('7')">7</button>
-          <button class="calc-btn" onclick="calcDigit('8')">8</button>
-          <button class="calc-btn" onclick="calcDigit('9')">9</button>
-          <button class="calc-btn calc-op" onclick="calcOp('*')">&times;</button>
-          <button class="calc-btn" onclick="calcDigit('4')">4</button>
-          <button class="calc-btn" onclick="calcDigit('5')">5</button>
-          <button class="calc-btn" onclick="calcDigit('6')">6</button>
-          <button class="calc-btn calc-op" onclick="calcOp('-')">&minus;</button>
-          <button class="calc-btn" onclick="calcDigit('1')">1</button>
-          <button class="calc-btn" onclick="calcDigit('2')">2</button>
-          <button class="calc-btn" onclick="calcDigit('3')">3</button>
-          <button class="calc-btn calc-op" onclick="calcOp('+')">+</button>
-          <button class="calc-btn calc-zero" onclick="calcDigit('0')">0</button>
-          <button class="calc-btn" onclick="calcDecimal()">.</button>
-          <button class="calc-btn calc-eq" onclick="calcEquals()">=</button>
+          <button type="button" class="calc-btn calc-fn" onclick="calcClearEntry()">CE</button>
+          <button type="button" class="calc-btn calc-fn" onclick="calcClear()">C</button>
+          <button type="button" class="calc-btn calc-fn" onclick="calcBackspace()">&#9003;</button>
+          <button type="button" class="calc-btn calc-op" onclick="calcOp('/')">&divide;</button>
+          <button type="button" class="calc-btn" onclick="calcDigit('7')">7</button>
+          <button type="button" class="calc-btn" onclick="calcDigit('8')">8</button>
+          <button type="button" class="calc-btn" onclick="calcDigit('9')">9</button>
+          <button type="button" class="calc-btn calc-op" onclick="calcOp('*')">&times;</button>
+          <button type="button" class="calc-btn" onclick="calcDigit('4')">4</button>
+          <button type="button" class="calc-btn" onclick="calcDigit('5')">5</button>
+          <button type="button" class="calc-btn" onclick="calcDigit('6')">6</button>
+          <button type="button" class="calc-btn calc-op" onclick="calcOp('-')">&minus;</button>
+          <button type="button" class="calc-btn" onclick="calcDigit('1')">1</button>
+          <button type="button" class="calc-btn" onclick="calcDigit('2')">2</button>
+          <button type="button" class="calc-btn" onclick="calcDigit('3')">3</button>
+          <button type="button" class="calc-btn calc-op" onclick="calcOp('+')">+</button>
+          <button type="button" class="calc-btn calc-zero" onclick="calcDigit('0')">0</button>
+          <button type="button" class="calc-btn" onclick="calcDecimal()">.</button>
+          <button type="button" class="calc-btn calc-eq" onclick="calcEquals()">=</button>
         </div>
       </div>
     </div>
@@ -415,10 +414,10 @@
       </div>
       <div class="window-body">
         <div class="cal-header">
-          <button class="calc-btn cal-nav" onclick="calendarPrev()">&lsaquo;</button>
+          <button type="button" class="calc-btn cal-nav" onclick="calendarPrev()">&lsaquo;</button>
           <span class="cal-title" id="calTitle"></span>
-          <button class="calc-btn cal-nav" onclick="calendarNext()">&rsaquo;</button>
-          <button class="calc-btn cal-today" onclick="calendarToday()">Today</button>
+          <button type="button" class="calc-btn cal-nav" onclick="calendarNext()">&rsaquo;</button>
+          <button type="button" class="calc-btn cal-today" onclick="calendarToday()">Today</button>
         </div>
         <div class="cal-grid" id="calGrid"></div>
       </div>
@@ -435,7 +434,7 @@
       </div>
       <div class="window-body">
         <div class="tz-toolbar">
-          <button class="calc-btn tz-toggle" onclick="tzToggleView()">Digital</button>
+          <button type="button" class="calc-btn tz-toggle" onclick="tzToggleView()">Digital</button>
         </div>
         <div class="tz-grid" id="tzGrid"></div>
       </div>
@@ -502,17 +501,17 @@
         </div>
       </div>
       <div class="help-toolbar">
-        <button class="btn help-tb-btn" id="helpToggleBtn" onclick="helpToggleNav()">Hide</button>
-        <button class="btn help-tb-btn" id="helpBackBtn" onclick="helpBack()" disabled>Back</button>
-        <button class="btn help-tb-btn" id="helpFwdBtn" onclick="helpForward()" disabled>Forward</button>
-        <button class="btn help-tb-btn" onclick="helpHome()">Home</button>
+        <button type="button" class="btn help-tb-btn" id="helpToggleBtn" onclick="helpToggleNav()">Hide</button>
+        <button type="button" class="btn help-tb-btn" id="helpBackBtn" onclick="helpBack()" disabled>Back</button>
+        <button type="button" class="btn help-tb-btn" id="helpFwdBtn" onclick="helpForward()" disabled>Forward</button>
+        <button type="button" class="btn help-tb-btn" onclick="helpHome()">Home</button>
       </div>
-      <div class="help-panes" id="helpPanes">
+      <div class="help-panes">
         <div class="help-nav" id="helpNav">
           <div class="help-tabs">
-            <button class="help-tab active" id="helpTabContents" onclick="helpSwitchTab('contents')">Contents</button>
-            <button class="help-tab" id="helpTabIndex" onclick="helpSwitchTab('index')">Index</button>
-            <button class="help-tab" id="helpTabSearch" onclick="helpSwitchTab('search')">Search</button>
+            <button type="button" class="help-tab active" id="helpTabContents" onclick="helpSwitchTab('contents')">Contents</button>
+            <button type="button" class="help-tab" id="helpTabIndex" onclick="helpSwitchTab('index')">Index</button>
+            <button type="button" class="help-tab" id="helpTabSearch" onclick="helpSwitchTab('search')">Search</button>
           </div>
           <div class="help-tab-body" id="helpTabBody"></div>
         </div>
@@ -535,8 +534,8 @@
           <label class="search-label">Named:
             <input type="text" class="search-input" id="searchInput" spellcheck="false" autocomplete="off">
           </label>
-          <button class="btn search-now-btn" onclick="searchNow()">Search Now</button>
-          <div class="search-sidebar-hint" id="searchHint"></div>
+          <button type="button" class="btn search-now-btn" onclick="searchNow()">Search Now</button>
+          <div class="search-sidebar-hint"></div>
         </div>
         <div class="search-results" id="searchResults"></div>
       </div>
@@ -556,14 +555,14 @@
       </div>
       <div class="window-body">
         <div class="paint-toolbar">
-          <button class="btn" onclick="paintNew()">New</button>
-          <button class="btn" onclick="paintSave()">Save</button>
-          <button class="btn" onclick="paintLoad()">Open</button>
+          <button type="button" class="btn" onclick="paintNew()">New</button>
+          <button type="button" class="btn" onclick="paintSave()">Save</button>
+          <button type="button" class="btn" onclick="paintLoad()">Open</button>
           <span class="paint-tb-sep"></span>
-          <button class="btn" id="paintUndoBtn" onclick="paintUndo()" disabled>Undo</button>
-          <button class="btn" id="paintRedoBtn" onclick="paintRedo()" disabled>Redo</button>
+          <button type="button" class="btn" id="paintUndoBtn" onclick="paintUndo()" disabled>Undo</button>
+          <button type="button" class="btn" id="paintRedoBtn" onclick="paintRedo()" disabled>Redo</button>
           <span class="paint-tb-sep"></span>
-          <button class="btn" onclick="paintClear()">Clear</button>
+          <button type="button" class="btn" onclick="paintClear()">Clear</button>
           <span class="paint-tb-sep"></span>
           <label class="paint-size-label">Size:
             <input type="range" id="paintSize" min="1" max="50" value="3" oninput="paintSizeChange(this.value)">
@@ -572,25 +571,25 @@
         </div>
         <div class="paint-main">
           <div class="paint-sidebar">
-            <button class="paint-tool active" data-tool="pencil" onclick="paintSetTool('pencil')" title="Pencil (1px)">
+            <button type="button" class="paint-tool active" data-tool="pencil" onclick="paintSetTool('pencil')" title="Pencil (1px)">
               <svg viewBox="0 0 16 16" fill="none"><path d="M3 13 L11 5 L13 3 L11 5 L3 13Z" stroke="#444" stroke-width="1.5" stroke-linecap="round"/><path d="M2.5 13.5 L3 11 L5 13Z" fill="#444"/></svg>
             </button>
-            <button class="paint-tool" data-tool="brush" onclick="paintSetTool('brush')" title="Brush">
+            <button type="button" class="paint-tool" data-tool="brush" onclick="paintSetTool('brush')" title="Brush">
               <svg viewBox="0 0 16 16" fill="none"><path d="M4 12 Q6 8 8 6 Q10 4 12 3" stroke="#444" stroke-width="2.5" stroke-linecap="round"/><path d="M2 14 Q3 12 4 12" stroke="#444" stroke-width="1" stroke-linecap="round"/></svg>
             </button>
-            <button class="paint-tool" data-tool="eraser" onclick="paintSetTool('eraser')" title="Eraser">
+            <button type="button" class="paint-tool" data-tool="eraser" onclick="paintSetTool('eraser')" title="Eraser">
               <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="6" width="10" height="6" rx="1" fill="#e8e0d8" stroke="#888" stroke-width="1"/><rect x="3" y="10" width="10" height="3" rx="1" fill="#f8a0a0" stroke="#888" stroke-width="0.8"/></svg>
             </button>
-            <button class="paint-tool" data-tool="line" onclick="paintSetTool('line')" title="Line">
+            <button type="button" class="paint-tool" data-tool="line" onclick="paintSetTool('line')" title="Line">
               <svg viewBox="0 0 16 16" fill="none"><line x1="3" y1="13" x2="13" y2="3" stroke="#444" stroke-width="1.5" stroke-linecap="round"/></svg>
             </button>
-            <button class="paint-tool" data-tool="rect" onclick="paintSetTool('rect')" title="Rectangle">
+            <button type="button" class="paint-tool" data-tool="rect" onclick="paintSetTool('rect')" title="Rectangle">
               <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="8" stroke="#444" stroke-width="1.5" fill="none"/></svg>
             </button>
-            <button class="paint-tool" data-tool="ellipse" onclick="paintSetTool('ellipse')" title="Ellipse">
+            <button type="button" class="paint-tool" data-tool="ellipse" onclick="paintSetTool('ellipse')" title="Ellipse">
               <svg viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="8" rx="6" ry="4" stroke="#444" stroke-width="1.5" fill="none"/></svg>
             </button>
-            <button class="paint-tool" data-tool="fill" onclick="paintSetTool('fill')" title="Fill">
+            <button type="button" class="paint-tool" data-tool="fill" onclick="paintSetTool('fill')" title="Fill">
               <svg viewBox="0 0 16 16" fill="none"><path d="M4 12 L4 6 L8 2 L12 6 L12 8" stroke="#444" stroke-width="1.2" fill="none" stroke-linejoin="round"/><path d="M12 8 Q14 10 12 12 Q10 14 8 12" fill="#4a8abe" stroke="#2a6898" stroke-width="0.8"/></svg>
             </button>
           </div>
@@ -648,7 +647,7 @@
           </div>
         </div>
         <div class="button-row">
-          <button class="btn" onclick="bbTaskbar.closeWindow('chickenError')">OK</button>
+          <button type="button" class="btn" onclick="bbTaskbar.closeWindow('chickenError')">OK</button>
         </div>
       </div>
     </div>
@@ -656,7 +655,7 @@
     <!-- Taskbar -->
     <div class="taskbar">
       <!-- Start Button -->
-      <button class="start-btn">
+      <button type="button" class="start-btn">
         <svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
           <defs><radialGradient id="sm-face" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="40%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs>
           <circle cx="32" cy="32" r="31" fill="url(#sm-face)" stroke="#c49000" stroke-width="2"/>
