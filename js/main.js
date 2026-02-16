@@ -2774,12 +2774,20 @@ function populateDiskUsage() {
     pieWrap.appendChild(pieSvg);
     body.appendChild(pieWrap);
 
-    // ── Legend ──
+    // ── Legend (largest-remainder rounding so percentages sum to 100) ──
+    var rawPcts = types.map(function (type) { return totals[type] / totalSize * 100; });
+    var floored = rawPcts.map(function (p) { return Math.floor(p); });
+    var remainders = rawPcts.map(function (p, i) { return p - floored[i]; });
+    var remainder = 100 - floored.reduce(function (a, b) { return a + b; }, 0);
+    var indices = types.map(function (_, i) { return i; });
+    indices.sort(function (a, b) { return remainders[b] - remainders[a]; });
+    for (var ri = 0; ri < remainder; ri++) floored[indices[ri]]++;
+    var roundedPcts = floored;
+
     var legend = document.createElement('div');
     legend.className = 'du-legend';
 
-    types.forEach(function (type) {
-      var pct = totals[type] / totalSize * 100;
+    types.forEach(function (type, i) {
       var row = document.createElement('div');
       row.className = 'du-legend-row';
 
@@ -2800,7 +2808,7 @@ function populateDiskUsage() {
 
       var pctEl = document.createElement('span');
       pctEl.className = 'du-legend-pct';
-      pctEl.textContent = Math.round(pct) + '%';
+      pctEl.textContent = roundedPcts[i] + '%';
       row.appendChild(pctEl);
 
       legend.appendChild(row);
