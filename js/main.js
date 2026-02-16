@@ -4631,27 +4631,18 @@ function padTwo(n) { return n < 10 ? '0' + n : String(n); }
 
 const FILESYSTEM = {
   'C:\\mpOS': {
-    children: ['Desktop', 'Programs', 'Documents', 'Utilities'],
-    files: [
-      { name: 'readme.txt', size: 312, content: 'Welcome to mpOS [Version 1.4.9]\n\nmpOS is a Windows 2000/XP-themed portfolio site built\nwith vanilla HTML, CSS, and JavaScript — no frameworks,\nno build step.\n\nExplore the desktop, open apps from the Start menu,\nor type HELP in this terminal for commands.\n\nCreated by Matthew Pritchard.\nhttps://www.matthewpritchard.com' }
-    ]
+    children: ['Desktop', 'Programs', 'Documents', 'Utilities']
   },
   'C:\\mpOS\\Desktop': {
     items: [
       { name: 'My Computer', run: function () { openMyComputer(); } },
       { name: 'Files', run: function () { openExplorer(); } },
       { name: 'WikiBrowser', run: function () { openBrowser(); } }
-    ],
-    files: [
-      { name: 'shortcuts.txt', size: 198, content: 'Desktop Shortcuts\n-----------------\nMy Computer    View system properties and drives\nFiles          Browse programs, documents, utilities\nWikiBrowser    Search and read Wikipedia articles' }
     ]
   },
   'C:\\mpOS\\Programs': { items: FOLDER_ITEMS.programs },
   'C:\\mpOS\\Documents': {
-    items: FOLDER_ITEMS.documents,
-    files: [
-      { name: 'about.txt', size: 150, content: 'About This Site\n--------------------\nThis site was hand-coded as a creative portfolio\nproject. Every app is built from scratch using\nvanilla web technologies.' }
-    ]
+    items: FOLDER_ITEMS.documents
   },
   'C:\\mpOS\\Utilities': { items: FOLDER_ITEMS.utilities }
 };
