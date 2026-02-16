@@ -1519,6 +1519,7 @@
   gap: 6px;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .tm-graph-section {
@@ -1533,6 +1534,7 @@
 .tm-graph-canvas {
   flex: 1;
   width: 100%;
+  min-height: 0;
   background: #000;
   border: 2px solid;
   border-color: var(--shadow) var(--white) var(--white) var(--shadow);
