@@ -2803,7 +2803,7 @@ function populateDiskUsage() {
 
       var pctEl = document.createElement('span');
       pctEl.className = 'du-legend-pct';
-      pctEl.textContent = roundedPcts[i] + '%';
+      pctEl.textContent = roundedPcts[i] === 0 ? '<1%' : roundedPcts[i] + '%';
       row.appendChild(pctEl);
 
       legend.appendChild(row);
