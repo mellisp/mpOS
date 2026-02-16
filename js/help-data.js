@@ -11,9 +11,9 @@
 
 var HELP_TREE = [
   { title: 'Getting Started', children: ['welcome', 'desktop', 'startmenu', 'taskbar'] },
-  { title: 'Programs',        children: ['wikibrowser', 'fishofday', 'fishfinder', 'ontarget', 'aquarium', 'chickenfingers', 'paint'] },
-  { title: 'Utilities',       children: ['notepad', 'calculator', 'calendar', 'timezone', 'weather', 'diskusage'] },
-  { title: 'System',          children: ['mycomputer', 'explorer', 'run'] }
+  { title: 'Programs',        children: ['wikibrowser', 'fishofday', 'fishfinder', 'ontarget', 'aquarium', 'chickenfingers', 'paint', 'brickbreaker'] },
+  { title: 'Utilities',       children: ['notepad', 'calculator', 'calendar', 'timezone', 'weather', 'diskusage', 'visitormap', 'search'] },
+  { title: 'System',          children: ['mycomputer', 'explorer', 'run', 'taskmanager'] }
 ];
 
 var HELP_TOPICS = {
@@ -37,8 +37,11 @@ var HELP_TOPICS = {
       { ul: [
         'Browse Wikipedia with WikiBrowser.',
         'Discover a new fish every day with Fish of the Day.',
-        'Play games like On Target and Chicken Fingers.',
+        'Play games like On Target, Chicken Fingers, and Brick Breaker.',
+        'Search for files, programs, and commands with Search.',
+        'See where visitors come from with Visitor Map.',
         'Use utilities such as Notepad, Calculator, Calendar, and more.',
+        'Monitor running apps with Task Manager (Ctrl+Alt+Del).',
         'Explore system information, display settings, and screen savers with System Properties.'
       ]},
       { sa: ['desktop', 'startmenu', 'taskbar'] }
@@ -68,14 +71,16 @@ var HELP_TOPICS = {
       { p: 'The Start menu is your main entry point for launching applications. Click the Start button at the bottom-left of the screen to open it.' },
       { h: 'Menu Structure' },
       { ul: [
-        'Programs \u2014 hover to see a submenu with WikiBrowser, Fish of the Day, Fish Finder, On Target, Virtual Aquarium, and Chicken Fingers. Click the label itself to open the Programs folder in Explorer.',
+        'Programs \u2014 hover to see a submenu with WikiBrowser, Fish of the Day, Fish Finder, On Target, Virtual Aquarium, Chicken Fingers, Paint, and Brick Breaker. Click the label itself to open the Programs folder in Explorer.',
         'Documents \u2014 hover to see saved documents (created in Notepad). Click the label to open the Documents folder.',
-        'Utilities \u2014 hover for Notepad, Calculator, Calendar, Time Zone, Weather, Disk Usage, and Help.',
+        'Utilities \u2014 hover for Notepad, Calculator, Calendar, Time Zone, Weather, Disk Usage, Visitor Map, Search, and Help.',
+        'Search \u2014 hover to see For Files or Folders\u2026, For Help Topics\u2026, and On the Internet.',
         'Help \u2014 opens this Help viewer.',
         'Run \u2014 opens the command-line terminal.',
+        'Task Manager \u2014 press Ctrl+Alt+Del from anywhere.',
         'Exit Site \u2014 closes the browser tab.'
       ]},
-      { sa: ['taskbar', 'run'] }
+      { sa: ['taskbar', 'run', 'search', 'taskmanager'] }
     ]
   },
 
@@ -252,11 +257,32 @@ var HELP_TOPICS = {
     ]
   },
 
+  brickbreaker: {
+    title: 'Brick Breaker',
+    keywords: ['brick breaker', 'game', 'daily', 'challenge', 'bricks', 'paddle', 'ball', 'breakout'],
+    body: [
+      { p: 'Brick Breaker is a daily brick-breaking challenge. Each day presents a new layout of bricks to clear.' },
+      { h: 'How to Play' },
+      { ul: [
+        'The game loads in an embedded frame.',
+        'Use the paddle to bounce the ball and break all the bricks.',
+        'A new challenge is available every day.'
+      ]},
+      { h: 'Opening Brick Breaker' },
+      { ul: [
+        'Start menu \u2192 Programs \u2192 Brick Breaker.',
+        'Type BRICKBREAKER in the Run terminal.',
+        'On mobile, the game opens as a full-screen page.'
+      ]},
+      { sa: ['ontarget', 'chickenfingers'] }
+    ]
+  },
+
   /* ── Utilities ── */
 
   notepad: {
     title: 'Notepad',
-    keywords: ['notepad', 'text', 'editor', 'save', 'open', 'write', 'file', 'document', 'type'],
+    keywords: ['notepad', 'text', 'editor', 'save', 'open', 'write', 'file', 'document', 'type', 'find', 'replace', 'search'],
     body: [
       { p: 'Notepad is a simple text editor with save and load functionality. Files are stored in your browser\u2019s local storage.' },
       { h: 'Toolbar Buttons' },
@@ -271,13 +297,26 @@ var HELP_TOPICS = {
         'The status bar shows the character count.',
         'Files persist across browser sessions via localStorage.'
       ]},
+      { h: 'Find and Replace' },
+      { ul: [
+        'Ctrl+F \u2014 opens the Find bar. Use Previous/Next buttons to navigate matches. A counter shows your position (e.g., \u201c2 of 5\u201d).',
+        'Ctrl+H \u2014 opens the Replace bar with Replace and Replace All buttons.',
+        'Toggle case-sensitive matching with the Aa button.',
+        'Press Escape to close the Find/Replace bar.'
+      ]},
+      { h: 'Keyboard Shortcuts' },
+      { ul: [
+        'Ctrl+S \u2014 Save',
+        'Ctrl+F \u2014 Find',
+        'Ctrl+H \u2014 Replace'
+      ]},
       { sa: ['calculator', 'explorer'] }
     ]
   },
 
   calculator: {
     title: 'Calculator',
-    keywords: ['calculator', 'math', 'arithmetic', 'add', 'subtract', 'multiply', 'divide', 'keyboard'],
+    keywords: ['calculator', 'math', 'arithmetic', 'add', 'subtract', 'multiply', 'divide', 'keyboard', 'scientific', 'sin', 'cos', 'tan', 'sqrt', 'log'],
     body: [
       { p: 'A basic arithmetic calculator supporting addition, subtraction, multiplication, and division.' },
       { h: 'Using the Calculator' },
@@ -289,6 +328,14 @@ var HELP_TOPICS = {
         'Backspace removes the last digit.'
       ]},
       { p: 'The calculator supports up to 15 digits per number.' },
+      { h: 'Scientific Mode' },
+      { p: 'Toggle the Scientific checkbox to expand the calculator with additional functions:' },
+      { ul: [
+        'Trigonometry \u2014 sin, cos, tan (angles in degrees).',
+        'Powers \u2014 x\u00b2, x\u02b8 (raise to a power).',
+        'Roots and logarithms \u2014 \u221ax, log (base 10), ln (natural log).',
+        'Other \u2014 \u03c0, \u00b1 (toggle sign), 1/x (reciprocal), n! (factorial).'
+      ]},
       { sa: ['notepad', 'calendar'] }
     ]
   },
@@ -354,6 +401,47 @@ var HELP_TOPICS = {
       ]},
       { p: 'File sizes are fetched live from the server, so the data always reflects the current deployment.' },
       { sa: ['mycomputer', 'explorer'] }
+    ]
+  },
+
+  visitormap: {
+    title: 'Visitor Map',
+    keywords: ['visitor map', 'visitors', 'world', 'map', 'countries', 'traffic', 'cloudflare', 'analytics'],
+    body: [
+      { p: 'Visitor Map displays a world map showing where site visitors are from, powered by a Cloudflare Workers API.' },
+      { h: 'How It Works' },
+      { ul: [
+        'Visitor locations are collected via a Cloudflare Workers edge function.',
+        'Dots are plotted on an SVG world map corresponding to visitor locations.',
+        'A visitor count is displayed showing total recorded visitors.'
+      ]},
+      { h: 'Opening Visitor Map' },
+      { ul: [
+        'Start menu \u2192 Utilities \u2192 Visitor Map.',
+        'Type VISITORMAP in the Run terminal.'
+      ]},
+      { sa: ['diskusage', 'weather'] }
+    ]
+  },
+
+  search: {
+    title: 'Search',
+    keywords: ['search', 'find', 'files', 'programs', 'commands', 'lookup', 'filter'],
+    body: [
+      { p: 'Search is a two-pane window for finding programs, utilities, files, and terminal commands across mpOS.' },
+      { h: 'How to Use' },
+      { ul: [
+        'Type in the search input on the left sidebar to filter results as you type.',
+        'Results appear in the right pane, grouped by category (programs, utilities, files, commands).',
+        'Click a result to launch the app, open a file in Notepad, or pre-fill the Run terminal.'
+      ]},
+      { h: 'Opening Search' },
+      { ul: [
+        'Start menu \u2192 Search \u2192 For Files or Folders\u2026',
+        'Type SEARCH in the Run terminal.',
+        'Explorer \u2192 Utilities folder.'
+      ]},
+      { sa: ['explorer', 'run'] }
     ]
   },
 
@@ -433,12 +521,46 @@ var HELP_TOPICS = {
       { h: 'Launching Apps' },
       { p: 'Type an application command name to launch it directly:' },
       { ul: [
-        'BROWSER, FISHOFDAY, FISHFINDER, ONTARGET, AQUARIUM',
-        'NOTEPAD, CALCULATOR, CALENDAR, TIMEZONE, WEATHER, DISKUSAGE',
-        'MYCOMPUTER, EXPLORER, HH (Help)'
+        'Programs \u2014 BROWSER, FISHOFDAY, FISHFINDER, ONTARGET, AQUARIUM, PAINT, BRICKBREAKER',
+        'Utilities \u2014 NOTEPAD, CALCULATOR, CALENDAR, TIMEZONE, WEATHER, DISKUSAGE, VISITORMAP, SEARCH, HH (Help)',
+        'System \u2014 MYCOMPUTER, EXPLORER, TASKMANAGER'
+      ]},
+      { h: 'Terminal Commands' },
+      { ul: [
+        'MATRIX \u2014 Matrix rain animation.',
+        'COLOR <hex> \u2014 changes the terminal text color.',
+        'TITLE <text> \u2014 sets the terminal window title.',
+        'TASKLIST \u2014 lists open windows.',
+        'TASKKILL <name> \u2014 closes a window by name.',
+        'PING <host> \u2014 simulated network ping.',
+        'START <url> \u2014 opens a URL in a new tab.'
       ]},
       { p: 'You can also type the name of an item in the current directory to run it.' },
       { sa: ['startmenu', 'explorer'] }
+    ]
+  },
+
+  taskmanager: {
+    title: 'Task Manager',
+    keywords: ['task manager', 'ctrl alt del', 'processes', 'end task', 'cpu', 'memory', 'fps', 'performance'],
+    body: [
+      { p: 'Task Manager shows running windows and real-time system performance. Open it by pressing Ctrl+Alt+Del from anywhere.' },
+      { h: 'Applications Tab' },
+      { ul: [
+        'Lists all open windows with their current status.',
+        'Select a window and click End Task to close it.'
+      ]},
+      { h: 'Performance' },
+      { ul: [
+        'Real-time CPU usage graph based on frames per second (FPS).',
+        'Real-time memory usage graph.'
+      ]},
+      { h: 'Opening Task Manager' },
+      { ul: [
+        'Press Ctrl+Alt+Del from anywhere.',
+        'Type TASKMANAGER in the Run terminal.'
+      ]},
+      { sa: ['run', 'mycomputer'] }
     ]
   }
 };
