@@ -3560,7 +3560,6 @@ function paintOnDown(e) {
   var pos = paintGetPos(e);
 
   if (paintTool === 'fill') {
-    paintSaveState();
     paintFloodFill(Math.round(pos.x), Math.round(pos.y), paintFg);
     paintDrawing = false;
     paintDirty = true;
@@ -4254,6 +4253,7 @@ let tmCurrentFps = 0;
 let tmRafId = null;
 let tmBuilt = false;
 let tmLastFrameTime = 0;
+const tmMonoFont = tmMonoFont;
 
 function tmFpsLoop(now) {
   tmFrameCount++;
@@ -4595,7 +4595,7 @@ function tmDrawGraph(canvas, data, maxVal, unit) {
   if (data.length > 0) {
     var current = data[data.length - 1];
     ctx.fillStyle = '#00ff00';
-    ctx.font = '10px ' + getComputedStyle(document.documentElement).getPropertyValue('--mono').trim();
+    ctx.font = '10px ' + tmMonoFont;
     ctx.textAlign = 'right';
     ctx.fillText(Math.round(current) + ' ' + unit, w - 4, 12);
   }
@@ -4611,7 +4611,7 @@ function tmDrawUnavailable(canvas) {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, w, h);
   ctx.fillStyle = '#003300';
-  ctx.font = '11px ' + getComputedStyle(document.documentElement).getPropertyValue('--mono').trim();
+  ctx.font = '11px ' + tmMonoFont;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('Not available', w / 2, h / 2);

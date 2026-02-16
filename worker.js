@@ -74,4 +74,3 @@ export default {
     }
   }
 };
-// _var_2
