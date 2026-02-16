@@ -320,6 +320,9 @@ body {
   padding: 3px 7px 1px 9px;
 }
 
+.start-btn.pressed .smiley-closed { display: none; }
+.start-btn.pressed .smiley-open { display: inline !important; }
+
 /* Start Menu */
 .start-menu {
   display: none;
