@@ -138,7 +138,8 @@ const FOLDER_ITEMS = {
     { name: 'Weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather' },
     { name: 'Disk Usage', desc: 'Source code breakdown by file type.', tag: 'HTML', action: 'openDiskUsage' },
     { name: 'Visitor Map', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
-    { name: 'Help', desc: 'Browse the mpOS help documentation.', tag: 'HTML', action: 'openHelp' }
+    { name: 'Help', desc: 'Browse the mpOS help documentation.', tag: 'HTML', action: 'openHelp' },
+    { name: 'Search', desc: 'Search for files, programs, and commands.', tag: 'HTML', action: 'openSearch' }
   ]
 };
 
@@ -283,6 +284,7 @@ function getItemIcon(name) {
     'Brick Breaker': '<defs><radialGradient id="ei-bb-red" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ff8a80"/><stop offset="50%" stop-color="#ef5350"/><stop offset="100%" stop-color="#c62828"/></radialGradient><radialGradient id="ei-bb-yellow" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ffd54f"/><stop offset="50%" stop-color="#ffc107"/><stop offset="100%" stop-color="#e8a000"/></radialGradient><radialGradient id="ei-bb-green" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#9ccc9c"/><stop offset="50%" stop-color="#66bb6a"/><stop offset="100%" stop-color="#2e7d32"/></radialGradient><linearGradient id="ei-bb-paddle" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8e0f8"/><stop offset="100%" stop-color="#4a8abe"/></linearGradient><radialGradient id="ei-bb-ball" cx="0.3" cy="0.3" r="0.7"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e8e8e8"/></radialGradient></defs><rect x="2" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="7" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="12" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="2" y="5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="7" y="5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="12" y="5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="2" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-green)" stroke="#1b5e20" stroke-width="0.6"/><rect x="7" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-green)" stroke="#1b5e20" stroke-width="0.6"/><rect x="12" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#ei-bb-green)" stroke="#1b5e20" stroke-width="0.6"/><circle cx="10" cy="13" r="1.8" fill="url(#ei-bb-ball)" stroke="#bdbdbd" stroke-width="0.6"/><rect x="6.5" y="16" width="7" height="1.8" rx="0.5" fill="url(#ei-bb-paddle)" stroke="#1a4a6e" stroke-width="0.7"/><ellipse cx="3.5" cy="3" rx="1.5" ry="0.6" fill="white" opacity="0.35"/><ellipse cx="8.5" cy="3" rx="1.5" ry="0.6" fill="white" opacity="0.35"/><ellipse cx="13.5" cy="3" rx="1.5" ry="0.6" fill="white" opacity="0.35"/><ellipse cx="9.3" cy="12.3" rx="0.9" ry="0.7" fill="white" opacity="0.5"/><ellipse cx="8.5" cy="16.4" rx="2.5" ry="0.5" fill="white" opacity="0.3"/>',
     'Paint': '<defs><linearGradient id="ei-pt" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffe082"/><stop offset="70%" stop-color="#f0c050"/><stop offset="100%" stop-color="#c49000"/></linearGradient></defs><ellipse cx="10" cy="11" rx="8" ry="7" fill="url(#ei-pt)" stroke="#a07000" stroke-width="0.8"/><ellipse cx="9" cy="8" rx="5" ry="3" fill="white" opacity="0.25"/><circle cx="6" cy="9" r="1.5" fill="#ef5350"/><circle cx="9" cy="7" r="1.3" fill="#4a8abe"/><circle cx="13" cy="8" r="1.4" fill="#5aaa80"/><circle cx="14" cy="11" r="1.3" fill="#ffc107"/><circle cx="6" cy="13" r="1.2" fill="#9c27b0"/><ellipse cx="11" cy="14" rx="1" ry="0.8" fill="#ff9800"/><circle cx="5.5" cy="8.3" r="0.5" fill="white" opacity="0.5"/><circle cx="8.5" cy="6.3" r="0.4" fill="white" opacity="0.5"/><circle cx="12.5" cy="7.3" r="0.45" fill="white" opacity="0.5"/><circle cx="13.5" cy="10.3" r="0.4" fill="white" opacity="0.5"/><circle cx="5.5" cy="12.3" r="0.4" fill="white" opacity="0.5"/><circle cx="10.5" cy="13.4" r="0.35" fill="white" opacity="0.5"/><path d="M15 5 Q16 3 17 2 Q18 1.5 18 3 Q17 4 16 6 Q15 7 15 5Z" fill="#a07000" stroke="#785000" stroke-width="0.5"/>',
     'Help': '<defs><linearGradient id="ei-hp" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffc107"/><stop offset="70%" stop-color="#e8a010"/><stop offset="100%" stop-color="#c49000"/></linearGradient><linearGradient id="ei-hpp" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient></defs><rect x="2" y="3" width="3" height="14" rx="0.5" fill="url(#ei-hp)" stroke="#c49000" stroke-width="0.6"/><rect x="5" y="4" width="11" height="12" rx="1" fill="url(#ei-hpp)" stroke="#8a8680" stroke-width="0.6"/><path d="M14 4 L14 8 L13.5 7 L13 8 L13 4" fill="#ef5350" stroke="#c62828" stroke-width="0.2"/><line x1="6" y1="4.5" x2="15" y2="4.5" stroke="white" stroke-width="0.5" opacity="0.5"/><path d="M9.5 8 Q9.5 6.5 11 6.5 Q12.5 6.5 12.5 8 Q12.5 9 11 9.5 L11 10.5" fill="none" stroke="#4a8abe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="12.5" r="0.7" fill="#4a8abe"/>',
+    'Search': '<defs><radialGradient id="ei-sr-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="30%" stop-color="#d8ecff"/><stop offset="60%" stop-color="#a8d0f0"/><stop offset="100%" stop-color="#78b0d8"/></radialGradient><linearGradient id="ei-sr-handle" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d0c8"/><stop offset="50%" stop-color="#a0a098"/><stop offset="100%" stop-color="#787870"/></linearGradient></defs><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="url(#ei-sr-handle)" stroke-width="3" stroke-linecap="round"/><circle cx="9" cy="9" r="6" fill="url(#ei-sr-lens)" stroke="#1a4a6e" stroke-width="1.2"/><circle cx="9" cy="9" r="4.5" fill="none" stroke="#1a4a6e" stroke-width="0.4" opacity="0.3"/><ellipse cx="7" cy="7" rx="3.5" ry="2.5" fill="white" opacity="0.4"/>',
     'Visitor Map': '<defs><radialGradient id="ei-vm" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="ei-vmc"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#ei-vm)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#ei-vmc)" opacity="0.45"><ellipse cx="6" cy="8" rx="4" ry="3" fill="#5aaa80"/><ellipse cx="14" cy="7" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="10" cy="14" rx="5" ry="2" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.6"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.6"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><circle cx="14" cy="6" r="2" fill="#ef5350" opacity="0.8"/><path d="M14 4 L14 6.5" stroke="#c62828" stroke-width="0.8" stroke-linecap="round"/><circle cx="14" cy="4" r="0.6" fill="#c62828"/><circle cx="13.7" cy="3.8" r="0.2" fill="white" opacity="0.7"/>'
   };
   return icons[name] || '';
@@ -4021,6 +4023,188 @@ function paintDismissDialog() {
   if (d) d.remove();
 }
 
+/* ── Search Results ── */
+let searchBuilt = false;
+
+function openSearch() {
+  openWindow('search');
+  if (!searchBuilt) {
+    searchBuilt = true;
+    var input = document.getElementById('searchInput');
+    input.addEventListener('input', function () { searchNow(); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') searchNow();
+    });
+  }
+  setTimeout(function () {
+    document.getElementById('searchInput').focus();
+  }, 100);
+}
+
+function searchNow() {
+  var input = document.getElementById('searchInput');
+  var results = document.getElementById('searchResults');
+  var status = document.getElementById('searchStatus');
+  var query = input.value.trim().toLowerCase();
+
+  results.textContent = '';
+
+  if (!query) {
+    status.textContent = 'Ready';
+    return;
+  }
+
+  var totalCount = 0;
+
+  // 1. Programs
+  var progMatches = FOLDER_ITEMS.programs.filter(function (item) {
+    return item.name.toLowerCase().indexOf(query) !== -1 ||
+           item.desc.toLowerCase().indexOf(query) !== -1;
+  });
+  if (progMatches.length) {
+    totalCount += progMatches.length;
+    results.appendChild(searchBuildGroup('Programs', progMatches, 'program'));
+  }
+
+  // 2. Utilities
+  var utilMatches = FOLDER_ITEMS.utilities.filter(function (item) {
+    return item.name.toLowerCase().indexOf(query) !== -1 ||
+           item.desc.toLowerCase().indexOf(query) !== -1;
+  });
+  if (utilMatches.length) {
+    totalCount += utilMatches.length;
+    results.appendChild(searchBuildGroup('Utilities', utilMatches, 'program'));
+  }
+
+  // 3. Files
+  var fileMatches = [];
+  var paths = Object.keys(FILESYSTEM);
+  for (var i = 0; i < paths.length; i++) {
+    var path = paths[i];
+    var entry = FILESYSTEM[path];
+    if (!entry.files) continue;
+    for (var j = 0; j < entry.files.length; j++) {
+      var f = entry.files[j];
+      if (f.name.toLowerCase().indexOf(query) !== -1 ||
+          (f.content && f.content.toLowerCase().indexOf(query) !== -1)) {
+        fileMatches.push({ name: f.name, path: path, content: f.content });
+      }
+    }
+  }
+  if (fileMatches.length) {
+    totalCount += fileMatches.length;
+    results.appendChild(searchBuildGroup('Files', fileMatches, 'file'));
+  }
+
+  // 4. Commands
+  var cmdKeys = Object.keys(COMMANDS);
+  var cmdMatches = [];
+  for (var k = 0; k < cmdKeys.length; k++) {
+    var key = cmdKeys[k];
+    var cmd = COMMANDS[key];
+    if (key.toLowerCase().indexOf(query) !== -1 ||
+        cmd.desc.toLowerCase().indexOf(query) !== -1) {
+      cmdMatches.push({ key: key, desc: cmd.desc });
+    }
+  }
+  if (cmdMatches.length) {
+    totalCount += cmdMatches.length;
+    results.appendChild(searchBuildGroup('Commands', cmdMatches, 'command'));
+  }
+
+  if (totalCount === 0) {
+    var noRes = document.createElement('div');
+    noRes.className = 'search-no-results';
+    noRes.textContent = 'No items match your search.';
+    results.appendChild(noRes);
+    status.textContent = '0 item(s) found';
+  } else {
+    status.textContent = totalCount + ' item(s) found';
+  }
+}
+
+function searchBuildGroup(title, items, type) {
+  var frag = document.createDocumentFragment();
+  var header = document.createElement('div');
+  header.className = 'search-result-group-title';
+  header.textContent = title;
+  frag.appendChild(header);
+
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var row = document.createElement('div');
+    row.className = 'search-result-item';
+
+    if (type === 'program') {
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 20 20');
+      svg.setAttribute('fill', 'none');
+      svg.innerHTML = getItemIcon(item.name);
+      row.appendChild(svg);
+      var nameEl = document.createElement('span');
+      nameEl.className = 'search-result-name';
+      nameEl.textContent = item.name;
+      row.appendChild(nameEl);
+      var descEl = document.createElement('span');
+      descEl.className = 'search-result-desc';
+      descEl.textContent = item.desc;
+      row.appendChild(descEl);
+      (function (it) {
+        row.addEventListener('click', function () {
+          var fn = ACTION_MAP[it.action];
+          if (fn) fn();
+        });
+      })(item);
+    } else if (type === 'file') {
+      var iconEl = document.createElement('span');
+      iconEl.className = 'search-result-icon';
+      iconEl.textContent = '\uD83D\uDCC4';
+      row.appendChild(iconEl);
+      var fnameEl = document.createElement('span');
+      fnameEl.className = 'search-result-name';
+      fnameEl.textContent = item.name;
+      row.appendChild(fnameEl);
+      var pathEl = document.createElement('span');
+      pathEl.className = 'search-result-desc';
+      pathEl.textContent = item.path;
+      row.appendChild(pathEl);
+      (function (it) {
+        row.addEventListener('click', function () {
+          openNotepad();
+          notepadEditor.value = it.content || '';
+          notepadCurrentFile = null;
+          notepadDirty = false;
+          notepadTitle.textContent = 'Notepad - ' + it.name;
+          notepadStatus.textContent = (it.content || '').length + ' characters';
+        });
+      })(item);
+    } else if (type === 'command') {
+      var promptEl = document.createElement('span');
+      promptEl.className = 'search-result-icon';
+      promptEl.textContent = '>';
+      row.appendChild(promptEl);
+      var cmdNameEl = document.createElement('span');
+      cmdNameEl.className = 'search-result-name';
+      cmdNameEl.textContent = item.key;
+      row.appendChild(cmdNameEl);
+      var cmdDescEl = document.createElement('span');
+      cmdDescEl.className = 'search-result-desc';
+      cmdDescEl.textContent = item.desc;
+      row.appendChild(cmdDescEl);
+      (function (it) {
+        row.addEventListener('click', function () {
+          openRun();
+          document.getElementById('termInput').value = it.key;
+          document.getElementById('termInput').focus();
+        });
+      })(item);
+    }
+
+    frag.appendChild(row);
+  }
+  return frag;
+}
+
 /* ── Action lookup map (replaces new Function for FOLDER_ITEMS actions) ── */
 const ACTION_MAP = {
   openBrowser: openBrowser,
@@ -4038,7 +4222,8 @@ const ACTION_MAP = {
   openHelp: openHelp,
   openPaint: openPaint,
   openBrickBreaker: openBrickBreaker,
-  openVisitorMap: openVisitorMap
+  openVisitorMap: openVisitorMap,
+  openSearch: openSearch
 };
 
 /* ── Run Terminal ── */
@@ -4439,7 +4624,7 @@ const WINDOW_NAMES = {
   'notepad': 'Notepad', 'calculator': 'Calculator', 'calendar': 'Calendar',
   'timezone': 'Time Zone', 'weather': 'Weather', 'diskusage': 'Disk Usage',
   'visitormap': 'Visitor Map', 'help': 'Help', 'paint': 'Paint',
-  'taskmanager': 'Task Manager'
+  'search': 'Search Results', 'taskmanager': 'Task Manager'
 };
 
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
@@ -4524,7 +4709,8 @@ const COMMANDS = {
   'exit':        { run: function () { closeRun(); }, desc: 'Close this window' },
   'ver':         { run: cmdVer,          desc: 'Show version' },
   'matrix':      { run: cmdMatrix,       desc: 'Toggle matrix animation' },
-  'taskmanager': { run: openTaskManager, desc: 'Open Task Manager' }
+  'taskmanager': { run: openTaskManager, desc: 'Open Task Manager' },
+  'search':      { run: openSearch,      desc: 'Open Search Results' }
 };
 
 function termPrint(text, color) {
@@ -5165,7 +5351,8 @@ function buildLauncher() {
   var system = [
     { name: 'My Computer', action: openMyComputer },
     { name: 'Files', action: openExplorer },
-    { name: 'Help', action: openHelp }
+    { name: 'Help', action: openHelp },
+    { name: 'Search', action: openSearch }
   ];
 
   function populateGrid(gridId, items) {
@@ -5280,6 +5467,8 @@ window.paintRedo = paintRedo;
 window.paintClear = paintClear;
 window.paintSizeChange = paintSizeChange;
 window.openVisitorMap = openVisitorMap;
+window.openSearch = openSearch;
+window.searchNow = searchNow;
 window.openTaskManager = openTaskManager;
 window.closeTaskManager = closeTaskManager;
 
