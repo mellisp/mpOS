@@ -304,7 +304,7 @@
   flex: 1; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
   contain: content;
 }
-.term-input-row { display: flex; gap: 0; flex-shrink: 0; }
+.term-input-row { display: flex; flex-shrink: 0; }
 .term-prompt { white-space: pre; color: inherit; }
 .term-input {
   flex: 1; background: none; border: none; outline: none;
@@ -1707,7 +1707,6 @@
 
 .ss-checkbox-label input[type="checkbox"] {
   appearance: none;
-  -webkit-appearance: none;
   width: 13px;
   height: 13px;
   background: var(--white);

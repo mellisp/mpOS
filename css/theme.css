@@ -409,9 +409,17 @@ button.start-menu-item {
   padding: 2px 8px;
   min-width: 120px;
   max-width: 180px;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.taskbar-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+.taskbar-item span {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .taskbar-item.active {

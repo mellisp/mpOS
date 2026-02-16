@@ -96,6 +96,16 @@
     });
   }
 
+  const TASKBAR_ICONS = {
+    browser: 'WikiBrowser', fishofday: 'Fish of the Day', fishfinder: 'Fish Finder',
+    ontarget: 'On Target', aquarium: 'Virtual Aquarium', chickenfingers: 'Chicken Fingers',
+    paint: 'Paint', brickbreaker: 'Brick Breaker', notepad: 'Notepad',
+    calculator: 'Calculator', calendar: 'Calendar', timezone: 'Time Zone',
+    weather: 'Weather', diskusage: 'Disk Usage', visitormap: 'Visitor Map',
+    search: 'Search', help: 'Help', mycomputer: 'My Computer', explorer: 'Files',
+    run: 'Run', taskmanager: 'Task Manager'
+  };
+
   function minimizeWindow(id) {
     const win = document.getElementById(id);
     if (!win) return;
@@ -104,8 +114,21 @@
       const item = document.createElement('button');
       item.className = 'taskbar-item';
       item.dataset.windowId = id;
+      const iconName = TASKBAR_ICONS[id];
+      if (iconName && typeof getItemIcon === 'function') {
+        const iconSvg = getItemIcon(iconName);
+        if (iconSvg) {
+          const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('viewBox', '0 0 20 20');
+          svg.className.baseVal = 'taskbar-icon';
+          svg.innerHTML = iconSvg;
+          item.appendChild(svg);
+        }
+      }
+      const label = document.createElement('span');
       const titleEl = win.querySelector('.titlebar span');
-      item.textContent = titleEl ? titleEl.textContent : id;
+      label.textContent = titleEl ? titleEl.textContent : id;
+      item.appendChild(label);
       item.addEventListener('click', function () { restoreWindow(id); });
       taskbarItems.appendChild(item);
     }
