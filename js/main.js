@@ -512,8 +512,8 @@ function mcBuildDisplay(body) {
   var grid = document.createElement('div');
   grid.className = 'wallpaper-grid';
 
-  var wallpapers = ['none', 'bliss', 'grid', 'diagonal', 'waves'];
-  var wallpaperNames = { none: 'None', bliss: 'Bliss', grid: 'Grid', diagonal: 'Diagonal', waves: 'Waves' };
+  var wallpapers = ['none', 'sunset', 'dots', 'grid', 'diagonal', 'waves'];
+  var wallpaperNames = { none: 'None', sunset: 'Sunset', dots: 'Dots', grid: 'Grid', diagonal: 'Diagonal', waves: 'Waves' };
   var wpBtns = [];
 
   wallpapers.forEach(function (id) {
@@ -544,6 +544,22 @@ function mcBuildDisplay(body) {
   });
 
   body.appendChild(grid);
+
+  // Reset Defaults button
+  var resetRow = document.createElement('div');
+  resetRow.style.cssText = 'margin-top: 12px; display: flex; justify-content: flex-end;';
+  var resetBtn = document.createElement('button');
+  resetBtn.className = 'btn';
+  resetBtn.textContent = 'Reset Defaults';
+  resetBtn.addEventListener('click', function () {
+    displaySettings.backgroundColor = '#3a6ea5';
+    displaySettings.wallpaper = 'none';
+    applyDisplaySettings();
+    mcSaveSettings();
+    mcSwitchTab('display');
+  });
+  resetRow.appendChild(resetBtn);
+  body.appendChild(resetRow);
 }
 
 function drawWallpaperPreview(canvas, id) {
@@ -555,24 +571,28 @@ function drawWallpaperPreview(canvas, id) {
 
   if (id === 'none') return;
 
-  if (id === 'bliss') {
-    var sky = ctx.createLinearGradient(0, 0, 0, h);
-    sky.addColorStop(0, '#87CEEB');
-    sky.addColorStop(0.55, '#b8e0f0');
-    sky.addColorStop(0.6, '#7cba3f');
-    sky.addColorStop(1, '#3a7a1e');
-    ctx.fillStyle = sky;
+  if (id === 'sunset') {
+    var grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#1a0533');
+    grad.addColorStop(0.35, '#6b2fa0');
+    grad.addColorStop(0.6, '#d4556b');
+    grad.addColorStop(0.8, '#f4a742');
+    grad.addColorStop(1, '#fcdb6a');
+    ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
-    // Gentle hill curve
-    ctx.beginPath();
-    ctx.moveTo(0, h * 0.65);
-    ctx.quadraticCurveTo(w * 0.3, h * 0.5, w * 0.6, h * 0.6);
-    ctx.quadraticCurveTo(w * 0.85, h * 0.68, w, h * 0.55);
-    ctx.lineTo(w, h);
-    ctx.lineTo(0, h);
-    ctx.closePath();
-    ctx.fillStyle = '#5aaa30';
-    ctx.fill();
+    return;
+  }
+
+  if (id === 'dots') {
+    var spacing = 10;
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    for (var dy = spacing; dy < h; dy += spacing) {
+      for (var dx = spacing; dx < w; dx += spacing) {
+        ctx.beginPath();
+        ctx.arc(dx, dy, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
     return;
   }
 
@@ -613,23 +633,28 @@ function drawFullWallpaper(canvas, id) {
 
   if (id === 'none') return;
 
-  if (id === 'bliss') {
-    var sky = ctx.createLinearGradient(0, 0, 0, h);
-    sky.addColorStop(0, '#87CEEB');
-    sky.addColorStop(0.55, '#b8e0f0');
-    sky.addColorStop(0.6, '#7cba3f');
-    sky.addColorStop(1, '#3a7a1e');
-    ctx.fillStyle = sky;
+  if (id === 'sunset') {
+    var grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#1a0533');
+    grad.addColorStop(0.35, '#6b2fa0');
+    grad.addColorStop(0.6, '#d4556b');
+    grad.addColorStop(0.8, '#f4a742');
+    grad.addColorStop(1, '#fcdb6a');
+    ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
-    ctx.beginPath();
-    ctx.moveTo(0, h * 0.65);
-    ctx.quadraticCurveTo(w * 0.3, h * 0.5, w * 0.6, h * 0.6);
-    ctx.quadraticCurveTo(w * 0.85, h * 0.68, w, h * 0.55);
-    ctx.lineTo(w, h);
-    ctx.lineTo(0, h);
-    ctx.closePath();
-    ctx.fillStyle = '#5aaa30';
-    ctx.fill();
+    return;
+  }
+
+  if (id === 'dots') {
+    var spacing = 40;
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    for (var dy = spacing; dy < h; dy += spacing) {
+      for (var dx = spacing; dx < w; dx += spacing) {
+        ctx.beginPath();
+        ctx.arc(dx, dy, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
     return;
   }
 
@@ -1055,7 +1080,9 @@ function mcLoadSettings() {
       var data = JSON.parse(raw);
       if (data.display) {
         if (data.display.backgroundColor) displaySettings.backgroundColor = data.display.backgroundColor;
-        if (data.display.wallpaper) displaySettings.wallpaper = data.display.wallpaper;
+        if (data.display.wallpaper) {
+          displaySettings.wallpaper = data.display.wallpaper === 'bliss' ? 'none' : data.display.wallpaper;
+        }
       }
       if (data.screenSaver) {
         if (typeof data.screenSaver.enabled === 'boolean') ssSettings.enabled = data.screenSaver.enabled;
