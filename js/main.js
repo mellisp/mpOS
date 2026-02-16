@@ -2796,21 +2796,22 @@ function renderVisitorMap(body, counts) {
 
   // Compute max for color scale (log)
   var maxCount = 0;
-  var totalVisitors = 0;
+  // var totalVisitors = 0;
   var countryCount = 0;
   var entries = [];
   var code;
   for (code in counts) {
     if (counts.hasOwnProperty(code)) {
       var c = counts[code];
-      totalVisitors += c;
+      // totalVisitors += c;
       countryCount++;
       if (c > maxCount) maxCount = c;
       var name = (typeof COUNTRY_NAMES !== 'undefined' && COUNTRY_NAMES[code]) || code;
       entries.push({ code: code, name: name, count: c });
     }
   }
-  entries.sort(function (a, b) { return b.count - a.count; });
+  // entries.sort(function (a, b) { return b.count - a.count; });
+  entries.sort(function (a, b) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; });
 
   var logMax = Math.log(maxCount + 1);
 
@@ -2865,8 +2866,9 @@ function renderVisitorMap(body, counts) {
         }
         var cc = target.getAttribute('data-code');
         var cName = (typeof COUNTRY_NAMES !== 'undefined' && COUNTRY_NAMES[cc]) || cc;
-        var cCount = counts[cc] || 0;
-        tooltip.textContent = cName + ': ' + cCount + ' visit' + (cCount !== 1 ? 's' : '');
+        // var cCount = counts[cc] || 0;
+        // tooltip.textContent = cName + ': ' + cCount + ' visit' + (cCount !== 1 ? 's' : '');
+        tooltip.textContent = cName;
         tooltip.style.display = 'block';
         var rect = mapWrap.getBoundingClientRect();
         var tx = e.clientX - rect.left + 12;
@@ -2881,6 +2883,16 @@ function renderVisitorMap(body, counts) {
         tooltip.style.display = 'none';
       });
     }
+
+    // Click country → open in WikiBrowser
+    svg.addEventListener('click', function (e) {
+      var target = e.target;
+      if (!target.classList || !target.classList.contains('vm-has-visitors')) return;
+      var cc = target.getAttribute('data-code');
+      var cName = (typeof COUNTRY_NAMES !== 'undefined' && COUNTRY_NAMES[cc]) || cc;
+      openBrowser();
+      browserNavigate('https://en.wikipedia.org/wiki/' + encodeURIComponent(cName));
+    });
   } else {
     var noMap = document.createElement('div');
     noMap.className = 'folder-empty';
@@ -2896,7 +2908,7 @@ function renderVisitorMap(body, counts) {
 
   var listHeader = document.createElement('div');
   listHeader.className = 'vm-list-header';
-  listHeader.textContent = 'Visitors by Country';
+  listHeader.textContent = 'Countries';
   list.appendChild(listHeader);
 
   for (var j = 0; j < entries.length; j++) {
@@ -2914,10 +2926,17 @@ function renderVisitorMap(body, counts) {
     nameSpan.textContent = entry.name;
     row.appendChild(nameSpan);
 
-    var countSpan = document.createElement('span');
-    countSpan.className = 'vm-list-count';
-    countSpan.textContent = String(entry.count);
-    row.appendChild(countSpan);
+    row.style.cursor = 'pointer';
+    row.dataset.country = entry.name;
+    row.addEventListener('click', function () {
+      openBrowser();
+      browserNavigate('https://en.wikipedia.org/wiki/' + encodeURIComponent(this.dataset.country));
+    });
+
+    // var countSpan = document.createElement('span');
+    // countSpan.className = 'vm-list-count';
+    // countSpan.textContent = String(entry.count);
+    // row.appendChild(countSpan);
 
     list.appendChild(row);
   }
@@ -2927,7 +2946,8 @@ function renderVisitorMap(body, counts) {
   // Status bar
   var status = document.getElementById('visitorMapStatus');
   if (status) {
-    status.textContent = countryCount + ' countr' + (countryCount !== 1 ? 'ies' : 'y') + ', ' + totalVisitors + ' total visitor' + (totalVisitors !== 1 ? 's' : '');
+    // status.textContent = countryCount + ' countr' + (countryCount !== 1 ? 'ies' : 'y') + ', ' + totalVisitors + ' total visitor' + (totalVisitors !== 1 ? 's' : '');
+    status.textContent = countryCount + ' countr' + (countryCount !== 1 ? 'ies' : 'y');
   }
 }
 
