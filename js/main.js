@@ -5371,6 +5371,8 @@ function cmdCurl(args) {
   }
   let url = args.trim();
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  // Ensure trailing slash on bare hostnames so query params attach correctly
+  if (url.replace(/^https?:\/\//i, '').indexOf('/') === -1) url += '/';
   termPrint('Fetching ' + url + ' ...\n');
   termInput.disabled = true;
   fetch(url).then(function (res) {
@@ -5389,7 +5391,15 @@ function cmdCurl(args) {
       }
     }
   }).catch(function (err) {
-    termPrint('Error: ' + err.message, '#ff6666');
+    let msg = err.message || String(err);
+    if (msg.indexOf('Failed to fetch') !== -1 || msg.indexOf('NetworkError') !== -1 || msg.indexOf('CORS') !== -1) {
+      termPrint('Error: Connection blocked by CORS policy.', '#ff6666');
+      termPrint('The server at ' + url + ' does not allow cross-origin requests.');
+      termPrint('This is a browser security restriction, not a network error.', '#888');
+      termPrint('Tip: Try sites with CORS enabled, e.g. curl api.github.com', '#888');
+    } else {
+      termPrint('Error: ' + msg, '#ff6666');
+    }
   }).then(function () {
     termPrint('');
     termInput.disabled = false;
@@ -5703,8 +5713,7 @@ function cmdType(args) {
 }
 
 function cmdTree() {
-  termPrint('Folder PATH listing for volume mpOS');
-  termPrint('Volume serial number is 4D50-4F53');
+  termPrint('');
 
   function printTree(path, prefix, isLast) {
     let name = path.split('\\').pop();
@@ -5715,12 +5724,18 @@ function cmdTree() {
       termPrint(prefix + connector + name);
     }
     let node = FILESYSTEM[path];
+    let newPrefix = prefix === '' ? '' : prefix + (isLast ? '    ' : '|   ');
     if (node && node.children) {
-      let newPrefix = prefix === '' ? '' : prefix + (isLast ? '    ' : '|   ');
       node.children.forEach(function (child, i) {
         let childPath = path + '\\' + child;
         let last = i === node.children.length - 1;
         printTree(childPath, newPrefix, last);
+      });
+    } else if (node && node.items) {
+      node.items.forEach(function (item, i) {
+        let last = i === node.items.length - 1;
+        let c = last ? '\\---' : '+---';
+        termPrint(newPrefix + c + item.name);
       });
     }
   }
@@ -5776,6 +5791,8 @@ function cmdPing(args) {
   let host = args.trim();
   let url = host;
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  // Ensure trailing slash on bare hostnames so cache-buster query attaches correctly
+  if (url.replace(/^https?:\/\//i, '').indexOf('/') === -1) url += '/';
 
   termPrint('');
   termPrint('Pinging ' + host + ' ...');
@@ -5809,7 +5826,8 @@ function cmdPing(args) {
     }
     let seq = count + 1;
     let t0 = performance.now();
-    fetch(url + '?_cb=' + Date.now(), { mode: 'no-cors', cache: 'no-store' }).then(function () {
+    let sep = url.indexOf('?') !== -1 ? '&' : '?';
+    fetch(url + sep + '_cb=' + Date.now(), { mode: 'no-cors', cache: 'no-store' }).then(function () {
       let ms = Math.round(performance.now() - t0);
       times.push(ms);
       termPrint('Reply from ' + host + ': seq=' + seq + ' time=' + ms + 'ms');
