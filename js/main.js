@@ -4991,7 +4991,7 @@ function cmdCls() {
   termOutput.textContent = '';
 }
 
-function cmdVer() { termPrint('mpOS [Version 2.0.0]\n(c) Matthew Pritchard. All rights reserved.\n'); }
+function cmdVer() { termPrint('mpOS [Version 2.0.1]\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
 function cmdCd(args) {
   if (!args) { termPrint(termCwd + '\n'); return; }
@@ -6035,6 +6035,9 @@ window.addEventListener('languagechange', function () {
   // Update tray lang button
   if (langBtn) langBtn.textContent = getLang().toUpperCase();
 });
+
+/* Apply saved language to DOM on load (static HTML is always English) */
+if (getLang() !== 'en') setLanguage(getLang());
 
 /* ── System Properties: idle listeners + load saved settings ── */
 document.addEventListener('mousemove', ssRecordActivity);
