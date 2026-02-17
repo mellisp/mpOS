@@ -131,7 +131,7 @@ var HELP_TOPICS = {
       { ul: [
         'Programas \u2014 passe o rato para ver um submenu com WikiBrowser, Peixe do Dia, Fish Finder, On Target, Aqu\u00e1rio Virtual, Chicken Fingers, Paint e Brick Breaker. Clique na pr\u00f3pria etiqueta para abrir a pasta Programas no Explorador.',
         'Documentos \u2014 passe o rato para ver documentos guardados (criados no Bloco de Notas). Clique na etiqueta para abrir a pasta Documentos.',
-        'Utilit\u00e1rios \u2014 passe o rato para Bloco de Notas, Calculadora, Calend\u00e1rio, Fuso Hor\u00e1rio, Meteorologia, Utiliza\u00e7\u00e3o do Disco, Mapa de Visitantes, Pesquisa e Ajuda.',
+        'Utilit\u00e1rios \u2014 passe o rato para Bloco de Notas, Calculadora, Calend\u00e1rio, Fuso Hor\u00e1rio, Meteorologia, Uso do Disco, Mapa de Visitantes, Pesquisa e Ajuda.',
         'Pesquisar \u2014 passe o rato para ver Ficheiros ou Pastas\u2026, T\u00f3picos de Ajuda\u2026 e Na Internet.',
         'Ajuda \u2014 abre este visualizador de Ajuda.',
         'Executar \u2014 abre o terminal de linha de comandos.',
@@ -704,7 +704,7 @@ var HELP_TOPICS = {
 
   diskusage: {
     title: 'Disk Usage',
-    title_pt: 'Utiliza\u00e7\u00e3o do Disco',
+    title_pt: 'Uso do Disco',
     keywords: ['disk usage', 'disk', 'storage', 'files', 'size', 'pie chart', 'html', 'css', 'javascript', 'breakdown'],
     keywords_pt: ['utiliza\u00e7\u00e3o do disco', 'disco', 'armazenamento', 'ficheiros', 'tamanho', 'gr\u00e1fico circular', 'html', 'css', 'javascript', 'distribui\u00e7\u00e3o'],
     body: [
@@ -817,7 +817,7 @@ var HELP_TOPICS = {
     keywords: ['my computer', 'system', 'info', 'browser', 'cpu', 'display', 'battery', 'network', 'properties', 'wallpaper', 'screensaver', 'screen saver', 'background', 'color'],
     keywords_pt: ['o meu computador', 'sistema', 'informa\u00e7\u00e3o', 'navegador', 'cpu', 'ecr\u00e3', 'bateria', 'rede', 'propriedades', 'papel de parede', 'protetor de ecr\u00e3', 'fundo', 'cor'],
     body: [
-      { p: 'System Properties is a tabbed settings hub accessed from the My Computer desktop icon or Start menu. It has three tabs: General, Display, and Screen Saver.' },
+      { p: 'System Properties is a tabbed settings hub accessed from the My Computer desktop icon or Start menu. It has four tabs: General, Display, Screen Saver, and Regional.' },
       { h: 'General Tab' },
       { p: 'Displays information about your system and browser:' },
       { ul: [
@@ -832,7 +832,7 @@ var HELP_TOPICS = {
       { p: 'Customize the desktop appearance:' },
       { ul: [
         'Background Color \u2014 pick any color for the desktop background using a color picker.',
-        'Wallpaper Pattern \u2014 choose from None, Bliss (sky and hill gradient), Grid, Diagonal Stripes, or Waves.'
+        'Wallpaper Pattern \u2014 choose from None, Sunset, Dots, Grid, Diagonal, or Waves.'
       ]},
       { h: 'Screen Saver Tab' },
       { p: 'Configure a screen saver that activates after a period of inactivity:' },
@@ -862,7 +862,7 @@ var HELP_TOPICS = {
       { p: 'Personalizar a apar\u00eancia do ambiente de trabalho:' },
       { ul: [
         'Cor de Fundo \u2014 escolha qualquer cor para o fundo do ambiente de trabalho usando um seletor de cores.',
-        'Padr\u00e3o de Papel de Parede \u2014 escolha entre Nenhum, Bliss (gradiente de c\u00e9u e colina), Grelha, Riscas Diagonais ou Ondas.'
+        'Padr\u00e3o de Papel de Parede \u2014 escolha entre Nenhum, P\u00f4r do Sol, Pontos, Grelha, Diagonal ou Ondas.'
       ]},
       { h: 'Separador Protetor de Ecr\u00e3' },
       { p: 'Configure um protetor de ecr\u00e3 que se ativa ap\u00f3s um per\u00edodo de inatividade:' },
