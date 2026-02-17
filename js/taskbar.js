@@ -24,8 +24,15 @@
     const now = new Date();
     const h = now.getHours();
     const m = now.getMinutes();
-    clockEl.textContent = (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + ' ' + (h >= 12 ? 'PM' : 'AM');
+    const mm = (m < 10 ? '0' : '') + m;
+    if (localStorage.getItem('mp-clock') === '24') {
+      clockEl.textContent = h + ':' + mm;
+    } else {
+      clockEl.textContent = (h % 12 || 12) + ':' + mm + ' ' + (h >= 12 ? 'PM' : 'AM');
+    }
   }
+
+  window.mpClockUpdate = updateClock;
 
   if (clockEl) {
     updateClock();

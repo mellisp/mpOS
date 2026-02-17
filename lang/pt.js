@@ -117,7 +117,7 @@ window._mpLangRegister('pt', {
   'mc.tab.general': 'Geral',
   'mc.tab.display': 'Visualiza\u00e7\u00e3o',
   'mc.tab.screensaver': 'Prote\u00e7\u00e3o de Ecr\u00e3',
-  'mc.tab.regional': 'Regional',
+  'mc.tab.regional': 'Regi\u00e3o',
   'mc.general.system': 'Sistema',
   'mc.general.cpuCores': 'N\u00facleos CPU',
   'mc.general.logicalProcessors': '{count} processadores l\u00f3gicos',
@@ -160,6 +160,9 @@ window._mpLangRegister('pt', {
   'mc.regional.language': 'Idioma',
   'mc.regional.english': 'English',
   'mc.regional.portuguese': 'Portugu\u00eas (Portugal)',
+  'mc.regional.clock': 'Rel\u00f3gio',
+  'mc.regional.12hr': '12 horas (AM/PM)',
+  'mc.regional.24hr': '24 horas',
 
   /* Fish of the Day */
   'fish.loadingImage': 'A carregar imagem...',
