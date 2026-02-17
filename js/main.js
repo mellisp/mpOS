@@ -96,11 +96,11 @@ function openWindow(id) {
   var win = document.getElementById(id);
   if (!win) return;
   if (win.style.display !== 'none') {
-    if (window.bbTaskbar) window.bbTaskbar.bringToFront(win);
+    if (window.mpTaskbar) window.mpTaskbar.bringToFront(win);
     return;
   }
   win.style.display = '';
-  if (window.bbTaskbar) window.bbTaskbar.bringToFront(win);
+  if (window.mpTaskbar) window.mpTaskbar.bringToFront(win);
   if (mobileQuery.matches) injectMobileBackButton(win);
   win.classList.add('restoring');
   win.addEventListener('animationend', function handler() {
@@ -320,7 +320,7 @@ function openMyComputer() {
 
 function closeMyComputer() {
   ssStopPreview();
-  bbTaskbar.closeWindow('mycomputer');
+  mpTaskbar.closeWindow('mycomputer');
 }
 
 function mcSwitchTab(tab) {
@@ -1188,7 +1188,7 @@ function closeAquarium() {
   clearTimeout(aquariumTimer);
   shield.classList.remove('loaded');
   embed.dataset.loaded = '';
-  bbTaskbar.closeWindow('aquarium');
+  mpTaskbar.closeWindow('aquarium');
 }
 
 /* ── On Target (embedded game) ── */
@@ -1214,7 +1214,7 @@ function closeOnTarget() {
   var iframe = embed.querySelector('iframe');
   if (iframe) iframe.remove();
   embed.dataset.loaded = '';
-  bbTaskbar.closeWindow('ontarget');
+  mpTaskbar.closeWindow('ontarget');
 }
 
 /* ── Brick Breaker (embedded game) ── */
@@ -1240,7 +1240,7 @@ function closeBrickBreaker() {
   var iframe = embed.querySelector('iframe');
   if (iframe) iframe.remove();
   embed.dataset.loaded = '';
-  bbTaskbar.closeWindow('brickbreaker');
+  mpTaskbar.closeWindow('brickbreaker');
 }
 
 function openFishOfDay() {
@@ -1482,7 +1482,7 @@ function closeBrowser() {
   vp.dataset.loaded = '';
   browserUrl.value = '';
   browserTitle.textContent = 'WikiBrowser';
-  bbTaskbar.closeWindow('browser');
+  mpTaskbar.closeWindow('browser');
 }
 
 function browserNavigate(query) {
@@ -1746,7 +1746,7 @@ function closeNotepad() {
   if (!notepadGuardDirty()) return;
   notepadCloseFindBar();
   notepadDismissDialog();
-  bbTaskbar.closeWindow('notepad');
+  mpTaskbar.closeWindow('notepad');
 }
 
 function updateNotepadStatus() {
@@ -2238,7 +2238,7 @@ function openTimeZone() {
 
 function closeTimeZone() {
   if (tzTimer) { clearInterval(tzTimer); tzTimer = null; }
-  bbTaskbar.closeWindow('timezone');
+  mpTaskbar.closeWindow('timezone');
 }
 
 function tzBuildGrid() {
@@ -3402,7 +3402,7 @@ function openPaint() {
 function closePaint() {
   if (paintDirty && !confirm('You have unsaved changes. Discard them?')) return;
   paintDismissDialog();
-  bbTaskbar.closeWindow('paint');
+  mpTaskbar.closeWindow('paint');
 }
 
 function paintSetup() {
@@ -4277,7 +4277,7 @@ function openTaskManager() {
 function closeTaskManager() {
   if (tmInterval) { clearInterval(tmInterval); tmInterval = null; }
   if (tmRafId) { cancelAnimationFrame(tmRafId); tmRafId = null; }
-  bbTaskbar.closeWindow('taskmanager');
+  mpTaskbar.closeWindow('taskmanager');
 }
 
 function tmBuildUI() {
@@ -4469,7 +4469,7 @@ function tmSelectRow(winId) {
 
 function tmEndTask() {
   if (!tmSelectedId) return;
-  bbTaskbar.closeWindow(tmSelectedId);
+  mpTaskbar.closeWindow(tmSelectedId);
   tmSelectedId = null;
   tmRefreshApps();
 }
@@ -4477,7 +4477,7 @@ function tmEndTask() {
 function tmSwitchTo() {
   if (!tmSelectedId) return;
   var win = document.getElementById(tmSelectedId);
-  if (win) bbTaskbar.bringToFront(win);
+  if (win) mpTaskbar.bringToFront(win);
 }
 
 function tmRefreshPerf() {
@@ -5084,7 +5084,7 @@ function cmdTaskkill(args) {
       let win = document.getElementById(id);
       if (win && win.style.display !== 'none') {
         if (id === 'mycomputer') closeMyComputer();
-        else bbTaskbar.closeWindow(id);
+        else mpTaskbar.closeWindow(id);
         termPrint('SUCCESS: Sent termination signal to "' + WINDOW_NAMES[id] + '.exe".');
         found = true;
       }
@@ -5146,7 +5146,7 @@ function closeRun() {
   tabMatches = [];
   tabIndex = -1;
   termInput.disabled = false;
-  bbTaskbar.closeWindow('run');
+  mpTaskbar.closeWindow('run');
 }
 
 let matrixInterval = null;
@@ -5307,7 +5307,7 @@ termInput.addEventListener('keydown', function (e) {
 // Play click sound on button interactions
 document.addEventListener('click', function (e) {
   if (e.target.closest('.btn, .start-btn, .titlebar-btn, .project-list li')) {
-    if (window.bbAudio) window.bbAudio.playSound('click');
+    if (window.mpAudio) window.mpAudio.playSound('click');
   }
 });
 
@@ -5321,7 +5321,7 @@ const CLOSE_MAP = {
 
 function mobileCloseWindow(id) {
   var fn = CLOSE_MAP[id];
-  if (fn) { fn(); } else { bbTaskbar.closeWindow(id); }
+  if (fn) { fn(); } else { mpTaskbar.closeWindow(id); }
 }
 
 function injectMobileBackButton(win) {

@@ -5,12 +5,12 @@
   const defaultVolume = 0.1;
 
   function getVolume() {
-    const saved = localStorage.getItem('bb-volume');
+    const saved = localStorage.getItem('mp-volume');
     return saved !== null ? parseFloat(saved) : defaultVolume;
   }
 
   function isMuted() {
-    return localStorage.getItem('bb-muted') === '1';
+    return localStorage.getItem('mp-muted') === '1';
   }
 
   function playSound(name) {
@@ -34,6 +34,6 @@
     }
   }
 
-  window.bbAudio = { playSound: playSound };
-  window.bbAudioUpdateVolume = updateVolume;
+  window.mpAudio = { playSound: playSound };
+  window.mpAudioUpdateVolume = updateVolume;
 })();

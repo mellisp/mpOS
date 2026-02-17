@@ -46,19 +46,19 @@
   }
 
   if (volumeSlider) {
-    const savedVol = localStorage.getItem('bb-volume');
+    const savedVol = localStorage.getItem('mp-volume');
     volumeSlider.value = savedVol !== null ? parseFloat(savedVol) * 100 : 10;
     volumeSlider.addEventListener('input', function () {
-      localStorage.setItem('bb-volume', (volumeSlider.value / 100).toString());
-      if (window.bbAudioUpdateVolume) window.bbAudioUpdateVolume();
+      localStorage.setItem('mp-volume', (volumeSlider.value / 100).toString());
+      if (window.mpAudioUpdateVolume) window.mpAudioUpdateVolume();
     });
   }
 
   if (muteCheckbox) {
-    muteCheckbox.checked = localStorage.getItem('bb-muted') === '1';
+    muteCheckbox.checked = localStorage.getItem('mp-muted') === '1';
     muteCheckbox.addEventListener('change', function () {
-      localStorage.setItem('bb-muted', muteCheckbox.checked ? '1' : '0');
-      if (window.bbAudioUpdateVolume) window.bbAudioUpdateVolume();
+      localStorage.setItem('mp-muted', muteCheckbox.checked ? '1' : '0');
+      if (window.mpAudioUpdateVolume) window.mpAudioUpdateVolume();
     });
   }
 
@@ -293,7 +293,7 @@
 
   document.querySelectorAll('.window.resizable').forEach(makeResizable);
 
-  window.bbTaskbar = {
+  window.mpTaskbar = {
     minimizeWindow: minimizeWindow,
     restoreWindow: restoreWindow,
     closeWindow: closeWindow,
