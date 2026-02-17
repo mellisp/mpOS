@@ -1147,10 +1147,24 @@ function openChickenFingers() {
 
 function exitSite() {
   closeStartMenu();
-  window.close();
-  document.title = 'Goodbye!';
-  document.body.innerHTML = '';
-  document.body.style.background = '#3a6ea5';
+  // Fade overlay
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:#000;opacity:0;z-index:99999;transition:opacity 1.2s ease-in;';
+  document.body.appendChild(overlay);
+  // Force reflow then fade to black
+  overlay.offsetHeight;
+  overlay.style.opacity = '1';
+  overlay.addEventListener('transitionend', function () {
+    window.close();
+    // If browser blocks window.close(), show shutdown screen
+    document.title = 'Shutdown';
+    document.body.textContent = '';
+    document.body.style.cssText = 'margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;';
+    var msg = document.createElement('div');
+    msg.style.cssText = 'color:#e8a040;font-family:sans-serif;font-size:18px;text-align:center;line-height:1.6;';
+    msg.textContent = 'It is now safe to turn off your computer.';
+    document.body.appendChild(msg);
+  });
 }
 
 /* ── YouTube API lazy loader ── */
