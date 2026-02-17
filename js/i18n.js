@@ -106,6 +106,8 @@
     'app.help.desc': 'Browse the mpOS help documentation.',
     'app.search.name': 'Search',
     'app.search.desc': 'Search for files, programs, and commands.',
+    'app.noiseMixer.name': 'White Noise',
+    'app.noiseMixer.desc': 'Mix colored noise for focus, sleep, or relaxation.',
     'app.myComputer.name': 'My Computer',
     'app.files.name': 'Files',
 
@@ -393,7 +395,8 @@
     'win.help': 'Help',
     'win.paint': 'Paint',
     'win.search': 'Search Results',
-    'win.taskmanager': 'Task Manager'
+    'win.taskmanager': 'Task Manager',
+    'win.noisemixer': 'White Noise'
   });
 
   /* Restore saved language */

@@ -99,6 +99,8 @@ window._mpLangRegister('pt', {
   'app.help.desc': 'Consultar a documenta\u00e7\u00e3o de ajuda do mpOS.',
   'app.search.name': 'Pesquisar',
   'app.search.desc': 'Pesquisar ficheiros, programas e comandos.',
+  'app.noiseMixer.name': 'Ru\u00eddo Branco',
+  'app.noiseMixer.desc': 'Misture ru\u00eddo colorido para concentra\u00e7\u00e3o, sono ou relaxamento.',
   'app.myComputer.name': 'O Meu Computador',
   'app.files.name': 'Ficheiros',
 
@@ -386,5 +388,6 @@ window._mpLangRegister('pt', {
   'win.help': 'Ajuda',
   'win.paint': 'Paint',
   'win.search': 'Resultados da Pesquisa',
-  'win.taskmanager': 'Gestor de Tarefas'
+  'win.taskmanager': 'Gestor de Tarefas',
+  'win.noisemixer': 'Ru\u00eddo Branco'
 });
