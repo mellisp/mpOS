@@ -63,15 +63,37 @@
   }
 
   // --- Dismiss popups on outside click (single listener) ---
+  function clearTouchSubmenus() {
+    document.querySelectorAll('.start-submenu.touch-open').forEach(function (s) {
+      s.classList.remove('touch-open');
+    });
+  }
+
   document.addEventListener('mousedown', function (e) {
     if (startBtn && !startBtn.contains(e.target) && (!startMenu || !startMenu.contains(e.target))) {
       startBtn.classList.remove('pressed');
-      if (startMenu) startMenu.classList.remove('open');
+      if (startMenu) { startMenu.classList.remove('open'); clearTouchSubmenus(); }
     }
     if (volumePopup && !volumePopup.contains(e.target) && volumeIcon && !volumeIcon.contains(e.target)) {
       volumePopup.classList.remove('open');
     }
   });
+
+  // --- Touch: tap-to-toggle submenus (instead of hover) ---
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    document.querySelectorAll('.start-menu-item.has-submenu').forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        if (e.target.closest('.start-submenu')) return;
+        e.stopPropagation();
+        var sub = item.querySelector('.start-submenu');
+        if (!sub) return;
+        document.querySelectorAll('.start-submenu.touch-open').forEach(function (s) {
+          if (s !== sub) s.classList.remove('touch-open');
+        });
+        sub.classList.toggle('touch-open');
+      });
+    });
+  }
 
   // --- Window Management ---
   let topZ = 10;

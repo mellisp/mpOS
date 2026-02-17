@@ -2,6 +2,8 @@
 (function () {
 
 /* ── Shared helpers ── */
+const mobileQuery = window.matchMedia('(max-width: 767px)');
+
 const GEO_ERRORS = {
   1: 'Location access was denied.',
   2: 'Location information is unavailable.',
@@ -99,6 +101,7 @@ function openWindow(id) {
   }
   win.style.display = '';
   if (window.bbTaskbar) window.bbTaskbar.bringToFront(win);
+  if (mobileQuery.matches) injectMobileBackButton(win);
   win.classList.add('restoring');
   win.addEventListener('animationend', function handler() {
     win.classList.remove('restoring');
@@ -5308,17 +5311,116 @@ document.addEventListener('click', function (e) {
   }
 });
 
+/* ── Mobile window navigation ── */
+const CLOSE_MAP = {
+  mycomputer: closeMyComputer, aquarium: closeAquarium,
+  ontarget: closeOnTarget, brickbreaker: closeBrickBreaker,
+  browser: closeBrowser, notepad: closeNotepad, timezone: closeTimeZone,
+  paint: closePaint, taskmanager: closeTaskManager, run: closeRun
+};
+
+function mobileCloseWindow(id) {
+  var fn = CLOSE_MAP[id];
+  if (fn) { fn(); } else { bbTaskbar.closeWindow(id); }
+}
+
+function injectMobileBackButton(win) {
+  if (win.querySelector('.mobile-back-btn')) return;
+  var titlebar = win.querySelector('.titlebar');
+  if (!titlebar) return;
+  var btn = document.createElement('div');
+  btn.className = 'mobile-back-btn';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', 'Back');
+  btn.textContent = '\u2190';
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    mobileCloseWindow(win.id);
+  });
+  titlebar.insertBefore(btn, titlebar.firstChild);
+}
+
+var mobileSwipeInitialized = false;
+function initMobileSwipeBack() {
+  if (mobileSwipeInitialized) return;
+  mobileSwipeInitialized = true;
+  var swipeState = null;
+
+  document.addEventListener('touchstart', function (e) {
+    if (!mobileQuery.matches) return;
+    var touch = e.touches[0];
+    if (touch.clientX > 20) return;
+    var wins = document.querySelectorAll('.window.draggable');
+    var topWin = null;
+    var topZ = -1;
+    wins.forEach(function (w) {
+      if (w.style.display === 'none') return;
+      var z = parseInt(w.style.zIndex, 10) || 0;
+      if (z > topZ) { topZ = z; topWin = w; }
+    });
+    if (!topWin) return;
+    swipeState = { win: topWin, startX: touch.clientX, startY: touch.clientY, dx: 0 };
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function (e) {
+    if (!swipeState) return;
+    var touch = e.touches[0];
+    var dx = touch.clientX - swipeState.startX;
+    var dy = touch.clientY - swipeState.startY;
+    if (Math.abs(dy) > Math.abs(dx) && swipeState.dx === 0) {
+      swipeState = null;
+      return;
+    }
+    if (dx < 0) dx = 0;
+    swipeState.dx = dx;
+    swipeState.win.style.transform = 'translateX(' + dx + 'px)';
+    swipeState.win.style.opacity = Math.max(0.5, 1 - dx / 400);
+  }, { passive: true });
+
+  document.addEventListener('touchend', function () {
+    if (!swipeState) return;
+    var win = swipeState.win;
+    var dx = swipeState.dx;
+    swipeState = null;
+    if (dx > 80) {
+      win.style.transition = 'transform 200ms ease-in, opacity 200ms ease-in';
+      win.style.transform = 'translateX(100%)';
+      win.style.opacity = '0.5';
+      win.addEventListener('transitionend', function handler() {
+        win.removeEventListener('transitionend', handler);
+        win.style.transition = '';
+        win.style.transform = '';
+        win.style.opacity = '';
+        mobileCloseWindow(win.id);
+      });
+    } else {
+      win.style.transition = 'transform 150ms ease-out, opacity 150ms ease-out';
+      win.style.transform = '';
+      win.style.opacity = '';
+      win.addEventListener('transitionend', function handler() {
+        win.removeEventListener('transitionend', handler);
+        win.style.transition = '';
+      });
+    }
+  });
+}
+
+if (mobileQuery.matches) initMobileSwipeBack();
+mobileQuery.addEventListener('change', function (e) {
+  if (e.matches) initMobileSwipeBack();
+});
+
 /* ── Mobile Launcher ── */
 function buildLauncher() {
   var programs = [
     { name: 'WikiBrowser', action: openBrowser },
     { name: 'Fish of the Day', action: openFishOfDay },
     { name: 'Fish Finder', action: openFishFinder },
-    { name: 'On Target', action: null, href: 'target-game.html' },
+    { name: 'On Target', action: openOnTarget },
     { name: 'Virtual Aquarium', action: openAquarium },
     { name: 'Chicken Fingers', action: null, href: 'chicken-fingers.html' },
     { name: 'Paint', action: openPaint },
-    { name: 'Brick Breaker', action: null, href: 'brick-breaker.html' }
+    { name: 'Brick Breaker', action: openBrickBreaker }
   ];
   var utilities = [
     { name: 'Notepad', action: openNotepad },
@@ -5366,7 +5468,6 @@ function buildLauncher() {
   populateGrid('launcherSystem', system);
 }
 
-const mobileQuery = window.matchMedia('(max-width: 767px)');
 if (mobileQuery.matches) buildLauncher();
 mobileQuery.addEventListener('change', function (e) {
   if (e.matches && !document.getElementById('launcherPrograms').children.length) {
@@ -5470,5 +5571,22 @@ window.addEventListener('resize', function () {
   if (displaySettings.wallpaper !== 'none') applyDisplaySettings();
 });
 mcLoadSettings();
+
+/* ── Touch: single-tap desktop icons (instead of double-click) ── */
+if (window.matchMedia('(pointer: coarse)').matches) {
+  var iconActions = {
+    openMyComputer: openMyComputer,
+    openExplorer: openExplorer,
+    openBrowser: openBrowser
+  };
+  document.querySelectorAll('.desktop-icon[ondblclick]').forEach(function (icon) {
+    var attr = icon.getAttribute('ondblclick');
+    var match = attr.match(/^(\w+)\(\)$/);
+    if (match && iconActions[match[1]]) {
+      icon.addEventListener('click', function () { iconActions[match[1]](); });
+      icon.removeAttribute('ondblclick');
+    }
+  });
+}
 
 })();
