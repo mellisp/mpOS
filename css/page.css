@@ -1588,6 +1588,25 @@
 
 #chickenError .window-body { padding: 16px; }
 
+/* Confirm dialog (mpConfirm) */
+.mp-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 9998;
+}
+
+#mpConfirmDialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  width: min(340px, 92vw);
+}
+
+#mpConfirmDialog .window-body { padding: 16px; }
+
 /* ── System Properties (My Computer) — Tabs ── */
 .mycomputer-tabs {
   display: flex;

@@ -30,6 +30,7 @@ window._mpLangRegister('pt', {
   'ui.undo': 'Desfazer',
   'ui.redo': 'Refazer',
   'ui.clear': 'Limpar',
+  'ui.confirm': 'mpOS',
 
   /* Desktop icon labels */
   'desktop.myComputer': 'O Meu Computador',

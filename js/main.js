@@ -78,6 +78,101 @@ function showErrorPanel(body, msg, gradientId) {
   body.appendChild(wrap);
 }
 
+/* ── Custom confirm dialog ── */
+function mpConfirm(message) {
+  return new Promise(function (resolve) {
+    var overlay = document.createElement('div');
+    overlay.className = 'mp-confirm-overlay';
+
+    var win = document.createElement('div');
+    win.className = 'window';
+    win.id = 'mpConfirmDialog';
+
+    /* Titlebar */
+    var tb = document.createElement('div');
+    tb.className = 'titlebar';
+    var titleSpan = document.createElement('span');
+    titleSpan.textContent = t('ui.confirm');
+    tb.appendChild(titleSpan);
+    var tbBtns = document.createElement('div');
+    tbBtns.className = 'titlebar-buttons';
+    var closeBtn = document.createElement('div');
+    closeBtn.className = 'titlebar-btn';
+    closeBtn.setAttribute('role', 'button');
+    closeBtn.setAttribute('tabindex', '0');
+    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.textContent = 'X';
+    tbBtns.appendChild(closeBtn);
+    tb.appendChild(tbBtns);
+    win.appendChild(tb);
+
+    /* Body */
+    var body = document.createElement('div');
+    body.className = 'window-body';
+
+    /* Error row with question-mark icon */
+    var row = document.createElement('div');
+    row.className = 'error-row';
+    var iconWrap = document.createElement('span');
+    iconWrap.innerHTML = '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle cx="16" cy="16" r="14" fill="#1c6dba" stroke="#145a9e" stroke-width="1.5"/>' +
+      '<circle cx="16" cy="16" r="12" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/>' +
+      '<path d="M12.5 12 Q12.5 8.5 16 8.5 Q19.5 8.5 19.5 12 Q19.5 14 16 15 L16 17.5" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<circle cx="16" cy="22" r="1.5" fill="white"/></svg>';
+    row.appendChild(iconWrap);
+    var msgEl = document.createElement('div');
+    msgEl.className = 'error-text';
+    msgEl.textContent = message;
+    row.appendChild(msgEl);
+    body.appendChild(row);
+
+    /* Button row */
+    var btnRow = document.createElement('div');
+    btnRow.className = 'button-row';
+    var okBtn = document.createElement('button');
+    okBtn.type = 'button';
+    okBtn.className = 'btn';
+    okBtn.textContent = t('ui.ok');
+    var cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'btn';
+    cancelBtn.style.marginLeft = '6px';
+    cancelBtn.textContent = t('ui.cancel');
+    btnRow.appendChild(okBtn);
+    btnRow.appendChild(cancelBtn);
+    body.appendChild(btnRow);
+    win.appendChild(body);
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(win);
+
+    function cleanup(result) {
+      document.removeEventListener('keydown', onKey, true);
+      win.remove();
+      overlay.remove();
+      resolve(result);
+    }
+
+    okBtn.addEventListener('click', function () { cleanup(true); });
+    cancelBtn.addEventListener('click', function () { cleanup(false); });
+    closeBtn.addEventListener('click', function () { cleanup(false); });
+    overlay.addEventListener('click', function () { cleanup(false); });
+
+    function onKey(e) {
+      if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); cleanup(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cleanup(false); }
+      else if (e.key === 'Tab') {
+        e.preventDefault();
+        e.stopPropagation();
+        if (document.activeElement === okBtn) cancelBtn.focus();
+        else okBtn.focus();
+      }
+    }
+    document.addEventListener('keydown', onKey, true);
+    okBtn.focus();
+  });
+}
+
 /* ── Cached DOM refs ── */
 const calcDisplay = document.getElementById('calcDisplay');
 const notepadEditor = document.getElementById('notepadEditor');
@@ -1714,9 +1809,9 @@ function notepadMarkClean() {
   notepadSetTitle();
 }
 
-function notepadGuardDirty() {
+async function notepadGuardDirty() {
   if (!notepadDirty) return true;
-  return confirm(t('notepad.discardChanges'));
+  return await mpConfirm(t('notepad.discardChanges'));
 }
 
 function notepadDismissDialog() {
@@ -1738,8 +1833,8 @@ function openNotepad() {
   setTimeout(function () { notepadEditor.focus(); }, 100);
 }
 
-function notepadNew() {
-  if (!notepadGuardDirty()) return;
+async function notepadNew() {
+  if (!(await notepadGuardDirty())) return;
   notepadDismissDialog();
   notepadEditor.value = '';
   notepadCurrentFile = null;
@@ -1761,14 +1856,14 @@ function notepadSave() {
   }
 }
 
-function notepadSaveAs(name) {
+async function notepadSaveAs(name) {
   name = name.trim();
   if (!name) return;
   if (name === '__proto__' || name === 'constructor' || name === 'prototype') return;
   if (name.indexOf('.') === -1) name += '.txt';
   var files = notepadGetFiles();
   if (files.hasOwnProperty(name) && name !== notepadCurrentFile) {
-    if (!confirm(t('notepad.overwriteConfirm', { name: name }))) return;
+    if (!(await mpConfirm(t('notepad.overwriteConfirm', { name: name })))) return;
   }
   files[name] = notepadEditor.value;
   notepadPersist(files);
@@ -1823,8 +1918,8 @@ function notepadShowSaveAs() {
   });
 }
 
-function notepadLoad() {
-  if (!notepadGuardDirty()) return;
+async function notepadLoad() {
+  if (!(await notepadGuardDirty())) return;
   notepadShowOpen();
 }
 
@@ -1888,8 +1983,8 @@ function notepadOpenFile(name) {
   notepadEditor.focus();
 }
 
-function notepadDeleteFile(name) {
-  if (!confirm(t('notepad.deleteConfirm', { name: name }))) return;
+async function notepadDeleteFile(name) {
+  if (!(await mpConfirm(t('notepad.deleteConfirm', { name: name })))) return;
   var files = notepadGetFiles();
   delete files[name];
   notepadPersist(files);
@@ -1902,8 +1997,8 @@ function notepadDeleteFile(name) {
   notepadShowOpen();
 }
 
-function closeNotepad() {
-  if (!notepadGuardDirty()) return;
+async function closeNotepad() {
+  if (!(await notepadGuardDirty())) return;
   notepadCloseFindBar();
   notepadDismissDialog();
   mpTaskbar.closeWindow('notepad');
@@ -3561,8 +3656,8 @@ function openPaint() {
   document.getElementById('paint').focus();
 }
 
-function closePaint() {
-  if (paintDirty && !confirm(t('paint.discardChanges'))) return;
+async function closePaint() {
+  if (paintDirty && !(await mpConfirm(t('paint.discardChanges')))) return;
   paintDismissDialog();
   mpTaskbar.closeWindow('paint');
 }
@@ -3988,8 +4083,8 @@ function paintPersist(files) {
   catch (e) { alert(t('paint.storageFull')); }
 }
 
-function paintNew() {
-  if (paintDirty && !confirm(t('paint.discardChanges'))) return;
+async function paintNew() {
+  if (paintDirty && !(await mpConfirm(t('paint.discardChanges')))) return;
   paintDismissDialog();
   paintCtx.fillStyle = '#ffffff';
   paintCtx.fillRect(0, 0, paintW, paintH);
@@ -4015,14 +4110,14 @@ function paintSave() {
   }
 }
 
-function paintSaveAs(name) {
+async function paintSaveAs(name) {
   name = name.trim();
   if (!name) return;
   if (name === '__proto__' || name === 'constructor' || name === 'prototype') return;
   if (name.indexOf('.') === -1) name += '.png';
   var files = paintGetFiles();
   if (files.hasOwnProperty(name) && name !== paintCurrentFile) {
-    if (!confirm(t('paint.overwriteConfirm', { name: name }))) return;
+    if (!(await mpConfirm(t('paint.overwriteConfirm', { name: name })))) return;
   }
   files[name] = paintCanvas.toDataURL('image/png');
   paintPersist(files);
@@ -4076,8 +4171,8 @@ function paintShowSaveAs() {
   });
 }
 
-function paintLoad() {
-  if (paintDirty && !confirm(t('paint.discardChanges'))) return;
+async function paintLoad() {
+  if (paintDirty && !(await mpConfirm(t('paint.discardChanges')))) return;
   paintShowOpen();
 }
 
@@ -4158,8 +4253,8 @@ function paintOpenFile(name) {
   img.src = files[name];
 }
 
-function paintDeleteFile(name) {
-  if (!confirm(t('paint.deleteConfirm', { name: name }))) return;
+async function paintDeleteFile(name) {
+  if (!(await mpConfirm(t('paint.deleteConfirm', { name: name })))) return;
   var files = paintGetFiles();
   delete files[name];
   paintPersist(files);
@@ -6687,6 +6782,7 @@ window.openMyComputer = openMyComputer;
 window.closeMyComputer = closeMyComputer;
 window.mcSwitchTab = mcSwitchTab;
 window.openChickenFingers = openChickenFingers;
+window.mpConfirm = mpConfirm;
 window.exitSite = exitSite;
 window.openAquarium = openAquarium;
 window.closeAquarium = closeAquarium;

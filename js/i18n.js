@@ -37,6 +37,7 @@
     'ui.undo': 'Undo',
     'ui.redo': 'Redo',
     'ui.clear': 'Clear',
+    'ui.confirm': 'mpOS',
 
     /* Desktop icon labels */
     'desktop.myComputer': 'My Computer',
