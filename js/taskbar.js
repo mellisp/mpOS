@@ -189,7 +189,7 @@
     calculator: 'Calculator', calendar: 'Calendar', timezone: 'Time Zone',
     weather: 'Weather', diskusage: 'Disk Usage', visitormap: 'Visitor Map',
     search: 'Search', help: 'Help', mycomputer: 'My Computer', explorer: 'Files',
-    run: 'Run', taskmanager: 'Task Manager'
+    run: 'Run', taskmanager: 'Task Manager', noisemixer: 'White Noise Mixer'
   };
 
   function minimizeWindow(id) {

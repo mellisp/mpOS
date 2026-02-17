@@ -142,7 +142,8 @@ const FOLDER_ITEMS = {
     { name: 'Disk Usage', _key: 'diskUsage', desc: 'Source code breakdown by file type.', tag: 'HTML', action: 'openDiskUsage' },
     { name: 'Visitor Map', _key: 'visitorMap', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
     { name: 'Help', _key: 'help', desc: 'Browse the mpOS help documentation.', tag: 'HTML', action: 'openHelp' },
-    { name: 'Search', _key: 'search', desc: 'Search for files, programs, and commands.', tag: 'HTML', action: 'openSearch' }
+    { name: 'Search', _key: 'search', desc: 'Search for files, programs, and commands.', tag: 'HTML', action: 'openSearch' },
+    { name: 'White Noise Mixer', _key: 'noiseMixer', desc: 'Mix colored noise for focus, sleep, or relaxation.', tag: 'HTML', action: 'openNoiseMixer' }
   ]
 };
 
@@ -291,7 +292,8 @@ function getItemIcon(name) {
     'Paint': '<defs><linearGradient id="ei-pt" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffe082"/><stop offset="70%" stop-color="#f0c050"/><stop offset="100%" stop-color="#c49000"/></linearGradient></defs><ellipse cx="10" cy="11" rx="8" ry="7" fill="url(#ei-pt)" stroke="#a07000" stroke-width="0.8"/><ellipse cx="9" cy="8" rx="5" ry="3" fill="white" opacity="0.25"/><circle cx="6" cy="9" r="1.5" fill="#ef5350"/><circle cx="9" cy="7" r="1.3" fill="#4a8abe"/><circle cx="13" cy="8" r="1.4" fill="#5aaa80"/><circle cx="14" cy="11" r="1.3" fill="#ffc107"/><circle cx="6" cy="13" r="1.2" fill="#9c27b0"/><ellipse cx="11" cy="14" rx="1" ry="0.8" fill="#ff9800"/><circle cx="5.5" cy="8.3" r="0.5" fill="white" opacity="0.5"/><circle cx="8.5" cy="6.3" r="0.4" fill="white" opacity="0.5"/><circle cx="12.5" cy="7.3" r="0.45" fill="white" opacity="0.5"/><circle cx="13.5" cy="10.3" r="0.4" fill="white" opacity="0.5"/><circle cx="5.5" cy="12.3" r="0.4" fill="white" opacity="0.5"/><circle cx="10.5" cy="13.4" r="0.35" fill="white" opacity="0.5"/><path d="M15 5 Q16 3 17 2 Q18 1.5 18 3 Q17 4 16 6 Q15 7 15 5Z" fill="#a07000" stroke="#785000" stroke-width="0.5"/>',
     'Help': '<defs><linearGradient id="ei-hp" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffc107"/><stop offset="70%" stop-color="#e8a010"/><stop offset="100%" stop-color="#c49000"/></linearGradient><linearGradient id="ei-hpp" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient></defs><rect x="2" y="3" width="3" height="14" rx="0.5" fill="url(#ei-hp)" stroke="#c49000" stroke-width="0.6"/><rect x="5" y="4" width="11" height="12" rx="1" fill="url(#ei-hpp)" stroke="#8a8680" stroke-width="0.6"/><path d="M14 4 L14 8 L13.5 7 L13 8 L13 4" fill="#ef5350" stroke="#c62828" stroke-width="0.2"/><line x1="6" y1="4.5" x2="15" y2="4.5" stroke="white" stroke-width="0.5" opacity="0.5"/><path d="M9.5 8 Q9.5 6.5 11 6.5 Q12.5 6.5 12.5 8 Q12.5 9 11 9.5 L11 10.5" fill="none" stroke="#4a8abe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="12.5" r="0.7" fill="#4a8abe"/>',
     'Search': '<defs><radialGradient id="ei-sr-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="30%" stop-color="#d8ecff"/><stop offset="60%" stop-color="#a8d0f0"/><stop offset="100%" stop-color="#78b0d8"/></radialGradient><linearGradient id="ei-sr-handle" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d0c8"/><stop offset="50%" stop-color="#a0a098"/><stop offset="100%" stop-color="#787870"/></linearGradient></defs><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="url(#ei-sr-handle)" stroke-width="3" stroke-linecap="round"/><circle cx="9" cy="9" r="6" fill="url(#ei-sr-lens)" stroke="#1a4a6e" stroke-width="1.2"/><circle cx="9" cy="9" r="4.5" fill="none" stroke="#1a4a6e" stroke-width="0.4" opacity="0.3"/><ellipse cx="7" cy="7" rx="3.5" ry="2.5" fill="white" opacity="0.4"/>',
-    'Visitor Map': '<defs><radialGradient id="ei-vm" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="ei-vmc"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#ei-vm)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#ei-vmc)" opacity="0.45"><ellipse cx="6" cy="8" rx="4" ry="3" fill="#5aaa80"/><ellipse cx="14" cy="7" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="10" cy="14" rx="5" ry="2" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.6"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.6"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><circle cx="14" cy="6" r="2" fill="#ef5350" opacity="0.8"/><path d="M14 4 L14 6.5" stroke="#c62828" stroke-width="0.8" stroke-linecap="round"/><circle cx="14" cy="4" r="0.6" fill="#c62828"/><circle cx="13.7" cy="3.8" r="0.2" fill="white" opacity="0.7"/>'
+    'Visitor Map': '<defs><radialGradient id="ei-vm" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="ei-vmc"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#ei-vm)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#ei-vmc)" opacity="0.45"><ellipse cx="6" cy="8" rx="4" ry="3" fill="#5aaa80"/><ellipse cx="14" cy="7" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="10" cy="14" rx="5" ry="2" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.6"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.6"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><circle cx="14" cy="6" r="2" fill="#ef5350" opacity="0.8"/><path d="M14 4 L14 6.5" stroke="#c62828" stroke-width="0.8" stroke-linecap="round"/><circle cx="14" cy="4" r="0.6" fill="#c62828"/><circle cx="13.7" cy="3.8" r="0.2" fill="white" opacity="0.7"/>',
+    'White Noise Mixer': '<defs><linearGradient id="ei-nm" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient><linearGradient id="ei-nmf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#a0a0a0"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#ei-nm)" stroke="#606060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><rect x="3" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="3.2" y="8" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="3" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50"/><rect x="6.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="6.7" y="10" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="6.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.7"/><rect x="10" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="10.2" y="11" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="10" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.5"/><rect x="13.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="13.7" y="9" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="13.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.8"/>'
   };
   return icons[name] || '';
 }
@@ -4249,7 +4251,8 @@ const ACTION_MAP = {
   openPaint: openPaint,
   openBrickBreaker: openBrickBreaker,
   openVisitorMap: openVisitorMap,
-  openSearch: openSearch
+  openSearch: openSearch,
+  openNoiseMixer: openNoiseMixer
 };
 
 /* ── Run Terminal ── */
@@ -4688,6 +4691,540 @@ function tmDrawUnavailable(canvas) {
   ctx.fillText(t('tm.notAvailable'), w / 2, h / 2);
 }
 
+/* ── White Noise Mixer ── */
+let nmCtx = null;
+let nmMasterGain = null;
+let nmAnalyser = null;
+let nmLimiter = null;
+let nmChannels = [];
+let nmRafId = null;
+let nmScopeEnabled = true;
+let nmBuilt = false;
+let nmRunning = false;
+let nmScopeCanvas = null;
+let nmScopeCtx = null;
+let nmTimeDomain = null;
+
+const NM_CHANNEL_DEFS = [
+  { name: 'White',  type: 'white'  },
+  { name: 'Pink',   type: 'pink'   },
+  { name: 'Brown',  type: 'brown'  },
+  { name: 'Blue',   type: 'blue'   },
+  { name: 'Violet', type: 'violet' },
+  { name: 'Rain',   type: 'rain'   }
+];
+
+const NM_PRESETS = {
+  custom:      null,
+  'deep-sleep':  [0, 0.1, 0.8, 0, 0, 0.3],
+  focus:         [0.3, 0.5, 0.2, 0.1, 0, 0.15],
+  rain:          [0, 0, 0.1, 0, 0, 0.9],
+  fan:           [0.15, 0.6, 0.4, 0, 0, 0],
+  bright:        [0.2, 0, 0, 0.5, 0.4, 0],
+  ocean:         [0.05, 0.2, 0.7, 0, 0, 0.4]
+};
+
+function nmGenerateBuffer(type, sampleRate) {
+  var length = sampleRate * 10;
+  var buffer = nmCtx.createBuffer(1, length, sampleRate);
+  var data = buffer.getChannelData(0);
+  var i, sample;
+
+  if (type === 'white') {
+    for (i = 0; i < length; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+  } else if (type === 'pink') {
+    var b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (i = 0; i < length; i++) {
+      var white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+      b6 = white * 0.115926;
+    }
+  } else if (type === 'brown') {
+    var lastOut = 0;
+    for (i = 0; i < length; i++) {
+      var w = Math.random() * 2 - 1;
+      lastOut = (lastOut + (0.02 * w)) / 1.02;
+      data[i] = lastOut * 3.5;
+    }
+  } else if (type === 'blue') {
+    var prev = 0;
+    for (i = 0; i < length; i++) {
+      sample = Math.random() * 2 - 1;
+      data[i] = sample - prev;
+      prev = sample;
+    }
+    nmNormalize(data);
+  } else if (type === 'violet') {
+    var prev1 = 0, prev2 = 0;
+    for (i = 0; i < length; i++) {
+      sample = Math.random() * 2 - 1;
+      var diff1 = sample - prev1;
+      data[i] = diff1 - prev2;
+      prev2 = prev1;
+      prev1 = sample;
+    }
+    nmNormalize(data);
+  } else if (type === 'rain') {
+    var rb0 = 0, rb1 = 0, rb2 = 0, rb3 = 0, rb4 = 0, rb5 = 0, rb6 = 0;
+    for (i = 0; i < length; i++) {
+      var rw = Math.random() * 2 - 1;
+      rb0 = 0.99886 * rb0 + rw * 0.0555179;
+      rb1 = 0.99332 * rb1 + rw * 0.0750759;
+      rb2 = 0.96900 * rb2 + rw * 0.1538520;
+      rb3 = 0.86650 * rb3 + rw * 0.3104856;
+      rb4 = 0.55000 * rb4 + rw * 0.5329522;
+      rb5 = -0.7616 * rb5 - rw * 0.0168980;
+      var pink = (rb0 + rb1 + rb2 + rb3 + rb4 + rb5 + rb6 + rw * 0.5362) * 0.11;
+      rb6 = rw * 0.115926;
+      if (Math.random() < 0.002) {
+        pink += (Math.random() * 0.6 + 0.2) * (Math.random() < 0.5 ? 1 : -1);
+      }
+      data[i] = pink;
+    }
+  }
+  return buffer;
+}
+
+function nmNormalize(data) {
+  var max = 0;
+  for (var i = 0; i < data.length; i++) {
+    var abs = Math.abs(data[i]);
+    if (abs > max) max = abs;
+  }
+  if (max > 0) {
+    var scale = 0.8 / max;
+    for (var j = 0; j < data.length; j++) {
+      data[j] *= scale;
+    }
+  }
+}
+
+function nmInitAudio() {
+  nmCtx = new (window.AudioContext || window.webkitAudioContext)();
+  nmMasterGain = nmCtx.createGain();
+  nmAnalyser = nmCtx.createAnalyser();
+  nmAnalyser.fftSize = 2048;
+  // Safety limiter — prevents clipping no matter how many channels are loud
+  nmLimiter = nmCtx.createDynamicsCompressor();
+  nmLimiter.threshold.value = -6;   // start compressing at -6 dB
+  nmLimiter.knee.value = 3;         // soft knee
+  nmLimiter.ratio.value = 20;       // near-brickwall
+  nmLimiter.attack.value = 0.002;   // fast attack catches transients
+  nmLimiter.release.value = 0.1;
+  nmMasterGain.connect(nmAnalyser);
+  nmAnalyser.connect(nmLimiter);
+  nmLimiter.connect(nmCtx.destination);
+  nmTimeDomain = new Uint8Array(nmAnalyser.fftSize);
+  nmSyncVolume();
+}
+
+function nmSyncVolume() {
+  if (!nmMasterGain) return;
+  var saved = localStorage.getItem('mp-volume');
+  var vol = saved !== null ? parseFloat(saved) : 0.1;
+  var muted = localStorage.getItem('mp-muted') === '1';
+  nmMasterGain.gain.value = muted ? 0 : vol;
+  var masterFader = document.getElementById('nmMasterFader');
+  if (masterFader) masterFader.value = vol * 100;
+}
+
+function nmStartChannels() {
+  var sr = nmCtx.sampleRate;
+  for (var i = 0; i < NM_CHANNEL_DEFS.length; i++) {
+    var ch = nmChannels[i];
+    var buf = nmGenerateBuffer(NM_CHANNEL_DEFS[i].type, sr);
+    var src = nmCtx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    var filter = nmCtx.createBiquadFilter();
+    filter.type = ch.filterType || 'lowpass';
+    filter.frequency.value = ch.filterFreq || 20000;
+    var gain = nmCtx.createGain();
+    gain.gain.value = ch.muted ? 0 : ch.volume;
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(nmMasterGain);
+    src.start();
+    ch.source = src;
+    ch.filter = filter;
+    ch.gain = gain;
+  }
+}
+
+function nmStopChannels() {
+  for (var i = 0; i < nmChannels.length; i++) {
+    var ch = nmChannels[i];
+    if (ch.source) {
+      try { ch.source.stop(); } catch (e) { /* already stopped */ }
+      ch.source.disconnect();
+      ch.source = null;
+    }
+    if (ch.filter) { ch.filter.disconnect(); ch.filter = null; }
+    if (ch.gain) { ch.gain.disconnect(); ch.gain = null; }
+  }
+}
+
+function nmTogglePower() {
+  if (nmRunning) {
+    nmStopChannels();
+    nmRunning = false;
+    if (nmRafId) { cancelAnimationFrame(nmRafId); nmRafId = null; }
+    var powerBtn = document.getElementById('nmPowerBtn');
+    if (powerBtn) { powerBtn.classList.remove('active'); powerBtn.textContent = 'Start'; }
+    document.getElementById('nmStatus').textContent = 'Stopped';
+  } else {
+    if (!nmCtx) nmInitAudio();
+    if (nmCtx.state === 'suspended') nmCtx.resume();
+    // Fade in over 0.3s to prevent pop/blast
+    var targetVol = nmMasterGain.gain.value;
+    nmMasterGain.gain.setValueAtTime(0, nmCtx.currentTime);
+    nmMasterGain.gain.linearRampToValueAtTime(targetVol, nmCtx.currentTime + 0.3);
+    nmStartChannels();
+    nmRunning = true;
+    var powerBtn2 = document.getElementById('nmPowerBtn');
+    if (powerBtn2) { powerBtn2.classList.add('active'); powerBtn2.textContent = 'Stop'; }
+    document.getElementById('nmStatus').textContent = 'Playing';
+    if (nmScopeEnabled) nmDrawScope();
+  }
+}
+
+function nmDrawScope() {
+  if (!nmRunning || !nmScopeEnabled) return;
+  nmAnalyser.getByteTimeDomainData(nmTimeDomain);
+  var canvas = nmScopeCanvas;
+  var ctx = nmScopeCtx;
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0, 0, w, h);
+  // grid
+  ctx.strokeStyle = '#1a2a1a';
+  ctx.lineWidth = 0.5;
+  for (var gy = 0; gy < h; gy += 20) {
+    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke();
+  }
+  for (var gx = 0; gx < w; gx += 40) {
+    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, h); ctx.stroke();
+  }
+  // waveform
+  ctx.strokeStyle = '#00ff88';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  var sliceWidth = w / nmTimeDomain.length;
+  var x = 0;
+  for (var i = 0; i < nmTimeDomain.length; i++) {
+    var v = nmTimeDomain[i] / 128.0;
+    var y = v * h / 2;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    x += sliceWidth;
+  }
+  ctx.stroke();
+  nmRafId = requestAnimationFrame(nmDrawScope);
+}
+
+function nmToggleScope() {
+  nmScopeEnabled = !nmScopeEnabled;
+  var btn = document.getElementById('nmScopeBtn');
+  if (btn) btn.classList.toggle('active', nmScopeEnabled);
+  var wrap = document.getElementById('nmScopeWrap');
+  if (wrap) wrap.style.display = nmScopeEnabled ? '' : 'none';
+  if (nmScopeEnabled && nmRunning && !nmRafId) nmDrawScope();
+  if (!nmScopeEnabled && nmRafId) { cancelAnimationFrame(nmRafId); nmRafId = null; }
+}
+
+function nmUpdateChannelGain(idx) {
+  var ch = nmChannels[idx];
+  if (!ch.gain) return;
+  var anySolo = nmChannels.some(function (c) { return c.solo; });
+  if (anySolo) {
+    ch.gain.gain.value = ch.solo ? ch.volume : 0;
+  } else {
+    ch.gain.gain.value = ch.muted ? 0 : ch.volume;
+  }
+}
+
+function nmRefreshAllGains() {
+  for (var i = 0; i < nmChannels.length; i++) nmUpdateChannelGain(i);
+}
+
+function nmFreqToLog(val) {
+  return Math.round(20 * Math.pow(1000, val / 100));
+}
+
+function nmLogToSlider(freq) {
+  return Math.round(100 * Math.log(freq / 20) / Math.log(1000));
+}
+
+function nmFormatFreq(hz) {
+  return hz >= 1000 ? (hz / 1000).toFixed(1) + 'k' : hz + '';
+}
+
+function nmApplyPreset(key) {
+  var vols = NM_PRESETS[key];
+  if (!vols) return;
+  for (var i = 0; i < vols.length && i < nmChannels.length; i++) {
+    nmChannels[i].volume = vols[i];
+    if (nmChannels[i].faderEl) nmChannels[i].faderEl.value = vols[i] * 100;
+    if (nmChannels[i].gain) nmChannels[i].gain.gain.value = vols[i];
+  }
+  nmRefreshAllGains();
+}
+
+function nmBuildChannelStrip(ch, idx, parent) {
+  var strip = document.createElement('div');
+  strip.className = 'nm-channel' + (idx === -1 ? ' nm-master' : '');
+
+  var label = document.createElement('div');
+  label.className = 'nm-channel-label';
+  label.textContent = idx === -1 ? 'Master' : ch.name;
+  strip.appendChild(label);
+
+  var faderWrap = document.createElement('div');
+  faderWrap.className = 'nm-fader-wrap';
+  var fader = document.createElement('input');
+  fader.type = 'range';
+  fader.className = 'nm-fader';
+  fader.min = '0';
+  fader.max = '100';
+  fader.value = idx === -1 ? String(Math.round((parseFloat(localStorage.getItem('mp-volume')) || 0.1) * 100)) : String(Math.round(ch.volume * 100));
+
+  if (idx === -1) {
+    fader.id = 'nmMasterFader';
+    fader.oninput = function () {
+      var v = parseInt(fader.value, 10) / 100;
+      localStorage.setItem('mp-volume', String(v));
+      var tbSlider = document.querySelector('.volume-slider');
+      if (tbSlider) tbSlider.value = fader.value;
+      if (window.mpAudioUpdateVolume) window.mpAudioUpdateVolume();
+    };
+  } else {
+    ch.faderEl = fader;
+    fader.oninput = (function (ci) {
+      return function () {
+        nmChannels[ci].volume = parseInt(fader.value, 10) / 100;
+        nmUpdateChannelGain(ci);
+        var presetSel = document.getElementById('nmPresetSelect');
+        if (presetSel) presetSel.value = 'custom';
+      };
+    })(idx);
+  }
+  faderWrap.appendChild(fader);
+  strip.appendChild(faderWrap);
+
+  if (idx >= 0) {
+    var filterSel = document.createElement('select');
+    filterSel.className = 'nm-filter-select';
+    var opts = ['lowpass', 'highpass', 'bandpass'];
+    var optLabels = ['LP', 'HP', 'BP'];
+    for (var fi = 0; fi < opts.length; fi++) {
+      var opt = document.createElement('option');
+      opt.value = opts[fi];
+      opt.textContent = optLabels[fi];
+      filterSel.appendChild(opt);
+    }
+    filterSel.onchange = (function (ci) {
+      return function () {
+        nmChannels[ci].filterType = filterSel.value;
+        if (nmChannels[ci].filter) nmChannels[ci].filter.type = filterSel.value;
+      };
+    })(idx);
+    strip.appendChild(filterSel);
+
+    var freqSlider = document.createElement('input');
+    freqSlider.type = 'range';
+    freqSlider.className = 'nm-freq-slider';
+    freqSlider.min = '0';
+    freqSlider.max = '100';
+    freqSlider.value = '100';
+    var freqLabel = document.createElement('div');
+    freqLabel.className = 'nm-freq-label';
+    freqLabel.textContent = '20k';
+    freqSlider.oninput = (function (ci, fl) {
+      return function () {
+        var hz = nmFreqToLog(parseInt(freqSlider.value, 10));
+        nmChannels[ci].filterFreq = hz;
+        if (nmChannels[ci].filter) nmChannels[ci].filter.frequency.value = hz;
+        fl.textContent = nmFormatFreq(hz);
+      };
+    })(idx, freqLabel);
+    strip.appendChild(freqSlider);
+    strip.appendChild(freqLabel);
+
+    var btnRow = document.createElement('div');
+    btnRow.className = 'nm-btn-row';
+    var muteBtn = document.createElement('button');
+    muteBtn.type = 'button';
+    muteBtn.className = 'nm-mute-btn';
+    muteBtn.textContent = 'M';
+    muteBtn.onclick = (function (ci) {
+      return function () {
+        nmChannels[ci].muted = !nmChannels[ci].muted;
+        muteBtn.classList.toggle('active', nmChannels[ci].muted);
+        nmUpdateChannelGain(ci);
+      };
+    })(idx);
+
+    var soloBtn = document.createElement('button');
+    soloBtn.type = 'button';
+    soloBtn.className = 'nm-solo-btn';
+    soloBtn.textContent = 'S';
+    soloBtn.onclick = (function (ci) {
+      return function () {
+        nmChannels[ci].solo = !nmChannels[ci].solo;
+        soloBtn.classList.toggle('active', nmChannels[ci].solo);
+        nmRefreshAllGains();
+      };
+    })(idx);
+
+    btnRow.appendChild(muteBtn);
+    btnRow.appendChild(soloBtn);
+    strip.appendChild(btnRow);
+  }
+
+  parent.appendChild(strip);
+}
+
+function nmBuildUI() {
+  var body = document.getElementById('noisemixerBody');
+  body.innerHTML = '';
+
+  nmChannels = [];
+  for (var i = 0; i < NM_CHANNEL_DEFS.length; i++) {
+    nmChannels.push({
+      name: NM_CHANNEL_DEFS[i].name,
+      type: NM_CHANNEL_DEFS[i].type,
+      volume: 0.3,
+      muted: false,
+      solo: false,
+      filterType: 'lowpass',
+      filterFreq: 20000,
+      source: null,
+      filter: null,
+      gain: null,
+      faderEl: null
+    });
+  }
+
+  // Toolbar
+  var toolbar = document.createElement('div');
+  toolbar.className = 'nm-toolbar';
+  var presetLabel = document.createElement('span');
+  presetLabel.textContent = 'Preset:';
+  presetLabel.style.fontSize = '11px';
+  toolbar.appendChild(presetLabel);
+
+  var presetSel = document.createElement('select');
+  presetSel.className = 'nm-preset-select';
+  presetSel.id = 'nmPresetSelect';
+  var presetKeys = Object.keys(NM_PRESETS);
+  for (var pi = 0; pi < presetKeys.length; pi++) {
+    var popt = document.createElement('option');
+    popt.value = presetKeys[pi];
+    popt.textContent = presetKeys[pi].replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    presetSel.appendChild(popt);
+  }
+  presetSel.onchange = function () {
+    if (presetSel.value !== 'custom') nmApplyPreset(presetSel.value);
+  };
+  toolbar.appendChild(presetSel);
+
+  var spacer = document.createElement('div');
+  spacer.style.flex = '1';
+  toolbar.appendChild(spacer);
+
+  var powerBtn = document.createElement('button');
+  powerBtn.type = 'button';
+  powerBtn.className = 'nm-power-btn';
+  powerBtn.id = 'nmPowerBtn';
+  powerBtn.textContent = 'Start';
+  powerBtn.onclick = nmTogglePower;
+  toolbar.appendChild(powerBtn);
+  body.appendChild(toolbar);
+
+  // Oscilloscope
+  var scopeWrap = document.createElement('div');
+  scopeWrap.className = 'nm-scope-wrap';
+  scopeWrap.id = 'nmScopeWrap';
+  var canvas = document.createElement('canvas');
+  canvas.className = 'nm-scope-canvas';
+  canvas.width = 580;
+  canvas.height = 80;
+  nmScopeCanvas = canvas;
+  nmScopeCtx = canvas.getContext('2d');
+  scopeWrap.appendChild(canvas);
+
+  var scopeBtn = document.createElement('button');
+  scopeBtn.type = 'button';
+  scopeBtn.className = 'nm-scope-toggle active';
+  scopeBtn.id = 'nmScopeBtn';
+  scopeBtn.textContent = 'SCOPE';
+  scopeBtn.onclick = nmToggleScope;
+  scopeWrap.appendChild(scopeBtn);
+  body.appendChild(scopeWrap);
+
+  // Mixer area
+  var mixer = document.createElement('div');
+  mixer.className = 'nm-mixer';
+  for (var ci = 0; ci < nmChannels.length; ci++) {
+    nmBuildChannelStrip(nmChannels[ci], ci, mixer);
+  }
+  nmBuildChannelStrip(null, -1, mixer);
+  body.appendChild(mixer);
+
+  // Auto-size canvas
+  var ro = new ResizeObserver(function () {
+    if (nmScopeCanvas && scopeWrap.offsetWidth > 0) {
+      nmScopeCanvas.width = scopeWrap.clientWidth - 2;
+    }
+  });
+  ro.observe(scopeWrap);
+
+  nmBuilt = true;
+}
+
+function openNoiseMixer() {
+  if (!nmBuilt) nmBuildUI();
+  openWindow('noisemixer');
+}
+
+function closeNoiseMixer() {
+  if (nmRunning) {
+    nmStopChannels();
+    nmRunning = false;
+  }
+  if (nmRafId) { cancelAnimationFrame(nmRafId); nmRafId = null; }
+  if (nmCtx) {
+    nmCtx.close();
+    nmCtx = null;
+    nmMasterGain = null;
+    nmAnalyser = null;
+    nmLimiter = null;
+    nmTimeDomain = null;
+  }
+  nmScopeCanvas = null;
+  nmScopeCtx = null;
+  nmBuilt = false;
+  var powerBtn = document.getElementById('nmPowerBtn');
+  if (powerBtn) powerBtn.classList.remove('active');
+  document.getElementById('nmStatus').textContent = 'Ready';
+  mpTaskbar.closeWindow('noisemixer');
+}
+
+// Volume integration: chain onto mpAudioUpdateVolume
+var nmOriginalAudioUpdateVolume = window.mpAudioUpdateVolume;
+window.mpAudioUpdateVolume = function () {
+  if (nmOriginalAudioUpdateVolume) nmOriginalAudioUpdateVolume();
+  nmSyncVolume();
+};
+
 const WINDOW_NAMES = {
   'mycomputer': 'System Properties', 'explorer': 'Files', 'fishofday': 'Fish of the Day',
   'aquarium': 'Virtual Aquarium', 'fishfinder': 'Fish Finder', 'ontarget': 'On Target',
@@ -4695,7 +5232,8 @@ const WINDOW_NAMES = {
   'notepad': 'Notepad', 'calculator': 'Calculator', 'calendar': 'Calendar',
   'timezone': 'Time Zone', 'weather': 'Weather', 'diskusage': 'Disk Usage',
   'visitormap': 'Visitor Map', 'help': 'Help', 'paint': 'Paint',
-  'search': 'Search Results', 'taskmanager': 'Task Manager'
+  'search': 'Search Results', 'taskmanager': 'Task Manager',
+  'noisemixer': 'White Noise Mixer'
 };
 
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
@@ -4947,7 +5485,8 @@ const COMMANDS = {
   'nano':        { run: cmdEdit,         desc: 'Text editor' },
   'ipconfig':    { run: cmdIpconfig,    desc: 'Display network configuration' },
   'ifconfig':    { run: cmdIpconfig,    desc: 'Display network configuration' },
-  'netstat':     { run: cmdNetstat,     desc: 'Display active connections' }
+  'netstat':     { run: cmdNetstat,     desc: 'Display active connections' },
+  'noisemixer':  { run: openNoiseMixer, desc: 'Open White Noise Mixer' }
 };
 
 function termPrint(text, color) {
@@ -5817,7 +6356,8 @@ const CLOSE_MAP = {
   mycomputer: closeMyComputer, aquarium: closeAquarium,
   ontarget: closeOnTarget, brickbreaker: closeBrickBreaker,
   browser: closeBrowser, notepad: closeNotepad, timezone: closeTimeZone,
-  paint: closePaint, taskmanager: closeTaskManager, run: closeRun
+  paint: closePaint, taskmanager: closeTaskManager, run: closeRun,
+  noisemixer: closeNoiseMixer
 };
 
 function mobileCloseWindow(id) {
@@ -5930,7 +6470,8 @@ function buildLauncher() {
     { name: 'Time Zone', _key: 'timeZone', action: openTimeZone },
     { name: 'Weather', _key: 'weather', action: openWeather },
     { name: 'Disk Usage', _key: 'diskUsage', action: openDiskUsage },
-    { name: 'Visitor Map', _key: 'visitorMap', action: openVisitorMap }
+    { name: 'Visitor Map', _key: 'visitorMap', action: openVisitorMap },
+    { name: 'White Noise Mixer', _key: 'noiseMixer', action: openNoiseMixer }
   ];
   var system = [
     { name: 'My Computer', _key: 'myComputer', action: openMyComputer },
@@ -6067,6 +6608,8 @@ window.openSearch = openSearch;
 window.searchNow = searchNow;
 window.openTaskManager = openTaskManager;
 window.closeTaskManager = closeTaskManager;
+window.openNoiseMixer = openNoiseMixer;
+window.closeNoiseMixer = closeNoiseMixer;
 
 /* ── Ctrl+Alt+Del → Task Manager ── */
 document.addEventListener('keydown', function (e) {
