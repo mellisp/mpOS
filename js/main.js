@@ -4934,10 +4934,13 @@ function nmToggleScope() {
   nmScopeEnabled = !nmScopeEnabled;
   var btn = document.getElementById('nmScopeBtn');
   if (btn) btn.classList.toggle('active', nmScopeEnabled);
-  var wrap = document.getElementById('nmScopeWrap');
-  if (wrap) wrap.style.display = nmScopeEnabled ? '' : 'none';
+  if (!nmScopeEnabled) {
+    if (nmRafId) { cancelAnimationFrame(nmRafId); nmRafId = null; }
+    if (nmScopeCanvas && nmScopeCtx) {
+      nmScopeCtx.clearRect(0, 0, nmScopeCanvas.width, nmScopeCanvas.height);
+    }
+  }
   if (nmScopeEnabled && nmRunning && !nmRafId) nmDrawScope();
-  if (!nmScopeEnabled && nmRafId) { cancelAnimationFrame(nmRafId); nmRafId = null; }
 }
 
 function nmUpdateChannelGain(idx) {
@@ -5155,8 +5158,8 @@ function nmBuildUI() {
   scopeWrap.id = 'nmScopeWrap';
   var canvas = document.createElement('canvas');
   canvas.className = 'nm-scope-canvas';
-  canvas.width = 580;
-  canvas.height = 80;
+  canvas.width = 340;
+  canvas.height = 50;
   nmScopeCanvas = canvas;
   nmScopeCtx = canvas.getContext('2d');
   scopeWrap.appendChild(canvas);
