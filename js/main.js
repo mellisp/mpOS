@@ -4807,13 +4807,12 @@ function cmdNeofetch() {
   let info = [
     'matthew@mpos-pc',
     '----------------',
-    'OS: mpOS 1.9.9',
+    'OS: mpOS ' + MPOS_VERSION,
     'Browser: ' + browser,
     'Resolution: ' + scr.width + 'x' + scr.height,
     'CPU: ' + (nav.hardwareConcurrency || '?') + ' cores',
     'Uptime: ' + uptimeStr,
-    'Locale: ' + (nav.language || 'unknown'),
-    'Theme: Windows XP Classic'
+    'Locale: ' + (nav.language || 'unknown')
   ];
 
   termPrint('');
@@ -4882,7 +4881,7 @@ const FILESYSTEM = {
 const HELP_GROUPS = {
   'NAVIGATION': ['cd', 'dir', 'ls', 'tree', 'pwd'],
   'FILES':      ['type', 'cat', 'echo', 'touch', 'rm', 'edit', 'nano'],
-  'SYSTEM':     ['systeminfo', 'whoami', 'hostname', 'ver', 'date', 'time', 'tasklist', 'taskkill', 'uptime', 'top', 'neofetch'],
+  'SYSTEM':     ['systeminfo', 'whoami', 'hostname', 'ver', 'date', 'time', 'tasklist', 'taskkill', 'uptime', 'top', 'neofetch', 'ipconfig', 'netstat'],
   'PROGRAMS':   [],
   'TERMINAL':   ['cls', 'color', 'title', 'start', 'ping', 'matrix', 'help', 'exit', 'history', 'fortune', 'curl', 'fetch']
 };
@@ -4900,7 +4899,7 @@ const COMMANDS = {
   'whoami':      { run: cmdWhoami,      desc: 'Display current user' },
   'hostname':    { run: cmdHostname,    desc: 'Display computer name' },
   'systeminfo':  { run: cmdSysteminfo,  desc: 'Display system information' },
-  'ping':        { run: cmdPing,        desc: 'Simulate a ping to a host' },
+  'ping':        { run: cmdPing,        desc: 'Measure latency to a host' },
   'color':       { run: cmdColor,       desc: 'Set terminal colors' },
   'title':       { run: cmdTitle,       desc: 'Set terminal window title' },
   'tasklist':    { run: cmdTasklist,     desc: 'List running applications' },
@@ -4945,7 +4944,10 @@ const COMMANDS = {
   'fetch':       { run: cmdCurl,         desc: 'Fetch a URL' },
   'top':         { run: cmdTop,          desc: 'Process viewer' },
   'edit':        { run: cmdEdit,         desc: 'Text editor' },
-  'nano':        { run: cmdEdit,         desc: 'Text editor' }
+  'nano':        { run: cmdEdit,         desc: 'Text editor' },
+  'ipconfig':    { run: cmdIpconfig,    desc: 'Display network configuration' },
+  'ifconfig':    { run: cmdIpconfig,    desc: 'Display network configuration' },
+  'netstat':     { run: cmdNetstat,     desc: 'Display active connections' }
 };
 
 function termPrint(text, color) {
@@ -4991,7 +4993,9 @@ function cmdCls() {
   termOutput.textContent = '';
 }
 
-function cmdVer() { termPrint('mpOS [Version 2.0.1]\n(c) Matthew Pritchard. All rights reserved.\n'); }
+const MPOS_VERSION = '2.0.1';
+
+function cmdVer() { termPrint('mpOS [Version ' + MPOS_VERSION + ']\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
 function cmdCd(args) {
   if (!args) { termPrint(termCwd + '\n'); return; }
@@ -5231,36 +5235,113 @@ function cmdPing(args) {
     return;
   }
   let host = args.trim();
+  let url = host;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
   termPrint('');
-  termPrint('Pinging ' + host + ' with 32 bytes of data:');
+  termPrint('Pinging ' + host + ' ...');
+  termPrint('');
 
   let count = 0;
   let times = [];
+  let lost = 0;
   termInput.disabled = true;
 
   function sendPing() {
     if (count >= 4) {
       termPrint('');
       termPrint('Ping statistics for ' + host + ':');
-      let min = Math.min.apply(null, times);
-      let max = Math.max.apply(null, times);
-      let avg = Math.round(times.reduce(function (a, b) { return a + b; }, 0) / times.length);
-      termPrint('    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),');
-      termPrint('Approximate round trip times in milli-seconds:');
-      termPrint('    Minimum = ' + min + 'ms, Maximum = ' + max + 'ms, Average = ' + avg + 'ms');
+      let received = times.length;
+      let lossPercent = Math.round((lost / 4) * 100);
+      termPrint('    Packets: Sent = 4, Received = ' + received + ', Lost = ' + lost + ' (' + lossPercent + '% loss)');
+      if (times.length > 0) {
+        let min = Math.min.apply(null, times);
+        let max = Math.max.apply(null, times);
+        let avg = Math.round(times.reduce(function (a, b) { return a + b; }, 0) / times.length);
+        termPrint('Approximate round trip times in milli-seconds:');
+        termPrint('    Minimum = ' + min + 'ms, Maximum = ' + max + 'ms, Average = ' + avg + 'ms');
+      }
+      termPrint('');
+      termPrint('Note: HTTP round-trip time (not ICMP). Includes DNS + TLS overhead.', '#888');
       termPrint('');
       termInput.disabled = false;
       termInput.focus();
       return;
     }
-    let ms = Math.floor(Math.random() * 40) + 10;
-    times.push(ms);
-    count++;
-    termPrint('Reply from ' + host + ': bytes=32 time=' + ms + 'ms TTL=128');
-    setTimeout(sendPing, 800 + Math.floor(Math.random() * 400));
+    let seq = count + 1;
+    let t0 = performance.now();
+    fetch(url + '?_cb=' + Date.now(), { mode: 'no-cors', cache: 'no-store' }).then(function () {
+      let ms = Math.round(performance.now() - t0);
+      times.push(ms);
+      termPrint('Reply from ' + host + ': seq=' + seq + ' time=' + ms + 'ms');
+    }).catch(function () {
+      lost++;
+      termPrint('Request timed out. seq=' + seq);
+    }).then(function () {
+      count++;
+      setTimeout(sendPing, 1000);
+    });
   }
 
-  setTimeout(sendPing, 500);
+  setTimeout(sendPing, 300);
+}
+
+function cmdIpconfig() {
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  termPrint('');
+  termPrint('mpOS IP Configuration');
+  termPrint('');
+  termPrint('   Online Status . . . . . . : ' + (navigator.onLine ? 'Connected' : 'Disconnected'));
+  if (conn) {
+    termPrint('   Effective Type  . . . . . : ' + (conn.effectiveType || 'Unknown'));
+    termPrint('   Downlink  . . . . . . . . : ' + (conn.downlink != null ? conn.downlink + ' Mbps' : 'Unknown'));
+    termPrint('   RTT . . . . . . . . . . . : ' + (conn.rtt != null ? conn.rtt + ' ms' : 'Unknown'));
+    termPrint('   Save Data . . . . . . . . : ' + (conn.saveData ? 'Enabled' : 'Disabled'));
+  } else {
+    termPrint('   Connection Info . . . . . : Not available (Chromium-only API)');
+  }
+  termPrint('');
+  termPrint('Browser-reported values. Connection metrics are Chromium-only estimates.', '#888');
+  termPrint('');
+}
+
+const NET_ENDPOINTS = {
+  'browser': 'en.wikipedia.org:443',
+  'weather': 'api.open-meteo.com:443',
+  'aquarium': 'www.youtube.com:443',
+  'visitormap': 'visitor-map.matthewpritchard079.workers.dev:443',
+  'fishofday': 'wsrv.nl:443'
+};
+
+function cmdNetstat() {
+  termPrint('');
+  termPrint('Active mpOS Connections');
+  termPrint('');
+  let header = '  Proto  ' + 'Local Address'.padEnd(24) + 'Foreign Address'.padEnd(40) + 'State';
+  termPrint(header);
+  termPrint('  ' + '-'.repeat(header.length - 2));
+
+  let found = false;
+  let names = Object.keys(WINDOW_NAMES);
+  for (let i = 0; i < names.length; i++) {
+    let id = names[i];
+    if (!NET_ENDPOINTS[id]) continue;
+    let win = document.getElementById(id);
+    if (win && win.style.display !== 'none') {
+      let local = '0.0.0.0:' + (49152 + i);
+      let foreign = NET_ENDPOINTS[id];
+      termPrint('  TCP    ' + local.padEnd(24) + foreign.padEnd(40) + 'ESTABLISHED');
+      found = true;
+    }
+  }
+
+  if (!found) {
+    termPrint('  No active network connections.');
+  }
+
+  termPrint('');
+  termPrint('Showing mpOS application connections. Not reading OS network sockets.', '#888');
+  termPrint('');
 }
 
 function cmdColor(args) {

@@ -51,7 +51,8 @@ body {
 .start-btn,
 .start-menu,
 .start-submenu,
-.volume-popup {
+.volume-popup,
+.net-popup {
   background: var(--silver);
   border: 2px solid;
   border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
@@ -517,6 +518,45 @@ button.start-menu-item {
   gap: 4px;
   margin-top: 8px;
 }
+
+/* Network Popup */
+.net-popup {
+  display: none;
+  position: absolute;
+  bottom: 36px;
+  right: 4px;
+  padding: 12px;
+  z-index: 50;
+  min-width: 200px;
+}
+
+.net-popup.open { display: block; }
+
+.net-popup-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.net-popup-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  padding: 2px 0;
+}
+
+.net-popup-row .net-label {
+  color: var(--text-muted, #555);
+}
+
+.net-popup-note {
+  font-size: 10px;
+  color: var(--text-muted, #888);
+  margin-top: 8px;
+  line-height: 1.3;
+}
+
+.tray-icon.offline svg rect { fill: #999; }
 
 /* ============================================================
    Window Animations

@@ -866,7 +866,7 @@
       <!-- System Tray -->
       <div class="system-tray">
         <!-- Volume Icon -->
-        <div class="tray-icon" title="Volume">
+        <div class="tray-icon" id="trayVolumeIcon" title="Volume">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 6h2l3-3v10l-3-3H2V6z" fill="#444"/>
             <path d="M10 4.5c1.3 1 2 2.2 2 3.5s-.7 2.5-2 3.5" stroke="#444" stroke-width="1.2" fill="none"/>
@@ -879,6 +879,20 @@
           <div class="volume-title" data-i18n="ui.volume">Volume</div>
           <input class="volume-slider" type="range" min="0" max="100" value="10">
           <label><input class="volume-mute" type="checkbox"> <span data-i18n="ui.mute">Mute</span></label>
+        </div>
+
+        <!-- Network Status -->
+        <div class="tray-icon" id="trayNetIcon" title="Connected">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="9" width="3" height="6" rx=".5" fill="#444"/>
+            <rect x="5.5" y="6" width="3" height="9" rx=".5" fill="#444"/>
+            <rect x="10" y="3" width="3" height="12" rx=".5" fill="#444"/>
+          </svg>
+        </div>
+        <div class="net-popup">
+          <div class="net-popup-title">Network Status</div>
+          <div class="net-popup-body" id="netPopupBody"></div>
+          <div class="net-popup-note">Reported by browser APIs. Some values are estimates.</div>
         </div>
 
         <!-- Language Toggle -->
