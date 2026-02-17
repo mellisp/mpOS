@@ -3,7 +3,7 @@
   const startBtn = document.querySelector('.start-btn');
   const startMenu = document.querySelector('.start-menu');
   const clockEl = document.querySelector('.tray-clock');
-  const volumeIcon = document.querySelector('.tray-icon');
+  const volumeIcon = document.getElementById('trayVolumeIcon');
   const volumePopup = document.querySelector('.volume-popup');
   const volumeSlider = document.querySelector('.volume-slider');
   const muteCheckbox = document.querySelector('.volume-mute');
@@ -40,6 +40,8 @@
     volumeIcon.addEventListener('click', function (e) {
       e.stopPropagation();
       volumePopup.classList.toggle('open');
+      var np = document.querySelector('.net-popup');
+      if (np) np.classList.remove('open');
       if (startMenu) startMenu.classList.remove('open');
       if (startBtn) startBtn.classList.remove('pressed');
     });
@@ -62,6 +64,65 @@
     });
   }
 
+  // --- Network Status ---
+  const netIcon = document.getElementById('trayNetIcon');
+  const netPopup = document.querySelector('.net-popup');
+  const netPopupBody = document.getElementById('netPopupBody');
+
+  function updateNetStatus() {
+    if (!netIcon) return;
+    if (navigator.onLine) {
+      netIcon.classList.remove('offline');
+      netIcon.title = 'Connected';
+    } else {
+      netIcon.classList.add('offline');
+      netIcon.title = 'Disconnected';
+    }
+    renderNetPopup();
+  }
+
+  function renderNetPopup() {
+    if (!netPopupBody) return;
+    netPopupBody.textContent = '';
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const rows = [
+      { label: 'Status', value: navigator.onLine ? 'Connected' : 'Disconnected' },
+      { label: 'Type', value: conn ? conn.effectiveType || 'Unknown' : 'N/A (Chromium only)' },
+      { label: 'Downlink', value: conn && conn.downlink != null ? conn.downlink + ' Mbps' : 'N/A' },
+      { label: 'RTT', value: conn && conn.rtt != null ? conn.rtt + ' ms' : 'N/A' }
+    ];
+    for (let i = 0; i < rows.length; i++) {
+      const row = document.createElement('div');
+      row.className = 'net-popup-row';
+      const lbl = document.createElement('span');
+      lbl.className = 'net-label';
+      lbl.textContent = rows[i].label;
+      const val = document.createElement('span');
+      val.textContent = rows[i].value;
+      row.appendChild(lbl);
+      row.appendChild(val);
+      netPopupBody.appendChild(row);
+    }
+  }
+
+  if (netIcon && netPopup) {
+    netIcon.addEventListener('click', function (e) {
+      e.stopPropagation();
+      updateNetStatus();
+      netPopup.classList.toggle('open');
+      if (volumePopup) volumePopup.classList.remove('open');
+      if (startMenu) startMenu.classList.remove('open');
+      if (startBtn) startBtn.classList.remove('pressed');
+    });
+  }
+
+  window.addEventListener('online', updateNetStatus);
+  window.addEventListener('offline', updateNetStatus);
+  if (navigator.connection && navigator.connection.addEventListener) {
+    navigator.connection.addEventListener('change', updateNetStatus);
+  }
+  updateNetStatus();
+
   // --- Dismiss popups on outside click (single listener) ---
   function clearTouchSubmenus() {
     document.querySelectorAll('.start-submenu.touch-open').forEach(function (s) {
@@ -76,6 +137,9 @@
     }
     if (volumePopup && !volumePopup.contains(e.target) && volumeIcon && !volumeIcon.contains(e.target)) {
       volumePopup.classList.remove('open');
+    }
+    if (netPopup && !netPopup.contains(e.target) && netIcon && !netIcon.contains(e.target)) {
+      netPopup.classList.remove('open');
     }
   });
 
