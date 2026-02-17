@@ -1242,7 +1242,7 @@ function closeBrickBreaker() {
 
 function openFishOfDay() {
   openWindow('fishofday');
-  loadDataScript('js/fish-data.js').then(function () {
+  loadDataScript('js/fish-data.js?v=2').then(function () {
     if (checkFishDay()) fishPopulated = false;
     populateFish();
   });
@@ -1328,7 +1328,11 @@ function populateFish() {
   }
 
   /* f[8] is guaranteed non-empty by FISH_WITH_PHOTOS filter in fish-data.js */
-  showFishImage(f[8]);
+  if (f[8]) {
+    showFishImage(f[8]);
+  } else {
+    photoPlaceholder.textContent = "No photo available";
+  }
   if (!cachedWikiLink) fetchWikiLink(wikiTitle)
     .catch(function () { return fetchWikiLink(f[0].replace(/ /g, "_")); })
     .catch(function () {});
