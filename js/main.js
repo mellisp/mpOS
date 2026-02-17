@@ -2873,6 +2873,12 @@ function populateDiskUsage() {
 const VM_WORKER = 'https://visitor-map.matthewpritchard.workers.dev';
 let vmPopulated = false;
 
+// Register visit on page load (fire-and-forget)
+if (!sessionStorage.getItem('vm-visited')) {
+  sessionStorage.setItem('vm-visited', '1');
+  fetch(VM_WORKER + '/visit', { method: 'POST' }).catch(function () {});
+}
+
 function openVisitorMap() {
   openWindow('visitormap');
   if (!vmPopulated) {
@@ -2883,13 +2889,8 @@ function openVisitorMap() {
 
 function fetchVisitorData() {
   var body = document.getElementById('visitorMapBody');
-  var method = 'GET';
-  if (!sessionStorage.getItem('vm-visited')) {
-    method = 'POST';
-    sessionStorage.setItem('vm-visited', '1');
-  }
   var dataReady = loadDataScript('js/world-map-data.js');
-  var countsReady = fetch(VM_WORKER + '/visit', { method: method })
+  var countsReady = fetch(VM_WORKER + '/visit', { method: 'GET' })
     .then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
