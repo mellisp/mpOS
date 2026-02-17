@@ -43,6 +43,9 @@
     'desktop.myComputer': 'My Computer',
     'desktop.files': 'Files',
     'desktop.wikiBrowser': 'WikiBrowser',
+    'desktop.arrangeIcons': 'Arrange Icons',
+    'desktop.alignToGrid': 'Align to Grid',
+    'desktop.properties': 'Properties',
 
     /* Window titles */
     'title.systemProperties': 'System Properties',

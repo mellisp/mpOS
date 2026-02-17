@@ -36,6 +36,9 @@ window._mpLangRegister('pt', {
   'desktop.myComputer': 'O Meu Computador',
   'desktop.files': 'Ficheiros',
   'desktop.wikiBrowser': 'WikiBrowser',
+  'desktop.arrangeIcons': 'Organizar Ícones',
+  'desktop.alignToGrid': 'Alinhar à Grelha',
+  'desktop.properties': 'Propriedades',
 
   /* Window titles */
   'title.systemProperties': 'Propriedades do Sistema',
