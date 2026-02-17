@@ -18,6 +18,7 @@ const fs = require("fs");
 const path = require("path");
 
 const WIKI_API = "https://en.wikipedia.org/api/rest_v1/page/summary/";
+const WIKI_MEDIA_API = "https://en.wikipedia.org/api/rest_v1/page/media-list/";
 const DATA_PATH = path.join(__dirname, "..", "js", "fish-data.js");
 const CONCURRENCY = 4;
 const DELAY = 250;
@@ -67,6 +68,38 @@ function get(url, retries) {
 
 function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
+/* ── Range-map detection ──────────────────────────────── */
+
+var MAP_KEYWORDS = [
+  "distmap", "distribution", "distribut", "range_map", "_range.", "_map.",
+  "iucn", "status_iucn", "conservation", "cypron-range"
+];
+
+function isLikelyMap(url) {
+  var lower = url.toLowerCase();
+  if (lower.endsWith(".svg")) return true;
+  for (var i = 0; i < MAP_KEYWORDS.length; i++) {
+    if (lower.indexOf(MAP_KEYWORDS[i]) !== -1) return true;
+  }
+  return false;
+}
+
+function pickBestImage(items) {
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    if (item.type !== "image") continue;
+    if (!item.srcset || !item.srcset[0] || !item.srcset[0].src) continue;
+    var title = (item.title || "").toLowerCase();
+    if (title.endsWith(".svg")) continue;
+    var src = item.srcset[0].src;
+    if (isLikelyMap(src)) continue;
+    /* Ensure https and resize to 480px */
+    if (src.indexOf("//") === 0) src = "https:" + src;
+    return src.replace(/\/\d+px-/, "/480px-");
+  }
+  return null;
+}
+
 /* ── Wikipedia thumbnail fetch ─────────────────────────── */
 
 async function fetchWikiThumb(genus, species, commonName) {
@@ -74,7 +107,16 @@ async function fetchWikiThumb(genus, species, commonName) {
   for (var t of titles) {
     var data = await get(WIKI_API + encodeURIComponent(t));
     if (data && data.thumbnail && data.thumbnail.source) {
-      return data.thumbnail.source.replace(/\/\d+px-/, "/480px-");
+      var thumb = data.thumbnail.source.replace(/\/\d+px-/, "/480px-");
+      if (isLikelyMap(thumb)) {
+        /* Thumbnail is a range map — try media-list for a better image */
+        var media = await get(WIKI_MEDIA_API + encodeURIComponent(t));
+        if (media && media.items) {
+          var pick = pickBestImage(media.items);
+          if (pick) return pick;
+        }
+      }
+      return thumb;
     }
   }
   return "";

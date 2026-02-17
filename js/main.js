@@ -1250,6 +1250,36 @@ function openFishOfDay() {
 
 
 /* ── Fish of the Day ── */
+
+var FISH_MAP_KEYWORDS = [
+  "distmap", "distribution", "distribut", "range_map", "_range.", "_map.",
+  "iucn", "status_iucn", "conservation", "cypron-range"
+];
+
+function isFishMapUrl(url) {
+  var lower = url.toLowerCase();
+  if (lower.endsWith(".svg")) return true;
+  for (var i = 0; i < FISH_MAP_KEYWORDS.length; i++) {
+    if (lower.indexOf(FISH_MAP_KEYWORDS[i]) !== -1) return true;
+  }
+  return false;
+}
+
+function pickBestFishImage(items) {
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    if (item.type !== "image") continue;
+    if (!item.srcset || !item.srcset[0] || !item.srcset[0].src) continue;
+    var title = (item.title || "").toLowerCase();
+    if (title.endsWith(".svg")) continue;
+    var src = item.srcset[0].src;
+    if (isFishMapUrl(src)) continue;
+    if (src.indexOf("//") === 0) src = "https:" + src;
+    return src.replace(/\/\d+px-/, "/480px-");
+  }
+  return null;
+}
+
 let fishPopulated = false;
 function populateFish() {
   if (fishPopulated) return;
@@ -1329,17 +1359,36 @@ function populateFish() {
         var src = data.thumbnail && data.thumbnail.source;
         if (src) {
           src = src.replace(/\/\d+px-/, "/480px-");
+          if (isFishMapUrl(src)) {
+            return fetch("https://en.wikipedia.org/api/rest_v1/page/media-list/" + title)
+              .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+              .then(function (media) {
+                var pick = media.items ? pickBestFishImage(media.items) : null;
+                var best = pick || src;
+                localStorage.setItem(imgKey, best);
+                showFishImage(best);
+              })
+              .catch(function () {
+                localStorage.setItem(imgKey, src);
+                showFishImage(src);
+              });
+          }
           localStorage.setItem(imgKey, src);
           showFishImage(src);
         }
       });
   }
 
-  if (f[8]) {
+  if (f[8] && !isFishMapUrl(f[8])) {
     showFishImage(f[8]);
     if (!cachedWikiLink) fetchWikiImage(wikiTitle)
       .catch(function () { return fetchWikiImage(f[0].replace(/ /g, "_")); })
       .catch(function () {});
+  } else if (f[8] && isFishMapUrl(f[8])) {
+    /* Pre-baked image is a range map — fetch a better one at runtime */
+    fetchWikiImage(wikiTitle)
+      .catch(function () { return fetchWikiImage(f[0].replace(/ /g, "_")); })
+      .catch(function () { showFishImage(f[8]); }); /* last resort: show the map */
   } else if (localStorage.getItem(imgKey) && /^https:\/\/upload\.wikimedia\.org\//.test(localStorage.getItem(imgKey))) {
     showFishImage(localStorage.getItem(imgKey));
     if (!cachedWikiLink) fetchWikiImage(wikiTitle)
