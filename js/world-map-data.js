@@ -259,7 +259,7 @@ const COUNTRY_NAMES = {
   "HU": "Hungary",
   "ID": "Indonesia",
   "IE": "Ireland",
-  "IL": "Israel",
+  "IL": "Occupied Palestinian Territories",
   "IN": "India",
   "IQ": "Iraq",
   "IR": "Iran",
