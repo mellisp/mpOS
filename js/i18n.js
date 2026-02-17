@@ -111,8 +111,8 @@
 
     /* Explorer */
     'explorer.folderEmpty': 'This folder is empty.',
-    'explorer.itemCount.one': '{count} item(s)',
-    'explorer.itemCount.other': '{count} item(s)',
+    'explorer.itemCount.one': '{count} item',
+    'explorer.itemCount.other': '{count} items',
 
     /* Explorer sidebar */
     'explorer.sidebar.mpOS': 'mpOS',
@@ -346,7 +346,7 @@
     'search.searchNow': 'Search Now',
     'search.ready': 'Ready',
     'search.noResults': 'No items match your search.',
-    'search.itemsFound': '{count} item(s) found',
+    'search.itemsFound': '{count} items found',
     'search.group.programs': 'Programs',
     'search.group.utilities': 'Utilities',
     'search.group.files': 'Files',
