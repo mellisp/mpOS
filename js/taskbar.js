@@ -127,7 +127,9 @@
       }
       const label = document.createElement('span');
       const titleEl = win.querySelector('.titlebar span');
-      label.textContent = titleEl ? titleEl.textContent : id;
+      const titleText = titleEl ? titleEl.textContent : id;
+      label.textContent = titleText;
+      item.title = titleText;
       item.appendChild(label);
       item.addEventListener('click', function () { restoreWindow(id); });
       taskbarItems.appendChild(item);

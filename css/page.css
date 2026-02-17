@@ -163,6 +163,7 @@
 .notepad-dialog .button-row,
 .paint-dialog .button-row {
   margin-top: 4px;
+  flex-shrink: 0;
 }
 
 /* Utility */
@@ -424,10 +425,12 @@
 /* Notepad find bar */
 .notepad-findbar { display:flex; align-items:center; gap:4px; padding:4px;
   background:var(--silver); border-bottom:1px solid var(--shadow); flex-wrap:wrap; }
-.notepad-findbar input[type="text"] { width:160px; padding:2px 4px; font-size:12px;
+.notepad-findbar input[type="text"] { flex:1; min-width:80px; max-width:200px; padding:2px 4px; font-size:12px;
   font-family:inherit; border:2px solid;
   border-color:var(--shadow) var(--white) var(--white) var(--shadow);
   box-shadow:inset 1px 1px 0 var(--dk-shadow); outline:none; }
+.notepad-findbar input[type="text"]:focus {
+  border-color:var(--highlight) var(--white) var(--white) var(--highlight); }
 .notepad-findbar .btn { padding:2px 8px; min-width:0; font-size:11px; }
 .notepad-findbar-row { display:flex; align-items:center; gap:4px; width:100%; }
 .notepad-findbar-count { font-size:11px; color:var(--text-muted); min-width:50px; white-space:nowrap; }
@@ -664,7 +667,7 @@
 
 .tree-item {
   padding: 3px 8px;
-  cursor: default;
+  cursor: pointer;
   white-space: nowrap;
   display: flex;
   align-items: center;
@@ -698,7 +701,7 @@
   flex-direction: column;
   align-items: center;
   padding: 6px 4px;
-  cursor: default;
+  cursor: pointer;
   border: 1px solid transparent;
   text-align: center;
 }
@@ -725,7 +728,7 @@
   align-items: center;
   gap: 8px;
   padding: 3px 8px;
-  cursor: default;
+  cursor: pointer;
   font-size: 12px;
 }
 
@@ -1551,7 +1554,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 50;
+  z-index: 9999;
   width: 380px;
   max-width: 95vw;
 }

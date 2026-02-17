@@ -2024,6 +2024,7 @@ document.getElementById('calculator').addEventListener('keydown', function (e) {
 
 function calcUpdateDisplay() {
   calcDisplay.textContent = calcCurrent;
+  calcDisplay.style.fontSize = calcCurrent.length > 12 ? '18px' : '';
 }
 
 function calcDigit(d) {
