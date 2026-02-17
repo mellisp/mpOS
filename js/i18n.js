@@ -124,7 +124,7 @@
     'mc.tab.general': 'General',
     'mc.tab.display': 'Display',
     'mc.tab.screensaver': 'Screen Saver',
-    'mc.tab.regional': 'Regional',
+    'mc.tab.regional': 'Region',
     'mc.general.system': 'System',
     'mc.general.cpuCores': 'CPU Cores',
     'mc.general.logicalProcessors': '{count} logical processors',
@@ -167,6 +167,9 @@
     'mc.regional.language': 'Language',
     'mc.regional.english': 'English',
     'mc.regional.portuguese': 'Portugu\u00eas (Portugal)',
+    'mc.regional.clock': 'Clock',
+    'mc.regional.12hr': '12-hour (AM/PM)',
+    'mc.regional.24hr': '24-hour',
 
     /* Fish of the Day */
     'fish.loadingImage': 'Loading image...',

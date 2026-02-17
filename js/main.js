@@ -812,10 +812,11 @@ function mcBuildScreenSaver(body) {
 
 /* ── Regional tab ── */
 function mcBuildRegional(body) {
-  var label = document.createElement('div');
-  label.className = 'display-section-label';
-  label.textContent = t('mc.regional.language');
-  body.appendChild(label);
+  // Language section
+  var langLabel = document.createElement('div');
+  langLabel.className = 'display-section-label';
+  langLabel.textContent = t('mc.regional.language');
+  body.appendChild(langLabel);
 
   var cur = getLang();
   var langs = [
@@ -835,6 +836,35 @@ function mcBuildRegional(body) {
     });
     opt.appendChild(radio);
     opt.appendChild(document.createTextNode(l.label));
+    body.appendChild(opt);
+  });
+
+  // Clock format section
+  var clockLabel = document.createElement('div');
+  clockLabel.className = 'display-section-label';
+  clockLabel.style.marginTop = '12px';
+  clockLabel.textContent = t('mc.regional.clock');
+  body.appendChild(clockLabel);
+
+  var curFmt = localStorage.getItem('mp-clock') || '12';
+  var fmts = [
+    { code: '12', label: t('mc.regional.12hr') },
+    { code: '24', label: t('mc.regional.24hr') }
+  ];
+  fmts.forEach(function (f) {
+    var opt = document.createElement('label');
+    opt.className = 'regional-lang-option';
+    var radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'mpClock';
+    radio.value = f.code;
+    if (f.code === curFmt) radio.checked = true;
+    radio.addEventListener('change', function () {
+      localStorage.setItem('mp-clock', f.code);
+      if (window.mpClockUpdate) window.mpClockUpdate();
+    });
+    opt.appendChild(radio);
+    opt.appendChild(document.createTextNode(f.label));
     body.appendChild(opt);
   });
 }
