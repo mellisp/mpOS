@@ -1603,6 +1603,10 @@
   box-shadow: inset 0 1px 0 var(--silver);
 }
 
+/* Regional tab */
+.regional-lang-option { display: block; margin: 6px 0; cursor: pointer; }
+.regional-lang-option input { margin-right: 6px; }
+
 /* Display tab controls */
 .display-section-label {
   font-size: 11px;

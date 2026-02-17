@@ -39,6 +39,8 @@
         }
       } catch (e) {}
     })();
+    // Restore saved language before first paint
+    try { var l = localStorage.getItem('mp-lang'); if (l === 'pt') document.documentElement.lang = 'pt'; } catch(e) {}
   </script>
 </head>
 <body>
@@ -50,15 +52,15 @@
       </div>
       <div class="launcher-content">
         <div class="launcher-section">
-          <div class="launcher-section-title">Programs</div>
+          <div class="launcher-section-title" data-i18n="launcher.programs">Programs</div>
           <div class="launcher-grid" id="launcherPrograms"></div>
         </div>
         <div class="launcher-section">
-          <div class="launcher-section-title">Utilities</div>
+          <div class="launcher-section-title" data-i18n="launcher.utilities">Utilities</div>
           <div class="launcher-grid" id="launcherUtilities"></div>
         </div>
         <div class="launcher-section">
-          <div class="launcher-section-title">System</div>
+          <div class="launcher-section-title" data-i18n="launcher.system">System</div>
           <div class="launcher-grid" id="launcherSystem"></div>
         </div>
       </div>
@@ -87,7 +89,7 @@
           <rect x="11" y="38" width="26" height="3" rx="1.5" fill="url(#mc-base)" stroke="#8a8680" stroke-width="0.75"/>
           <line x1="12" y1="38.5" x2="36" y2="38.5" stroke="white" stroke-width="0.5" opacity="0.5"/>
         </svg>
-        <span class="desktop-icon-label">My Computer</span>
+        <span class="desktop-icon-label" data-i18n="desktop.myComputer">My Computer</span>
       </div>
 
       <!-- Files folder icon -->
@@ -112,7 +114,7 @@
           <line x1="5" y1="20.5" x2="43" y2="20.5" stroke="white" stroke-width="0.8" opacity="0.5"/>
           <ellipse cx="16" cy="25" rx="14" ry="5" fill="white" opacity="0.25"/>
         </svg>
-        <span class="desktop-icon-label">Files</span>
+        <span class="desktop-icon-label" data-i18n="desktop.files">Files</span>
       </div>
       <!-- WikiBrowser icon -->
       <div class="desktop-icon" role="button" tabindex="0" ondblclick="openBrowser()" onkeydown="if(event.key==='Enter')openBrowser()">
@@ -136,23 +138,24 @@
           <ellipse cx="17" cy="14" rx="10" ry="7" fill="white" opacity="0.3"/>
           <path d="M12 10 Q18 7 26 8" stroke="white" stroke-width="1.2" opacity="0.4" fill="none" stroke-linecap="round"/>
         </svg>
-        <span class="desktop-icon-label">WikiBrowser</span>
+        <span class="desktop-icon-label" data-i18n="desktop.wikiBrowser">WikiBrowser</span>
       </div>
     </div>
 
     <!-- My Computer / System Properties Window (hidden initially) -->
     <div class="window draggable" id="mycomputer" style="display:none;">
       <div class="titlebar">
-        <span>System Properties</span>
+        <span data-i18n="title.systemProperties">System Properties</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('mycomputer')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeMyComputer()">X</div>
         </div>
       </div>
       <div class="mycomputer-tabs">
-        <button type="button" class="mycomputer-tab active" id="mcTabGeneral" onclick="mcSwitchTab('general')">General</button>
-        <button type="button" class="mycomputer-tab" id="mcTabDisplay" onclick="mcSwitchTab('display')">Display</button>
-        <button type="button" class="mycomputer-tab" id="mcTabScreenSaver" onclick="mcSwitchTab('screensaver')">Screen Saver</button>
+        <button type="button" class="mycomputer-tab active" id="mcTabGeneral" onclick="mcSwitchTab('general')" data-i18n="mc.tab.general">General</button>
+        <button type="button" class="mycomputer-tab" id="mcTabDisplay" onclick="mcSwitchTab('display')" data-i18n="mc.tab.display">Display</button>
+        <button type="button" class="mycomputer-tab" id="mcTabScreenSaver" onclick="mcSwitchTab('screensaver')" data-i18n="mc.tab.screensaver">Screen Saver</button>
+        <button type="button" class="mycomputer-tab" id="mcTabRegional" onclick="mcSwitchTab('regional')" data-i18n="mc.tab.regional">Regional</button>
       </div>
       <div class="mycomputer-tab-body" id="mcTabBody"></div>
     </div>
@@ -160,7 +163,7 @@
     <!-- Explorer Window (hidden initially) -->
     <div class="window draggable" id="explorer" style="display:none;">
       <div class="titlebar">
-        <span id="explorerTitle">Files</span>
+        <span id="explorerTitle" data-i18n="title.files">Files</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('explorer')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('explorer')">X</div>
@@ -203,7 +206,7 @@
     <!-- Fish of the Day Window (hidden initially) -->
     <div class="window draggable" id="fishofday" style="display:none;">
       <div class="titlebar">
-        <span>Fish of the Day</span>
+        <span data-i18n="title.fishOfDay">Fish of the Day</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('fishofday')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('fishofday')">X</div>
@@ -212,7 +215,7 @@
       <div class="window-body">
         <div class="photo-frame">
           <img id="fishPhoto" alt="" style="display:none">
-          <div class="placeholder" id="photoPlaceholder">Loading image...</div>
+          <div class="placeholder" id="photoPlaceholder" data-i18n="fish.loadingImage">Loading image...</div>
         </div>
         <div class="fish-name" id="fishName"></div>
         <div class="fish-scientific" id="fishScientific"></div>
@@ -220,7 +223,7 @@
         <dl class="fish-details" id="fishDetails"></dl>
       </div>
       <div class="statusbar">
-        <div class="statusbar-section">Powered by Wikipedia</div>
+        <div class="statusbar-section" data-i18n="fish.poweredBy">Powered by Wikipedia</div>
         <div class="statusbar-section" id="fishDateText"></div>
       </div>
     </div>
@@ -228,14 +231,14 @@
     <!-- Virtual Aquarium Window (hidden initially) -->
     <div class="window draggable" id="aquarium" style="display:none;">
       <div class="titlebar">
-        <span>Virtual Aquarium</span>
+        <span data-i18n="title.aquarium">Virtual Aquarium</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('aquarium')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeAquarium()">X</div>
         </div>
       </div>
       <div class="window-body">
-        <div class="aquarium-embed" id="aquariumEmbed"><div class="aquarium-shield" id="aquariumShield">Connecting to live feed...</div></div>
+        <div class="aquarium-embed" id="aquariumEmbed"><div class="aquarium-shield" id="aquariumShield" data-i18n="aquarium.connecting">Connecting to live feed...</div></div>
       </div>
       <div class="statusbar">
         <div class="statusbar-section">Powered by explore.org</div>
@@ -245,7 +248,7 @@
     <!-- Fish Finder Window (hidden initially) -->
     <div class="window draggable" id="fishfinder" style="display:none;">
       <div class="titlebar">
-        <span>Fish Finder</span>
+        <span data-i18n="title.fishFinder">Fish Finder</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('fishfinder')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('fishfinder')">X</div>
@@ -260,7 +263,7 @@
     <!-- On Target Window (hidden initially) -->
     <div class="window draggable" id="ontarget" style="display:none;">
       <div class="titlebar">
-        <span>On Target</span>
+        <span data-i18n="title.onTarget">On Target</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('ontarget')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeOnTarget()">X</div>
@@ -274,7 +277,7 @@
     <!-- Brick Breaker Window (hidden initially) -->
     <div class="window draggable" id="brickbreaker" style="display:none;">
       <div class="titlebar">
-        <span>Brick Breaker</span>
+        <span data-i18n="title.brickBreaker">Brick Breaker</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize"
                onclick="mpTaskbar.minimizeWindow('brickbreaker')">_</div>
@@ -290,7 +293,7 @@
     <!-- Run Terminal (hidden initially) -->
     <div class="window draggable" id="run" style="display:none;">
       <div class="titlebar">
-        <span>Run</span>
+        <span data-i18n="title.run">Run</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('run')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeRun()">X</div>
@@ -310,7 +313,7 @@
     <!-- WikiBrowser (hidden initially) -->
     <div class="window draggable" id="browser" style="display:none;">
       <div class="titlebar">
-        <span id="browserTitle">WikiBrowser</span>
+        <span id="browserTitle" data-i18n="title.wikiBrowser">WikiBrowser</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('browser')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeBrowser()">X</div>
@@ -318,7 +321,7 @@
       </div>
       <div class="window-body">
         <div class="browser-toolbar">
-          <input class="browser-url" id="browserUrl" type="text" spellcheck="false" autocomplete="off" placeholder="Search Wikipedia or enter article name...">
+          <input class="browser-url" id="browserUrl" type="text" spellcheck="false" autocomplete="off" placeholder="Search Wikipedia or enter article name..." data-i18n="browser.placeholder" data-i18n-attr="placeholder">
         </div>
         <div class="browser-viewport" id="browserViewport">
           <iframe id="browserFrame" sandbox="allow-same-origin allow-scripts allow-forms" title="WikiBrowser"></iframe>
@@ -329,7 +332,7 @@
     <!-- Notepad Window (hidden initially) -->
     <div class="window draggable" id="notepad" style="display:none;">
       <div class="titlebar">
-        <span id="notepadTitle">Notepad</span>
+        <span id="notepadTitle" data-i18n="title.notepad">Notepad</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('notepad')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeNotepad()">X</div>
@@ -337,11 +340,11 @@
       </div>
       <div class="window-body">
         <div class="notepad-toolbar">
-          <button type="button" class="btn" onclick="notepadNew()">New</button>
-          <button type="button" class="btn" onclick="notepadSave()">Save</button>
-          <button type="button" class="btn" onclick="notepadLoad()">Open</button>
+          <button type="button" class="btn" onclick="notepadNew()" data-i18n="ui.new">New</button>
+          <button type="button" class="btn" onclick="notepadSave()" data-i18n="ui.save">Save</button>
+          <button type="button" class="btn" onclick="notepadLoad()" data-i18n="ui.open">Open</button>
         </div>
-        <textarea class="notepad-editor" id="notepadEditor" spellcheck="false" placeholder="Type here..."></textarea>
+        <textarea class="notepad-editor" id="notepadEditor" spellcheck="false" placeholder="Type here..." data-i18n="notepad.placeholder" data-i18n-attr="placeholder"></textarea>
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="notepadStatus">0 characters</div>
@@ -351,7 +354,7 @@
     <!-- Calculator Window (hidden initially) -->
     <div class="window draggable" id="calculator" tabindex="-1" style="display:none;">
       <div class="titlebar">
-        <span>Calculator</span>
+        <span data-i18n="title.calculator">Calculator</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('calculator')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('calculator')">X</div>
@@ -362,7 +365,7 @@
         <div class="calc-mode-bar">
           <label class="calc-mode-toggle">
             <input type="checkbox" id="calcSciToggle" onchange="calcToggleScientific()">
-            <span>Scientific</span>
+            <span data-i18n="ui.scientific">Scientific</span>
           </label>
         </div>
         <div class="calc-sci-buttons" id="calcSciButtons" style="display:none;">
@@ -406,7 +409,7 @@
     <!-- Calendar Window (hidden initially) -->
     <div class="window draggable" id="calendar" style="display:none;">
       <div class="titlebar">
-        <span>Calendar</span>
+        <span data-i18n="title.calendar">Calendar</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('calendar')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('calendar')">X</div>
@@ -417,7 +420,7 @@
           <button type="button" class="calc-btn cal-nav" onclick="calendarPrev()">&lsaquo;</button>
           <span class="cal-title" id="calTitle"></span>
           <button type="button" class="calc-btn cal-nav" onclick="calendarNext()">&rsaquo;</button>
-          <button type="button" class="calc-btn cal-today" onclick="calendarToday()">Today</button>
+          <button type="button" class="calc-btn cal-today" onclick="calendarToday()" data-i18n="ui.today">Today</button>
         </div>
         <div class="cal-grid" id="calGrid"></div>
       </div>
@@ -426,7 +429,7 @@
     <!-- Time Zone Window (hidden initially) -->
     <div class="window draggable" id="timezone" style="display:none;">
       <div class="titlebar">
-        <span>Time Zone</span>
+        <span data-i18n="title.timeZone">Time Zone</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('timezone')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeTimeZone()">X</div>
@@ -434,7 +437,7 @@
       </div>
       <div class="window-body">
         <div class="tz-toolbar">
-          <button type="button" class="calc-btn tz-toggle" onclick="tzToggleView()">Digital</button>
+          <button type="button" class="calc-btn tz-toggle" onclick="tzToggleView()" data-i18n="ui.digital">Digital</button>
         </div>
         <div class="tz-grid" id="tzGrid"></div>
       </div>
@@ -443,14 +446,14 @@
     <!-- Weather Window (hidden initially) -->
     <div class="window draggable" id="weather" style="display:none;">
       <div class="titlebar">
-        <span>Weather</span>
+        <span data-i18n="title.weather">Weather</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('weather')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('weather')">X</div>
         </div>
       </div>
       <div class="window-body" id="weatherBody">
-        <div class="loading-msg">Loading weather data...</div>
+        <div class="loading-msg" data-i18n="weather.loading">Loading weather data...</div>
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="weatherStatus">Powered by Open-Meteo</div>
@@ -460,14 +463,14 @@
     <!-- Disk Usage Window (hidden initially) -->
     <div class="window draggable" id="diskusage" style="display:none;">
       <div class="titlebar">
-        <span>Disk Usage</span>
+        <span data-i18n="title.diskUsage">Disk Usage</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('diskusage')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('diskusage')">X</div>
         </div>
       </div>
       <div class="window-body" id="diskUsageBody">
-        <div class="loading-msg">Scanning disk...</div>
+        <div class="loading-msg" data-i18n="du.scanning">Scanning disk...</div>
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="diskUsageStatus"></div>
@@ -477,14 +480,14 @@
     <!-- Visitor Map Window (hidden initially) -->
     <div class="window draggable" id="visitormap" style="display:none;">
       <div class="titlebar">
-        <span>Visitor Map</span>
+        <span data-i18n="title.visitorMap">Visitor Map</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('visitormap')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('visitormap')">X</div>
         </div>
       </div>
       <div class="window-body" id="visitorMapBody">
-        <div class="loading-msg">Loading visitor data...</div>
+        <div class="loading-msg" data-i18n="vm.loading">Loading visitor data...</div>
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="visitorMapStatus"></div>
@@ -494,24 +497,24 @@
     <!-- Help Window (hidden initially) -->
     <div class="window draggable" id="help" style="display:none;">
       <div class="titlebar">
-        <span id="helpTitle">mpOS Help</span>
+        <span id="helpTitle" data-i18n="title.help">mpOS Help</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('help')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('help')">X</div>
         </div>
       </div>
       <div class="help-toolbar">
-        <button type="button" class="btn help-tb-btn" id="helpToggleBtn" onclick="helpToggleNav()">Hide</button>
-        <button type="button" class="btn help-tb-btn" id="helpBackBtn" onclick="helpBack()" disabled>Back</button>
-        <button type="button" class="btn help-tb-btn" id="helpFwdBtn" onclick="helpForward()" disabled>Forward</button>
-        <button type="button" class="btn help-tb-btn" onclick="helpHome()">Home</button>
+        <button type="button" class="btn help-tb-btn" id="helpToggleBtn" onclick="helpToggleNav()" data-i18n="help.hide">Hide</button>
+        <button type="button" class="btn help-tb-btn" id="helpBackBtn" onclick="helpBack()" disabled data-i18n="help.back">Back</button>
+        <button type="button" class="btn help-tb-btn" id="helpFwdBtn" onclick="helpForward()" disabled data-i18n="help.forward">Forward</button>
+        <button type="button" class="btn help-tb-btn" onclick="helpHome()" data-i18n="help.home">Home</button>
       </div>
       <div class="help-panes">
         <div class="help-nav" id="helpNav">
           <div class="help-tabs">
-            <button type="button" class="help-tab active" id="helpTabContents" onclick="helpSwitchTab('contents')">Contents</button>
-            <button type="button" class="help-tab" id="helpTabIndex" onclick="helpSwitchTab('index')">Index</button>
-            <button type="button" class="help-tab" id="helpTabSearch" onclick="helpSwitchTab('search')">Search</button>
+            <button type="button" class="help-tab active" id="helpTabContents" onclick="helpSwitchTab('contents')" data-i18n="help.tab.contents">Contents</button>
+            <button type="button" class="help-tab" id="helpTabIndex" onclick="helpSwitchTab('index')" data-i18n="help.tab.index">Index</button>
+            <button type="button" class="help-tab" id="helpTabSearch" onclick="helpSwitchTab('search')" data-i18n="help.tab.search">Search</button>
           </div>
           <div class="help-tab-body" id="helpTabBody"></div>
         </div>
@@ -522,7 +525,7 @@
     <!-- Search Results Window (hidden initially) -->
     <div class="window draggable" id="search" style="display:none;">
       <div class="titlebar">
-        <span>Search Results</span>
+        <span data-i18n="title.searchResults">Search Results</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('search')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('search')">X</div>
@@ -530,24 +533,24 @@
       </div>
       <div class="search-panes">
         <div class="search-sidebar">
-          <div class="search-sidebar-title">Search for files or folders</div>
-          <label class="search-label">Named:
+          <div class="search-sidebar-title" data-i18n="search.title">Search for files or folders</div>
+          <label class="search-label"><span data-i18n="search.named">Named:</span>
             <input type="text" class="search-input" id="searchInput" spellcheck="false" autocomplete="off">
           </label>
-          <button type="button" class="btn search-now-btn" onclick="searchNow()">Search Now</button>
+          <button type="button" class="btn search-now-btn" onclick="searchNow()" data-i18n="search.searchNow">Search Now</button>
           <div class="search-sidebar-hint"></div>
         </div>
         <div class="search-results" id="searchResults"></div>
       </div>
       <div class="statusbar">
-        <div class="statusbar-section" id="searchStatus">Ready</div>
+        <div class="statusbar-section" id="searchStatus" data-i18n="search.ready">Ready</div>
       </div>
     </div>
 
     <!-- Paint Window (hidden initially) -->
     <div class="window draggable resizable" id="paint" tabindex="-1" style="display:none;">
       <div class="titlebar">
-        <span id="paintTitle">Paint</span>
+        <span id="paintTitle" data-i18n="title.paint">Paint</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('paint')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closePaint()">X</div>
@@ -555,41 +558,41 @@
       </div>
       <div class="window-body">
         <div class="paint-toolbar">
-          <button type="button" class="btn" onclick="paintNew()">New</button>
-          <button type="button" class="btn" onclick="paintSave()">Save</button>
-          <button type="button" class="btn" onclick="paintLoad()">Open</button>
+          <button type="button" class="btn" onclick="paintNew()" data-i18n="ui.new">New</button>
+          <button type="button" class="btn" onclick="paintSave()" data-i18n="ui.save">Save</button>
+          <button type="button" class="btn" onclick="paintLoad()" data-i18n="ui.open">Open</button>
           <span class="paint-tb-sep"></span>
-          <button type="button" class="btn" id="paintUndoBtn" onclick="paintUndo()" disabled>Undo</button>
-          <button type="button" class="btn" id="paintRedoBtn" onclick="paintRedo()" disabled>Redo</button>
+          <button type="button" class="btn" id="paintUndoBtn" onclick="paintUndo()" disabled data-i18n="ui.undo">Undo</button>
+          <button type="button" class="btn" id="paintRedoBtn" onclick="paintRedo()" disabled data-i18n="ui.redo">Redo</button>
           <span class="paint-tb-sep"></span>
-          <button type="button" class="btn" onclick="paintClear()">Clear</button>
+          <button type="button" class="btn" onclick="paintClear()" data-i18n="ui.clear">Clear</button>
           <span class="paint-tb-sep"></span>
-          <label class="paint-size-label">Size:
+          <label class="paint-size-label"><span data-i18n="paint.sizeLabel">Size:</span>
             <input type="range" id="paintSize" min="1" max="50" value="3" oninput="paintSizeChange(this.value)">
             <span id="paintSizeVal">3</span>px
           </label>
         </div>
         <div class="paint-main">
           <div class="paint-sidebar">
-            <button type="button" class="paint-tool active" data-tool="pencil" onclick="paintSetTool('pencil')" title="Pencil (1px)">
+            <button type="button" class="paint-tool active" data-tool="pencil" onclick="paintSetTool('pencil')" title="Pencil (1px)" data-i18n="paint.tool.pencil" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><path d="M3 13 L11 5 L13 3 L11 5 L3 13Z" stroke="#444" stroke-width="1.5" stroke-linecap="round"/><path d="M2.5 13.5 L3 11 L5 13Z" fill="#444"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="brush" onclick="paintSetTool('brush')" title="Brush">
+            <button type="button" class="paint-tool" data-tool="brush" onclick="paintSetTool('brush')" title="Brush" data-i18n="paint.tool.brush" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><path d="M4 12 Q6 8 8 6 Q10 4 12 3" stroke="#444" stroke-width="2.5" stroke-linecap="round"/><path d="M2 14 Q3 12 4 12" stroke="#444" stroke-width="1" stroke-linecap="round"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="eraser" onclick="paintSetTool('eraser')" title="Eraser">
+            <button type="button" class="paint-tool" data-tool="eraser" onclick="paintSetTool('eraser')" title="Eraser" data-i18n="paint.tool.eraser" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="6" width="10" height="6" rx="1" fill="#e8e0d8" stroke="#888" stroke-width="1"/><rect x="3" y="10" width="10" height="3" rx="1" fill="#f8a0a0" stroke="#888" stroke-width="0.8"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="line" onclick="paintSetTool('line')" title="Line">
+            <button type="button" class="paint-tool" data-tool="line" onclick="paintSetTool('line')" title="Line" data-i18n="paint.tool.line" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><line x1="3" y1="13" x2="13" y2="3" stroke="#444" stroke-width="1.5" stroke-linecap="round"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="rect" onclick="paintSetTool('rect')" title="Rectangle">
+            <button type="button" class="paint-tool" data-tool="rect" onclick="paintSetTool('rect')" title="Rectangle" data-i18n="paint.tool.rect" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="8" stroke="#444" stroke-width="1.5" fill="none"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="ellipse" onclick="paintSetTool('ellipse')" title="Ellipse">
+            <button type="button" class="paint-tool" data-tool="ellipse" onclick="paintSetTool('ellipse')" title="Ellipse" data-i18n="paint.tool.ellipse" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="8" rx="6" ry="4" stroke="#444" stroke-width="1.5" fill="none"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="fill" onclick="paintSetTool('fill')" title="Fill">
+            <button type="button" class="paint-tool" data-tool="fill" onclick="paintSetTool('fill')" title="Fill" data-i18n="paint.tool.fill" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><path d="M4 12 L4 6 L8 2 L12 6 L12 8" stroke="#444" stroke-width="1.2" fill="none" stroke-linejoin="round"/><path d="M12 8 Q14 10 12 12 Q10 14 8 12" fill="#4a8abe" stroke="#2a6898" stroke-width="0.8"/></svg>
             </button>
           </div>
@@ -616,7 +619,7 @@
     <!-- Task Manager Window (hidden initially) -->
     <div class="window draggable resizable" id="taskmanager" tabindex="-1" style="display:none;">
       <div class="titlebar">
-        <span>Task Manager</span>
+        <span data-i18n="title.taskManager">Task Manager</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('taskmanager')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeTaskManager()">X</div>
@@ -633,7 +636,7 @@
     <!-- Chicken Fingers Error Dialog (hidden initially) -->
     <div class="window" id="chickenError" style="display:none;">
       <div class="titlebar">
-        <span>Chicken Fingers</span>
+        <span data-i18n="title.chickenFingers">Chicken Fingers</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('chickenError')">X</div>
         </div>
@@ -642,8 +645,8 @@
         <div class="error-row">
           <svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="20%" stop-color="#ffe88a"/><stop offset="50%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#e8a000"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri)" stroke="#a07000" stroke-width="1.5" stroke-linejoin="round"/><line x1="6" y1="26" x2="16" y2="5" stroke="white" stroke-width="1" opacity="0.3" stroke-linecap="round"/><ellipse cx="13" cy="14" rx="5" ry="6" fill="white" opacity="0.15"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>
           <div class="error-text">
-            <strong>Touchscreen Required</strong>
-            This game requires a touchscreen device to play. Please open this page on a phone or tablet.
+            <strong data-i18n="chicken.touchRequired.title">Touchscreen Required</strong>
+            <span data-i18n="chicken.touchRequired.body">This game requires a touchscreen device to play. Please open this page on a phone or tablet.</span>
           </div>
         </div>
         <div class="button-row">
@@ -688,40 +691,40 @@
             <rect x="7" y="7" width="12" height="3" rx="1" fill="url(#pg-title)"/>
             <rect x="7.8" y="7.4" width="3" height="1.5" rx="0.3" fill="white" opacity="0.25"/>
           </svg>
-          <span onclick="openExplorerTo('programs'); closeStartMenu(); event.stopPropagation();">Programs</span>
+          <span onclick="openExplorerTo('programs'); closeStartMenu(); event.stopPropagation();" data-i18n="ui.programs">Programs</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <button class="start-menu-item" type="button" onclick="openBrowser(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="wbs-sphere" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="wbs-clip"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#wbs-sphere)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#wbs-clip)" opacity="0.35"><ellipse cx="8" cy="8" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="13" cy="11" rx="2" ry="3" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.7"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.7"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.5"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.5"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/></svg>
-              <span>WikiBrowser</span>
+              <span data-i18n="app.wikiBrowser.name">WikiBrowser</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openFishOfDay(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="fd-fish" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#b0f0d0"/><stop offset="30%" stop-color="#70c898"/><stop offset="70%" stop-color="#40a068"/><stop offset="100%" stop-color="#2a8858"/></linearGradient></defs><path d="M1 7 Q3 10 1 14 L4 11 Z" fill="url(#fd-fish)" stroke="#1a5c42" stroke-width="0.6"/><ellipse cx="10" cy="11" rx="8" ry="5" fill="url(#fd-fish)" stroke="#1a5c42" stroke-width="0.8"/><ellipse cx="9" cy="9.5" rx="5" ry="2" fill="white" opacity="0.3"/><circle cx="15" cy="10" r="1" fill="#1a5c42"/><circle cx="15.3" cy="9.7" r="0.3" fill="white"/></svg>
-              <span>Fish of the Day</span>
+              <span data-i18n="app.fishOfDay.name">Fish of the Day</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openFishFinder(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ff-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="30%" stop-color="#d8ecff"/><stop offset="60%" stop-color="#a8d0f0"/><stop offset="100%" stop-color="#78b0d8"/></radialGradient><linearGradient id="ff-handle" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d0c8"/><stop offset="50%" stop-color="#a0a098"/><stop offset="100%" stop-color="#787870"/></linearGradient></defs><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="url(#ff-handle)" stroke-width="3" stroke-linecap="round"/><circle cx="9" cy="9" r="6" fill="url(#ff-lens)" stroke="#1a4a6e" stroke-width="1.2"/><circle cx="9" cy="9" r="4.5" fill="none" stroke="#1a4a6e" stroke-width="0.4" opacity="0.3"/><ellipse cx="7" cy="7" rx="3.5" ry="2.5" fill="white" opacity="0.4"/></svg>
-              <span>Fish Finder</span>
+              <span data-i18n="app.fishFinder.name">Fish Finder</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openOnTarget(); closeStartMenu();">
               <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ot-red" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ff8a8a"/><stop offset="40%" stop-color="#ef5350"/><stop offset="100%" stop-color="#b71c1c"/></radialGradient><radialGradient id="ot-wht" cx="0.4" cy="0.4" r="0.6"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e8e0e0"/></radialGradient></defs><circle cx="10" cy="10" r="9" fill="url(#ot-red)" stroke="#8b1a1a" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#ot-wht)" stroke="#c62828" stroke-width="0.3"/><circle cx="10" cy="10" r="5" fill="url(#ot-red)" stroke="#8b1a1a" stroke-width="0.3"/><circle cx="10" cy="10" r="3" fill="url(#ot-wht)" stroke="#c62828" stroke-width="0.3"/><circle cx="10" cy="10" r="1.5" fill="url(#ot-red)"/><ellipse cx="7.5" cy="6" rx="4" ry="2.5" fill="white" opacity="0.25"/></svg>
-              <span>On Target</span>
+              <span data-i18n="app.onTarget.name">On Target</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openAquarium(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="va-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="30%" stop-color="#6aafe0"/><stop offset="70%" stop-color="#3a8ac0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient><linearGradient id="va-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a8aaa"/><stop offset="40%" stop-color="#0d5a76"/><stop offset="100%" stop-color="#082a3e"/></linearGradient></defs><rect x="1" y="3" width="18" height="12" rx="2" fill="url(#va-body)" stroke="#1a4a6e" stroke-width="0.8"/><line x1="2" y1="4" x2="18" y2="4" stroke="white" stroke-width="0.5" opacity="0.4"/><rect x="3" y="5" width="14" height="8" rx="1" fill="url(#va-water)"/><ellipse cx="7" cy="9" rx="3" ry="1.5" fill="#ffa000" opacity="0.7"/><ellipse cx="12" cy="10" rx="2" ry="1" fill="#ffa000" opacity="0.6"/><path d="M4 7 Q6 6 8 7" stroke="#5ac8e0" stroke-width="0.4" opacity="0.4" fill="none"/><rect x="7" y="15.5" width="6" height="2" rx="0.5" fill="#a0a098" stroke="#8a8680" stroke-width="0.4"/></svg>
-              <span>Virtual Aquarium</span>
+              <span data-i18n="app.aquarium.name">Virtual Aquarium</span>
             </button>
             <button class="start-menu-item" type="button" onclick="closeStartMenu(); if(openChickenFingers()) location.href='chicken-fingers.html';">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cf-body" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="30%" stop-color="#ffe68a"/><stop offset="70%" stop-color="#ffc840"/><stop offset="100%" stop-color="#e8a010"/></radialGradient></defs><ellipse cx="10" cy="12" rx="6" ry="5" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="8.5" cy="11" rx="3.5" ry="2" fill="white" opacity="0.2"/><circle cx="10" cy="6" r="4" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="9" cy="5" rx="2.5" ry="1.5" fill="white" opacity="0.25"/><circle cx="8.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="8.8" cy="5.2" r="0.2" fill="white"/><circle cx="11.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="11.8" cy="5.2" r="0.2" fill="white"/><path d="M9 7.5 L10 8.5 L11 7.5" stroke="#d45500" stroke-width="0.8" fill="#e67e22"/><path d="M5 4 Q7 2 9 3" stroke="#c49000" stroke-width="0.6" fill="none"/><path d="M11 3 Q13 2 15 4" stroke="#c49000" stroke-width="0.6" fill="none"/></svg>
-              <span>Chicken Fingers</span>
+              <span data-i18n="app.chickenFingers.name">Chicken Fingers</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openPaint(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pt-pal" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffe082"/><stop offset="70%" stop-color="#f0c050"/><stop offset="100%" stop-color="#c49000"/></linearGradient></defs><ellipse cx="10" cy="11" rx="8" ry="7" fill="url(#pt-pal)" stroke="#a07000" stroke-width="0.8"/><ellipse cx="9" cy="8" rx="5" ry="3" fill="white" opacity="0.3"/><circle cx="6" cy="9" r="1.5" fill="#ef5350"/><circle cx="9" cy="7" r="1.3" fill="#4a8abe"/><circle cx="13" cy="8" r="1.4" fill="#5aaa80"/><circle cx="14" cy="11" r="1.3" fill="#ffc107"/><circle cx="6" cy="13" r="1.2" fill="#9c27b0"/><ellipse cx="11" cy="14" rx="1" ry="0.8" fill="#ff9800"/><path d="M15 5 Q16 3 17 2 Q18 1.5 18 3 Q17 4 16 6 Q15 7 15 5Z" fill="#a07000" stroke="#785000" stroke-width="0.5"/></svg>
-              <span>Paint</span>
+              <span data-i18n="app.paint.name">Paint</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openBrickBreaker(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bb-red" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ff8a80"/><stop offset="50%" stop-color="#ef5350"/><stop offset="100%" stop-color="#c62828"/></radialGradient><radialGradient id="bb-yellow" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ffd54f"/><stop offset="50%" stop-color="#ffc107"/><stop offset="100%" stop-color="#e8a000"/></radialGradient><radialGradient id="bb-green" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#9ccc9c"/><stop offset="50%" stop-color="#66bb6a"/><stop offset="100%" stop-color="#2e7d32"/></radialGradient><linearGradient id="bb-paddle" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8e0f8"/><stop offset="100%" stop-color="#4a8abe"/></linearGradient><radialGradient id="bb-ball" cx="0.3" cy="0.3" r="0.7"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e8e8e8"/></radialGradient></defs><rect x="2" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="7" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="12" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="2" y="5" width="4.5" height="2" rx="0.4" fill="url(#bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="7" y="5" width="4.5" height="2" rx="0.4" fill="url(#bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="12" y="5" width="4.5" height="2" rx="0.4" fill="url(#bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="2" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#bb-green)" stroke="#1b5e20" stroke-width="0.6"/><rect x="7" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#bb-green)" stroke="#1b5e20" stroke-width="0.6"/><rect x="12" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#bb-green)" stroke="#1b5e20" stroke-width="0.6"/><circle cx="10" cy="13" r="1.8" fill="url(#bb-ball)" stroke="#bdbdbd" stroke-width="0.6"/><rect x="6.5" y="16" width="7" height="1.8" rx="0.5" fill="url(#bb-paddle)" stroke="#1a4a6e" stroke-width="0.7"/><ellipse cx="3.5" cy="3" rx="1.5" ry="0.6" fill="white" opacity="0.35"/><ellipse cx="8.5" cy="3" rx="1.5" ry="0.6" fill="white" opacity="0.35"/><ellipse cx="13.5" cy="3" rx="1.5" ry="0.6" fill="white" opacity="0.35"/><ellipse cx="9.3" cy="12.3" rx="0.9" ry="0.7" fill="white" opacity="0.5"/><ellipse cx="8.5" cy="16.4" rx="2.5" ry="0.5" fill="white" opacity="0.3"/></svg>
-              <span>Brick Breaker</span>
+              <span data-i18n="app.brickBreaker.name">Brick Breaker</span>
             </button>
           </div>
         </div>
@@ -737,10 +740,10 @@
             <line x1="5" y1="18.5" x2="43" y2="18.5" stroke="white" stroke-width="0.8" opacity="0.45"/>
             <ellipse cx="16" cy="24" rx="12" ry="5" fill="white" opacity="0.2"/>
           </svg>
-          <span onclick="openExplorerTo('documents'); closeStartMenu(); event.stopPropagation();">Documents</span>
+          <span onclick="openExplorerTo('documents'); closeStartMenu(); event.stopPropagation();" data-i18n="ui.documents">Documents</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
-            <div class="start-menu-empty">No documents yet</div>
+            <div class="start-menu-empty" data-i18n="ui.noDocumentsYet">No documents yet</div>
           </div>
         </div>
 
@@ -752,36 +755,36 @@
             <circle cx="10" cy="9" r="3" fill="#e0f0ff" stroke="#1a4a6e" stroke-width="0.6"/>
             <ellipse cx="8.5" cy="7" rx="3" ry="2" fill="white" opacity="0.3"/>
           </svg>
-          <span onclick="openExplorerTo('utilities'); closeStartMenu(); event.stopPropagation();">Utilities</span>
+          <span onclick="openExplorerTo('utilities'); closeStartMenu(); event.stopPropagation();" data-i18n="ui.utilities">Utilities</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <button class="start-menu-item" type="button" onclick="openNotepad(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="np-doc" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="30%" stop-color="#f0f4ff"/><stop offset="70%" stop-color="#c8d8f0"/><stop offset="100%" stop-color="#a0b8d8"/></linearGradient></defs><path d="M3 1 L13 1 L17 5 L17 19 L3 19 Z" fill="url(#np-doc)" stroke="#4a6a8e" stroke-width="0.8"/><path d="M13 1 L13 5 L17 5" fill="#c8d8f0" stroke="#4a6a8e" stroke-width="0.5"/><rect x="4" y="2" width="6" height="2" rx="0.5" fill="white" opacity="0.4"/><line x1="6" y1="8" x2="14" y2="8" stroke="#8a9ab8" stroke-width="0.5"/><line x1="6" y1="11" x2="14" y2="11" stroke="#8a9ab8" stroke-width="0.5"/><line x1="6" y1="14" x2="11" y2="14" stroke="#8a9ab8" stroke-width="0.5"/></svg>
-              <span>Notepad</span>
+              <span data-i18n="app.notepad.name">Notepad</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openCalculator(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ca-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="30%" stop-color="#d8d4cc"/><stop offset="70%" stop-color="#b8b4ac"/><stop offset="100%" stop-color="#98948c"/></linearGradient><linearGradient id="ca-lcd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0f0d0"/><stop offset="100%" stop-color="#b0d098"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1.5" fill="url(#ca-body)" stroke="#787470" stroke-width="0.8"/><line x1="4" y1="2" x2="16" y2="2" stroke="white" stroke-width="0.5" opacity="0.5"/><rect x="5" y="3" width="10" height="3" rx="0.5" fill="url(#ca-lcd)" stroke="#6a8a5a" stroke-width="0.5"/><rect x="5" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="8" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="12" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="16" width="6" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="16" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/></svg>
-              <span>Calculator</span>
+              <span data-i18n="app.calculator.name">Calculator</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openCalendar(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="cl-page" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient><linearGradient id="cl-bar" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ef5350"/><stop offset="50%" stop-color="#d32f2f"/><stop offset="100%" stop-color="#b71c1c"/></linearGradient></defs><rect x="3" y="3" width="14" height="16" rx="1" fill="url(#cl-page)" stroke="#8a8680" stroke-width="0.8"/><rect x="3" y="3" width="14" height="3.5" rx="1" fill="url(#cl-bar)"/><line x1="4" y1="3.8" x2="10" y2="3.8" stroke="white" stroke-width="0.5" opacity="0.4"/><circle cx="7" cy="10" r="0.6" fill="#808080"/><circle cx="10" cy="10" r="0.6" fill="#808080"/><circle cx="13" cy="10" r="0.6" fill="#808080"/><circle cx="7" cy="13" r="0.6" fill="#808080"/><circle cx="10" cy="13" r="0.6" fill="#808080"/><circle cx="13" cy="13" r="0.6" fill="#808080"/><circle cx="7" cy="16" r="0.6" fill="#808080"/><circle cx="10" cy="16" r="0.6" fill="#808080"/></svg>
-              <span>Calendar</span>
+              <span data-i18n="app.calendar.name">Calendar</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openTimeZone(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tz-face" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient><linearGradient id="tz-rim" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#tz-rim)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#tz-face)"/><ellipse cx="8.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><line x1="10" y1="10" x2="10" y2="5" stroke="#2a4a6e" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="10" x2="14" y2="10" stroke="#2a4a6e" stroke-width="0.9" stroke-linecap="round"/><circle cx="10" cy="10" r="0.8" fill="#2a4a6e"/><path d="M3.5 13 Q10 15.5 16.5 13" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/><path d="M3.5 7 Q10 4.5 16.5 7" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/></svg>
-              <span>Time Zone</span>
+              <span data-i18n="app.timeZone.name">Time Zone</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openWeather(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="we-sun" cx="0.3" cy="0.3" r="0.7"><stop offset="0%" stop-color="#fffde0"/><stop offset="40%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f9a825"/></radialGradient><radialGradient id="we-cloud" cx="0.4" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#e8e4dc"/><stop offset="100%" stop-color="#c8c4bc"/></radialGradient></defs><line x1="7" y1="1" x2="7" y2="3" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><line x1="2" y1="3" x2="3.5" y2="4.5" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><line x1="12" y1="3" x2="10.5" y2="4.5" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><line x1="1" y1="7" x2="3" y2="7" stroke="#f9a825" stroke-width="0.8" stroke-linecap="round"/><circle cx="7" cy="7" r="3.5" fill="url(#we-sun)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="6" cy="5.5" rx="2" ry="1.5" fill="white" opacity="0.35"/><path d="M5 16 Q5 13 8 13 Q8.5 11 11 11 Q14 11 14.5 13 Q17 13 17 15 Q17 17 15 17 L7 17 Q5 17 5 16Z" fill="url(#we-cloud)" stroke="#8a8680" stroke-width="0.6"/><ellipse cx="10" cy="14" rx="4" ry="1.5" fill="white" opacity="0.3"/></svg>
-              <span>Weather</span>
+              <span data-i18n="app.weather.name">Weather</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openDiskUsage(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="du-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="30%" stop-color="#c8c4bc"/><stop offset="70%" stop-color="#a8a49c"/><stop offset="100%" stop-color="#8a8680"/></linearGradient><linearGradient id="du-platter" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient></defs><rect x="2" y="6" width="16" height="10" rx="1.5" fill="url(#du-body)" stroke="#6a6660" stroke-width="0.8"/><line x1="3" y1="7" x2="17" y2="7" stroke="white" stroke-width="0.5" opacity="0.4"/><rect x="4" y="8" width="8" height="5" rx="0.5" fill="url(#du-platter)" stroke="#4a4a4a" stroke-width="0.5"/><circle cx="8" cy="10.5" r="1.8" fill="none" stroke="#555" stroke-width="0.4"/><circle cx="8" cy="10.5" r="0.5" fill="#888"/><circle cx="15" cy="13" r="0.8" fill="#5aaa80" stroke="#2a7a52" stroke-width="0.3"/><ellipse cx="7" cy="8.5" rx="3" ry="1.5" fill="white" opacity="0.15"/></svg>
-              <span>Disk Usage</span>
+              <span data-i18n="app.diskUsage.name">Disk Usage</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openVisitorMap(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="vm-globe" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="vm-clip"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#vm-globe)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#vm-clip)" opacity="0.35"><ellipse cx="6" cy="8" rx="4" ry="3" fill="#5aaa80"/><ellipse cx="14" cy="7" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="10" cy="14" rx="5" ry="2" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.6"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.6"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><circle cx="14" cy="6" r="2" fill="#ef5350" opacity="0.8"/><path d="M14 4 L14 6.5" stroke="#c62828" stroke-width="0.8" stroke-linecap="round"/><circle cx="14" cy="4" r="0.6" fill="#c62828"/></svg>
-              <span>Visitor Map</span>
+              <span data-i18n="app.visitorMap.name">Visitor Map</span>
             </button>
           </div>
         </div>
@@ -802,7 +805,7 @@
             <path d="M9.5 8 Q9.5 6.5 11 6.5 Q12.5 6.5 12.5 8 Q12.5 9 11 9.5 L11 10.5" fill="none" stroke="#4a8abe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="11" cy="12.5" r="0.7" fill="#4a8abe"/>
           </svg>
-          <span>Help</span>
+          <span data-i18n="app.help.name">Help</span>
         </button>
 
         <!-- Search -->
@@ -817,20 +820,20 @@
             <circle cx="9" cy="9" r="4.5" fill="none" stroke="#1a4a6e" stroke-width="0.4" opacity="0.3"/>
             <ellipse cx="7" cy="7" rx="3.5" ry="2.5" fill="white" opacity="0.4"/>
           </svg>
-          <span>Search</span>
+          <span data-i18n="ui.search">Search</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <button class="start-menu-item" type="button" onclick="openSearch(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="sr-ff-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="30%" stop-color="#d8ecff"/><stop offset="60%" stop-color="#a8d0f0"/><stop offset="100%" stop-color="#78b0d8"/></radialGradient><linearGradient id="sr-ff-handle" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d0c8"/><stop offset="50%" stop-color="#a0a098"/><stop offset="100%" stop-color="#787870"/></linearGradient></defs><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="url(#sr-ff-handle)" stroke-width="3" stroke-linecap="round"/><circle cx="9" cy="9" r="6" fill="url(#sr-ff-lens)" stroke="#1a4a6e" stroke-width="1.2"/><ellipse cx="7" cy="7" rx="3.5" ry="2.5" fill="white" opacity="0.4"/></svg>
-              <span>For Files or Folders...</span>
+              <span data-i18n="startSearch.files">For Files or Folders...</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openHelp(); setTimeout(function(){helpSwitchTab('search');},200); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sr-hp-book" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffc107"/><stop offset="70%" stop-color="#e8a010"/><stop offset="100%" stop-color="#c49000"/></linearGradient><linearGradient id="sr-hp-page" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient></defs><rect x="2" y="3" width="3" height="14" rx="0.5" fill="url(#sr-hp-book)" stroke="#c49000" stroke-width="0.6"/><rect x="5" y="4" width="11" height="12" rx="1" fill="url(#sr-hp-page)" stroke="#8a8680" stroke-width="0.6"/><line x1="6" y1="4.5" x2="15" y2="4.5" stroke="white" stroke-width="0.5" opacity="0.5"/><path d="M9.5 8 Q9.5 6.5 11 6.5 Q12.5 6.5 12.5 8 Q12.5 9 11 9.5 L11 10.5" fill="none" stroke="#4a8abe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="12.5" r="0.7" fill="#4a8abe"/></svg>
-              <span>For Help Topics...</span>
+              <span data-i18n="startSearch.help">For Help Topics...</span>
             </button>
             <button class="start-menu-item" type="button" onclick="openBrowser(); closeStartMenu();">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="sr-globe" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="sr-globe-clip"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#sr-globe)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#sr-globe-clip)" opacity="0.35"><ellipse cx="8" cy="8" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="13" cy="11" rx="2" ry="3" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.7"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.7"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/></svg>
-              <span>On the Internet</span>
+              <span data-i18n="startSearch.internet">On the Internet</span>
             </button>
           </div>
         </div>
@@ -838,7 +841,7 @@
         <!-- Run -->
         <button class="start-menu-item" type="button" onclick="openRun(); closeStartMenu();">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rt-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="70%" stop-color="#141414"/><stop offset="100%" stop-color="#050505"/></linearGradient></defs><rect x="1" y="4" width="18" height="13" rx="1.5" fill="url(#rt-body)" stroke="#606060" stroke-width="0.8"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.6" opacity="0.2"/><line x1="1.5" y1="5.5" x2="1.5" y2="15.5" stroke="white" stroke-width="0.4" opacity="0.1"/><path d="M4 8 L7.5 10.5 L4 13" stroke="#80c8a0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="9" y1="13" x2="14" y2="13" stroke="#80c8a0" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>Run...</span>
+          <span data-i18n="ui.run">Run...</span>
         </button>
 
         <div class="start-menu-separator"></div>
@@ -853,7 +856,7 @@
             <rect x="5" y="4" width="5" height="8" rx="0.5" fill="#c8d4e0" stroke="#8a8680" stroke-width="0.4"/>
             <path d="M7 10 L14 10 M12 7 L15 10 L12 13" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span>Exit Site</span>
+          <span data-i18n="ui.exitSite">Exit Site</span>
         </button>
       </div>
 
@@ -873,10 +876,13 @@
 
         <!-- Volume Popup -->
         <div class="volume-popup">
-          <div class="volume-title">Volume</div>
+          <div class="volume-title" data-i18n="ui.volume">Volume</div>
           <input class="volume-slider" type="range" min="0" max="100" value="10">
-          <label><input class="volume-mute" type="checkbox"> Mute</label>
+          <label><input class="volume-mute" type="checkbox"> <span data-i18n="ui.mute">Mute</span></label>
         </div>
+
+        <!-- Language Toggle -->
+        <button type="button" class="tray-lang" id="trayLangBtn" title="Language">EN</button>
 
         <!-- Clock -->
         <span class="tray-clock"></span>
@@ -884,6 +890,8 @@
     </div>
   </div>
 
+  <script src="js/i18n.js" defer></script>
+  <script src="lang/pt.js" defer></script>
   <script src="js/audio.js" defer></script>
   <script src="js/taskbar.js" defer></script>
   <script src="js/main.js" defer></script>

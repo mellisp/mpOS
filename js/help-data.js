@@ -7,13 +7,16 @@
      { h: 'text' }                    — subheading
      { ul: ['item1', 'item2'] }       — unordered list
      { sa: ['topicId1', 'topicId2'] } — "See also" links
+
+   Portuguese translations use _pt suffix properties:
+     title_pt, keywords_pt, body_pt
 */
 
 var HELP_TREE = [
-  { title: 'Getting Started', children: ['welcome', 'desktop', 'startmenu', 'taskbar'] },
-  { title: 'Programs',        children: ['wikibrowser', 'fishofday', 'fishfinder', 'ontarget', 'aquarium', 'chickenfingers', 'paint', 'brickbreaker'] },
-  { title: 'Utilities',       children: ['notepad', 'calculator', 'calendar', 'timezone', 'weather', 'diskusage', 'visitormap', 'search'] },
-  { title: 'System',          children: ['mycomputer', 'explorer', 'run', 'taskmanager'] }
+  { title: 'Getting Started', title_pt: 'Primeiros Passos', children: ['welcome', 'desktop', 'startmenu', 'taskbar'] },
+  { title: 'Programs',        title_pt: 'Programas',        children: ['wikibrowser', 'fishofday', 'fishfinder', 'ontarget', 'aquarium', 'chickenfingers', 'paint', 'brickbreaker'] },
+  { title: 'Utilities',       title_pt: 'Utilit\u00e1rios', children: ['notepad', 'calculator', 'calendar', 'timezone', 'weather', 'diskusage', 'visitormap', 'search'] },
+  { title: 'System',          title_pt: 'Sistema',          children: ['mycomputer', 'explorer', 'run', 'taskmanager'] }
 ];
 
 var HELP_TOPICS = {
@@ -22,7 +25,9 @@ var HELP_TOPICS = {
 
   welcome: {
     title: 'Welcome to mpOS',
+    title_pt: 'Bem-vindo ao mpOS',
     keywords: ['welcome', 'getting started', 'about', 'home', 'introduction', 'overview'],
+    keywords_pt: ['bem-vindo', 'primeiros passos', 'sobre', 'in\u00edcio', 'introdu\u00e7\u00e3o', 'vis\u00e3o geral'],
     body: [
       { p: 'Welcome to mpOS, a desktop operating system experience built entirely in the browser.' },
       { p: 'mpOS features draggable windows, a taskbar with minimize and restore, a Start menu with programs and utilities, a file explorer, and a terminal.' },
@@ -45,12 +50,37 @@ var HELP_TOPICS = {
         'Explore system information, display settings, and screen savers with System Properties.'
       ]},
       { sa: ['desktop', 'startmenu', 'taskbar'] }
+    ],
+    body_pt: [
+      { p: 'Bem-vindo ao mpOS, uma experi\u00eancia de sistema operativo de ambiente de trabalho constru\u00edda inteiramente no navegador.' },
+      { p: 'O mpOS inclui janelas arrastáveis, uma barra de tarefas com minimizar e restaurar, um menu Iniciar com programas e utilitários, um explorador de ficheiros e um terminal.' },
+      { h: 'Navegar no Sistema' },
+      { ul: [
+        'Clique no bot\u00e3o Iniciar para abrir o menu Iniciar.',
+        'Clique duas vezes nos \u00edcones do ambiente de trabalho para abrir aplica\u00e7\u00f5es.',
+        'Arraste as barras de t\u00edtulo das janelas para reposicion\u00e1-las.',
+        'Clique num bot\u00e3o da barra de tarefas para minimizar ou restaurar uma janela.'
+      ]},
+      { h: 'O Que Pode Fazer' },
+      { ul: [
+        'Navegar na Wikip\u00e9dia com o WikiBrowser.',
+        'Descobrir um peixe novo todos os dias com o Peixe do Dia.',
+        'Jogar jogos como On Target, Chicken Fingers e Brick Breaker.',
+        'Procurar ficheiros, programas e comandos com a Pesquisa.',
+        'Ver de onde v\u00eam os visitantes com o Mapa de Visitantes.',
+        'Usar utilit\u00e1rios como Bloco de Notas, Calculadora, Calend\u00e1rio e muito mais.',
+        'Monitorizar aplica\u00e7\u00f5es em execu\u00e7\u00e3o com o Gestor de Tarefas (Ctrl+Alt+Del).',
+        'Explorar informa\u00e7\u00f5es do sistema, defini\u00e7\u00f5es de visualiza\u00e7\u00e3o e protetores de ecr\u00e3 com as Propriedades do Sistema.'
+      ]},
+      { sa: ['desktop', 'startmenu', 'taskbar'] }
     ]
   },
 
   desktop: {
     title: 'Desktop Overview',
+    title_pt: 'Vis\u00e3o Geral do Ambiente de Trabalho',
     keywords: ['desktop', 'icons', 'background', 'workspace', 'double-click'],
+    keywords_pt: ['ambiente de trabalho', '\u00edcones', 'fundo', '\u00e1rea de trabalho', 'duplo clique'],
     body: [
       { p: 'The desktop is your main workspace. It displays a blue background with shortcut icons for frequently used applications.' },
       { h: 'Desktop Icons' },
@@ -61,12 +91,25 @@ var HELP_TOPICS = {
       ]},
       { p: 'Double-click any desktop icon to open its application. You can also use keyboard navigation: Tab to focus an icon, then press Enter to open it.' },
       { sa: ['startmenu', 'taskbar', 'explorer'] }
+    ],
+    body_pt: [
+      { p: 'O ambiente de trabalho \u00e9 a sua \u00e1rea de trabalho principal. Apresenta um fundo azul com \u00edcones de atalho para as aplica\u00e7\u00f5es mais utilizadas.' },
+      { h: '\u00cdcones do Ambiente de Trabalho' },
+      { ul: [
+        'O Meu Computador \u2014 abre as Propriedades do Sistema (informa\u00e7\u00f5es do sistema, defini\u00e7\u00f5es de visualiza\u00e7\u00e3o, protetores de ecr\u00e3).',
+        'Ficheiros \u2014 abre o explorador de ficheiros para navegar todas as aplica\u00e7\u00f5es.',
+        'WikiBrowser \u2014 um navegador da Wikip\u00e9dia integrado.'
+      ]},
+      { p: 'Clique duas vezes em qualquer \u00edcone do ambiente de trabalho para abrir a sua aplica\u00e7\u00e3o. Tamb\u00e9m pode usar a navega\u00e7\u00e3o por teclado: Tab para focar um \u00edcone e depois Enter para abri-lo.' },
+      { sa: ['startmenu', 'taskbar', 'explorer'] }
     ]
   },
 
   startmenu: {
     title: 'Using the Start Menu',
+    title_pt: 'Utilizar o Menu Iniciar',
     keywords: ['start menu', 'start button', 'programs', 'documents', 'utilities', 'run', 'exit', 'launch'],
+    keywords_pt: ['menu iniciar', 'bot\u00e3o iniciar', 'programas', 'documentos', 'utilit\u00e1rios', 'executar', 'sair', 'lan\u00e7ar'],
     body: [
       { p: 'The Start menu is your main entry point for launching applications. Click the Start button at the bottom-left of the screen to open it.' },
       { h: 'Menu Structure' },
@@ -81,12 +124,29 @@ var HELP_TOPICS = {
         'Exit Site \u2014 closes the browser tab.'
       ]},
       { sa: ['taskbar', 'run', 'search', 'taskmanager'] }
+    ],
+    body_pt: [
+      { p: 'O menu Iniciar \u00e9 o seu principal ponto de acesso para lan\u00e7ar aplica\u00e7\u00f5es. Clique no bot\u00e3o Iniciar no canto inferior esquerdo do ecr\u00e3 para o abrir.' },
+      { h: 'Estrutura do Menu' },
+      { ul: [
+        'Programas \u2014 passe o rato para ver um submenu com WikiBrowser, Peixe do Dia, Fish Finder, On Target, Aqu\u00e1rio Virtual, Chicken Fingers, Paint e Brick Breaker. Clique na pr\u00f3pria etiqueta para abrir a pasta Programas no Explorador.',
+        'Documentos \u2014 passe o rato para ver documentos guardados (criados no Bloco de Notas). Clique na etiqueta para abrir a pasta Documentos.',
+        'Utilit\u00e1rios \u2014 passe o rato para Bloco de Notas, Calculadora, Calend\u00e1rio, Fuso Hor\u00e1rio, Meteorologia, Utiliza\u00e7\u00e3o do Disco, Mapa de Visitantes, Pesquisa e Ajuda.',
+        'Pesquisar \u2014 passe o rato para ver Ficheiros ou Pastas\u2026, T\u00f3picos de Ajuda\u2026 e Na Internet.',
+        'Ajuda \u2014 abre este visualizador de Ajuda.',
+        'Executar \u2014 abre o terminal de linha de comandos.',
+        'Gestor de Tarefas \u2014 pressione Ctrl+Alt+Del em qualquer lugar.',
+        'Sair do Site \u2014 fecha o separador do navegador.'
+      ]},
+      { sa: ['taskbar', 'run', 'search', 'taskmanager'] }
     ]
   },
 
   taskbar: {
     title: 'Using the Taskbar',
+    title_pt: 'Utilizar a Barra de Tarefas',
     keywords: ['taskbar', 'minimize', 'restore', 'system tray', 'clock', 'volume', 'window management'],
+    keywords_pt: ['barra de tarefas', 'minimizar', 'restaurar', 'tabuleiro do sistema', 'rel\u00f3gio', 'volume', 'gest\u00e3o de janelas'],
     body: [
       { p: 'The taskbar runs along the bottom of the screen. It contains the Start button, open-window buttons, and the system tray.' },
       { h: 'Window Buttons' },
@@ -98,6 +158,18 @@ var HELP_TOPICS = {
         'Clock \u2014 displays the current time.'
       ]},
       { sa: ['startmenu', 'desktop'] }
+    ],
+    body_pt: [
+      { p: 'A barra de tarefas percorre a parte inferior do ecr\u00e3. Cont\u00e9m o bot\u00e3o Iniciar, bot\u00f5es das janelas abertas e o tabuleiro do sistema.' },
+      { h: 'Bot\u00f5es de Janela' },
+      { p: 'Cada janela aberta recebe um bot\u00e3o na barra de tarefas. Clique no bot\u00e3o para minimizar uma janela vis\u00edvel ou restaurar uma minimizada. O bot\u00e3o da janela ativa aparece premido.' },
+      { h: 'Tabuleiro do Sistema' },
+      { p: 'O tabuleiro do sistema est\u00e1 do lado direito da barra de tarefas. Cont\u00e9m:' },
+      { ul: [
+        '\u00cdcone de volume \u2014 clique para ajustar o volume do som do sistema ou silenciar.',
+        'Rel\u00f3gio \u2014 apresenta a hora atual.'
+      ]},
+      { sa: ['startmenu', 'desktop'] }
     ]
   },
 
@@ -105,7 +177,9 @@ var HELP_TOPICS = {
 
   wikibrowser: {
     title: 'WikiBrowser',
+    title_pt: 'WikiBrowser',
     keywords: ['wikibrowser', 'wikipedia', 'browser', 'search', 'internet', 'web', 'browse', 'article'],
+    keywords_pt: ['wikibrowser', 'wikip\u00e9dia', 'navegador', 'pesquisar', 'internet', 'web', 'navegar', 'artigo'],
     body: [
       { p: 'WikiBrowser lets you browse Wikipedia without leaving mpOS. It loads Wikipedia\u2019s mobile site inside an embedded frame.' },
       { h: 'How to Use' },
@@ -121,12 +195,30 @@ var HELP_TOPICS = {
         'Type BROWSER in the Run terminal.'
       ]},
       { sa: ['fishofday', 'startmenu'] }
+    ],
+    body_pt: [
+      { p: 'O WikiBrowser permite-lhe navegar na Wikip\u00e9dia sem sair do mpOS. Carrega o site m\u00f3vel da Wikip\u00e9dia dentro de um quadro integrado.' },
+      { h: 'Como Utilizar' },
+      { ul: [
+        'Escreva um termo de pesquisa ou URL da Wikip\u00e9dia na barra de endere\u00e7os e pressione Enter.',
+        'A p\u00e1gina carrega dentro do visualizador. As liga\u00e7\u00f5es dentro da Wikip\u00e9dia funcionam normalmente.',
+        'A barra de t\u00edtulo atualiza-se para mostrar o nome do artigo atual.'
+      ]},
+      { h: 'Abrir o WikiBrowser' },
+      { ul: [
+        'Clique duas vezes no \u00edcone WikiBrowser no ambiente de trabalho.',
+        'Menu Iniciar \u2192 Programas \u2192 WikiBrowser.',
+        'Escreva BROWSER no terminal Executar.'
+      ]},
+      { sa: ['fishofday', 'startmenu'] }
     ]
   },
 
   fishofday: {
     title: 'Fish of the Day',
+    title_pt: 'Peixe do Dia',
     keywords: ['fish of the day', 'fish', 'daily', 'wikipedia', 'species', 'photo', 'marine'],
+    keywords_pt: ['peixe do dia', 'peixe', 'di\u00e1rio', 'wikip\u00e9dia', 'esp\u00e9cie', 'foto', 'marinho'],
     body: [
       { p: 'Fish of the Day showcases a different fish species every day. It displays a photo (fetched from Wikipedia), the common and scientific names, and details like family, habitat, and maximum size.' },
       { h: 'Features' },
@@ -141,12 +233,29 @@ var HELP_TOPICS = {
         'Type FISHOFDAY in the Run terminal.'
       ]},
       { sa: ['fishfinder', 'wikibrowser'] }
+    ],
+    body_pt: [
+      { p: 'O Peixe do Dia apresenta uma esp\u00e9cie de peixe diferente todos os dias. Mostra uma foto (obtida da Wikip\u00e9dia), os nomes comum e cient\u00edfico, e detalhes como fam\u00edlia, habitat e tamanho m\u00e1ximo.' },
+      { h: 'Funcionalidades' },
+      { ul: [
+        'Um novo peixe \u00e9 selecionado todos os dias a partir de uma base de dados com centenas de esp\u00e9cies.',
+        'Clique no nome do peixe (quando sublinhado) para abrir o seu artigo na Wikip\u00e9dia no WikiBrowser.',
+        'A barra de estado mostra a data de hoje.'
+      ]},
+      { h: 'Abrir o Peixe do Dia' },
+      { ul: [
+        'Menu Iniciar \u2192 Programas \u2192 Peixe do Dia.',
+        'Escreva FISHOFDAY no terminal Executar.'
+      ]},
+      { sa: ['fishfinder', 'wikibrowser'] }
     ]
   },
 
   fishfinder: {
     title: 'Fish Finder',
+    title_pt: 'Fish Finder',
     keywords: ['fish finder', 'aquarium', 'nearest', 'furthest', 'location', 'geolocation', 'distance', 'map'],
+    keywords_pt: ['fish finder', 'aqu\u00e1rio', 'mais pr\u00f3ximo', 'mais distante', 'localiza\u00e7\u00e3o', 'geolocaliza\u00e7\u00e3o', 'dist\u00e2ncia', 'mapa'],
     body: [
       { p: 'Fish Finder uses your location to find the nearest and furthest aquariums from a database of 50+ aquariums worldwide.' },
       { h: 'How It Works' },
@@ -158,12 +267,26 @@ var HELP_TOPICS = {
       ]},
       { p: 'If location access is denied, an error message will be shown.' },
       { sa: ['fishofday', 'aquarium'] }
+    ],
+    body_pt: [
+      { p: 'O Fish Finder utiliza a sua localiza\u00e7\u00e3o para encontrar os aqu\u00e1rios mais pr\u00f3ximos e mais distantes a partir de uma base de dados com mais de 50 aqu\u00e1rios em todo o mundo.' },
+      { h: 'Como Funciona' },
+      { ul: [
+        'Ao abrir o Fish Finder, \u00e9 solicitada a sua localiza\u00e7\u00e3o atrav\u00e9s da API de Geolocaliza\u00e7\u00e3o do navegador.',
+        'Calcula a dist\u00e2ncia at\u00e9 cada aqu\u00e1rio na sua base de dados.',
+        'Os aqu\u00e1rios mais pr\u00f3ximos e mais distantes s\u00e3o apresentados com o nome, cidade e dist\u00e2ncia em quil\u00f3metros e milhas.',
+        'Clique no nome de um aqu\u00e1rio (quando tem liga\u00e7\u00e3o) para visitar o seu website.'
+      ]},
+      { p: 'Se o acesso \u00e0 localiza\u00e7\u00e3o for negado, ser\u00e1 mostrada uma mensagem de erro.' },
+      { sa: ['fishofday', 'aquarium'] }
     ]
   },
 
   ontarget: {
     title: 'On Target',
+    title_pt: 'On Target',
     keywords: ['on target', 'game', 'target', 'shooting', 'two-player', 'aim', 'score'],
+    keywords_pt: ['on target', 'jogo', 'alvo', 'tiro', 'dois jogadores', 'apontar', 'pontua\u00e7\u00e3o'],
     body: [
       { p: 'On Target is a two-player target shooting game. Players take turns tapping or clicking targets that appear on screen.' },
       { h: 'How to Play' },
@@ -180,12 +303,31 @@ var HELP_TOPICS = {
         'On mobile, the game opens as a full-screen page.'
       ]},
       { sa: ['chickenfingers', 'aquarium'] }
+    ],
+    body_pt: [
+      { p: 'On Target \u00e9 um jogo de tiro ao alvo para dois jogadores. Os jogadores alternam turnos tocando ou clicando em alvos que aparecem no ecr\u00e3.' },
+      { h: 'Como Jogar' },
+      { ul: [
+        'O jogo carrega num quadro integrado.',
+        'Siga as instru\u00e7\u00f5es no ecr\u00e3 para iniciar uma partida.',
+        'Os jogadores alternam turnos a disparar nos alvos.',
+        'O jogador com a pontua\u00e7\u00e3o mais alta ganha.'
+      ]},
+      { h: 'Abrir o On Target' },
+      { ul: [
+        'Menu Iniciar \u2192 Programas \u2192 On Target.',
+        'Escreva ONTARGET no terminal Executar.',
+        'No telem\u00f3vel, o jogo abre como p\u00e1gina em ecr\u00e3 inteiro.'
+      ]},
+      { sa: ['chickenfingers', 'aquarium'] }
     ]
   },
 
   aquarium: {
     title: 'Virtual Aquarium',
+    title_pt: 'Aqu\u00e1rio Virtual',
     keywords: ['aquarium', 'virtual', 'fish', 'live', 'stream', 'camera', 'youtube', 'video', 'watch'],
+    keywords_pt: ['aqu\u00e1rio', 'virtual', 'peixe', 'ao vivo', 'transmiss\u00e3o', 'c\u00e2mara', 'youtube', 'v\u00eddeo', 'assistir'],
     body: [
       { p: 'Virtual Aquarium streams a live fish camera feed from explore.org. Watch real fish swimming in real-time.' },
       { h: 'How It Works' },
@@ -196,12 +338,25 @@ var HELP_TOPICS = {
         'Closing the window fully unloads the video player to save resources.'
       ]},
       { sa: ['fishofday', 'fishfinder'] }
+    ],
+    body_pt: [
+      { p: 'O Aqu\u00e1rio Virtual transmite uma c\u00e2mara de peixes ao vivo do explore.org. Veja peixes reais a nadar em tempo real.' },
+      { h: 'Como Funciona' },
+      { ul: [
+        'O aqu\u00e1rio carrega uma transmiss\u00e3o ao vivo do YouTube usando a API do YouTube IFrame Player.',
+        'O v\u00eddeo come\u00e7a silenciado e em reprodu\u00e7\u00e3o autom\u00e1tica.',
+        'Um escudo de carregamento cobre o v\u00eddeo durante alguns segundos enquanto a transmiss\u00e3o liga.',
+        'Fechar a janela descarrega completamente o reprodutor de v\u00eddeo para poupar recursos.'
+      ]},
+      { sa: ['fishofday', 'fishfinder'] }
     ]
   },
 
   chickenfingers: {
     title: 'Chicken Fingers',
+    title_pt: 'Chicken Fingers',
     keywords: ['chicken fingers', 'game', 'touch', 'touchscreen', 'mobile', 'two-player', 'phone', 'tablet'],
+    keywords_pt: ['chicken fingers', 'jogo', 'toque', 'ecr\u00e3 t\u00e1til', 'telem\u00f3vel', 'dois jogadores', 'telefone', 'tablet'],
     body: [
       { p: 'Chicken Fingers is a two-player touchscreen game. It requires a device with a touchscreen to play.' },
       { h: 'Requirements' },
@@ -213,12 +368,26 @@ var HELP_TOPICS = {
         'Follow the on-screen instructions to play with two players.'
       ]},
       { sa: ['ontarget'] }
+    ],
+    body_pt: [
+      { p: 'Chicken Fingers \u00e9 um jogo para dois jogadores com ecr\u00e3 t\u00e1til. Requer um dispositivo com ecr\u00e3 t\u00e1til para jogar.' },
+      { h: 'Requisitos' },
+      { p: 'Este jogo s\u00f3 funciona em telefones e tablets. Em computadores de secret\u00e1ria, aparecer\u00e1 uma caixa de di\u00e1logo de erro a explicar que \u00e9 necess\u00e1rio um ecr\u00e3 t\u00e1til.' },
+      { h: 'Como Jogar' },
+      { ul: [
+        'Abra o jogo num dispositivo com ecr\u00e3 t\u00e1til.',
+        'O jogo navega para uma p\u00e1gina dedicada em ecr\u00e3 inteiro.',
+        'Siga as instru\u00e7\u00f5es no ecr\u00e3 para jogar com dois jogadores.'
+      ]},
+      { sa: ['ontarget'] }
     ]
   },
 
   paint: {
     title: 'Paint',
+    title_pt: 'Paint',
     keywords: ['paint', 'draw', 'drawing', 'image', 'canvas', 'brush', 'pencil', 'eraser', 'fill', 'color', 'art'],
+    keywords_pt: ['paint', 'desenhar', 'desenho', 'imagem', 'tela', 'pincel', 'l\u00e1pis', 'borracha', 'preencher', 'cor', 'arte'],
     body: [
       { p: 'Paint is an image editor for creating and editing drawings. Files are saved as PNG images in your browser\u2019s local storage.' },
       { h: 'Tools' },
@@ -254,12 +423,50 @@ var HELP_TOPICS = {
         'Ctrl+N \u2014 New'
       ]},
       { sa: ['notepad', 'explorer'] }
+    ],
+    body_pt: [
+      { p: 'O Paint \u00e9 um editor de imagem para criar e editar desenhos. Os ficheiros s\u00e3o guardados como imagens PNG no armazenamento local do seu navegador.' },
+      { h: 'Ferramentas' },
+      { ul: [
+        'L\u00e1pis \u2014 desenha linhas finas de 1px para trabalho de detalhe preciso.',
+        'Pincel \u2014 desenha tra\u00e7os suaves no tamanho selecionado.',
+        'Borracha \u2014 apaga pintando com a cor de fundo.',
+        'Linha \u2014 desenha uma linha reta entre dois pontos.',
+        'Ret\u00e2ngulo \u2014 desenha o contorno de um ret\u00e2ngulo.',
+        'Elipse \u2014 desenha o contorno de uma elipse.',
+        'Preenchimento \u2014 preenche uma regi\u00e3o com a cor de primeiro plano.'
+      ]},
+      { h: 'Cores' },
+      { ul: [
+        'Clique com o bot\u00e3o esquerdo numa amostra para definir a cor de primeiro plano (desenho).',
+        'Clique com o bot\u00e3o direito numa amostra para definir a cor de fundo (borracha).',
+        'Clique duas vezes no quadrado de pr\u00e9-visualiza\u00e7\u00e3o FG ou BG para escolher uma cor personalizada.'
+      ]},
+      { h: 'Barra de Ferramentas' },
+      { ul: [
+        'Novo \u2014 limpa a tela e come\u00e7a de novo.',
+        'Guardar \u2014 guarda a imagem atual. Pede um nome se n\u00e3o tiver t\u00edtulo.',
+        'Abrir \u2014 carrega uma imagem guardada anteriormente.',
+        'Desfazer / Refazer \u2014 retrocede ou avan\u00e7a nas altera\u00e7\u00f5es.',
+        'Limpar \u2014 preenche a tela com branco.',
+        'Cursor de tamanho \u2014 ajusta a largura do pincel, borracha e tra\u00e7o das formas.'
+      ]},
+      { h: 'Atalhos de Teclado' },
+      { ul: [
+        'Ctrl+Z \u2014 Desfazer',
+        'Ctrl+Y \u2014 Refazer',
+        'Ctrl+S \u2014 Guardar',
+        'Ctrl+N \u2014 Novo'
+      ]},
+      { sa: ['notepad', 'explorer'] }
     ]
   },
 
   brickbreaker: {
     title: 'Brick Breaker',
+    title_pt: 'Brick Breaker',
     keywords: ['brick breaker', 'game', 'daily', 'challenge', 'bricks', 'paddle', 'ball', 'breakout'],
+    keywords_pt: ['brick breaker', 'jogo', 'di\u00e1rio', 'desafio', 'tijolos', 'raquete', 'bola', 'breakout'],
     body: [
       { p: 'Brick Breaker is a daily brick-breaking challenge. Each day presents a new layout of bricks to clear.' },
       { h: 'How to Play' },
@@ -275,6 +482,22 @@ var HELP_TOPICS = {
         'On mobile, the game opens as a full-screen page.'
       ]},
       { sa: ['ontarget', 'chickenfingers'] }
+    ],
+    body_pt: [
+      { p: 'O Brick Breaker \u00e9 um desafio di\u00e1rio de partir tijolos. Cada dia apresenta uma nova disposi\u00e7\u00e3o de tijolos para limpar.' },
+      { h: 'Como Jogar' },
+      { ul: [
+        'O jogo carrega num quadro integrado.',
+        'Use a raquete para fazer a bola saltar e partir todos os tijolos.',
+        'Um novo desafio est\u00e1 dispon\u00edvel todos os dias.'
+      ]},
+      { h: 'Abrir o Brick Breaker' },
+      { ul: [
+        'Menu Iniciar \u2192 Programas \u2192 Brick Breaker.',
+        'Escreva BRICKBREAKER no terminal Executar.',
+        'No telem\u00f3vel, o jogo abre como p\u00e1gina em ecr\u00e3 inteiro.'
+      ]},
+      { sa: ['ontarget', 'chickenfingers'] }
     ]
   },
 
@@ -282,7 +505,9 @@ var HELP_TOPICS = {
 
   notepad: {
     title: 'Notepad',
+    title_pt: 'Bloco de Notas',
     keywords: ['notepad', 'text', 'editor', 'save', 'open', 'write', 'file', 'document', 'type', 'find', 'replace', 'search'],
+    keywords_pt: ['bloco de notas', 'texto', 'editor', 'guardar', 'abrir', 'escrever', 'ficheiro', 'documento', 'digitar', 'procurar', 'substituir', 'pesquisar'],
     body: [
       { p: 'Notepad is a simple text editor with save and load functionality. Files are stored in your browser\u2019s local storage.' },
       { h: 'Toolbar Buttons' },
@@ -311,12 +536,43 @@ var HELP_TOPICS = {
         'Ctrl+H \u2014 Replace'
       ]},
       { sa: ['calculator', 'explorer'] }
+    ],
+    body_pt: [
+      { p: 'O Bloco de Notas \u00e9 um editor de texto simples com funcionalidade de guardar e carregar. Os ficheiros s\u00e3o armazenados no armazenamento local do seu navegador.' },
+      { h: 'Bot\u00f5es da Barra de Ferramentas' },
+      { ul: [
+        'Novo \u2014 limpa o editor e inicia um novo ficheiro. Pede para descartar altera\u00e7\u00f5es n\u00e3o guardadas.',
+        'Guardar \u2014 guarda o ficheiro atual. Se n\u00e3o existir nome de ficheiro, pede um nome.',
+        'Abrir \u2014 mostra uma lista de ficheiros guardados para abrir ou eliminar.'
+      ]},
+      { h: 'Funcionalidades' },
+      { ul: [
+        'A barra de t\u00edtulo mostra o nome do ficheiro atual e um asterisco (*) para altera\u00e7\u00f5es n\u00e3o guardadas.',
+        'A barra de estado mostra a contagem de caracteres.',
+        'Os ficheiros persistem entre sess\u00f5es do navegador via localStorage.'
+      ]},
+      { h: 'Localizar e Substituir' },
+      { ul: [
+        'Ctrl+F \u2014 abre a barra de Localizar. Use os bot\u00f5es Anterior/Seguinte para navegar nas correspond\u00eancias. Um contador mostra a sua posi\u00e7\u00e3o (ex.: \u201c2 de 5\u201d).',
+        'Ctrl+H \u2014 abre a barra de Substituir com os bot\u00f5es Substituir e Substituir Tudo.',
+        'Alterne a correspond\u00eancia sens\u00edvel a mai\u00fasculas/min\u00fasculas com o bot\u00e3o Aa.',
+        'Pressione Escape para fechar a barra de Localizar/Substituir.'
+      ]},
+      { h: 'Atalhos de Teclado' },
+      { ul: [
+        'Ctrl+S \u2014 Guardar',
+        'Ctrl+F \u2014 Localizar',
+        'Ctrl+H \u2014 Substituir'
+      ]},
+      { sa: ['calculator', 'explorer'] }
     ]
   },
 
   calculator: {
     title: 'Calculator',
+    title_pt: 'Calculadora',
     keywords: ['calculator', 'math', 'arithmetic', 'add', 'subtract', 'multiply', 'divide', 'keyboard', 'scientific', 'sin', 'cos', 'tan', 'sqrt', 'log'],
+    keywords_pt: ['calculadora', 'matem\u00e1tica', 'aritm\u00e9tica', 'somar', 'subtrair', 'multiplicar', 'dividir', 'teclado', 'cient\u00edfica', 'sin', 'cos', 'tan', 'raiz', 'log'],
     body: [
       { p: 'A basic arithmetic calculator supporting addition, subtraction, multiplication, and division.' },
       { h: 'Using the Calculator' },
@@ -337,12 +593,35 @@ var HELP_TOPICS = {
         'Other \u2014 \u03c0, \u00b1 (toggle sign), 1/x (reciprocal), n! (factorial).'
       ]},
       { sa: ['notepad', 'calendar'] }
+    ],
+    body_pt: [
+      { p: 'Uma calculadora aritm\u00e9tica b\u00e1sica que suporta adi\u00e7\u00e3o, subtra\u00e7\u00e3o, multiplica\u00e7\u00e3o e divis\u00e3o.' },
+      { h: 'Utilizar a Calculadora' },
+      { ul: [
+        'Clique nos bot\u00f5es num\u00e9ricos ou use o seu teclado (0\u20139) para introduzir d\u00edgitos.',
+        'Clique num operador (+, \u2212, \u00d7, \u00f7) ou use as teclas do teclado (+, -, *, /).',
+        'Pressione = ou Enter para calcular o resultado.',
+        'CE limpa a entrada atual; C limpa tudo.',
+        'Backspace remove o \u00faltimo d\u00edgito.'
+      ]},
+      { p: 'A calculadora suporta at\u00e9 15 d\u00edgitos por n\u00famero.' },
+      { h: 'Modo Cient\u00edfico' },
+      { p: 'Ative a caixa de sele\u00e7\u00e3o Cient\u00edfico para expandir a calculadora com fun\u00e7\u00f5es adicionais:' },
+      { ul: [
+        'Trigonometria \u2014 sin, cos, tan (\u00e2ngulos em graus).',
+        'Pot\u00eancias \u2014 x\u00b2, x\u02b8 (elevar a uma pot\u00eancia).',
+        'Ra\u00edzes e logaritmos \u2014 \u221ax, log (base 10), ln (logaritmo natural).',
+        'Outros \u2014 \u03c0, \u00b1 (alternar sinal), 1/x (rec\u00edproco), n! (fatorial).'
+      ]},
+      { sa: ['notepad', 'calendar'] }
     ]
   },
 
   calendar: {
     title: 'Calendar',
+    title_pt: 'Calend\u00e1rio',
     keywords: ['calendar', 'date', 'month', 'today', 'schedule', 'day', 'year'],
+    keywords_pt: ['calend\u00e1rio', 'data', 'm\u00eas', 'hoje', 'agenda', 'dia', 'ano'],
     body: [
       { p: 'A monthly calendar viewer. The current day is highlighted.' },
       { h: 'Navigation' },
@@ -352,12 +631,24 @@ var HELP_TOPICS = {
         'Days from adjacent months are shown in gray.'
       ]},
       { sa: ['timezone', 'weather'] }
+    ],
+    body_pt: [
+      { p: 'Um visualizador de calend\u00e1rio mensal. O dia atual \u00e9 destacado.' },
+      { h: 'Navega\u00e7\u00e3o' },
+      { ul: [
+        'Use as setas esquerda e direita para navegar entre meses.',
+        'Clique em \u201cHoje\u201d para voltar \u00e0 data atual.',
+        'Os dias dos meses adjacentes s\u00e3o mostrados a cinzento.'
+      ]},
+      { sa: ['timezone', 'weather'] }
     ]
   },
 
   timezone: {
     title: 'Time Zone',
+    title_pt: 'Fuso Hor\u00e1rio',
     keywords: ['time zone', 'clock', 'world clock', 'time', 'analog', 'digital', 'cities', 'utc'],
+    keywords_pt: ['fuso hor\u00e1rio', 'rel\u00f3gio', 'rel\u00f3gio mundial', 'hora', 'anal\u00f3gico', 'digital', 'cidades', 'utc'],
     body: [
       { p: 'Time Zone displays live clocks for 8 cities around the world: London, New York, Los Angeles, Tokyo, Sydney, Dubai, Paris, and Singapore.' },
       { h: 'Views' },
@@ -367,12 +658,24 @@ var HELP_TOPICS = {
       ]},
       { p: 'Clocks update every second. The UTC offset for each city is shown below its name.' },
       { sa: ['calendar', 'weather'] }
+    ],
+    body_pt: [
+      { p: 'O Fuso Hor\u00e1rio apresenta rel\u00f3gios ao vivo para 8 cidades em todo o mundo: Londres, Nova Iorque, Los Angeles, T\u00f3quio, Sydney, Dubai, Paris e Singapura.' },
+      { h: 'Vistas' },
+      { ul: [
+        'Anal\u00f3gico \u2014 mostradores de rel\u00f3gio tradicionais com ponteiros das horas, minutos e segundos.',
+        'Digital \u2014 apresenta\u00e7\u00e3o num\u00e9rica da hora. Clique no bot\u00e3o \u201cDigital\u201d / \u201cAnal\u00f3gico\u201d para alternar.'
+      ]},
+      { p: 'Os rel\u00f3gios atualizam a cada segundo. O desvio UTC para cada cidade \u00e9 mostrado abaixo do seu nome.' },
+      { sa: ['calendar', 'weather'] }
     ]
   },
 
   weather: {
     title: 'Weather',
+    title_pt: 'Meteorologia',
     keywords: ['weather', 'forecast', 'temperature', 'rain', 'sun', 'cloud', 'location', 'geolocation'],
+    keywords_pt: ['meteorologia', 'previs\u00e3o', 'temperatura', 'chuva', 'sol', 'nuvem', 'localiza\u00e7\u00e3o', 'geolocaliza\u00e7\u00e3o'],
     body: [
       { p: 'Weather shows a three-day forecast for your current location, powered by the Open-Meteo API.' },
       { h: 'How It Works' },
@@ -384,12 +687,26 @@ var HELP_TOPICS = {
       ]},
       { p: 'If location access is denied, an error message will appear.' },
       { sa: ['timezone', 'calendar'] }
+    ],
+    body_pt: [
+      { p: 'A Meteorologia mostra uma previs\u00e3o de tr\u00eas dias para a sua localiza\u00e7\u00e3o atual, com base na API Open-Meteo.' },
+      { h: 'Como Funciona' },
+      { ul: [
+        'Ao abrir pela primeira vez, a aplica\u00e7\u00e3o solicita a sua localiza\u00e7\u00e3o atrav\u00e9s da API de Geolocaliza\u00e7\u00e3o do navegador.',
+        'Em seguida, obt\u00e9m a temperatura atual e uma previs\u00e3o de 3 dias.',
+        'As condi\u00e7\u00f5es atuais (temperatura e descri\u00e7\u00e3o) s\u00e3o mostradas no topo.',
+        'Abaixo, tr\u00eas cart\u00f5es di\u00e1rios mostram as temperaturas m\u00e1xima/m\u00ednima e condi\u00e7\u00f5es.'
+      ]},
+      { p: 'Se o acesso \u00e0 localiza\u00e7\u00e3o for negado, aparecer\u00e1 uma mensagem de erro.' },
+      { sa: ['timezone', 'calendar'] }
     ]
   },
 
   diskusage: {
     title: 'Disk Usage',
+    title_pt: 'Utiliza\u00e7\u00e3o do Disco',
     keywords: ['disk usage', 'disk', 'storage', 'files', 'size', 'pie chart', 'html', 'css', 'javascript', 'breakdown'],
+    keywords_pt: ['utiliza\u00e7\u00e3o do disco', 'disco', 'armazenamento', 'ficheiros', 'tamanho', 'gr\u00e1fico circular', 'html', 'css', 'javascript', 'distribui\u00e7\u00e3o'],
     body: [
       { p: 'Disk Usage shows a breakdown of the mpOS source code by file type (HTML, CSS, JavaScript).' },
       { h: 'Display' },
@@ -401,12 +718,26 @@ var HELP_TOPICS = {
       ]},
       { p: 'File sizes are fetched live from the server, so the data always reflects the current deployment.' },
       { sa: ['mycomputer', 'explorer'] }
+    ],
+    body_pt: [
+      { p: 'A Utiliza\u00e7\u00e3o do Disco mostra uma distribui\u00e7\u00e3o do c\u00f3digo fonte do mpOS por tipo de ficheiro (HTML, CSS, JavaScript).' },
+      { h: 'Apresenta\u00e7\u00e3o' },
+      { ul: [
+        'Um gr\u00e1fico circular visualiza a propor\u00e7\u00e3o de cada tipo de ficheiro.',
+        'A legenda lista cada tipo com o seu tamanho total e percentagem.',
+        'Uma barra de capacidade mostra a mesma distribui\u00e7\u00e3o horizontalmente.',
+        'O n\u00famero total de ficheiros e tamanho s\u00e3o mostrados na parte inferior.'
+      ]},
+      { p: 'Os tamanhos dos ficheiros s\u00e3o obtidos ao vivo do servidor, pelo que os dados refletem sempre a implementa\u00e7\u00e3o atual.' },
+      { sa: ['mycomputer', 'explorer'] }
     ]
   },
 
   visitormap: {
     title: 'Visitor Map',
+    title_pt: 'Mapa de Visitantes',
     keywords: ['visitor map', 'visitors', 'world', 'map', 'countries', 'traffic', 'cloudflare', 'analytics'],
+    keywords_pt: ['mapa de visitantes', 'visitantes', 'mundo', 'mapa', 'pa\u00edses', 'tr\u00e1fego', 'cloudflare', 'an\u00e1lise'],
     body: [
       { p: 'Visitor Map displays a world map showing where site visitors are from, powered by a Cloudflare Workers API.' },
       { h: 'How It Works' },
@@ -421,12 +752,29 @@ var HELP_TOPICS = {
         'Type VISITORMAP in the Run terminal.'
       ]},
       { sa: ['diskusage', 'weather'] }
+    ],
+    body_pt: [
+      { p: 'O Mapa de Visitantes apresenta um mapa mundial que mostra de onde v\u00eam os visitantes do site, com base numa API Cloudflare Workers.' },
+      { h: 'Como Funciona' },
+      { ul: [
+        'As localiza\u00e7\u00f5es dos visitantes s\u00e3o recolhidas atrav\u00e9s de uma fun\u00e7\u00e3o edge do Cloudflare Workers.',
+        'Pontos s\u00e3o marcados num mapa mundial SVG correspondendo \u00e0s localiza\u00e7\u00f5es dos visitantes.',
+        'Uma contagem de visitantes \u00e9 apresentada mostrando o total de visitantes registados.'
+      ]},
+      { h: 'Abrir o Mapa de Visitantes' },
+      { ul: [
+        'Menu Iniciar \u2192 Utilit\u00e1rios \u2192 Mapa de Visitantes.',
+        'Escreva VISITORMAP no terminal Executar.'
+      ]},
+      { sa: ['diskusage', 'weather'] }
     ]
   },
 
   search: {
     title: 'Search',
+    title_pt: 'Pesquisa',
     keywords: ['search', 'find', 'files', 'programs', 'commands', 'lookup', 'filter'],
+    keywords_pt: ['pesquisa', 'procurar', 'ficheiros', 'programas', 'comandos', 'consultar', 'filtrar'],
     body: [
       { p: 'Search is a two-pane window for finding programs, utilities, files, and terminal commands across mpOS.' },
       { h: 'How to Use' },
@@ -442,6 +790,22 @@ var HELP_TOPICS = {
         'Explorer \u2192 Utilities folder.'
       ]},
       { sa: ['explorer', 'run'] }
+    ],
+    body_pt: [
+      { p: 'A Pesquisa \u00e9 uma janela de dois pain\u00e9is para encontrar programas, utilit\u00e1rios, ficheiros e comandos de terminal no mpOS.' },
+      { h: 'Como Utilizar' },
+      { ul: [
+        'Escreva na caixa de pesquisa na barra lateral esquerda para filtrar resultados enquanto escreve.',
+        'Os resultados aparecem no painel direito, agrupados por categoria (programas, utilit\u00e1rios, ficheiros, comandos).',
+        'Clique num resultado para lan\u00e7ar a aplica\u00e7\u00e3o, abrir um ficheiro no Bloco de Notas ou preencher o terminal Executar.'
+      ]},
+      { h: 'Abrir a Pesquisa' },
+      { ul: [
+        'Menu Iniciar \u2192 Pesquisar \u2192 Ficheiros ou Pastas\u2026',
+        'Escreva SEARCH no terminal Executar.',
+        'Explorador \u2192 pasta Utilit\u00e1rios.'
+      ]},
+      { sa: ['explorer', 'run'] }
     ]
   },
 
@@ -449,7 +813,9 @@ var HELP_TOPICS = {
 
   mycomputer: {
     title: 'System Properties',
+    title_pt: 'Propriedades do Sistema',
     keywords: ['my computer', 'system', 'info', 'browser', 'cpu', 'display', 'battery', 'network', 'properties', 'wallpaper', 'screensaver', 'screen saver', 'background', 'color'],
+    keywords_pt: ['o meu computador', 'sistema', 'informa\u00e7\u00e3o', 'navegador', 'cpu', 'ecr\u00e3', 'bateria', 'rede', 'propriedades', 'papel de parede', 'protetor de ecr\u00e3', 'fundo', 'cor'],
     body: [
       { p: 'System Properties is a tabbed settings hub accessed from the My Computer desktop icon or Start menu. It has three tabs: General, Display, and Screen Saver.' },
       { h: 'General Tab' },
@@ -479,12 +845,44 @@ var HELP_TOPICS = {
       ]},
       { p: 'All display and screen saver settings are saved to your browser and persist across visits.' },
       { sa: ['diskusage', 'explorer'] }
+    ],
+    body_pt: [
+      { p: 'As Propriedades do Sistema s\u00e3o um centro de defini\u00e7\u00f5es com separadores, acess\u00edvel a partir do \u00edcone O Meu Computador no ambiente de trabalho ou do menu Iniciar. Tem quatro separadores: Geral, Visualiza\u00e7\u00e3o, Protetor de Ecr\u00e3 e Regional.' },
+      { h: 'Separador Geral' },
+      { p: 'Apresenta informa\u00e7\u00f5es sobre o seu sistema e navegador:' },
+      { ul: [
+        'Sistema operativo e nome do navegador.',
+        'N\u00facleos do CPU (processadores l\u00f3gicos) e idioma do navegador.',
+        'Resolu\u00e7\u00e3o do ecr\u00e3 e r\u00e1cio de pixels (dete\u00e7\u00e3o HiDPI).',
+        'Tipo de liga\u00e7\u00e3o de rede e velocidade (se dispon\u00edvel).',
+        'N\u00edvel de bateria e estado de carregamento (se dispon\u00edvel).'
+      ]},
+      { p: 'Alguns valores podem ser limitados pelas pol\u00edticas de privacidade do navegador. Por exemplo, a mem\u00f3ria do dispositivo \u00e9 limitada a 8 GB por especifica\u00e7\u00e3o.' },
+      { h: 'Separador Visualiza\u00e7\u00e3o' },
+      { p: 'Personalizar a apar\u00eancia do ambiente de trabalho:' },
+      { ul: [
+        'Cor de Fundo \u2014 escolha qualquer cor para o fundo do ambiente de trabalho usando um seletor de cores.',
+        'Padr\u00e3o de Papel de Parede \u2014 escolha entre Nenhum, Bliss (gradiente de c\u00e9u e colina), Grelha, Riscas Diagonais ou Ondas.'
+      ]},
+      { h: 'Separador Protetor de Ecr\u00e3' },
+      { p: 'Configure um protetor de ecr\u00e3 que se ativa ap\u00f3s um per\u00edodo de inatividade:' },
+      { ul: [
+        'Escolha entre 5 protetores de ecr\u00e3: Campo de Estrelas, Tubos, Logo Saltitante, Ciclo de Cores e Mystify.',
+        'Pr\u00e9-visualize o protetor de ecr\u00e3 selecionado numa mini tela.',
+        'Defina o tempo de inatividade (1, 2, 3 ou 5 minutos).',
+        'Ative ou desative o protetor de ecr\u00e3 com uma caixa de sele\u00e7\u00e3o.',
+        'Mova o rato, clique ou pressione uma tecla para dispensar o protetor de ecr\u00e3 em ecr\u00e3 inteiro.'
+      ]},
+      { p: 'Todas as defini\u00e7\u00f5es de visualiza\u00e7\u00e3o e protetor de ecr\u00e3 s\u00e3o guardadas no seu navegador e persistem entre visitas.' },
+      { sa: ['diskusage', 'explorer'] }
     ]
   },
 
   explorer: {
     title: 'Files (Explorer)',
+    title_pt: 'Ficheiros (Explorador)',
     keywords: ['files', 'explorer', 'folder', 'browse', 'programs', 'documents', 'utilities', 'navigate'],
+    keywords_pt: ['ficheiros', 'explorador', 'pasta', 'navegar', 'programas', 'documentos', 'utilit\u00e1rios', 'navegar'],
     body: [
       { p: 'The Explorer window is a file browser for navigating mpOS applications, modeled after Windows 2000 Explorer.' },
       { h: 'Layout' },
@@ -501,12 +899,31 @@ var HELP_TOPICS = {
       ]},
       { p: 'Double-click any item to launch it.' },
       { sa: ['startmenu', 'desktop'] }
+    ],
+    body_pt: [
+      { p: 'A janela do Explorador \u00e9 um navegador de ficheiros para percorrer as aplica\u00e7\u00f5es do mpOS, inspirado no Windows 2000 Explorer.' },
+      { h: 'Disposi\u00e7\u00e3o' },
+      { ul: [
+        'A barra lateral esquerda mostra uma \u00e1rvore de pastas: mpOS (todos os itens), Programas, Documentos e Utilit\u00e1rios.',
+        'O painel direito apresenta o conte\u00fado da pasta selecionada.',
+        'A barra de endere\u00e7os mostra o caminho atual (ex.: C:\\mpOS\\Programas).'
+      ]},
+      { h: 'Vistas' },
+      { ul: [
+        'Vista de \u00edcones \u2014 uma grelha de mosaicos de aplica\u00e7\u00f5es com \u00edcones.',
+        'Vista de lista \u2014 linhas com \u00edcone, nome, descri\u00e7\u00e3o e etiqueta de tipo de ficheiro.',
+        'Alterne entre vistas usando os bot\u00f5es na barra de ferramentas.'
+      ]},
+      { p: 'Clique duas vezes em qualquer item para o lan\u00e7ar.' },
+      { sa: ['startmenu', 'desktop'] }
     ]
   },
 
   run: {
     title: 'Run Terminal',
+    title_pt: 'Terminal Executar',
     keywords: ['run', 'terminal', 'command', 'cmd', 'console', 'command line', 'cli', 'prompt'],
+    keywords_pt: ['executar', 'terminal', 'comando', 'cmd', 'consola', 'linha de comandos', 'cli', 'prompt'],
     body: [
       { p: 'The Run terminal is a command-line interface for launching applications and navigating the mpOS file system.' },
       { h: 'Basic Commands' },
@@ -537,12 +954,45 @@ var HELP_TOPICS = {
       ]},
       { p: 'You can also type the name of an item in the current directory to run it.' },
       { sa: ['startmenu', 'explorer'] }
+    ],
+    body_pt: [
+      { p: 'O terminal Executar \u00e9 uma interface de linha de comandos para lan\u00e7ar aplica\u00e7\u00f5es e navegar no sistema de ficheiros do mpOS.' },
+      { h: 'Comandos B\u00e1sicos' },
+      { ul: [
+        'HELP \u2014 lista todos os comandos dispon\u00edveis.',
+        'CLS / CLEAR \u2014 limpa o ecr\u00e3 do terminal.',
+        'VER \u2014 mostra a vers\u00e3o do mpOS.',
+        'CD <pasta> \u2014 muda o diret\u00f3rio (ex.: CD Programs).',
+        'LS \u2014 lista o conte\u00fado do diret\u00f3rio atual.',
+        'EXIT \u2014 fecha a janela do terminal.'
+      ]},
+      { h: 'Lan\u00e7ar Aplica\u00e7\u00f5es' },
+      { p: 'Escreva o nome do comando de uma aplica\u00e7\u00e3o para a lan\u00e7ar diretamente:' },
+      { ul: [
+        'Programas \u2014 BROWSER, FISHOFDAY, FISHFINDER, ONTARGET, AQUARIUM, PAINT, BRICKBREAKER',
+        'Utilit\u00e1rios \u2014 NOTEPAD, CALCULATOR, CALENDAR, TIMEZONE, WEATHER, DISKUSAGE, VISITORMAP, SEARCH, HH (Ajuda)',
+        'Sistema \u2014 MYCOMPUTER, EXPLORER, TASKMANAGER'
+      ]},
+      { h: 'Comandos do Terminal' },
+      { ul: [
+        'MATRIX \u2014 Anima\u00e7\u00e3o de chuva Matrix.',
+        'COLOR <hex> \u2014 muda a cor do texto do terminal.',
+        'TITLE <texto> \u2014 define o t\u00edtulo da janela do terminal.',
+        'TASKLIST \u2014 lista as janelas abertas.',
+        'TASKKILL <nome> \u2014 fecha uma janela pelo nome.',
+        'PING <host> \u2014 ping de rede simulado.',
+        'START <url> \u2014 abre um URL num novo separador.'
+      ]},
+      { p: 'Tamb\u00e9m pode escrever o nome de um item no diret\u00f3rio atual para o executar.' },
+      { sa: ['startmenu', 'explorer'] }
     ]
   },
 
   taskmanager: {
     title: 'Task Manager',
+    title_pt: 'Gestor de Tarefas',
     keywords: ['task manager', 'ctrl alt del', 'processes', 'end task', 'cpu', 'memory', 'fps', 'performance'],
+    keywords_pt: ['gestor de tarefas', 'ctrl alt del', 'processos', 'terminar tarefa', 'cpu', 'mem\u00f3ria', 'fps', 'desempenho'],
     body: [
       { p: 'Task Manager shows running windows and real-time system performance. Open it by pressing Ctrl+Alt+Del from anywhere.' },
       { h: 'Applications Tab' },
@@ -559,6 +1009,25 @@ var HELP_TOPICS = {
       { ul: [
         'Press Ctrl+Alt+Del from anywhere.',
         'Type TASKMANAGER in the Run terminal.'
+      ]},
+      { sa: ['run', 'mycomputer'] }
+    ],
+    body_pt: [
+      { p: 'O Gestor de Tarefas mostra janelas em execu\u00e7\u00e3o e desempenho do sistema em tempo real. Abra-o pressionando Ctrl+Alt+Del em qualquer lugar.' },
+      { h: 'Separador Aplica\u00e7\u00f5es' },
+      { ul: [
+        'Lista todas as janelas abertas com o seu estado atual.',
+        'Selecione uma janela e clique em Terminar Tarefa para a fechar.'
+      ]},
+      { h: 'Desempenho' },
+      { ul: [
+        'Gr\u00e1fico de utiliza\u00e7\u00e3o do CPU em tempo real baseado em fotogramas por segundo (FPS).',
+        'Gr\u00e1fico de utiliza\u00e7\u00e3o de mem\u00f3ria em tempo real.'
+      ]},
+      { h: 'Abrir o Gestor de Tarefas' },
+      { ul: [
+        'Pressione Ctrl+Alt+Del em qualquer lugar.',
+        'Escreva TASKMANAGER no terminal Executar.'
       ]},
       { sa: ['run', 'mycomputer'] }
     ]

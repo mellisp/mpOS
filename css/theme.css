@@ -463,6 +463,23 @@ button.start-menu-item {
   justify-content: center;
 }
 
+.tray-lang {
+  background: var(--silver);
+  border: 1px solid var(--dk-shadow);
+  color: var(--dk-shadow);
+  font-size: var(--ui-font-xs);
+  font-weight: bold;
+  padding: 0 3px;
+  cursor: pointer;
+  line-height: 16px;
+  font-family: Tahoma, sans-serif;
+  margin-right: 4px;
+}
+.tray-lang:hover {
+  background: var(--highlight);
+  color: var(--white);
+}
+
 .tray-clock {
   font-size: var(--ui-font-sm);
   padding-left: 6px;

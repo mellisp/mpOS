@@ -5,9 +5,9 @@
 const mobileQuery = window.matchMedia('(max-width: 767px)');
 
 const GEO_ERRORS = {
-  1: 'Location access was denied.',
-  2: 'Location information is unavailable.',
-  3: 'Location request timed out.'
+  1: 'error.geoDenied',
+  2: 'error.geoUnavailable',
+  3: 'error.geoTimeout'
 };
 
 function getLocation(onSuccess, onError) {
@@ -28,11 +28,11 @@ function getLocation(onSuccess, onError) {
         if (data.latitude != null && data.longitude != null) {
           finish(data.latitude, data.longitude);
         } else {
-          if (!done) { done = true; onError('Could not determine your location.'); }
+          if (!done) { done = true; onError(t('error.geoFallback')); }
         }
       })
       .catch(function () {
-        if (!done) { done = true; onError('Could not determine your location.'); }
+        if (!done) { done = true; onError(t('error.geoFallback')); }
       });
   }
 
@@ -123,35 +123,38 @@ let explorerTreeItems = null;
 
 const FOLDER_ITEMS = {
   programs: [
-    { name: 'WikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'HTML', action: 'openBrowser' },
-    { name: 'Fish of the Day', desc: 'A new fish every day, powered by Wikipedia.', tag: 'HTML', action: 'openFishOfDay' },
-    { name: 'Fish Finder', desc: 'Find the closest aquarium near you.', tag: 'HTML', action: 'openFishFinder' },
-    { name: 'On Target', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget' },
-    { name: 'Virtual Aquarium', desc: 'Watch real fish, in real-time.', tag: 'HTML', action: 'openAquarium' },
-    { name: 'Chicken Fingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers', href: 'chicken-fingers.html' },
-    { name: 'Paint', desc: 'Create and edit images.', tag: 'HTML', action: 'openPaint' },
-    { name: 'Brick Breaker', desc: 'Daily brick-breaking challenge.', tag: 'HTML', action: 'openBrickBreaker' }
+    { name: 'WikiBrowser', _key: 'wikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'HTML', action: 'openBrowser' },
+    { name: 'Fish of the Day', _key: 'fishOfDay', desc: 'A new fish every day, powered by Wikipedia.', tag: 'HTML', action: 'openFishOfDay' },
+    { name: 'Fish Finder', _key: 'fishFinder', desc: 'Find the closest aquarium near you.', tag: 'HTML', action: 'openFishFinder' },
+    { name: 'On Target', _key: 'onTarget', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget' },
+    { name: 'Virtual Aquarium', _key: 'aquarium', desc: 'Watch real fish, in real-time.', tag: 'HTML', action: 'openAquarium' },
+    { name: 'Chicken Fingers', _key: 'chickenFingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers', href: 'chicken-fingers.html' },
+    { name: 'Paint', _key: 'paint', desc: 'Create and edit images.', tag: 'HTML', action: 'openPaint' },
+    { name: 'Brick Breaker', _key: 'brickBreaker', desc: 'Daily brick-breaking challenge.', tag: 'HTML', action: 'openBrickBreaker' }
   ],
   documents: [],
   utilities: [
-    { name: 'Notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad' },
-    { name: 'Calculator', desc: 'Basic arithmetic calculator.', tag: 'HTML', action: 'openCalculator' },
-    { name: 'Calendar', desc: 'Monthly calendar viewer.', tag: 'HTML', action: 'openCalendar' },
-    { name: 'Time Zone', desc: 'World clocks for 8 cities.', tag: 'HTML', action: 'openTimeZone' },
-    { name: 'Weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather' },
-    { name: 'Disk Usage', desc: 'Source code breakdown by file type.', tag: 'HTML', action: 'openDiskUsage' },
-    { name: 'Visitor Map', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
-    { name: 'Help', desc: 'Browse the mpOS help documentation.', tag: 'HTML', action: 'openHelp' },
-    { name: 'Search', desc: 'Search for files, programs, and commands.', tag: 'HTML', action: 'openSearch' }
+    { name: 'Notepad', _key: 'notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad' },
+    { name: 'Calculator', _key: 'calculator', desc: 'Basic arithmetic calculator.', tag: 'HTML', action: 'openCalculator' },
+    { name: 'Calendar', _key: 'calendar', desc: 'Monthly calendar viewer.', tag: 'HTML', action: 'openCalendar' },
+    { name: 'Time Zone', _key: 'timeZone', desc: 'World clocks for 8 cities.', tag: 'HTML', action: 'openTimeZone' },
+    { name: 'Weather', _key: 'weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather' },
+    { name: 'Disk Usage', _key: 'diskUsage', desc: 'Source code breakdown by file type.', tag: 'HTML', action: 'openDiskUsage' },
+    { name: 'Visitor Map', _key: 'visitorMap', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
+    { name: 'Help', _key: 'help', desc: 'Browse the mpOS help documentation.', tag: 'HTML', action: 'openHelp' },
+    { name: 'Search', _key: 'search', desc: 'Search for files, programs, and commands.', tag: 'HTML', action: 'openSearch' }
   ]
 };
 
 const FOLDER_NAMES = {
-  all: { title: 'Files', address: 'C:\\mpOS' },
-  programs: { title: 'Programs', address: 'C:\\mpOS\\Programs' },
-  documents: { title: 'Documents', address: 'C:\\mpOS\\Documents' },
-  utilities: { title: 'Utilities', address: 'C:\\mpOS\\Utilities' }
+  all: { title: 'Files', address: 'C:\\mpOS', _titleKey: 'title.files' },
+  programs: { title: 'Programs', address: 'C:\\mpOS\\Programs', _titleKey: 'ui.programs' },
+  documents: { title: 'Documents', address: 'C:\\mpOS\\Documents', _titleKey: 'ui.documents' },
+  utilities: { title: 'Utilities', address: 'C:\\mpOS\\Utilities', _titleKey: 'ui.utilities' }
 };
+
+function itemName(item) { return item._key ? t('app.' + item._key + '.name') : item.name; }
+function itemDesc(item) { return item._key ? t('app.' + item._key + '.desc') : item.desc; }
 
 function openExplorer() {
   openWindow('explorer');
@@ -166,7 +169,7 @@ function openExplorerTo(folder) {
 function navigateExplorer(folder) {
   explorerCurrentFolder = folder;
   var info = FOLDER_NAMES[folder];
-  document.getElementById('explorerTitle').textContent = info.title;
+  document.getElementById('explorerTitle').textContent = info._titleKey ? t(info._titleKey) : info.title;
   document.getElementById('explorerAddress').textContent = info.address;
 
   if (!explorerTreeItems) explorerTreeItems = document.querySelectorAll('#explorer .tree-item');
@@ -203,13 +206,13 @@ function renderExplorerContent() {
     body.textContent = '';
     var empty = document.createElement('div');
     empty.className = 'folder-empty';
-    empty.textContent = 'This folder is empty.';
+    empty.textContent = t('explorer.folderEmpty');
     body.appendChild(empty);
-    status.textContent = '0 item(s)';
+    status.textContent = tPlural('explorer.itemCount', 0);
     return;
   }
 
-  status.textContent = items.length + ' item(s)';
+  status.textContent = tPlural('explorer.itemCount', items.length);
 
   if (explorerCurrentView === 'icon') {
     var container = document.createElement('div');
@@ -225,7 +228,7 @@ function renderExplorerContent() {
       tile.appendChild(svg);
       var label = document.createElement('span');
       label.className = 'folder-icon-label';
-      label.textContent = item.name;
+      label.textContent = itemName(item);
       tile.appendChild(label);
       container.appendChild(tile);
     });
@@ -245,11 +248,11 @@ function renderExplorerContent() {
       row.appendChild(svg);
       var nameEl = document.createElement('span');
       nameEl.className = 'folder-list-name';
-      nameEl.textContent = item.name;
+      nameEl.textContent = itemName(item);
       row.appendChild(nameEl);
       var descEl = document.createElement('span');
       descEl.className = 'folder-list-desc';
-      descEl.textContent = item.desc;
+      descEl.textContent = itemDesc(item);
       row.appendChild(descEl);
       var tagEl = document.createElement('span');
       tagEl.className = 'tag';
@@ -325,7 +328,7 @@ function closeMyComputer() {
 
 function mcSwitchTab(tab) {
   mcCurrentTab = tab;
-  var tabs = { general: 'mcTabGeneral', display: 'mcTabDisplay', screensaver: 'mcTabScreenSaver' };
+  var tabs = { general: 'mcTabGeneral', display: 'mcTabDisplay', screensaver: 'mcTabScreenSaver', regional: 'mcTabRegional' };
   for (var key in tabs) {
     document.getElementById(tabs[key]).classList.toggle('active', key === tab);
   }
@@ -335,6 +338,7 @@ function mcSwitchTab(tab) {
   if (tab === 'general') mcBuildGeneral(body);
   else if (tab === 'display') mcBuildDisplay(body);
   else if (tab === 'screensaver') mcBuildScreenSaver(body);
+  else if (tab === 'regional') mcBuildRegional(body);
 }
 
 /* ── General tab (former populateSysInfo) ── */
@@ -433,16 +437,16 @@ function mcBuildGeneral(body) {
   sep.className = 'separator';
   container.appendChild(sep);
 
-  var sysSection = makeSection('System', [
-    ['CPU Cores', nav.hardwareConcurrency ? nav.hardwareConcurrency + ' logical processors' : null],
-    ['Language', nav.language || null]
+  var sysSection = makeSection(t('mc.general.system'), [
+    [t('mc.general.cpuCores'), nav.hardwareConcurrency ? t('mc.general.logicalProcessors', { count: nav.hardwareConcurrency }) : null],
+    [t('mc.general.language'), nav.language || null]
   ]);
   if (sysSection) container.appendChild(sysSection);
 
   var dpr = window.devicePixelRatio || 1;
-  var dispSection = makeSection('Display', [
-    ['Resolution', scr.width + ' \u00d7 ' + scr.height],
-    ['Pixel Ratio', dpr + 'x' + (dpr > 1 ? ' (HiDPI)' : '')]
+  var dispSection = makeSection(t('mc.general.display'), [
+    [t('mc.general.resolution'), scr.width + ' \u00d7 ' + scr.height],
+    [t('mc.general.pixelRatio'), dpr + 'x' + (dpr > 1 ? ' ' + t('mc.general.hidpi') : '')]
   ]);
   if (dispSection) container.appendChild(dispSection);
 
@@ -454,18 +458,18 @@ function mcBuildGeneral(body) {
   var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
   if (conn) {
     var netRows = [];
-    if (conn.effectiveType) netRows.push(['Type', conn.effectiveType.toUpperCase()]);
-    else if (conn.type) netRows.push(['Type', conn.type]);
-    if (conn.downlink) netRows.push(['Downlink', conn.downlink + ' Mbps']);
-    var netSection = makeSection('Network', netRows);
+    if (conn.effectiveType) netRows.push([t('mc.general.type'), conn.effectiveType.toUpperCase()]);
+    else if (conn.type) netRows.push([t('mc.general.type'), conn.type]);
+    if (conn.downlink) netRows.push([t('mc.general.downlink'), conn.downlink + ' Mbps']);
+    var netSection = makeSection(t('mc.general.network'), netRows);
     if (netSection) netContainer.appendChild(netSection);
   }
 
   if (nav.getBattery) {
     nav.getBattery().then(function (bat) {
-      var batSection = makeSection('Battery', [
-        ['Level', Math.round(bat.level * 100) + '%'],
-        ['Charging', bat.charging ? 'Yes' : 'No']
+      var batSection = makeSection(t('mc.general.battery'), [
+        [t('mc.general.level'), Math.round(bat.level * 100) + '%'],
+        [t('mc.general.charging'), bat.charging ? t('ui.yes') : t('ui.no')]
       ]);
       if (batSection) batContainer.appendChild(batSection);
       // Update cache after async battery info
@@ -482,7 +486,7 @@ function mcBuildDisplay(body) {
   // Background Color section
   var colorLabel = document.createElement('div');
   colorLabel.className = 'display-section-label';
-  colorLabel.textContent = 'Background Color';
+  colorLabel.textContent = t('mc.display.bgColor');
   body.appendChild(colorLabel);
 
   var colorRow = document.createElement('div');
@@ -511,14 +515,14 @@ function mcBuildDisplay(body) {
   // Wallpaper section
   var wpLabel = document.createElement('div');
   wpLabel.className = 'display-section-label';
-  wpLabel.textContent = 'Wallpaper Pattern';
+  wpLabel.textContent = t('mc.display.wallpaper');
   body.appendChild(wpLabel);
 
   var grid = document.createElement('div');
   grid.className = 'wallpaper-grid';
 
   var wallpapers = ['none', 'sunset', 'dots', 'grid', 'diagonal', 'waves'];
-  var wallpaperNames = { none: 'None', sunset: 'Sunset', dots: 'Dots', grid: 'Grid', diagonal: 'Diagonal', waves: 'Waves' };
+  var wallpaperNames = { none: t('mc.display.wp.none'), sunset: t('mc.display.wp.sunset'), dots: t('mc.display.wp.dots'), grid: t('mc.display.wp.grid'), diagonal: t('mc.display.wp.diagonal'), waves: t('mc.display.wp.waves') };
   var wpBtns = [];
 
   wallpapers.forEach(function (id) {
@@ -555,7 +559,7 @@ function mcBuildDisplay(body) {
   resetRow.style.cssText = 'margin-top: 12px; display: flex; justify-content: flex-end;';
   var resetBtn = document.createElement('button');
   resetBtn.className = 'btn';
-  resetBtn.textContent = 'Reset Defaults';
+  resetBtn.textContent = t('mc.display.resetDefaults');
   resetBtn.addEventListener('click', function () {
     displaySettings.backgroundColor = '#3a6ea5';
     displaySettings.wallpaper = 'none';
@@ -715,11 +719,11 @@ function applyDisplaySettings() {
 
 /* ── Screen Saver tab ── */
 var SS_TYPES = [
-  { id: 'starfield', name: 'Starfield' },
-  { id: 'pipes', name: 'Pipes' },
-  { id: 'bouncing', name: 'Bouncing Logo' },
-  { id: 'colorcycle', name: 'Color Cycling' },
-  { id: 'mystify', name: 'Mystify' }
+  { id: 'starfield', _key: 'mc.ss.starfield' },
+  { id: 'pipes', _key: 'mc.ss.pipes' },
+  { id: 'bouncing', _key: 'mc.ss.bouncing' },
+  { id: 'colorcycle', _key: 'mc.ss.colorcycle' },
+  { id: 'mystify', _key: 'mc.ss.mystify' }
 ];
 
 function mcBuildScreenSaver(body) {
@@ -727,16 +731,16 @@ function mcBuildScreenSaver(body) {
   var row1 = document.createElement('div');
   row1.className = 'ss-row';
   var lbl = document.createElement('label');
-  lbl.textContent = 'Screen Saver:';
+  lbl.textContent = t('mc.ss.label');
   row1.appendChild(lbl);
 
   var sel = document.createElement('select');
   sel.className = 'ss-select';
-  SS_TYPES.forEach(function (t) {
+  SS_TYPES.forEach(function (ssType) {
     var opt = document.createElement('option');
-    opt.value = t.id;
-    opt.textContent = t.name;
-    if (t.id === ssSettings.type) opt.selected = true;
+    opt.value = ssType.id;
+    opt.textContent = t(ssType._key);
+    if (ssType.id === ssSettings.type) opt.selected = true;
     sel.appendChild(opt);
   });
   sel.addEventListener('change', function () {
@@ -762,7 +766,7 @@ function mcBuildScreenSaver(body) {
   var row2 = document.createElement('div');
   row2.className = 'ss-row';
   var waitLbl = document.createElement('label');
-  waitLbl.textContent = 'Wait:';
+  waitLbl.textContent = t('mc.ss.wait');
   row2.appendChild(waitLbl);
 
   var waitSel = document.createElement('select');
@@ -770,7 +774,7 @@ function mcBuildScreenSaver(body) {
   [1, 2, 3, 5].forEach(function (m) {
     var opt = document.createElement('option');
     opt.value = String(m);
-    opt.textContent = m + (m === 1 ? ' minute' : ' minutes');
+    opt.textContent = tPlural('mc.ss.minute', m);
     if (m === ssSettings.timeout) opt.selected = true;
     waitSel.appendChild(opt);
   });
@@ -796,12 +800,41 @@ function mcBuildScreenSaver(body) {
     mcSaveSettings();
   });
   chkLabel.appendChild(chk);
-  chkLabel.appendChild(document.createTextNode(' Enable screen saver'));
+  chkLabel.appendChild(document.createTextNode(' ' + t('mc.ss.enable')));
   row3.appendChild(chkLabel);
   body.appendChild(row3);
 
   // Start preview
   ssUpdatePreview(previewCanvas);
+}
+
+/* ── Regional tab ── */
+function mcBuildRegional(body) {
+  var label = document.createElement('div');
+  label.className = 'display-section-label';
+  label.textContent = t('mc.regional.language');
+  body.appendChild(label);
+
+  var cur = getLang();
+  var langs = [
+    { code: 'en', label: t('mc.regional.english') },
+    { code: 'pt', label: t('mc.regional.portuguese') }
+  ];
+  langs.forEach(function (l) {
+    var opt = document.createElement('label');
+    opt.className = 'regional-lang-option';
+    var radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'mpLang';
+    radio.value = l.code;
+    if (l.code === cur) radio.checked = true;
+    radio.addEventListener('change', function () {
+      setLanguage(l.code);
+    });
+    opt.appendChild(radio);
+    opt.appendChild(document.createTextNode(l.label));
+    body.appendChild(opt);
+  });
 }
 
 /* ── Screensaver rendering ── */
@@ -1271,7 +1304,7 @@ function populateFish() {
   fishDetails.textContent = '';
   fishPhoto.style.display = 'none';
   fishPhoto.removeAttribute('src');
-  photoPlaceholder.textContent = 'Loading image...';
+  photoPlaceholder.textContent = t('fish.loadingImage');
   photoPlaceholder.style.display = '';
   fishName.onclick = null;
   fishName.classList.remove('linked');
@@ -1294,11 +1327,11 @@ function populateFish() {
     fishDetails.appendChild(dd);
   }
 
-  addDetail("Family", f[3]);
-  addDetail("Order", f[4]);
-  if (f[5]) addDetail("Max Size", f[5] + " cm");
-  addDetail("Habitat", f[6]);
-  addDetail("Depth", f[7]);
+  addDetail(t('fish.family'), f[3]);
+  addDetail(t('fish.order'), f[4]);
+  if (f[5]) addDetail(t('fish.maxSize'), f[5] + " cm");
+  addDetail(t('fish.habitat'), f[6]);
+  addDetail(t('fish.depth'), f[7]);
 
   var wikiTitle = f[1] + "_" + f[2];
 
@@ -1306,7 +1339,7 @@ function populateFish() {
     if (fishName.dataset.linked) return;
     fishName.dataset.linked = '1';
     fishName.classList.add('linked');
-    fishName.title = 'Open in WikiBrowser';
+    fishName.title = t('fish.openInBrowser');
     fishName.onclick = function () {
       openBrowser();
       browserNavigate('https://en.wikipedia.org/wiki/' + encodeURIComponent(title));
@@ -1334,7 +1367,7 @@ function populateFish() {
   if (f[8]) {
     showFishImage(f[8]);
   } else {
-    photoPlaceholder.textContent = "No photo available";
+    photoPlaceholder.textContent = t('fish.noPhoto');
   }
   if (!cachedWikiLink) fetchWikiLink(wikiTitle)
     .catch(function () { return fetchWikiLink(f[0].replace(/ /g, "_")); })
@@ -1353,7 +1386,7 @@ function populateFish() {
       photoPlaceholder.style.display = "none";
     };
     fishPhoto.onerror = function () {
-      photoPlaceholder.textContent = "Photo unavailable";
+      photoPlaceholder.textContent = t('fish.photoUnavailable');
     };
     fishPhoto.src = proxied;
   }
@@ -1395,7 +1428,7 @@ function populateFishFinder() {
   var body = document.getElementById('fishFinderBody');
   var status = document.getElementById('fishFinderStatus');
 
-  showLoadingMessage(body, 'Locating you...');
+  showLoadingMessage(body, t('finder.locating'));
   status.textContent = '';
 
   getLocation(
@@ -1441,17 +1474,17 @@ function populateFishFinder() {
       wrap.className = 'finder-wrap';
       var nearLabel = document.createElement('div');
       nearLabel.className = 'finder-label';
-      nearLabel.textContent = 'Nearest Aquarium';
+      nearLabel.textContent = t('finder.nearest');
       wrap.appendChild(nearLabel);
       wrap.appendChild(finderCard(nearest, minDist));
       var farLabel = document.createElement('div');
       farLabel.className = 'finder-label';
-      farLabel.textContent = 'Furthest Aquarium';
+      farLabel.textContent = t('finder.furthest');
       wrap.appendChild(farLabel);
       wrap.appendChild(finderCard(furthest, maxDist));
       body.appendChild(wrap);
 
-      status.textContent = AQUARIUMS.length + ' aquariums in database';
+      status.textContent = t('finder.dbCount', { count: AQUARIUMS.length });
     },
     function (msg) {
       showErrorPanel(body, msg, 'al-tri-ff');
@@ -1541,8 +1574,8 @@ function notepadMigrateLegacy() {
 }
 
 function notepadSetTitle() {
-  var name = notepadCurrentFile || 'Untitled';
-  notepadTitle.textContent = name + (notepadDirty ? '* ' : ' ') + '- Notepad';
+  var name = notepadCurrentFile || t('notepad.untitled');
+  notepadTitle.textContent = name + (notepadDirty ? '* ' : ' ') + t('notepad.titleSuffix');
 }
 
 function notepadMarkDirty() {
@@ -1556,7 +1589,7 @@ function notepadMarkClean() {
 
 function notepadGuardDirty() {
   if (!notepadDirty) return true;
-  return confirm('You have unsaved changes. Discard them?');
+  return confirm(t('notepad.discardChanges'));
 }
 
 function notepadDismissDialog() {
@@ -1594,7 +1627,7 @@ function notepadSave() {
     files[notepadCurrentFile] = notepadEditor.value;
     notepadPersist(files);
     notepadMarkClean();
-    notepadStatus.textContent = 'Saved';
+    notepadStatus.textContent = t('notepad.saved');
     setTimeout(updateNotepadStatus, 1500);
   } else {
     notepadShowSaveAs();
@@ -1608,14 +1641,14 @@ function notepadSaveAs(name) {
   if (name.indexOf('.') === -1) name += '.txt';
   var files = notepadGetFiles();
   if (files.hasOwnProperty(name) && name !== notepadCurrentFile) {
-    if (!confirm('"' + name + '" already exists. Overwrite?')) return;
+    if (!confirm(t('notepad.overwriteConfirm', { name: name }))) return;
   }
   files[name] = notepadEditor.value;
   notepadPersist(files);
   notepadCurrentFile = name;
   notepadDismissDialog();
   notepadMarkClean();
-  notepadStatus.textContent = 'Saved';
+  notepadStatus.textContent = t('notepad.saved');
   setTimeout(updateNotepadStatus, 1500);
   notepadEditor.focus();
 }
@@ -1626,7 +1659,7 @@ function notepadShowSaveAs() {
   d.className = 'notepad-dialog';
 
   var label = document.createElement('label');
-  label.textContent = 'File name:';
+  label.textContent = t('notepad.fileName');
   d.appendChild(label);
 
   var inp = document.createElement('input');
@@ -1643,13 +1676,13 @@ function notepadShowSaveAs() {
   btnRow.className = 'button-row';
   var saveBtn = document.createElement('button');
   saveBtn.className = 'btn';
-  saveBtn.textContent = 'Save';
+  saveBtn.textContent = t('ui.save');
   saveBtn.addEventListener('click', function () { notepadSaveAs(inp.value); });
   btnRow.appendChild(saveBtn);
   btnRow.appendChild(document.createTextNode('\u00a0'));
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn';
-  cancelBtn.textContent = 'Cancel';
+  cancelBtn.textContent = t('ui.cancel');
   cancelBtn.addEventListener('click', notepadDismissDialog);
   btnRow.appendChild(cancelBtn);
   d.appendChild(btnRow);
@@ -1677,7 +1710,7 @@ function notepadShowOpen() {
   d.className = 'notepad-dialog';
 
   var label = document.createElement('label');
-  label.textContent = 'Open a file:';
+  label.textContent = t('notepad.openFile');
   d.appendChild(label);
 
   var fileList = document.createElement('div');
@@ -1685,7 +1718,7 @@ function notepadShowOpen() {
   if (names.length === 0) {
     var emptyMsg = document.createElement('div');
     emptyMsg.className = 'notepad-empty';
-    emptyMsg.textContent = 'No saved files.';
+    emptyMsg.textContent = t('notepad.noSavedFiles');
     fileList.appendChild(emptyMsg);
   } else {
     names.forEach(function (n) {
@@ -1697,7 +1730,7 @@ function notepadShowOpen() {
       row.appendChild(nameSpan);
       var delBtn = document.createElement('button');
       delBtn.className = 'btn';
-      delBtn.textContent = 'Del';
+      delBtn.textContent = t('ui.delete');
       delBtn.addEventListener('click', function (e) { e.stopPropagation(); notepadDeleteFile(n); });
       row.appendChild(delBtn);
       fileList.appendChild(row);
@@ -1709,7 +1742,7 @@ function notepadShowOpen() {
   btnRow.className = 'button-row';
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn';
-  cancelBtn.textContent = 'Cancel';
+  cancelBtn.textContent = t('ui.cancel');
   cancelBtn.addEventListener('click', notepadDismissDialog);
   btnRow.appendChild(cancelBtn);
   d.appendChild(btnRow);
@@ -1729,7 +1762,7 @@ function notepadOpenFile(name) {
 }
 
 function notepadDeleteFile(name) {
-  if (!confirm('Delete "' + name + '"?')) return;
+  if (!confirm(t('notepad.deleteConfirm', { name: name }))) return;
   var files = notepadGetFiles();
   delete files[name];
   notepadPersist(files);
@@ -1751,7 +1784,7 @@ function closeNotepad() {
 
 function updateNotepadStatus() {
   var len = notepadEditor.value.length;
-  notepadStatus.textContent = len + ' character' + (len !== 1 ? 's' : '');
+  notepadStatus.textContent = tPlural('notepad.charCount', len);
 }
 
 notepadEditor.addEventListener('input', function () {
@@ -1786,10 +1819,10 @@ function notepadUpdateFindCount() {
   var countEl = document.getElementById('notepadFindCount');
   if (!countEl) return;
   if (!notepadFindTerm || notepadFindMatches.length === 0) {
-    countEl.textContent = notepadFindTerm ? '0 matches' : '';
+    countEl.textContent = notepadFindTerm ? t('notepad.noMatches') : '';
     return;
   }
-  countEl.textContent = (notepadFindIndex + 1) + ' of ' + notepadFindMatches.length;
+  countEl.textContent = t('notepad.matchCount', { current: notepadFindIndex + 1, total: notepadFindMatches.length });
 }
 
 function notepadHighlightMatch() {
@@ -1859,7 +1892,7 @@ function notepadShowFindBar(mode) {
   row1.className = 'notepad-findbar-row';
 
   var findLabel = document.createElement('span');
-  findLabel.textContent = 'Find:';
+  findLabel.textContent = t('notepad.find');
   findLabel.style.fontSize = '12px';
   row1.appendChild(findLabel);
 
@@ -1913,7 +1946,7 @@ function notepadShowFindBar(mode) {
   });
   caseLabel.appendChild(caseCheck);
   var caseText = document.createElement('span');
-  caseText.textContent = 'Match case';
+  caseText.textContent = t('notepad.matchCase');
   caseLabel.appendChild(caseText);
   row1.appendChild(caseLabel);
 
@@ -1931,7 +1964,7 @@ function notepadShowFindBar(mode) {
     row2.className = 'notepad-findbar-row';
 
     var repLabel = document.createElement('span');
-    repLabel.textContent = 'Replace:';
+    repLabel.textContent = t('notepad.replace');
     repLabel.style.fontSize = '12px';
     row2.appendChild(repLabel);
 
@@ -1948,13 +1981,13 @@ function notepadShowFindBar(mode) {
 
     var repBtn = document.createElement('button');
     repBtn.className = 'btn';
-    repBtn.textContent = 'Replace';
+    repBtn.textContent = t('notepad.replaceBtn');
     repBtn.addEventListener('click', notepadReplace);
     row2.appendChild(repBtn);
 
     var repAllBtn = document.createElement('button');
     repAllBtn.className = 'btn';
-    repAllBtn.textContent = 'Replace All';
+    repAllBtn.textContent = t('notepad.replaceAll');
     repAllBtn.addEventListener('click', notepadReplaceAll);
     row2.appendChild(repAllBtn);
 
@@ -2154,12 +2187,12 @@ function openCalendar() {
   calendarRender();
 }
 
-const CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 function calendarRender() {
-  calTitleEl.textContent = CAL_MONTHS[calMonth] + ' ' + calYear;
+  calTitleEl.textContent = t('cal.months.' + calMonth) + ' ' + calYear;
 
   var frag = document.createDocumentFragment();
-  var dayNames = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+  var dayNames = [];
+  for (var di = 0; di < 7; di++) dayNames.push(t('cal.days.' + di));
   for (var i = 0; i < 7; i++) {
     var hdr = document.createElement('div');
     hdr.className = 'cal-day-header';
@@ -2380,11 +2413,11 @@ function fetchWeather() {
   if (weatherLoaded) return;
   var body = document.getElementById('weatherBody');
   var status = document.getElementById('weatherStatus');
-  showLoadingMessage(body, 'Locating you...');
+  showLoadingMessage(body, t('weather.loading'));
 
   getLocation(
     function (lat, lon) {
-      showLoadingMessage(body, 'Fetching weather data...');
+      showLoadingMessage(body, t('weather.loading'));
       var flatLat = lat.toFixed(2);
       var flatLon = lon.toFixed(2);
       fetch('https://api.open-meteo.com/v1/forecast?latitude=' + flatLat + '&longitude=' + flatLon + '&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true&timezone=auto&forecast_days=3')
@@ -2392,7 +2425,7 @@ function fetchWeather() {
         .then(function (data) {
           weatherLoaded = true;
           renderWeather(body, data);
-          status.textContent = 'Powered by Open-Meteo';
+          status.textContent = t('weather.poweredBy');
         })
         .catch(function () {
           showErrorPanel(body, 'Failed to fetch weather data. Please try again later.', 'al-tri-we');
@@ -2404,17 +2437,10 @@ function fetchWeather() {
   );
 }
 
-const WEATHER_CODES = {
-  0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
-  45: 'Fog', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Dense drizzle',
-  61: 'Slight rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Light freezing rain', 67: 'Freezing rain',
-  71: 'Slight snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains',
-  80: 'Light showers', 81: 'Showers', 82: 'Heavy showers',
-  85: 'Snow showers', 86: 'Heavy snow showers',
-  95: 'Thunderstorm', 96: 'Thunderstorm w/ hail', 99: 'Severe thunderstorm'
-};
 function weatherCodeToDesc(code) {
-  return WEATHER_CODES[code] || 'Unknown';
+  var key = 'weather.code.' + code;
+  var val = t(key);
+  return val !== key ? val : t('weather.unknown');
 }
 
 function weatherIconType(code) {
@@ -2636,7 +2662,7 @@ function populateDiskUsage() {
   if (body.dataset.populated) return;
   body.dataset.populated = '1';
 
-  showLoadingMessage(body, 'Scanning disk...');
+  showLoadingMessage(body, t('du.scanning'));
 
   var SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -2664,7 +2690,7 @@ function populateDiskUsage() {
     });
 
     if (totalSize === 0) {
-      showLoadingMessage(body, 'No files found.');
+      showLoadingMessage(body, t('du.noFiles'));
       return;
     }
 
@@ -2678,11 +2704,11 @@ function populateDiskUsage() {
     header.className = 'du-header';
     var titleEl = document.createElement('div');
     titleEl.className = 'du-header-title';
-    titleEl.textContent = 'mpOS Virtual Disk';
+    titleEl.textContent = t('du.header');
     header.appendChild(titleEl);
     var subEl = document.createElement('div');
     subEl.className = 'du-header-sub';
-    subEl.textContent = 'File system: HTMLFS';
+    subEl.textContent = t('du.filesystem');
     header.appendChild(subEl);
     body.appendChild(header);
 
@@ -2820,10 +2846,10 @@ function populateDiskUsage() {
     // ── Total line ──
     var totalEl = document.createElement('div');
     totalEl.className = 'du-total';
-    totalEl.textContent = 'Total: ' + formatDuSize(totalSize) + ' (' + files.length + ' files)';
+    totalEl.textContent = t('du.total', { size: formatDuSize(totalSize), count: files.length });
     body.appendChild(totalEl);
 
-    status.textContent = files.length + ' files scanned';
+    status.textContent = t('du.scanned', { count: files.length });
   });
 }
 
@@ -2857,7 +2883,7 @@ function fetchVisitorData() {
       renderVisitorMap(body, results[1]);
     })
     .catch(function () {
-      showErrorPanel(body, 'Could not load visitor data. The server may be temporarily unavailable.', 'vm-err');
+      showErrorPanel(body, t('vm.loadError'), 'vm-err');
       vmPopulated = false;
     });
 }
@@ -2969,7 +2995,7 @@ function renderVisitorMap(body, counts) {
   } else {
     var noMap = document.createElement('div');
     noMap.className = 'folder-empty';
-    noMap.textContent = 'Map data unavailable.';
+    noMap.textContent = t('vm.mapUnavailable');
     mapWrap.appendChild(noMap);
   }
 
@@ -2981,7 +3007,7 @@ function renderVisitorMap(body, counts) {
 
   var listHeader = document.createElement('div');
   listHeader.className = 'vm-list-header';
-  listHeader.textContent = 'Countries';
+  listHeader.textContent = t('vm.countries');
   list.appendChild(listHeader);
 
   for (var j = 0; j < entries.length; j++) {
@@ -3020,7 +3046,7 @@ function renderVisitorMap(body, counts) {
   var status = document.getElementById('visitorMapStatus');
   if (status) {
     // status.textContent = countryCount + ' countr' + (countryCount !== 1 ? 'ies' : 'y') + ', ' + totalVisitors + ' total visitor' + (totalVisitors !== 1 ? 's' : '');
-    status.textContent = countryCount + ' countr' + (countryCount !== 1 ? 'ies' : 'y');
+    status.textContent = tPlural('vm.countryCount', countryCount);
   }
 }
 
@@ -3084,7 +3110,7 @@ function helpToggleNav() {
   var btn = document.getElementById('helpToggleBtn');
   helpNavVisible = !helpNavVisible;
   nav.classList.toggle('hidden', !helpNavVisible);
-  btn.textContent = helpNavVisible ? 'Hide' : 'Show';
+  btn.textContent = helpNavVisible ? t('help.hide') : t('help.show');
 }
 
 function helpUpdateButtons() {
@@ -3105,6 +3131,11 @@ function helpSwitchTab(tab) {
   else if (tab === 'search') helpBuildSearch(body);
 }
 
+function helpGetTitle(topic) { return getLang() === 'pt' && topic.title_pt ? topic.title_pt : topic.title; }
+function helpGetBody(topic) { return getLang() === 'pt' && topic.body_pt ? topic.body_pt : topic.body; }
+function helpGetKeywords(topic) { return getLang() === 'pt' && topic.keywords_pt ? topic.keywords_pt : topic.keywords; }
+function helpGetFolderTitle(folder) { return getLang() === 'pt' && folder.title_pt ? folder.title_pt : folder.title; }
+
 function helpBuildTree(body) {
   var frag = document.createDocumentFragment();
   for (var i = 0; i < HELP_TREE.length; i++) {
@@ -3118,7 +3149,7 @@ function helpBuildTree(body) {
     icon.textContent = '\uD83D\uDCD6';
     folderRow.appendChild(icon);
     var label = document.createElement('span');
-    label.textContent = folder.title;
+    label.textContent = helpGetFolderTitle(folder);
     folderRow.appendChild(label);
     folderEl.appendChild(folderRow);
 
@@ -3137,7 +3168,7 @@ function helpBuildTree(body) {
       tIcon.textContent = '\uD83D\uDCC4';
       topicEl.appendChild(tIcon);
       var tLabel = document.createElement('span');
-      tLabel.textContent = topic.title;
+      tLabel.textContent = helpGetTitle(topic);
       topicEl.appendChild(tLabel);
       topicEl.addEventListener('click', (function (id) {
         return function () { helpNavigateTo(id); };
@@ -3161,24 +3192,24 @@ function helpBuildTree(body) {
 }
 
 function helpBuildIndex(body) {
-  // Build index data once
-  if (!helpIndexData) {
-    helpIndexData = [];
-    var keys = Object.keys(HELP_TOPICS);
-    for (var i = 0; i < keys.length; i++) {
-      var topic = HELP_TOPICS[keys[i]];
-      for (var j = 0; j < topic.keywords.length; j++) {
-        helpIndexData.push({ keyword: topic.keywords[j], topicId: keys[i], title: topic.title });
-      }
+  // Rebuild index data each time (language may have changed)
+  helpIndexData = [];
+  var keys = Object.keys(HELP_TOPICS);
+  for (var i = 0; i < keys.length; i++) {
+    var topic = HELP_TOPICS[keys[i]];
+    var kw = helpGetKeywords(topic);
+    var title = helpGetTitle(topic);
+    for (var j = 0; j < kw.length; j++) {
+      helpIndexData.push({ keyword: kw[j], topicId: keys[i], title: title });
     }
-    helpIndexData.sort(function (a, b) {
-      return a.keyword.localeCompare(b.keyword);
-    });
   }
+  helpIndexData.sort(function (a, b) {
+    return a.keyword.localeCompare(b.keyword);
+  });
 
   var header = document.createElement('div');
   header.className = 'help-index-header';
-  header.textContent = 'Type a keyword:';
+  header.textContent = t('help.indexHeader');
   body.appendChild(header);
 
   var input = document.createElement('input');
@@ -3201,7 +3232,7 @@ function helpBuildIndex(body) {
     if (matches.length === 0) {
       var none = document.createElement('div');
       none.className = 'help-no-results';
-      none.textContent = 'No matching keywords.';
+      none.textContent = t('help.noKeywords');
       list.appendChild(none);
       return;
     }
@@ -3224,7 +3255,7 @@ function helpBuildIndex(body) {
 function helpBuildSearch(body) {
   var header = document.createElement('div');
   header.className = 'help-search-header';
-  header.textContent = 'Search for:';
+  header.textContent = t('help.searchHeader');
   body.appendChild(header);
 
   var input = document.createElement('input');
@@ -3236,7 +3267,7 @@ function helpBuildSearch(body) {
 
   var btn = document.createElement('button');
   btn.className = 'btn help-search-btn';
-  btn.textContent = 'List Topics';
+  btn.textContent = t('help.listTopics');
   body.appendChild(btn);
 
   var results = document.createElement('div');
@@ -3252,23 +3283,24 @@ function helpBuildSearch(body) {
     var keys = Object.keys(HELP_TOPICS);
     for (var i = 0; i < keys.length; i++) {
       var topic = HELP_TOPICS[keys[i]];
-      var searchText = topic.title.toLowerCase();
-      searchText += ' ' + topic.keywords.join(' ').toLowerCase();
-      for (var b = 0; b < topic.body.length; b++) {
-        var block = topic.body[b];
+      var searchText = helpGetTitle(topic).toLowerCase();
+      searchText += ' ' + helpGetKeywords(topic).join(' ').toLowerCase();
+      var bodyBlocks = helpGetBody(topic);
+      for (var b = 0; b < bodyBlocks.length; b++) {
+        var block = bodyBlocks[b];
         if (block.p) searchText += ' ' + block.p.toLowerCase();
         if (block.h) searchText += ' ' + block.h.toLowerCase();
         if (block.ul) searchText += ' ' + block.ul.join(' ').toLowerCase();
       }
       if (searchText.indexOf(query) !== -1) {
-        matches.push({ topicId: keys[i], title: topic.title });
+        matches.push({ topicId: keys[i], title: helpGetTitle(topic) });
       }
     }
 
     if (matches.length === 0) {
       var none = document.createElement('div');
       none.className = 'help-no-results';
-      none.textContent = 'No topics found.';
+      none.textContent = t('help.noTopics');
       results.appendChild(none);
       return;
     }
@@ -3299,16 +3331,18 @@ function helpRenderTopic(topicId) {
   content.textContent = '';
   content.scrollTop = 0;
 
+  var topicTitle = helpGetTitle(topic);
   // Update title bar
-  document.getElementById('helpTitle').textContent = 'mpOS Help \u2014 ' + topic.title;
+  document.getElementById('helpTitle').textContent = t('help.titlePrefix') + ' \u2014 ' + topicTitle;
 
   var titleEl = document.createElement('div');
   titleEl.className = 'help-topic-title';
-  titleEl.textContent = topic.title;
+  titleEl.textContent = topicTitle;
   content.appendChild(titleEl);
 
-  for (var i = 0; i < topic.body.length; i++) {
-    var block = topic.body[i];
+  var bodyBlocks = helpGetBody(topic);
+  for (var i = 0; i < bodyBlocks.length; i++) {
+    var block = bodyBlocks[i];
 
     if (block.p) {
       var p = document.createElement('div');
@@ -3334,7 +3368,7 @@ function helpRenderTopic(topicId) {
       sa.className = 'help-topic-sa';
       var saLabel = document.createElement('div');
       saLabel.className = 'help-topic-sa-label';
-      saLabel.textContent = 'See also:';
+      saLabel.textContent = t('help.seeAlso');
       sa.appendChild(saLabel);
       for (var k = 0; k < block.sa.length; k++) {
         var linked = HELP_TOPICS[block.sa[k]];
@@ -3344,7 +3378,7 @@ function helpRenderTopic(topicId) {
         }
         var link = document.createElement('span');
         link.className = 'help-topic-link';
-        link.textContent = linked.title;
+        link.textContent = helpGetTitle(linked);
         link.addEventListener('click', (function (id) {
           return function () { helpNavigateTo(id); };
         })(block.sa[k]));
@@ -3400,7 +3434,7 @@ function openPaint() {
 }
 
 function closePaint() {
-  if (paintDirty && !confirm('You have unsaved changes. Discard them?')) return;
+  if (paintDirty && !confirm(t('paint.discardChanges'))) return;
   paintDismissDialog();
   mpTaskbar.closeWindow('paint');
 }
@@ -3796,15 +3830,14 @@ function paintSizeChange(val) {
 }
 
 function paintUpdateStatus() {
-  var names = { pencil: 'Pencil', brush: 'Brush', eraser: 'Eraser', line: 'Line', rect: 'Rectangle', ellipse: 'Ellipse', fill: 'Fill' };
-  var name = names[paintTool] || paintTool;
+  var name = t('paint.tool.' + paintTool);
   var size = paintTool === 'pencil' ? '1' : (paintTool === 'fill' ? '' : paintSize);
   document.getElementById('paintStatus').textContent = name + (size ? ': ' + size + 'px' : '');
 }
 
 function paintSetTitle() {
-  var name = paintCurrentFile || 'Untitled';
-  document.getElementById('paintTitle').textContent = name + (paintDirty ? '* ' : ' ') + '- Paint';
+  var name = paintCurrentFile || t('paint.untitled');
+  document.getElementById('paintTitle').textContent = name + (paintDirty ? '* ' : ' ') + t('paint.titleSuffix');
 }
 
 function paintClear() {
@@ -3824,11 +3857,11 @@ function paintGetFiles() {
 
 function paintPersist(files) {
   try { localStorage.setItem('mpOS-paint-files', JSON.stringify(files)); }
-  catch (e) { alert('Storage is full. Could not save.'); }
+  catch (e) { alert(t('paint.storageFull')); }
 }
 
 function paintNew() {
-  if (paintDirty && !confirm('You have unsaved changes. Discard them?')) return;
+  if (paintDirty && !confirm(t('paint.discardChanges'))) return;
   paintDismissDialog();
   paintCtx.fillStyle = '#ffffff';
   paintCtx.fillRect(0, 0, paintW, paintH);
@@ -3847,7 +3880,7 @@ function paintSave() {
     paintPersist(files);
     paintDirty = false;
     paintSetTitle();
-    document.getElementById('paintStatus').textContent = 'Saved';
+    document.getElementById('paintStatus').textContent = t('paint.saved');
     setTimeout(paintUpdateStatus, 1500);
   } else {
     paintShowSaveAs();
@@ -3861,7 +3894,7 @@ function paintSaveAs(name) {
   if (name.indexOf('.') === -1) name += '.png';
   var files = paintGetFiles();
   if (files.hasOwnProperty(name) && name !== paintCurrentFile) {
-    if (!confirm('"' + name + '" already exists. Overwrite?')) return;
+    if (!confirm(t('paint.overwriteConfirm', { name: name }))) return;
   }
   files[name] = paintCanvas.toDataURL('image/png');
   paintPersist(files);
@@ -3869,7 +3902,7 @@ function paintSaveAs(name) {
   paintDismissDialog();
   paintDirty = false;
   paintSetTitle();
-  document.getElementById('paintStatus').textContent = 'Saved';
+  document.getElementById('paintStatus').textContent = t('paint.saved');
   setTimeout(paintUpdateStatus, 1500);
 }
 
@@ -3879,7 +3912,7 @@ function paintShowSaveAs() {
   d.className = 'paint-dialog';
 
   var label = document.createElement('label');
-  label.textContent = 'File name:';
+  label.textContent = t('paint.fileName');
   d.appendChild(label);
 
   var inp = document.createElement('input');
@@ -3895,13 +3928,13 @@ function paintShowSaveAs() {
   btnRow.className = 'button-row';
   var saveBtn = document.createElement('button');
   saveBtn.className = 'btn';
-  saveBtn.textContent = 'Save';
+  saveBtn.textContent = t('ui.save');
   saveBtn.addEventListener('click', function () { paintSaveAs(inp.value); });
   btnRow.appendChild(saveBtn);
   btnRow.appendChild(document.createTextNode('\u00a0'));
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn';
-  cancelBtn.textContent = 'Cancel';
+  cancelBtn.textContent = t('ui.cancel');
   cancelBtn.addEventListener('click', paintDismissDialog);
   btnRow.appendChild(cancelBtn);
   d.appendChild(btnRow);
@@ -3916,7 +3949,7 @@ function paintShowSaveAs() {
 }
 
 function paintLoad() {
-  if (paintDirty && !confirm('You have unsaved changes. Discard them?')) return;
+  if (paintDirty && !confirm(t('paint.discardChanges'))) return;
   paintShowOpen();
 }
 
@@ -3929,7 +3962,7 @@ function paintShowOpen() {
   d.className = 'paint-dialog';
 
   var label = document.createElement('label');
-  label.textContent = 'Open a file:';
+  label.textContent = t('paint.openFile');
   d.appendChild(label);
 
   var fileList = document.createElement('div');
@@ -3937,7 +3970,7 @@ function paintShowOpen() {
   if (names.length === 0) {
     var emptyMsg = document.createElement('div');
     emptyMsg.className = 'paint-empty';
-    emptyMsg.textContent = 'No saved files.';
+    emptyMsg.textContent = t('paint.noSavedFiles');
     fileList.appendChild(emptyMsg);
   } else {
     names.forEach(function (n) {
@@ -3954,7 +3987,7 @@ function paintShowOpen() {
       row.appendChild(nameSpan);
       var delBtn = document.createElement('button');
       delBtn.className = 'btn';
-      delBtn.textContent = 'Del';
+      delBtn.textContent = t('ui.delete');
       delBtn.addEventListener('click', function (e) { e.stopPropagation(); paintDeleteFile(n); });
       row.appendChild(delBtn);
       fileList.appendChild(row);
@@ -3966,7 +3999,7 @@ function paintShowOpen() {
   btnRow.className = 'button-row';
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn';
-  cancelBtn.textContent = 'Cancel';
+  cancelBtn.textContent = t('ui.cancel');
   cancelBtn.addEventListener('click', paintDismissDialog);
   btnRow.appendChild(cancelBtn);
   d.appendChild(btnRow);
@@ -3998,7 +4031,7 @@ function paintOpenFile(name) {
 }
 
 function paintDeleteFile(name) {
-  if (!confirm('Delete "' + name + '"?')) return;
+  if (!confirm(t('paint.deleteConfirm', { name: name }))) return;
   var files = paintGetFiles();
   delete files[name];
   paintPersist(files);
@@ -4042,7 +4075,7 @@ function searchNow() {
   results.textContent = '';
 
   if (!query) {
-    status.textContent = 'Ready';
+    status.textContent = t('search.ready');
     return;
   }
 
@@ -4050,22 +4083,22 @@ function searchNow() {
 
   // 1. Programs
   var progMatches = FOLDER_ITEMS.programs.filter(function (item) {
-    return item.name.toLowerCase().indexOf(query) !== -1 ||
-           item.desc.toLowerCase().indexOf(query) !== -1;
+    return itemName(item).toLowerCase().indexOf(query) !== -1 ||
+           itemDesc(item).toLowerCase().indexOf(query) !== -1;
   });
   if (progMatches.length) {
     totalCount += progMatches.length;
-    results.appendChild(searchBuildGroup('Programs', progMatches, 'program'));
+    results.appendChild(searchBuildGroup(t('search.group.programs'), progMatches, 'program'));
   }
 
   // 2. Utilities
   var utilMatches = FOLDER_ITEMS.utilities.filter(function (item) {
-    return item.name.toLowerCase().indexOf(query) !== -1 ||
-           item.desc.toLowerCase().indexOf(query) !== -1;
+    return itemName(item).toLowerCase().indexOf(query) !== -1 ||
+           itemDesc(item).toLowerCase().indexOf(query) !== -1;
   });
   if (utilMatches.length) {
     totalCount += utilMatches.length;
-    results.appendChild(searchBuildGroup('Utilities', utilMatches, 'program'));
+    results.appendChild(searchBuildGroup(t('search.group.utilities'), utilMatches, 'program'));
   }
 
   // 3. Files
@@ -4085,7 +4118,7 @@ function searchNow() {
   }
   if (fileMatches.length) {
     totalCount += fileMatches.length;
-    results.appendChild(searchBuildGroup('Files', fileMatches, 'file'));
+    results.appendChild(searchBuildGroup(t('search.group.files'), fileMatches, 'file'));
   }
 
   // 4. Commands
@@ -4101,17 +4134,17 @@ function searchNow() {
   }
   if (cmdMatches.length) {
     totalCount += cmdMatches.length;
-    results.appendChild(searchBuildGroup('Commands', cmdMatches, 'command'));
+    results.appendChild(searchBuildGroup(t('search.group.commands'), cmdMatches, 'command'));
   }
 
   if (totalCount === 0) {
     var noRes = document.createElement('div');
     noRes.className = 'search-no-results';
-    noRes.textContent = 'No items match your search.';
+    noRes.textContent = t('search.noResults');
     results.appendChild(noRes);
-    status.textContent = '0 item(s) found';
+    status.textContent = t('search.itemsFound', { count: 0 });
   } else {
-    status.textContent = totalCount + ' item(s) found';
+    status.textContent = t('search.itemsFound', { count: totalCount });
   }
 }
 
@@ -4135,11 +4168,11 @@ function searchBuildGroup(title, items, type) {
       row.appendChild(svg);
       var nameEl = document.createElement('span');
       nameEl.className = 'search-result-name';
-      nameEl.textContent = item.name;
+      nameEl.textContent = itemName(item);
       row.appendChild(nameEl);
       var descEl = document.createElement('span');
       descEl.className = 'search-result-desc';
-      descEl.textContent = item.desc;
+      descEl.textContent = itemDesc(item);
       row.appendChild(descEl);
       (function (it) {
         row.addEventListener('click', function () {
@@ -4166,8 +4199,9 @@ function searchBuildGroup(title, items, type) {
           notepadEditor.value = it.content || '';
           notepadCurrentFile = null;
           notepadDirty = false;
-          notepadTitle.textContent = 'Notepad - ' + it.name;
-          notepadStatus.textContent = (it.content || '').length + ' characters';
+          notepadTitle.textContent = it.name + ' ' + t('notepad.titleSuffix');
+          var len = (it.content || '').length;
+          notepadStatus.textContent = tPlural('notepad.charCount', len);
         });
       })(item);
     } else if (type === 'command') {
@@ -4289,12 +4323,12 @@ function tmBuildUI() {
 
   var tabApps = document.createElement('button');
   tabApps.className = 'mycomputer-tab active';
-  tabApps.textContent = 'Applications';
+  tabApps.textContent = t('tm.tab.apps');
   tabApps.onclick = function () { tmSwitchTab('apps'); };
 
   var tabPerf = document.createElement('button');
   tabPerf.className = 'mycomputer-tab';
-  tabPerf.textContent = 'Performance';
+  tabPerf.textContent = t('tm.tab.perf');
   tabPerf.onclick = function () { tmSwitchTab('perf'); };
 
   tabBar.appendChild(tabApps);
@@ -4329,14 +4363,14 @@ function tmBuildUI() {
 
   var endBtn = document.createElement('button');
   endBtn.className = 'btn';
-  endBtn.textContent = 'End Task';
+  endBtn.textContent = t('tm.endTask');
   endBtn.style.fontSize = '12px';
   endBtn.style.padding = '2px 12px';
   endBtn.onclick = function () { tmEndTask(); };
 
   var switchBtn = document.createElement('button');
   switchBtn.className = 'btn';
-  switchBtn.textContent = 'Switch To';
+  switchBtn.textContent = t('tm.switchTo');
   switchBtn.style.fontSize = '12px';
   switchBtn.style.padding = '2px 12px';
   switchBtn.onclick = function () { tmSwitchTo(); };
@@ -4357,7 +4391,7 @@ function tmBuildUI() {
   cpuSection.className = 'tm-graph-section';
   var cpuLabel = document.createElement('div');
   cpuLabel.className = 'tm-graph-label';
-  cpuLabel.textContent = 'CPU Usage';
+  cpuLabel.textContent = t('tm.cpuUsage');
   cpuSection.appendChild(cpuLabel);
   var cpuCanvas = document.createElement('canvas');
   cpuCanvas.className = 'tm-graph-canvas';
@@ -4370,7 +4404,7 @@ function tmBuildUI() {
   memSection.className = 'tm-graph-section';
   var memLabel = document.createElement('div');
   memLabel.className = 'tm-graph-label';
-  memLabel.textContent = 'Memory Usage';
+  memLabel.textContent = t('tm.memUsage');
   memSection.appendChild(memLabel);
   var memCanvas = document.createElement('canvas');
   memCanvas.className = 'tm-graph-canvas';
@@ -4432,12 +4466,12 @@ function tmRefreshApps() {
 
     var nameSpan = document.createElement('span');
     nameSpan.className = 'tm-app-name';
-    nameSpan.textContent = WINDOW_NAMES[id];
+    nameSpan.textContent = t('win.' + id);
     row.appendChild(nameSpan);
 
     var statusSpan = document.createElement('span');
     statusSpan.className = 'tm-app-status';
-    statusSpan.textContent = 'Running';
+    statusSpan.textContent = t('tm.running');
     row.appendChild(statusSpan);
 
     row.onclick = (function (winId) {
@@ -4454,7 +4488,7 @@ function tmRefreshApps() {
   }
 
   var statusEl = document.getElementById('tmStatus');
-  if (statusEl) statusEl.textContent = 'Processes: ' + count;
+  if (statusEl) statusEl.textContent = t('tm.processes', { count: count });
 }
 
 function tmSelectRow(winId) {
@@ -4514,10 +4548,10 @@ function tmRefreshPerf() {
   // Update statusbar
   var cpuPct = Math.min(100, Math.round(tmCurrentFps / 60 * 100));
   var cpuStatus = document.getElementById('tmCpuStatus');
-  if (cpuStatus) cpuStatus.textContent = 'CPU Usage: ' + cpuPct + '%';
+  if (cpuStatus) cpuStatus.textContent = t('tm.cpuStatus', { pct: cpuPct });
 
   var memStatus = document.getElementById('tmMemStatus');
-  if (memStatus) memStatus.textContent = 'Mem Usage: ' + (mem !== null ? Math.round(mem) + ' MB' : '\u2014');
+  if (memStatus) memStatus.textContent = t('tm.memStatus', { value: mem !== null ? Math.round(mem) + ' MB' : '\u2014' });
 
   // Update stats row
   var statsRow = document.getElementById('tmPerfStats');
@@ -4607,7 +4641,7 @@ function tmDrawUnavailable(canvas) {
   ctx.font = '11px ' + tmMonoFont;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('Not available', w / 2, h / 2);
+  ctx.fillText(t('tm.notAvailable'), w / 2, h / 2);
 }
 
 const WINDOW_NAMES = {
@@ -5413,30 +5447,43 @@ mobileQuery.addEventListener('change', function (e) {
 /* ── Mobile Launcher ── */
 function buildLauncher() {
   var programs = [
-    { name: 'WikiBrowser', action: openBrowser },
-    { name: 'Fish of the Day', action: openFishOfDay },
-    { name: 'Fish Finder', action: openFishFinder },
-    { name: 'On Target', action: openOnTarget },
-    { name: 'Virtual Aquarium', action: openAquarium },
-    { name: 'Chicken Fingers', action: null, href: 'chicken-fingers.html' },
-    { name: 'Paint', action: openPaint },
-    { name: 'Brick Breaker', action: openBrickBreaker }
+    { name: 'WikiBrowser', _key: 'wikiBrowser', action: openBrowser },
+    { name: 'Fish of the Day', _key: 'fishOfDay', action: openFishOfDay },
+    { name: 'Fish Finder', _key: 'fishFinder', action: openFishFinder },
+    { name: 'On Target', _key: 'onTarget', action: openOnTarget },
+    { name: 'Virtual Aquarium', _key: 'aquarium', action: openAquarium },
+    { name: 'Chicken Fingers', _key: 'chickenFingers', action: null, href: 'chicken-fingers.html' },
+    { name: 'Paint', _key: 'paint', action: openPaint },
+    { name: 'Brick Breaker', _key: 'brickBreaker', action: openBrickBreaker }
   ];
   var utilities = [
-    { name: 'Notepad', action: openNotepad },
-    { name: 'Calculator', action: openCalculator },
-    { name: 'Calendar', action: openCalendar },
-    { name: 'Time Zone', action: openTimeZone },
-    { name: 'Weather', action: openWeather },
-    { name: 'Disk Usage', action: openDiskUsage },
-    { name: 'Visitor Map', action: openVisitorMap }
+    { name: 'Notepad', _key: 'notepad', action: openNotepad },
+    { name: 'Calculator', _key: 'calculator', action: openCalculator },
+    { name: 'Calendar', _key: 'calendar', action: openCalendar },
+    { name: 'Time Zone', _key: 'timeZone', action: openTimeZone },
+    { name: 'Weather', _key: 'weather', action: openWeather },
+    { name: 'Disk Usage', _key: 'diskUsage', action: openDiskUsage },
+    { name: 'Visitor Map', _key: 'visitorMap', action: openVisitorMap }
   ];
   var system = [
-    { name: 'My Computer', action: openMyComputer },
-    { name: 'Files', action: openExplorer },
-    { name: 'Help', action: openHelp },
-    { name: 'Search', action: openSearch }
+    { name: 'My Computer', _key: 'myComputer', action: openMyComputer },
+    { name: 'Files', _key: 'files', action: openExplorer },
+    { name: 'Help', _key: 'help', action: openHelp },
+    { name: 'Search', _key: 'search', action: openSearch }
   ];
+
+  // Clear grids (may be called again on language change)
+  ['launcherPrograms', 'launcherUtilities', 'launcherSystem'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = '';
+  });
+
+  // Update section titles
+  var secTitles = document.querySelectorAll('.launcher-section-title');
+  var titleKeys = ['launcher.programs', 'launcher.utilities', 'launcher.system'];
+  for (var i = 0; i < secTitles.length && i < titleKeys.length; i++) {
+    secTitles[i].textContent = t(titleKeys[i]);
+  }
 
   function populateGrid(gridId, items) {
     var grid = document.getElementById(gridId);
@@ -5452,7 +5499,7 @@ function buildLauncher() {
       tile.appendChild(svg);
       var label = document.createElement('span');
       label.className = 'launcher-tile-label';
-      label.textContent = item.name;
+      label.textContent = itemName(item);
       tile.appendChild(label);
       if (item.href) {
         tile.addEventListener('click', function () { location.href = item.href; });
@@ -5560,6 +5607,47 @@ document.addEventListener('keydown', function (e) {
     e.preventDefault();
     openTaskManager();
   }
+});
+
+/* ── Language toggle (system tray) ── */
+var langBtn = document.getElementById('trayLangBtn');
+if (langBtn) {
+  langBtn.textContent = getLang().toUpperCase();
+  langBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setLanguage(getLang() === 'en' ? 'pt' : 'en');
+  });
+}
+
+/* ── Refresh dynamic content on language change ── */
+function isVisible(id) {
+  var el = document.getElementById(id);
+  return el && el.style.display !== 'none';
+}
+
+window.addEventListener('languagechange', function () {
+  // Explorer: re-render current folder
+  if (isVisible('explorer')) navigateExplorer(explorerCurrentFolder);
+  // My Computer: invalidate cache, re-render current tab
+  if (isVisible('mycomputer')) { mcGeneralFrag = null; mcSwitchTab(mcCurrentTab); }
+  // Calendar: re-render
+  if (isVisible('calendar')) calendarRender();
+  // Help: re-render current topic + nav
+  if (isVisible('help')) {
+    helpSwitchTab(helpCurrentTab);
+    if (helpHistory.length > 0) helpRenderTopic(helpHistory[helpHistoryIndex]);
+  }
+  // Notepad/Paint: update title + status
+  if (isVisible('notepad')) { notepadSetTitle(); updateNotepadStatus(); }
+  if (isVisible('paint')) { paintSetTitle(); paintUpdateStatus(); }
+  // Task Manager: rebuild
+  if (isVisible('taskmanager')) { tmBuilt = false; document.getElementById('taskmanagerBody').textContent = ''; tmBuildUI(); tmRefreshApps(); }
+  // Search: clear results
+  if (isVisible('search')) { document.getElementById('searchResults').textContent = ''; document.getElementById('searchStatus').textContent = t('search.ready'); }
+  // Mobile launcher: rebuild
+  if (mobileQuery.matches) buildLauncher();
+  // Update tray lang button
+  if (langBtn) langBtn.textContent = getLang().toUpperCase();
 });
 
 /* ── System Properties: idle listeners + load saved settings ── */
