@@ -232,7 +232,7 @@ const COUNTRY_NAMES = {
   "DZ": "Algeria",
   "EC": "Ecuador",
   "EE": "Estonia",
-  "EG": "EG",
+  "EG": "Egypt",
   "EH": "Western Sahara",
   "ER": "Eritrea",
   "ES": "Spain",
