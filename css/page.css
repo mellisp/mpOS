@@ -329,8 +329,8 @@
 
 .photo-frame {
   background: #1a1a2e;
-  min-height: 180px;
-  max-height: 350px;
+  min-height: 20vh;
+  max-height: 40vh;
   overflow: hidden;
 }
 
@@ -1879,7 +1879,7 @@
   .search-panes { height: auto; flex: 1; flex-direction: column; }
   .search-sidebar { width: auto; min-width: 0; border-right: none; border-bottom: 2px solid var(--shadow); }
   .browser-viewport { height: auto; flex: 1; }
-  .photo-frame { max-height: 200px; }
+  .photo-frame { max-height: 45vh; }
   #ontarget .game-embed { height: 100%; }
   #brickbreaker .game-embed { height: 100%; }
 
