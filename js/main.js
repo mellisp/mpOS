@@ -867,6 +867,87 @@ function mcBuildRegional(body) {
     opt.appendChild(document.createTextNode(f.label));
     body.appendChild(opt);
   });
+
+  // Date format section
+  var dateLabel = document.createElement('div');
+  dateLabel.className = 'display-section-label';
+  dateLabel.style.marginTop = '12px';
+  dateLabel.textContent = t('mc.regional.date');
+  body.appendChild(dateLabel);
+
+  var curDate = localStorage.getItem('mp-datefmt') || 'mdy';
+  var dateFmts = [
+    { code: 'mdy', label: t('mc.regional.mdy') },
+    { code: 'dmy', label: t('mc.regional.dmy') },
+    { code: 'ymd', label: t('mc.regional.ymd') }
+  ];
+  dateFmts.forEach(function (d) {
+    var opt = document.createElement('label');
+    opt.className = 'regional-lang-option';
+    var radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'mpDateFmt';
+    radio.value = d.code;
+    if (d.code === curDate) radio.checked = true;
+    radio.addEventListener('change', function () {
+      localStorage.setItem('mp-datefmt', d.code);
+    });
+    opt.appendChild(radio);
+    opt.appendChild(document.createTextNode(d.label));
+    body.appendChild(opt);
+  });
+
+  // Temperature unit section
+  var tempLabel = document.createElement('div');
+  tempLabel.className = 'display-section-label';
+  tempLabel.style.marginTop = '12px';
+  tempLabel.textContent = t('mc.regional.temp');
+  body.appendChild(tempLabel);
+
+  var curTemp = localStorage.getItem('mp-tempunit') || 'C';
+  var tempUnits = [
+    { code: 'C', label: t('mc.regional.celsius') },
+    { code: 'F', label: t('mc.regional.fahrenheit') }
+  ];
+  tempUnits.forEach(function (u) {
+    var opt = document.createElement('label');
+    opt.className = 'regional-lang-option';
+    var radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'mpTempUnit';
+    radio.value = u.code;
+    if (u.code === curTemp) radio.checked = true;
+    radio.addEventListener('change', function () {
+      localStorage.setItem('mp-tempunit', u.code);
+    });
+    opt.appendChild(radio);
+    opt.appendChild(document.createTextNode(u.label));
+    body.appendChild(opt);
+  });
+}
+
+function mpFormatDate(date) {
+  var fmt = localStorage.getItem('mp-datefmt') || 'mdy';
+  var mm = padTwo(date.getMonth() + 1);
+  var dd = padTwo(date.getDate());
+  var yyyy = date.getFullYear();
+  if (fmt === 'dmy') return dd + '/' + mm + '/' + yyyy;
+  if (fmt === 'ymd') return yyyy + '-' + mm + '-' + dd;
+  return mm + '/' + dd + '/' + yyyy;
+}
+
+function mpFormatTemp(celsius) {
+  if (localStorage.getItem('mp-tempunit') === 'F') {
+    return Math.round(celsius * 9 / 5 + 32) + '\u00b0F';
+  }
+  return Math.round(celsius) + '\u00b0C';
+}
+
+function mpFormatTempShort(celsius) {
+  if (localStorage.getItem('mp-tempunit') === 'F') {
+    return Math.round(celsius * 9 / 5 + 32) + '\u00b0';
+  }
+  return Math.round(celsius) + '\u00b0';
 }
 
 /* ── Screensaver rendering ── */
@@ -2629,7 +2710,7 @@ function renderWeather(body, data) {
   curDiv.appendChild(makeIcon(current.weathercode));
   var tempEl = document.createElement('div');
   tempEl.className = 'weather-temp';
-  tempEl.textContent = Math.round(current.temperature) + '\u00b0C';
+  tempEl.textContent = mpFormatTemp(current.temperature);
   curDiv.appendChild(tempEl);
   var descEl = document.createElement('div');
   descEl.className = 'weather-desc';
@@ -2656,11 +2737,11 @@ function renderWeather(body, data) {
     dayDiv.appendChild(makeIcon(daily.weathercode[i]));
     var dayHiEl = document.createElement('div');
     dayHiEl.className = 'weather-day-temp';
-    dayHiEl.textContent = Math.round(daily.temperature_2m_max[i]) + '\u00b0';
+    dayHiEl.textContent = mpFormatTempShort(daily.temperature_2m_max[i]);
     dayDiv.appendChild(dayHiEl);
     var dayLoEl = document.createElement('div');
     dayLoEl.className = 'weather-day-low';
-    dayLoEl.textContent = Math.round(daily.temperature_2m_min[i]) + '\u00b0';
+    dayLoEl.textContent = mpFormatTempShort(daily.temperature_2m_min[i]);
     dayDiv.appendChild(dayLoEl);
     forecast.appendChild(dayDiv);
   }
@@ -5666,7 +5747,7 @@ function cmdDir() {
   let cur = FILESYSTEM[termCwd];
   if (!cur) { termPrint('Error reading directory.\n'); return; }
   let now = new Date();
-  let dateStr = padTwo(now.getMonth() + 1) + '/' + padTwo(now.getDate()) + '/' + now.getFullYear();
+  let dateStr = mpFormatDate(now);
   let timeStr = padTwo(now.getHours()) + ':' + padTwo(now.getMinutes());
   let dirCount = 0;
   let fileCount = 0;
@@ -5728,8 +5809,7 @@ function cmdEcho(args) {
 function cmdDate() {
   let now = new Date();
   let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  termPrint('The current date is: ' + days[now.getDay()] + ' ' +
-    padTwo(now.getMonth() + 1) + '/' + padTwo(now.getDate()) + '/' + now.getFullYear());
+  termPrint('The current date is: ' + days[now.getDay()] + ' ' + mpFormatDate(now));
 }
 
 function cmdTime() {
