@@ -1737,28 +1737,8 @@
 }
 
 .ss-checkbox-label input[type="checkbox"] {
-  appearance: none;
-  width: 13px;
-  height: 13px;
-  background: var(--white);
-  border: 2px solid;
-  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  margin: 0;
   cursor: default;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.ss-checkbox-label input[type="checkbox"]:checked::after {
-  content: '';
-  position: absolute;
-  left: 1px;
-  top: 0;
-  width: 4px;
-  height: 7px;
-  border: solid #000;
-  border-width: 0 1.5px 1.5px 0;
-  transform: rotate(40deg);
 }
 
 /* Wallpaper canvas overlay */
