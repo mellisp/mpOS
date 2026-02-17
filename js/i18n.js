@@ -170,6 +170,13 @@
     'mc.regional.clock': 'Clock',
     'mc.regional.12hr': '12-hour (AM/PM)',
     'mc.regional.24hr': '24-hour',
+    'mc.regional.date': 'Date Format',
+    'mc.regional.mdy': 'MM/DD/YYYY',
+    'mc.regional.dmy': 'DD/MM/YYYY',
+    'mc.regional.ymd': 'YYYY-MM-DD',
+    'mc.regional.temp': 'Temperature',
+    'mc.regional.celsius': 'Celsius (\u00b0C)',
+    'mc.regional.fahrenheit': 'Fahrenheit (\u00b0F)',
 
     /* Fish of the Day */
     'fish.loadingImage': 'Loading image...',

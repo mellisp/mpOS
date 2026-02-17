@@ -163,6 +163,13 @@ window._mpLangRegister('pt', {
   'mc.regional.clock': 'Rel\u00f3gio',
   'mc.regional.12hr': '12 horas (AM/PM)',
   'mc.regional.24hr': '24 horas',
+  'mc.regional.date': 'Formato de Data',
+  'mc.regional.mdy': 'MM/DD/AAAA',
+  'mc.regional.dmy': 'DD/MM/AAAA',
+  'mc.regional.ymd': 'AAAA-MM-DD',
+  'mc.regional.temp': 'Temperatura',
+  'mc.regional.celsius': 'Celsius (\u00b0C)',
+  'mc.regional.fahrenheit': 'Fahrenheit (\u00b0F)',
 
   /* Fish of the Day */
   'fish.loadingImage': 'A carregar imagem...',
