@@ -464,20 +464,18 @@ button.start-menu-item {
 }
 
 .tray-lang {
-  background: var(--silver);
-  border: 1px solid var(--dk-shadow);
+  background: transparent;
+  border: 1px solid transparent;
   color: var(--dk-shadow);
   font-size: var(--ui-font-xs);
   font-weight: bold;
-  padding: 0 3px;
+  padding: 0 2px;
   cursor: pointer;
   line-height: 16px;
   font-family: Tahoma, sans-serif;
-  margin-right: 4px;
 }
 .tray-lang:hover {
-  background: var(--highlight);
-  color: var(--white);
+  border-color: var(--white) var(--shadow) var(--shadow) var(--white);
 }
 
 .tray-clock {
