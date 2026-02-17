@@ -29,6 +29,8 @@
   --ui-icon-md:    32px;
   --ui-icon-lg:    48px;
   --ui-desktop-icon-w: 80px;
+  --grid-col-w: 84px;
+  --grid-row-h: 88px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -261,15 +263,11 @@ body {
   position: relative;
   overflow: hidden;
   padding: 16px 16px 16px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ui-gap);
 }
 
 /* Desktop Icon */
 .desktop-icon {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
   width: var(--ui-desktop-icon-w);
@@ -279,8 +277,9 @@ body {
   user-select: none;
   border: 1px solid transparent;
   border-radius: 2px;
-  position: relative;
+  position: absolute;
   z-index: 1;
+  transition: left 0.15s ease, top 0.15s ease;
 }
 
 .desktop-icon:hover {
@@ -301,6 +300,25 @@ body {
   max-width: 72px;
   overflow-wrap: break-word;
 }
+.desktop-icon.dragging { transition: none; z-index: 10; opacity: 0.85; }
+.desktop-icon.selected {
+  background: rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Desktop context menu */
+.desktop-context-menu {
+  position: absolute; z-index: 50;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  padding: 2px; min-width: 160px;
+  font-size: var(--ui-font-sm);
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+.desktop-context-item { padding: 4px 24px 4px 8px; cursor: default; white-space: nowrap; }
+.desktop-context-item:hover { background: var(--highlight); color: var(--highlight-text); }
+.desktop-context-sep { height: 1px; background: var(--shadow); margin: 2px 4px; }
 
 /* ============================================================
    Taskbar
@@ -631,10 +649,13 @@ button.start-menu-item {
     --ui-icon-md:    36px;
     --ui-icon-lg:    56px;
     --ui-desktop-icon-w: 90px;
+    --grid-col-w: 94px;
+    --grid-row-h: 96px;
   }
 }
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .window.closing, .window.minimizing, .window.restoring { animation: none; }
+  .desktop-icon { transition: none; }
 }

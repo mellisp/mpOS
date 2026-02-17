@@ -662,6 +662,8 @@ function mcBuildDisplay(body) {
     displaySettings.wallpaper = 'none';
     applyDisplaySettings();
     mcSaveSettings();
+    localStorage.removeItem(ICON_POSITION_KEY);
+    initDesktopIcons();
     mcSwitchTab('display');
   });
   resetRow.appendChild(resetBtn);
@@ -6912,8 +6914,319 @@ document.addEventListener('click', ssRecordActivity);
 document.addEventListener('touchstart', ssRecordActivity);
 window.addEventListener('resize', function () {
   if (displaySettings.wallpaper !== 'none') applyDisplaySettings();
+  reclampDesktopIcons();
 });
 mcLoadSettings();
+
+/* ── Draggable Desktop Icons with Context Menu ── */
+const GRID_PADDING_TOP = 16;
+const GRID_PADDING_LEFT = 20;
+const ICON_POSITION_KEY = 'mpOS-icon-positions';
+let iconDragState = null;
+let contextMenuEl = null;
+
+function getGridDimensions() {
+  const style = getComputedStyle(document.documentElement);
+  return {
+    colW: parseInt(style.getPropertyValue('--grid-col-w'), 10) || 84,
+    rowH: parseInt(style.getPropertyValue('--grid-row-h'), 10) || 88
+  };
+}
+
+function getDefaultIconPositions() {
+  const area = document.querySelector('.desktop-area');
+  if (!area) return {};
+  const grid = getGridDimensions();
+  const areaH = area.clientHeight - GRID_PADDING_TOP;
+  const maxRows = Math.max(1, Math.floor(areaH / grid.rowH));
+  const icons = area.querySelectorAll('.desktop-icon[data-icon]');
+  const positions = {};
+  let col = 0;
+  let row = 0;
+  for (let i = 0; i < icons.length; i++) {
+    const key = icons[i].getAttribute('data-icon');
+    positions[key] = {
+      left: GRID_PADDING_LEFT + col * grid.colW,
+      top: GRID_PADDING_TOP + row * grid.rowH
+    };
+    row++;
+    if (row >= maxRows) { row = 0; col++; }
+  }
+  return positions;
+}
+
+function snapToGrid(x, y) {
+  const grid = getGridDimensions();
+  const col = Math.max(0, Math.round((x - GRID_PADDING_LEFT) / grid.colW));
+  const row = Math.max(0, Math.round((y - GRID_PADDING_TOP) / grid.rowH));
+  return {
+    left: GRID_PADDING_LEFT + col * grid.colW,
+    top: GRID_PADDING_TOP + row * grid.rowH
+  };
+}
+
+function saveIconPositions() {
+  const icons = document.querySelectorAll('.desktop-icon[data-icon]');
+  const positions = {};
+  icons.forEach(function (icon) {
+    const key = icon.getAttribute('data-icon');
+    positions[key] = {
+      left: parseInt(icon.style.left, 10) || 0,
+      top: parseInt(icon.style.top, 10) || 0
+    };
+  });
+  try { localStorage.setItem(ICON_POSITION_KEY, JSON.stringify(positions)); } catch (e) {}
+}
+
+function loadIconPositions() {
+  try {
+    const raw = localStorage.getItem(ICON_POSITION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+function applyIconPositions(positions) {
+  const icons = document.querySelectorAll('.desktop-icon[data-icon]');
+  icons.forEach(function (icon) {
+    const key = icon.getAttribute('data-icon');
+    const pos = positions[key];
+    if (pos) {
+      icon.style.left = pos.left + 'px';
+      icon.style.top = pos.top + 'px';
+    }
+  });
+}
+
+function initDesktopIcons() {
+  if (mobileQuery.matches) return;
+  const saved = loadIconPositions();
+  const defaults = getDefaultIconPositions();
+  let positions;
+  if (saved) {
+    positions = {};
+    const allKeys = Object.keys(defaults);
+    for (let i = 0; i < allKeys.length; i++) {
+      const k = allKeys[i];
+      positions[k] = saved[k] || defaults[k];
+    }
+  } else {
+    positions = defaults;
+  }
+  applyIconPositions(positions);
+}
+
+function reclampDesktopIcons() {
+  if (mobileQuery.matches) return;
+  const area = document.querySelector('.desktop-area');
+  if (!area) return;
+  const grid = getGridDimensions();
+  const maxLeft = area.clientWidth - grid.colW;
+  const maxTop = area.clientHeight - grid.rowH;
+  const icons = area.querySelectorAll('.desktop-icon[data-icon]');
+  let changed = false;
+  icons.forEach(function (icon) {
+    let l = parseInt(icon.style.left, 10) || 0;
+    let t = parseInt(icon.style.top, 10) || 0;
+    const cl = Math.max(0, Math.min(l, maxLeft));
+    const ct = Math.max(0, Math.min(t, maxTop));
+    if (cl !== l || ct !== t) {
+      icon.style.left = cl + 'px';
+      icon.style.top = ct + 'px';
+      changed = true;
+    }
+  });
+  if (changed) saveIconPositions();
+}
+
+/* Drag handlers */
+function initIconDrag(icon, startX, startY) {
+  const rect = icon.getBoundingClientRect();
+  const areaRect = icon.parentElement.getBoundingClientRect();
+  iconDragState = {
+    icon: icon,
+    offsetX: startX - rect.left,
+    offsetY: startY - rect.top,
+    areaRect: areaRect,
+    startLeft: parseInt(icon.style.left, 10) || 0,
+    startTop: parseInt(icon.style.top, 10) || 0,
+    hasMoved: false
+  };
+}
+
+function onIconDragMove(clientX, clientY) {
+  if (!iconDragState) return;
+  const s = iconDragState;
+  const grid = getGridDimensions();
+  const newLeft = clientX - s.areaRect.left - s.offsetX;
+  const newTop = clientY - s.areaRect.top - s.offsetY;
+
+  if (!s.hasMoved) {
+    const dx = Math.abs(newLeft - s.startLeft);
+    const dy = Math.abs(newTop - s.startTop);
+    if (dx < 4 && dy < 4) return;
+    s.hasMoved = true;
+    s.icon.classList.add('dragging');
+  }
+
+  const maxLeft = s.areaRect.width - grid.colW;
+  const maxTop = s.areaRect.height - grid.rowH;
+  const clampedLeft = Math.max(0, Math.min(newLeft, maxLeft));
+  const clampedTop = Math.max(0, Math.min(newTop, maxTop));
+  s.icon.style.left = clampedLeft + 'px';
+  s.icon.style.top = clampedTop + 'px';
+}
+
+function onIconDragEnd() {
+  if (!iconDragState) return;
+  const s = iconDragState;
+  s.icon.classList.remove('dragging');
+  if (s.hasMoved) {
+    const currentLeft = parseInt(s.icon.style.left, 10) || 0;
+    const currentTop = parseInt(s.icon.style.top, 10) || 0;
+    const snapped = snapToGrid(currentLeft, currentTop);
+    const grid = getGridDimensions();
+    const area = s.icon.parentElement;
+    const maxLeft = area.clientWidth - grid.colW;
+    const maxTop = area.clientHeight - grid.rowH;
+    s.icon.style.left = Math.max(0, Math.min(snapped.left, maxLeft)) + 'px';
+    s.icon.style.top = Math.max(0, Math.min(snapped.top, maxTop)) + 'px';
+    saveIconPositions();
+  }
+  iconDragState = null;
+}
+
+document.addEventListener('mousemove', function (e) {
+  if (iconDragState) { onIconDragMove(e.clientX, e.clientY); e.preventDefault(); }
+});
+document.addEventListener('mouseup', function () {
+  if (iconDragState) onIconDragEnd();
+});
+
+/* Icon selection + mousedown for drag */
+(function () {
+  const area = document.querySelector('.desktop-area');
+  if (!area) return;
+  const icons = area.querySelectorAll('.desktop-icon[data-icon]');
+
+  icons.forEach(function (icon) {
+    icon.addEventListener('mousedown', function (e) {
+      if (e.button !== 0 || mobileQuery.matches) return;
+      dismissContextMenu();
+      icons.forEach(function (ic) { ic.classList.remove('selected'); });
+      icon.classList.add('selected');
+      initIconDrag(icon, e.clientX, e.clientY);
+      e.preventDefault();
+    });
+  });
+
+  area.addEventListener('mousedown', function (e) {
+    if (e.target === area || e.target.classList.contains('desktop-area')) {
+      icons.forEach(function (ic) { ic.classList.remove('selected'); });
+      dismissContextMenu();
+    }
+  });
+})();
+
+/* Context menu */
+function dismissContextMenu() {
+  if (contextMenuEl && contextMenuEl.parentNode) {
+    contextMenuEl.parentNode.removeChild(contextMenuEl);
+  }
+  contextMenuEl = null;
+}
+
+function showDesktopContextMenu(x, y) {
+  dismissContextMenu();
+  const area = document.querySelector('.desktop-area');
+  if (!area) return;
+  const areaRect = area.getBoundingClientRect();
+
+  const menu = document.createElement('div');
+  menu.className = 'desktop-context-menu';
+
+  function addItem(labelKey, handler) {
+    const item = document.createElement('div');
+    item.className = 'desktop-context-item';
+    item.textContent = t(labelKey);
+    item.addEventListener('mousedown', function (e) {
+      e.stopPropagation();
+      dismissContextMenu();
+      handler();
+    });
+    menu.appendChild(item);
+  }
+
+  addItem('desktop.arrangeIcons', function () {
+    const defaults = getDefaultIconPositions();
+    applyIconPositions(defaults);
+    saveIconPositions();
+  });
+
+  addItem('desktop.alignToGrid', function () {
+    const icons = area.querySelectorAll('.desktop-icon[data-icon]');
+    icons.forEach(function (icon) {
+      const l = parseInt(icon.style.left, 10) || 0;
+      const tp = parseInt(icon.style.top, 10) || 0;
+      const snapped = snapToGrid(l, tp);
+      icon.style.left = snapped.left + 'px';
+      icon.style.top = snapped.top + 'px';
+    });
+    saveIconPositions();
+  });
+
+  const sep = document.createElement('div');
+  sep.className = 'desktop-context-sep';
+  menu.appendChild(sep);
+
+  addItem('desktop.properties', function () {
+    openMyComputer();
+    mcSwitchTab('display');
+  });
+
+  area.appendChild(menu);
+  contextMenuEl = menu;
+
+  /* Position relative to area, clamped to bounds */
+  let menuLeft = x - areaRect.left;
+  let menuTop = y - areaRect.top;
+  const menuW = menu.offsetWidth;
+  const menuH = menu.offsetHeight;
+  if (menuLeft + menuW > areaRect.width) menuLeft = areaRect.width - menuW;
+  if (menuTop + menuH > areaRect.height) menuTop = areaRect.height - menuH;
+  if (menuLeft < 0) menuLeft = 0;
+  if (menuTop < 0) menuTop = 0;
+  menu.style.left = menuLeft + 'px';
+  menu.style.top = menuTop + 'px';
+}
+
+(function () {
+  const area = document.querySelector('.desktop-area');
+  if (!area) return;
+
+  area.addEventListener('contextmenu', function (e) {
+    if (mobileQuery.matches) return;
+    /* Only on background, not on icons */
+    let el = e.target;
+    while (el && el !== area) {
+      if (el.classList && el.classList.contains('desktop-icon')) return;
+      el = el.parentElement;
+    }
+    e.preventDefault();
+    showDesktopContextMenu(e.clientX, e.clientY);
+  });
+})();
+
+document.addEventListener('mousedown', function (e) {
+  if (contextMenuEl && !contextMenuEl.contains(e.target)) {
+    dismissContextMenu();
+  }
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && contextMenuEl) dismissContextMenu();
+});
+
+/* Initialize icon positions on load */
+initDesktopIcons();
 
 /* ── Touch: single-tap desktop icons (instead of double-click) ── */
 if (window.matchMedia('(pointer: coarse)').matches) {
