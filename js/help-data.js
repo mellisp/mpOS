@@ -465,15 +465,16 @@ var HELP_TOPICS = {
   brickbreaker: {
     title: 'Brick Breaker',
     title_pt: 'Brick Breaker',
-    keywords: ['brick breaker', 'game', 'daily', 'challenge', 'bricks', 'paddle', 'ball', 'breakout'],
-    keywords_pt: ['brick breaker', 'jogo', 'di\u00e1rio', 'desafio', 'tijolos', 'raquete', 'bola', 'breakout'],
+    keywords: ['brick breaker', 'game', 'daily', 'bricks', 'paddle', 'ball', 'breakout', 'power-up', 'hazard', 'multiball'],
+    keywords_pt: ['brick breaker', 'jogo', 'di\u00e1rio', 'tijolos', 'raquete', 'bola', 'breakout', 'power-up', 'perigo', 'multibola'],
     body: [
-      { p: 'Brick Breaker is a daily brick-breaking challenge. Each day presents a new layout of bricks to clear.' },
+      { p: 'Brick Breaker is a daily brick-breaking challenge with power-ups and hazards. Each day presents a new layout of bricks to clear \u2014 play as many times as you like.' },
       { h: 'How to Play' },
       { ul: [
         'The game loads in an embedded frame.',
         'Use the paddle to bounce the ball and break all the bricks.',
-        'A new challenge is available every day.'
+        'Catch falling power-ups to widen or shrink your paddle, split into multiple balls, or activate burner mode.',
+        'Watch out for hazard blocks \u2014 when destroyed they fall and can damage you on contact.'
       ]},
       { h: 'Opening Brick Breaker' },
       { ul: [
@@ -484,12 +485,13 @@ var HELP_TOPICS = {
       { sa: ['ontarget', 'chickenfingers'] }
     ],
     body_pt: [
-      { p: 'O Brick Breaker \u00e9 um desafio di\u00e1rio de partir tijolos. Cada dia apresenta uma nova disposi\u00e7\u00e3o de tijolos para limpar.' },
+      { p: 'O Brick Breaker \u00e9 um desafio di\u00e1rio de partir tijolos com power-ups e perigos. Cada dia apresenta uma nova disposi\u00e7\u00e3o de tijolos \u2014 jogue quantas vezes quiser.' },
       { h: 'Como Jogar' },
       { ul: [
         'O jogo carrega num quadro integrado.',
         'Use a raquete para fazer a bola saltar e partir todos os tijolos.',
-        'Um novo desafio est\u00e1 dispon\u00edvel todos os dias.'
+        'Apanhe os power-ups que caem para alargar ou encolher a raquete, dividir em v\u00e1rias bolas ou ativar o modo queimador.',
+        'Cuidado com os blocos de perigo \u2014 quando destru\u00eddos, caem e podem causar dano ao contacto.'
       ]},
       { h: 'Abrir o Brick Breaker' },
       { ul: [

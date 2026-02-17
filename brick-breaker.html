@@ -36,31 +36,38 @@
       border: 2px solid;
       border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
       box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
-      width: 300px;
+      width: 320px;
       max-width: 90vw;
     }
 
     .rules-dialog .window-body { padding: 16px; line-height: 1.6; }
 
-    /* Score display -- bottom left, XP-styled */
-    .score-bar {
-      position: fixed;
-      bottom: 8px;
-      left: 8px;
-      z-index: 10;
-      pointer-events: none;
-      user-select: none;
-      background: var(--silver);
-      border: 2px solid;
-      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-      box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
-      padding: 4px 12px;
-      font-size: 13px;
-      font-weight: bold;
-      display: none;
+    .powerup-legend {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 12px;
+      margin-top: 8px;
+      font-size: 12px;
     }
 
-    .score-bar.active { display: flex; gap: 12px; }
+    .powerup-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .powerup-swatch {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 13px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 10px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
 
     /* Game over overlay */
     .gameover-overlay {
@@ -97,24 +104,11 @@
       <div class="titlebar">
         <span>Brick Breaker</span>
       </div>
-      <div class="window-body">
-        <div><strong>Mouse/Touch:</strong> Move paddle</div>
-        <div><strong>Arrow Keys:</strong> Move paddle</div>
-        <div><strong>Click/Tap/Space:</strong> Launch ball</div>
-        <div style="margin-top:6px;font-size:12px;color:var(--dk-shadow);">New layout every day!</div>
-        <div class="button-row" style="margin-top:12px">
-          <button class="btn" id="startBtn">OK</button>
-        </div>
-      </div>
+      <div class="window-body" id="rulesBody"></div>
     </div>
   </div>
 
   <canvas id="gameCanvas"></canvas>
-
-  <div class="score-bar" id="scoreBar">
-    <span>Score: <span id="scoreVal">0</span></span>
-    <span>Lives: <span id="livesVal">3</span></span>
-  </div>
 
   <div class="gameover-overlay" id="gameoverOverlay">
     <div class="gameover-dialog">
@@ -144,10 +138,8 @@
     resize();
 
     /* ── DOM refs ── */
-    var scoreValEl = document.getElementById("scoreVal");
-    var livesValEl = document.getElementById("livesVal");
-    var scoreBar = document.getElementById("scoreBar");
     var rulesOverlay = document.getElementById("rulesOverlay");
+    var rulesBody = document.getElementById("rulesBody");
     var gameoverOverlay = document.getElementById("gameoverOverlay");
     var gameoverTitle = document.getElementById("gameoverTitle");
     var gameoverLabel = document.getElementById("gameoverLabel");
@@ -160,7 +152,13 @@
     function scaleX() { return canvas.width / VW; }
     function scaleY() { return canvas.height / VH; }
 
-    /* ── FNV-1a hash (same as fish-data.js) ── */
+    /* ── Daily seed (same layout for everyone each day, replayable) ── */
+    function todayKey() {
+      var d = new Date();
+      return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+    }
+
+    /* ── FNV-1a hash ── */
     function fnv(str) {
       var h = 0x811c9dc5;
       for (var i = 0; i < str.length; i++) {
@@ -168,11 +166,6 @@
         h = Math.imul(h, 0x01000193);
       }
       return h >>> 0;
-    }
-
-    function todayKey() {
-      var d = new Date();
-      return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
     }
 
     /* ── Mulberry32 PRNG ── */
@@ -201,6 +194,10 @@
     var PADDLE_H = 12;
     var PADDLE_Y = 600;
     var PADDLE_SPEED = 500;
+    var PADDLE_W_MIN = 40;
+    var PADDLE_W_MAX = 120;
+    var PADDLE_W_GROW = 24;
+    var PADDLE_W_SHRINK = 20;
 
     var BALL_R = 6;
     var BALL_INIT_SPEED = 300;
@@ -209,24 +206,40 @@
     var MIN_BOUNCE_ANGLE = 20 * Math.PI / 180;
 
     var MAX_LIVES = 3;
-    var MAX_PARTICLES = 64;
+    var MAX_PARTICLES = 128;
 
+    var POWERUP_W = 24;
+    var POWERUP_H = 14;
+    var POWERUP_FALL_SPEED = 150;
+    var POWERUP_SPAWN_CHANCE = 0.12;
+    var POWERUP_TIMER_DURATION = 8;
+
+    var HAZARD_CHANCE = 0.08;
+    var HAZARD_FALL_SPEED = 200;
+
+    /* GBC-style muted palette — 4 colors cycling 2 rows each */
     var ROW_COLORS = [
-      "#ef5350", "#ff7043", "#ffa726", "#ffca28",
-      "#66bb6a", "#42a5f5", "#ab47bc", "#ec407a"
+      "#5b8c7a", "#5b8c7a", "#6b7ea0", "#6b7ea0",
+      "#c4a882", "#c4a882", "#a87e8a", "#a87e8a"
     ];
 
     var ROW_DARK = [
-      "#c62828", "#d84315", "#e65100", "#f9a825",
-      "#2e7d32", "#1565c0", "#6a1b9a", "#ad1457"
+      "#3d6655", "#3d6655", "#4a5d7a", "#4a5d7a",
+      "#9a7f5f", "#9a7f5f", "#7d5a65", "#7d5a65"
+    ];
+
+    var POWERUP_TYPES = [
+      { type: "widen",     letter: "W", color: "#5b8c7a" },
+      { type: "shrink",    letter: "S", color: "#b05050" },
+      { type: "multiball", letter: "M", color: "#6b7ea0" },
+      { type: "burner",    letter: "B", color: "#d08030" }
     ];
 
     /* ── Game state ── */
     var bricks = [];
     var paddleX = VW / 2;
-    var ballX, ballY, ballVX, ballVY;
-    var ballSpeed;
-    var ballAttached = true;
+    var paddleW = PADDLE_W;
+    var balls = [];
     var score = 0;
     var lives = MAX_LIVES;
     var gameStarted = false;
@@ -235,13 +248,52 @@
 
     var particles = [];
     var paddleFlash = null;
+    var powerups = [];
+    var fallingHazards = [];
+
+    var widenTimer = 0;
+    var shrinkTimer = 0;
+    var burnerTimer = 0;
 
     var usePointer = true;
     var keys = {};
 
-    /* ── Daily seed & brick generation ── */
+    /* ── Daily seed ── */
     var dailySeed = fnv(todayKey());
 
+    /* ── Ball helpers ── */
+    function createBall(x, y, vx, vy, speed, attached) {
+      return { x: x, y: y, vx: vx, vy: vy, speed: speed, attached: attached, burner: false };
+    }
+
+    function attachBall() {
+      balls = [];
+      var launchAngle = -90 + (Math.random() * 60 - 30);
+      var rad = launchAngle * Math.PI / 180;
+      var ball = createBall(
+        paddleX,
+        PADDLE_Y - BALL_R,
+        Math.cos(rad) * BALL_INIT_SPEED,
+        Math.sin(rad) * BALL_INIT_SPEED,
+        BALL_INIT_SPEED,
+        true
+      );
+      balls.push(ball);
+    }
+
+    function launchBalls() {
+      if (gameOver) return;
+      var launched = false;
+      for (var i = 0; i < balls.length; i++) {
+        if (balls[i].attached) {
+          balls[i].attached = false;
+          launched = true;
+        }
+      }
+      return launched;
+    }
+
+    /* ── Brick generation ── */
     function generateBricks() {
       var rng = mulberry32(dailySeed);
       bricks = [];
@@ -249,7 +301,7 @@
 
       for (var r = 0; r < ROWS; r++) {
         for (var c = 0; c < COLS; c++) {
-          if (rng() > 0.75) continue; // ~25% empty = ~75% fill
+          if (rng() > 0.75) continue;
 
           var typeRoll = rng();
           var type, hits, points;
@@ -261,13 +313,18 @@
             type = "normal"; hits = 1; points = 10;
           }
 
+          var hazard = false;
+          if (rng() < HAZARD_CHANCE) {
+            hazard = true;
+          }
+
           var bx = GRID_X + c * (BRICK_W + BRICK_GAP_X);
           var by = GRID_Y + r * (BRICK_H + BRICK_GAP_Y);
 
           bricks.push({
             x: bx, y: by, w: BRICK_W, h: BRICK_H,
             type: type, hits: hits, maxHits: hits, points: points,
-            row: r, col: c, alive: true
+            row: r, col: c, alive: true, hazard: hazard
           });
           bricksRemaining++;
         }
@@ -285,12 +342,11 @@
             bricks.push({
               x: bx2, y: by2, w: BRICK_W, h: BRICK_H,
               type: "normal", hits: 1, maxHits: 1, points: 10,
-              row: r2, col: c2, alive: true
+              row: r2, col: c2, alive: true, hazard: rng() < HAZARD_CHANCE
             });
             bricksRemaining++;
           }
         }
-        // If still less than 20, fill all
         if (bricksRemaining < 20) {
           bricks = [];
           bricksRemaining = 0;
@@ -301,21 +357,13 @@
               bricks.push({
                 x: bx3, y: by3, w: BRICK_W, h: BRICK_H,
                 type: "normal", hits: 1, maxHits: 1, points: 10,
-                row: r3, col: c3, alive: true
+                row: r3, col: c3, alive: true, hazard: rng() < HAZARD_CHANCE
               });
               bricksRemaining++;
             }
           }
         }
       }
-
-      // Determine initial ball angle from seed
-      var angleRng = mulberry32(dailySeed + 1);
-      var launchAngle = -90 + (angleRng() * 60 - 30); // -120 to -60 degrees
-      var rad = launchAngle * Math.PI / 180;
-      ballVX = Math.cos(rad) * BALL_INIT_SPEED;
-      ballVY = Math.sin(rad) * BALL_INIT_SPEED;
-      ballSpeed = BALL_INIT_SPEED;
     }
 
     function resetGame() {
@@ -324,33 +372,16 @@
       gameOver = false;
       particles = [];
       paddleFlash = null;
+      powerups = [];
+      fallingHazards = [];
+      widenTimer = 0;
+      shrinkTimer = 0;
+      burnerTimer = 0;
+      paddleW = PADDLE_W;
       paddleX = VW / 2;
-      ballAttached = true;
       generateBricks();
-      updateUI();
+      attachBall();
       gameoverOverlay.classList.remove("active");
-    }
-
-    function attachBall() {
-      ballAttached = true;
-      ballX = paddleX;
-      ballY = PADDLE_Y - BALL_R;
-      // Re-derive launch direction from seed
-      var angleRng = mulberry32(dailySeed + 1);
-      var launchAngle = -90 + (angleRng() * 60 - 30);
-      var rad = launchAngle * Math.PI / 180;
-      ballVX = Math.cos(rad) * ballSpeed;
-      ballVY = Math.sin(rad) * ballSpeed;
-    }
-
-    function launchBall() {
-      if (!ballAttached || gameOver) return;
-      ballAttached = false;
-    }
-
-    function updateUI() {
-      scoreValEl.textContent = score;
-      livesValEl.textContent = lives;
     }
 
     /* ── Particle system ── */
@@ -372,6 +403,59 @@
       }
     }
 
+    /* ── Power-up spawn ── */
+    function trySpawnPowerup(bx, by) {
+      if (Math.random() >= POWERUP_SPAWN_CHANCE) return;
+      var pick = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+      powerups.push({
+        x: bx, y: by,
+        type: pick.type,
+        color: pick.color,
+        letter: pick.letter
+      });
+    }
+
+    function applyPowerup(pu) {
+      if (pu.type === "widen") {
+        paddleW = Math.min(PADDLE_W_MAX, paddleW + PADDLE_W_GROW);
+        widenTimer = POWERUP_TIMER_DURATION;
+        shrinkTimer = 0;
+      } else if (pu.type === "shrink") {
+        paddleW = Math.max(PADDLE_W_MIN, paddleW - PADDLE_W_SHRINK);
+        shrinkTimer = POWERUP_TIMER_DURATION;
+        widenTimer = 0;
+      } else if (pu.type === "multiball") {
+        // Spawn 2 extra balls from first non-attached ball
+        var src = null;
+        for (var i = 0; i < balls.length; i++) {
+          if (!balls[i].attached) { src = balls[i]; break; }
+        }
+        if (src) {
+          var currentSpeed = Math.sqrt(src.vx * src.vx + src.vy * src.vy);
+          if (currentSpeed === 0) currentSpeed = src.speed;
+          var baseAngle = Math.atan2(src.vy, src.vx);
+          var offset = 30 * Math.PI / 180;
+          var b1 = createBall(src.x, src.y,
+            Math.cos(baseAngle + offset) * currentSpeed,
+            Math.sin(baseAngle + offset) * currentSpeed,
+            src.speed, false);
+          b1.burner = src.burner;
+          var b2 = createBall(src.x, src.y,
+            Math.cos(baseAngle - offset) * currentSpeed,
+            Math.sin(baseAngle - offset) * currentSpeed,
+            src.speed, false);
+          b2.burner = src.burner;
+          balls.push(b1);
+          balls.push(b2);
+        }
+      } else if (pu.type === "burner") {
+        burnerTimer = POWERUP_TIMER_DURATION;
+        for (var j = 0; j < balls.length; j++) {
+          balls[j].burner = true;
+        }
+      }
+    }
+
     /* ── Input handling ── */
     window.addEventListener("keydown", function (e) {
       if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -381,7 +465,7 @@
       }
       if (e.key === " " || e.key === "Spacebar") {
         e.preventDefault();
-        if (gameStarted && !gameOver) launchBall();
+        if (gameStarted && !gameOver) launchBalls();
       }
     });
 
@@ -394,7 +478,7 @@
       usePointer = true;
       var sx = scaleX();
       paddleX = e.clientX / sx;
-      paddleX = Math.max(PADDLE_W / 2, Math.min(VW - PADDLE_W / 2, paddleX));
+      paddleX = Math.max(paddleW / 2, Math.min(VW - paddleW / 2, paddleX));
     });
 
     window.addEventListener("touchmove", function (e) {
@@ -403,7 +487,7 @@
       usePointer = true;
       var sx = scaleX();
       paddleX = e.touches[0].clientX / sx;
-      paddleX = Math.max(PADDLE_W / 2, Math.min(VW - PADDLE_W / 2, paddleX));
+      paddleX = Math.max(paddleW / 2, Math.min(VW - paddleW / 2, paddleX));
     }, { passive: false });
 
     canvas.addEventListener("pointerdown", function (e) {
@@ -411,42 +495,40 @@
       usePointer = true;
       var sx = scaleX();
       paddleX = e.clientX / sx;
-      paddleX = Math.max(PADDLE_W / 2, Math.min(VW - PADDLE_W / 2, paddleX));
-      launchBall();
+      paddleX = Math.max(paddleW / 2, Math.min(VW - paddleW / 2, paddleX));
+      launchBalls();
     });
 
-    /* ── Collision detection ── */
-    function ballBrickCollision() {
-      var hit = false;
+    /* ── Collision: ball vs bricks ── */
+    function ballBrickCollision(ball) {
       for (var i = 0; i < bricks.length; i++) {
         var b = bricks[i];
         if (!b.alive) continue;
 
-        // AABB vs circle
-        var closestX = Math.max(b.x, Math.min(ballX, b.x + b.w));
-        var closestY = Math.max(b.y, Math.min(ballY, b.y + b.h));
-        var dx = ballX - closestX;
-        var dy = ballY - closestY;
+        var closestX = Math.max(b.x, Math.min(ball.x, b.x + b.w));
+        var closestY = Math.max(b.y, Math.min(ball.y, b.y + b.h));
+        var dx = ball.x - closestX;
+        var dy = ball.y - closestY;
         var distSq = dx * dx + dy * dy;
 
         if (distSq <= BALL_R * BALL_R) {
-          // Determine collision side
-          var overlapLeft = (ballX + BALL_R) - b.x;
-          var overlapRight = (b.x + b.w) - (ballX - BALL_R);
-          var overlapTop = (ballY + BALL_R) - b.y;
-          var overlapBottom = (b.y + b.h) - (ballY - BALL_R);
+          if (!ball.burner) {
+            // Normal bounce
+            var overlapLeft = (ball.x + BALL_R) - b.x;
+            var overlapRight = (b.x + b.w) - (ball.x - BALL_R);
+            var overlapTop = (ball.y + BALL_R) - b.y;
+            var overlapBottom = (b.y + b.h) - (ball.y - BALL_R);
+            var minOverlapX = Math.min(overlapLeft, overlapRight);
+            var minOverlapY = Math.min(overlapTop, overlapBottom);
 
-          var minOverlapX = Math.min(overlapLeft, overlapRight);
-          var minOverlapY = Math.min(overlapTop, overlapBottom);
-
-          // Corner hit: both axes within 1 unit
-          if (Math.abs(minOverlapX - minOverlapY) < 1) {
-            ballVX = -ballVX;
-            ballVY = -ballVY;
-          } else if (minOverlapX < minOverlapY) {
-            ballVX = -ballVX;
-          } else {
-            ballVY = -ballVY;
+            if (Math.abs(minOverlapX - minOverlapY) < 1) {
+              ball.vx = -ball.vx;
+              ball.vy = -ball.vy;
+            } else if (minOverlapX < minOverlapY) {
+              ball.vx = -ball.vx;
+            } else {
+              ball.vy = -ball.vy;
+            }
           }
 
           b.hits--;
@@ -454,27 +536,34 @@
             b.alive = false;
             bricksRemaining--;
             score += b.points;
-            ballSpeed = Math.min(BALL_MAX_SPEED, ballSpeed + BALL_SPEED_INC);
+            ball.speed = Math.min(BALL_MAX_SPEED, ball.speed + BALL_SPEED_INC);
 
             // Normalize velocity to new speed
-            var currentSpeed = Math.sqrt(ballVX * ballVX + ballVY * ballVY);
+            var currentSpeed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
             if (currentSpeed > 0) {
-              ballVX = (ballVX / currentSpeed) * ballSpeed;
-              ballVY = (ballVY / currentSpeed) * ballSpeed;
+              ball.vx = (ball.vx / currentSpeed) * ball.speed;
+              ball.vy = (ball.vy / currentSpeed) * ball.speed;
             }
 
-            // Spawn particles
             var color = ROW_COLORS[b.row] || "#fff";
             var count = 6 + Math.floor(Math.random() * 3);
             spawnParticles(b.x + b.w / 2, b.y + b.h / 2, color, count);
+
+            // Spawn power-up
+            trySpawnPowerup(b.x + b.w / 2, b.y + b.h / 2);
+
+            // Hazard: spawn falling hazard
+            if (b.hazard) {
+              fallingHazards.push({
+                x: b.x, y: b.y, w: b.w, h: b.h, row: b.row
+              });
+            }
           }
 
-          updateUI();
-          hit = true;
-          break; // One collision per frame
+          // Burner ball: don't break — can hit multiple bricks per frame
+          if (!ball.burner) break;
         }
       }
-      return hit;
     }
 
     /* ── Rendering ── */
@@ -495,7 +584,6 @@
         var darkColor = ROW_DARK[b.row] || "#888";
 
         if (b.type === "tough" && b.hits < b.maxHits) {
-          // Show cracked version (darker)
           color = darkColor;
         }
 
@@ -503,13 +591,13 @@
         ctx.fillStyle = color;
         ctx.fillRect(rx, ry, rw, rh);
 
-        // Top highlight
-        ctx.fillStyle = "rgba(255,255,255,0.3)";
-        ctx.fillRect(rx, ry, rw, 2 * sy);
+        // Top highlight (1px)
+        ctx.fillStyle = "rgba(255,255,255,0.25)";
+        ctx.fillRect(rx, ry, rw, 1 * sy);
 
-        // Bottom shadow
+        // Bottom shadow (1px)
         ctx.fillStyle = "rgba(0,0,0,0.2)";
-        ctx.fillRect(rx, ry + rh - 2 * sy, rw, 2 * sy);
+        ctx.fillRect(rx, ry + rh - 1 * sy, rw, 1 * sy);
 
         // Tough brick: extra outline
         if (b.type === "tough") {
@@ -533,41 +621,112 @@
           ctx.stroke();
         }
 
-        // Bonus brick: star overlay
+        // Bonus brick: diamond marker
         if (b.type === "bonus") {
-          ctx.fillStyle = "rgba(255,255,255,0.6)";
+          ctx.fillStyle = "rgba(255,255,255,0.5)";
           var cx = rx + rw / 2;
           var cy = ry + rh / 2;
-          var starR = Math.min(rw, rh) * 0.35;
-          drawStar(cx, cy, starR);
+          var dSize = Math.min(rw, rh) * 0.3;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - dSize);
+          ctx.lineTo(cx + dSize, cy);
+          ctx.lineTo(cx, cy + dSize);
+          ctx.lineTo(cx - dSize, cy);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // Hazard brick: X marker
+        if (b.hazard) {
+          ctx.strokeStyle = "rgba(0,0,0,0.4)";
+          ctx.lineWidth = 1.5;
+          var xPad = rw * 0.3;
+          var yPad = rh * 0.2;
+          ctx.beginPath();
+          ctx.moveTo(rx + xPad, ry + yPad);
+          ctx.lineTo(rx + rw - xPad, ry + rh - yPad);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(rx + rw - xPad, ry + yPad);
+          ctx.lineTo(rx + xPad, ry + rh - yPad);
+          ctx.stroke();
         }
       }
     }
 
-    function drawStar(cx, cy, r) {
-      ctx.beginPath();
-      for (var i = 0; i < 5; i++) {
-        var angle = -Math.PI / 2 + (i * 2 * Math.PI / 5);
-        var px = cx + Math.cos(angle) * r;
-        var py = cy + Math.sin(angle) * r;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
+    function drawFallingHazards() {
+      var sx = scaleX();
+      var sy = scaleY();
+      for (var i = 0; i < fallingHazards.length; i++) {
+        var h = fallingHazards[i];
+        var rx = h.x * sx;
+        var ry = h.y * sy;
+        var rw = h.w * sx;
+        var rh = h.h * sy;
 
-        var innerAngle = angle + Math.PI / 5;
-        var ix = cx + Math.cos(innerAngle) * r * 0.4;
-        var iy = cy + Math.sin(innerAngle) * r * 0.4;
-        ctx.lineTo(ix, iy);
+        ctx.globalAlpha = 0.6;
+        var color = ROW_COLORS[h.row] || "#888";
+        ctx.fillStyle = color;
+        ctx.fillRect(rx, ry, rw, rh);
+
+        // Red X
+        ctx.strokeStyle = "#c04040";
+        ctx.lineWidth = 2;
+        var xPad = rw * 0.25;
+        var yPad = rh * 0.15;
+        ctx.beginPath();
+        ctx.moveTo(rx + xPad, ry + yPad);
+        ctx.lineTo(rx + rw - xPad, ry + rh - yPad);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(rx + rw - xPad, ry + yPad);
+        ctx.lineTo(rx + xPad, ry + rh - yPad);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
       }
-      ctx.closePath();
-      ctx.fill();
+    }
+
+    function drawPowerups() {
+      var sx = scaleX();
+      var sy = scaleY();
+      for (var i = 0; i < powerups.length; i++) {
+        var pu = powerups[i];
+        var rx = pu.x * sx;
+        var ry = pu.y * sy;
+        var rw = POWERUP_W * sx;
+        var rh = POWERUP_H * sy;
+        var cr = Math.min(rw, rh) * 0.4;
+
+        // Capsule shape
+        ctx.fillStyle = pu.color;
+        ctx.beginPath();
+        ctx.moveTo(rx - rw / 2 + cr, ry - rh / 2);
+        ctx.lineTo(rx + rw / 2 - cr, ry - rh / 2);
+        ctx.quadraticCurveTo(rx + rw / 2, ry - rh / 2, rx + rw / 2, ry - rh / 2 + cr);
+        ctx.lineTo(rx + rw / 2, ry + rh / 2 - cr);
+        ctx.quadraticCurveTo(rx + rw / 2, ry + rh / 2, rx + rw / 2 - cr, ry + rh / 2);
+        ctx.lineTo(rx - rw / 2 + cr, ry + rh / 2);
+        ctx.quadraticCurveTo(rx - rw / 2, ry + rh / 2, rx - rw / 2, ry + rh / 2 - cr);
+        ctx.lineTo(rx - rw / 2, ry - rh / 2 + cr);
+        ctx.quadraticCurveTo(rx - rw / 2, ry - rh / 2, rx - rw / 2 + cr, ry - rh / 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Letter
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold " + Math.round(10 * Math.min(sx, sy)) + "px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(pu.letter, rx, ry);
+      }
     }
 
     function drawPaddle() {
       var sx = scaleX();
       var sy = scaleY();
-      var px = (paddleX - PADDLE_W / 2) * sx;
+      var px = (paddleX - paddleW / 2) * sx;
       var py = PADDLE_Y * sy;
-      var pw = PADDLE_W * sx;
+      var pw = paddleW * sx;
       var ph = PADDLE_H * sy;
 
       var grad = ctx.createLinearGradient(px, py, px, py + ph);
@@ -592,25 +751,31 @@
       ctx.stroke();
     }
 
-    function drawBall() {
+    function drawBalls() {
       var sx = scaleX();
       var sy = scaleY();
-      var bx = ballX * sx;
-      var by = ballY * sy;
-      var br = BALL_R * Math.min(sx, sy);
+      for (var i = 0; i < balls.length; i++) {
+        var ball = balls[i];
+        var bx = ball.x * sx;
+        var by = ball.y * sy;
+        var br = BALL_R * Math.min(sx, sy);
 
-      // Glow
-      var glow = ctx.createRadialGradient(bx, by, 0, bx, by, br * 3);
-      glow.addColorStop(0, "rgba(255,255,255,0.15)");
-      glow.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = glow;
-      ctx.fillRect(bx - br * 3, by - br * 3, br * 6, br * 6);
+        var ballColor = ball.burner ? "#ff8c00" : "#fff";
+        var glowColor = ball.burner ? "rgba(255,140,0," : "rgba(255,255,255,";
 
-      // Ball
-      ctx.beginPath();
-      ctx.arc(bx, by, br, 0, Math.PI * 2);
-      ctx.fillStyle = "#fff";
-      ctx.fill();
+        // Glow
+        var glow = ctx.createRadialGradient(bx, by, 0, bx, by, br * 3);
+        glow.addColorStop(0, glowColor + "0.15)");
+        glow.addColorStop(1, glowColor + "0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(bx - br * 3, by - br * 3, br * 6, br * 6);
+
+        // Ball
+        ctx.beginPath();
+        ctx.arc(bx, by, br, 0, Math.PI * 2);
+        ctx.fillStyle = ballColor;
+        ctx.fill();
+      }
     }
 
     function drawParticles() {
@@ -642,6 +807,37 @@
       ctx.fillRect(fx - fr, fy - fr, fr * 2, fr * 2);
     }
 
+    function drawHUD() {
+      var sx = scaleX();
+      var sy = scaleY();
+      var fontSize = Math.round(14 * Math.min(sx, sy));
+
+      // Score — left side
+      ctx.fillStyle = "#c8e0f8";
+      ctx.font = "bold " + fontSize + "px sans-serif";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillText("Score: " + score, 8 * sx, 10 * sy);
+
+      // Lives — right side as dots
+      var dotR = 5 * Math.min(sx, sy);
+      var dotSpacing = 16 * sx;
+      var dotY = 18 * sy;
+      var startDotX = canvas.width - 12 * sx;
+
+      for (var i = MAX_LIVES - 1; i >= 0; i--) {
+        var dotX = startDotX - (MAX_LIVES - 1 - i) * dotSpacing;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, dotR, 0, Math.PI * 2);
+        if (i < lives) {
+          ctx.fillStyle = "#5b8c7a";
+        } else {
+          ctx.fillStyle = "rgba(91,140,122,0.25)";
+        }
+        ctx.fill();
+      }
+    }
+
     /* ── Game loop ── */
     var prev = 0;
 
@@ -656,46 +852,74 @@
           if (keys.ArrowLeft) paddleX -= PADDLE_SPEED * dt;
           if (keys.ArrowRight) paddleX += PADDLE_SPEED * dt;
         }
-        paddleX = Math.max(PADDLE_W / 2, Math.min(VW - PADDLE_W / 2, paddleX));
+        paddleX = Math.max(paddleW / 2, Math.min(VW - paddleW / 2, paddleX));
 
-        // Ball follows paddle when attached
-        if (ballAttached) {
-          ballX = paddleX;
-          ballY = PADDLE_Y - BALL_R;
-        } else {
-          // Move ball
-          ballX += ballVX * dt;
-          ballY += ballVY * dt;
+        // Update power-up timers
+        if (widenTimer > 0) {
+          widenTimer -= dt;
+          if (widenTimer <= 0) {
+            widenTimer = 0;
+            paddleW = PADDLE_W;
+          }
+        }
+        if (shrinkTimer > 0) {
+          shrinkTimer -= dt;
+          if (shrinkTimer <= 0) {
+            shrinkTimer = 0;
+            paddleW = PADDLE_W;
+          }
+        }
+        if (burnerTimer > 0) {
+          burnerTimer -= dt;
+          if (burnerTimer <= 0) {
+            burnerTimer = 0;
+            for (var bi = 0; bi < balls.length; bi++) {
+              balls[bi].burner = false;
+            }
+          }
+        }
 
-          // Wall bounces
-          if (ballX - BALL_R <= 0) {
-            ballX = BALL_R;
-            ballVX = Math.abs(ballVX);
-          } else if (ballX + BALL_R >= VW) {
-            ballX = VW - BALL_R;
-            ballVX = -Math.abs(ballVX);
+        // Update balls
+        for (var i = balls.length - 1; i >= 0; i--) {
+          var ball = balls[i];
+
+          if (ball.attached) {
+            ball.x = paddleX;
+            ball.y = PADDLE_Y - BALL_R;
+            continue;
           }
 
-          if (ballY - BALL_R <= 0) {
-            ballY = BALL_R;
-            ballVY = Math.abs(ballVY);
+          // Move ball
+          ball.x += ball.vx * dt;
+          ball.y += ball.vy * dt;
+
+          // Wall bounces
+          if (ball.x - BALL_R <= 0) {
+            ball.x = BALL_R;
+            ball.vx = Math.abs(ball.vx);
+          } else if (ball.x + BALL_R >= VW) {
+            ball.x = VW - BALL_R;
+            ball.vx = -Math.abs(ball.vx);
+          }
+
+          if (ball.y - BALL_R <= 0) {
+            ball.y = BALL_R;
+            ball.vy = Math.abs(ball.vy);
           }
 
           // Paddle collision
-          if (ballVY > 0 &&
-              ballY + BALL_R >= PADDLE_Y &&
-              ballY + BALL_R <= PADDLE_Y + PADDLE_H + ballVY * dt &&
-              ballX >= paddleX - PADDLE_W / 2 &&
-              ballX <= paddleX + PADDLE_W / 2) {
+          if (ball.vy > 0 &&
+              ball.y + BALL_R >= PADDLE_Y &&
+              ball.y + BALL_R <= PADDLE_Y + PADDLE_H + ball.vy * dt &&
+              ball.x >= paddleX - paddleW / 2 &&
+              ball.x <= paddleX + paddleW / 2) {
 
-            ballY = PADDLE_Y - BALL_R;
+            ball.y = PADDLE_Y - BALL_R;
 
-            // Angle based on hit position
-            var hitPos = (ballX - (paddleX - PADDLE_W / 2)) / PADDLE_W; // 0 to 1
-            var angle = -150 + hitPos * 120; // -150 to -30 degrees
+            var hitPos = (ball.x - (paddleX - paddleW / 2)) / paddleW;
+            var angle = -150 + hitPos * 120;
             var rad = angle * Math.PI / 180;
 
-            // Enforce minimum bounce angle from horizontal
             if (Math.abs(rad + Math.PI / 2) > (Math.PI / 2 - MIN_BOUNCE_ANGLE)) {
               if (rad > -Math.PI / 2) {
                 rad = -(MIN_BOUNCE_ANGLE);
@@ -704,53 +928,116 @@
               }
             }
 
-            ballVX = Math.cos(rad) * ballSpeed;
-            ballVY = Math.sin(rad) * ballSpeed;
+            ball.vx = Math.cos(rad) * ball.speed;
+            ball.vy = Math.sin(rad) * ball.speed;
 
-            // Paddle flash
             paddleFlash = {
-              x: ballX, y: PADDLE_Y,
+              x: ball.x, y: PADDLE_Y,
               radius: 20,
               life: 0.15, maxLife: 0.15
             };
           }
 
           // Brick collisions
-          ballBrickCollision();
+          ballBrickCollision(ball);
 
-          // Ball out bottom
-          if (ballY > VH + BALL_R) {
+          // Burner trail particle
+          if (ball.burner) {
+            spawnParticles(ball.x, ball.y, "#ff8c00", 1);
+          }
+
+          // Ball out bottom — splice
+          if (ball.y > VH + BALL_R) {
+            balls.splice(i, 1);
+          }
+        }
+
+        // Life lost when all balls gone
+        if (balls.length === 0 && !gameOver) {
+          lives--;
+          if (lives <= 0) {
+            gameOver = true;
+            gameoverTitle.textContent = "Game Over";
+            gameoverLabel.textContent = "Final Score";
+            finalScoreEl.textContent = score;
+            gameoverOverlay.classList.add("active");
+          } else {
+            paddleW = PADDLE_W;
+            widenTimer = 0;
+            shrinkTimer = 0;
+            attachBall();
+          }
+        }
+
+        // Update power-ups (fall + catch)
+        for (var pi = powerups.length - 1; pi >= 0; pi--) {
+          var pu = powerups[pi];
+          pu.y += POWERUP_FALL_SPEED * dt;
+
+          // Check paddle catch
+          if (pu.y + POWERUP_H / 2 >= PADDLE_Y &&
+              pu.y - POWERUP_H / 2 <= PADDLE_Y + PADDLE_H &&
+              pu.x + POWERUP_W / 2 >= paddleX - paddleW / 2 &&
+              pu.x - POWERUP_W / 2 <= paddleX + paddleW / 2) {
+            applyPowerup(pu);
+            powerups.splice(pi, 1);
+            continue;
+          }
+
+          // Off bottom
+          if (pu.y > VH + POWERUP_H) {
+            powerups.splice(pi, 1);
+          }
+        }
+
+        // Update falling hazards
+        for (var hi = fallingHazards.length - 1; hi >= 0; hi--) {
+          var haz = fallingHazards[hi];
+          haz.y += HAZARD_FALL_SPEED * dt;
+
+          // Check paddle collision
+          if (!gameOver &&
+              haz.y + haz.h >= PADDLE_Y &&
+              haz.y <= PADDLE_Y + PADDLE_H &&
+              haz.x + haz.w >= paddleX - paddleW / 2 &&
+              haz.x <= paddleX + paddleW / 2) {
+            // Damage the player
             lives--;
-            updateUI();
-            if (lives <= 0) {
+            spawnParticles(paddleX, PADDLE_Y, "#c04040", 10);
+            fallingHazards.splice(hi, 1);
+            if (lives <= 0 && !gameOver) {
               gameOver = true;
               gameoverTitle.textContent = "Game Over";
               gameoverLabel.textContent = "Final Score";
               finalScoreEl.textContent = score;
               gameoverOverlay.classList.add("active");
-            } else {
-              attachBall();
             }
+            continue;
           }
 
-          // Win check
-          if (bricksRemaining <= 0 && !gameOver) {
-            gameOver = true;
-            gameoverTitle.textContent = "You Win!";
-            gameoverLabel.textContent = "Final Score";
-            finalScoreEl.textContent = score;
-            gameoverOverlay.classList.add("active");
+          // Off bottom
+          if (haz.y > VH + haz.h) {
+            fallingHazards.splice(hi, 1);
           }
         }
 
+        // Win check
+        if (bricksRemaining <= 0 && !gameOver) {
+          gameOver = true;
+          gameoverTitle.textContent = "You Win!";
+          gameoverLabel.textContent = "Final Score";
+          finalScoreEl.textContent = score;
+          gameoverOverlay.classList.add("active");
+        }
+
         // Update particles
-        for (var i = particles.length - 1; i >= 0; i--) {
-          var p = particles[i];
+        for (var pi2 = particles.length - 1; pi2 >= 0; pi2--) {
+          var p = particles[pi2];
           p.x += p.vx * dt;
           p.y += p.vy * dt;
-          p.vy += 200 * dt; // gravity
+          p.vy += 200 * dt;
           p.life -= dt;
-          if (p.life <= 0) particles.splice(i, 1);
+          if (p.life <= 0) particles.splice(pi2, 1);
         }
 
         // Update paddle flash
@@ -767,30 +1054,63 @@
 
       if (gameStarted) {
         drawBricks();
+        drawFallingHazards();
+        drawPowerups();
         drawPaddle();
-        drawBall();
+        drawBalls();
         drawParticles();
         drawPaddleFlash();
+        drawHUD();
       }
 
       requestAnimationFrame(loop);
     }
 
-    /* ── UI buttons ── */
-    document.getElementById("startBtn").addEventListener("click", function () {
-      rulesOverlay.classList.add("hidden");
-      scoreBar.classList.add("active");
-      gameStarted = true;
-    });
+    /* ── Build rules dialog dynamically ── */
+    function buildRulesDialog() {
+      var isDesktop = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
 
+      var html = "";
+      if (isDesktop) {
+        html += "<div><strong>Mouse:</strong> Move paddle</div>";
+        html += "<div><strong>Arrow Keys:</strong> Move paddle</div>";
+        html += "<div><strong>Click / Space:</strong> Launch ball</div>";
+      } else {
+        html += "<div><strong>Drag:</strong> Move paddle</div>";
+        html += "<div><strong>Tap:</strong> Launch ball</div>";
+      }
+
+      html += '<div style="margin-top:10px;font-size:12px;"><strong>Power-ups</strong></div>';
+      html += '<div class="powerup-legend">';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#5b8c7a">W</span> Widen</div>';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#b05050">S</span> Shrink</div>';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#6b7ea0">M</span> Multiball</div>';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#d08030">B</span> Burner</div>';
+      html += '</div>';
+
+      html += '<div style="margin-top:8px;font-size:12px;color:var(--dk-shadow);">Blocks marked with \u2717 can fall and damage you.</div>';
+
+      html += '<div class="button-row" style="margin-top:12px">';
+      html += '<button class="btn" id="startBtn">OK</button>';
+      html += '</div>';
+
+      rulesBody.innerHTML = html;
+
+      document.getElementById("startBtn").addEventListener("click", function () {
+        rulesOverlay.classList.add("hidden");
+        gameStarted = true;
+      });
+    }
+
+    /* ── UI buttons ── */
     document.getElementById("playAgainBtn").addEventListener("click", function () {
       resetGame();
     });
 
     /* ── Initialize ── */
+    buildRulesDialog();
     generateBricks();
     attachBall();
-    updateUI();
     requestAnimationFrame(loop);
   </script>
 </body>
