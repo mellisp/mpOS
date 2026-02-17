@@ -4270,6 +4270,50 @@ const COLOR_TABLE = {
   'c': '#ff0000', 'd': '#ff00ff', 'e': '#ffff00', 'f': '#ffffff'
 };
 
+/* Ordered so no two adjacent fortunes share a semantic category */
+const FORTUNE_QUOTES = [
+  'He who throws dirt is losing ground.',                                                   /* wordplay */
+  'The candle does not negotiate with the dark.',                                           /* zen */
+  'The early bird gets the worm, but the second mouse gets the cheese.',                    /* proverb */
+  'Everybody brings joy to a room. Some when they enter, some when they leave.',            /* observation */
+  'A table has four legs, but nobody calls it a horse.',                                    /* juxtaposition */
+  'You are not late. The others were merely early.',                                        /* reframe */
+  'You cannot steer a parked car.',                                                         /* physical truth */
+  'You already know the answer. You are here because you like the question.',               /* mirror */
+  'The vine does not ask permission to climb.',                                             /* zen */
+  'Smile when picking out furniture. You will be living with it.',                          /* choices */
+  'A crooked log makes a good fire.',                                                       /* observation */
+  'Opportunity knocks once. Temptation leans on the doorbell.',                             /* personification */
+  'Many hands make light work. Nobody makes light of many hands.',                          /* wordplay */
+  'The sky is blue, but in Bulgarian it is синьо.',                                        /* juxtaposition */
+  'The spider does not explain the web.',                                                   /* zen */
+  'Rome was not built in a day, but the invoice was sent on one.',                          /* proverb */
+  'Somewhere, a bridge you burned is lighting someone else\'s way.',                        /* reframe */
+  'If you think nobody cares, try missing a payment.',                                      /* observation */
+  'A spoon cannot taste the soup it stirs.',                                                /* paradox */
+  'You cannot plough a field by turning it over in your mind.',                             /* wordplay */
+  'An old debt will be repaid in an unexpected currency.',                                  /* mysterious */
+  'A bell with no tongue still knows every song.',                                          /* zen */
+  'Where there\'s smoke, there\'s someone who said they could cook.',                       /* proverb */
+  'He who sleeps on the floor will not fall out of bed.',                                   /* physical truth */
+  'The person who says it cannot be done is usually interrupted by the person doing it.',   /* observation */
+  'Honey never expires. The bee that made it lived six weeks.',                             /* juxtaposition */
+  'Even stale bread was fresh once. Don\'t be too hard on it.',                             /* wordplay */
+  'Today is the tomorrow you worried about yesterday. Notice how fine it is.',              /* reframe */
+  'A seed planted in doubt still flowers in its season.',                                   /* zen */
+  'A tight knot was once a loose rope.',                                                    /* observation */
+  'Your reputation arrives before you and stays after you leave. Tip it well.',             /* personification */
+  'Good things come to those who wait. Better things come to those who were already there.',/* proverb */
+  'Not all who wander are lost, but you specifically might be.',                            /* mirror */
+  'Every exit sign is also an entrance sign from the other side.',                          /* juxtaposition */
+  'The person who rows the boat seldom has time to rock it.',                               /* wordplay */
+  'The tea leaves say nothing. Drink the tea.',                                             /* zen */
+  'You will find a use for that weird thing in the drawer.',                                /* observation */
+  'Beware of half-truths. You may have the wrong half.',                                   /* logical */
+  'You cannot shake hands with a clenched fist.',                                           /* physical truth */
+  'The trouble with doing nothing is that you never know when you are finished.'            /* paradox */
+];
+
 /* ── Task Manager (Ctrl+Alt+Del) ── */
 let tmInterval = null;
 let tmSelectedId = null;
@@ -4656,6 +4700,166 @@ const WINDOW_NAMES = {
 
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
 
+function cmdPwd() { termPrint(termCwd); }
+
+function cmdUptime() {
+  let ms = performance.now();
+  let secs = Math.floor(ms / 1000);
+  let h = Math.floor(secs / 3600);
+  let m = Math.floor((secs % 3600) / 60);
+  let s = secs % 60;
+  termPrint('System uptime: ' + h + 'h ' + m + 'm ' + s + 's');
+}
+
+function cmdHistory(args) {
+  if (args && args.trim().toLowerCase() === 'clear') {
+    termHistory = [];
+    termHistoryIndex = -1;
+    termPrint('History cleared.');
+    return;
+  }
+  if (termHistory.length === 0) {
+    termPrint('No command history.');
+    return;
+  }
+  termHistory.forEach(function (cmd, i) {
+    termPrint('  ' + String(i + 1).padStart(4) + '  ' + cmd);
+  });
+}
+
+function cmdTouch(args) {
+  if (!args || !args.trim()) {
+    termPrint('Usage: touch <filename>');
+    return;
+  }
+  let filename = args.trim();
+  let cur = FILESYSTEM[termCwd];
+  if (!cur) { termPrint('Error: cannot access directory.'); return; }
+  if (!cur.files) cur.files = [];
+  let existing = cur.files.find(function (f) {
+    return f.name.toLowerCase() === filename.toLowerCase();
+  });
+  if (existing) {
+    termPrint('File already exists: ' + filename);
+    return;
+  }
+  cur.files.push({ name: filename, content: '', size: 0 });
+  termPrint('Created: ' + filename);
+}
+
+function cmdRm(args) {
+  if (!args || !args.trim()) {
+    termPrint('Usage: rm <filename>');
+    return;
+  }
+  let filename = args.trim();
+  let cur = FILESYSTEM[termCwd];
+  if (!cur || !cur.files) {
+    termPrint('The system cannot find the file specified.');
+    return;
+  }
+  let idx = cur.files.findIndex(function (f) {
+    return f.name.toLowerCase() === filename.toLowerCase();
+  });
+  if (idx === -1) {
+    termPrint('The system cannot find the file specified.');
+    return;
+  }
+  cur.files.splice(idx, 1);
+  termPrint('Deleted: ' + filename);
+}
+
+let fortuneIndex = Math.floor(Math.random() * FORTUNE_QUOTES.length);
+
+function cmdFortune() {
+  termPrint('');
+  termPrint(FORTUNE_QUOTES[fortuneIndex]);
+  termPrint('');
+  fortuneIndex = (fortuneIndex + 1) % FORTUNE_QUOTES.length;
+}
+
+function cmdNeofetch() {
+  let nav = navigator;
+  let scr = screen;
+
+  let browser = 'Unknown';
+  let ua = nav.userAgent;
+  if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
+  else if (ua.indexOf('Edg/') !== -1) browser = 'Edge';
+  else if (ua.indexOf('Chrome') !== -1) browser = 'Chrome';
+  else if (ua.indexOf('Safari') !== -1) browser = 'Safari';
+
+  let ms = performance.now();
+  let secs = Math.floor(ms / 1000);
+  let h = Math.floor(secs / 3600);
+  let m = Math.floor((secs % 3600) / 60);
+  let uptimeStr = h + 'h ' + m + 'm';
+
+  let logo = [
+    '                  ___  ____  ',
+    '  _ __ ___  _ __ / _ \\/ ___| ',
+    ' | \'_ ` _ \\| \'_ \\| | | \\___ \\ ',
+    ' | | | | | | |_) | |_| |___) |',
+    ' |_| |_| |_| .__/ \\___/|____/ ',
+    '            |_|                '
+  ];
+
+  let info = [
+    'matthew@mpos-pc',
+    '----------------',
+    'OS: mpOS 1.9.9',
+    'Browser: ' + browser,
+    'Resolution: ' + scr.width + 'x' + scr.height,
+    'CPU: ' + (nav.hardwareConcurrency || '?') + ' cores',
+    'Uptime: ' + uptimeStr,
+    'Locale: ' + (nav.language || 'unknown'),
+    'Theme: Windows XP Classic'
+  ];
+
+  termPrint('');
+  let lines = Math.max(logo.length, info.length);
+  for (let i = 0; i < lines; i++) {
+    let left = i < logo.length ? logo[i] : ''.padEnd(32);
+    let right = i < info.length ? info[i] : '';
+    left = left.padEnd(32);
+    termPrint(left + right);
+  }
+  termPrint('');
+}
+
+function cmdCurl(args) {
+  if (!args || !args.trim()) {
+    termPrint('Usage: curl <url>');
+    return;
+  }
+  let url = args.trim();
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  termPrint('Fetching ' + url + ' ...\n');
+  termInput.disabled = true;
+  fetch(url).then(function (res) {
+    if (!res.ok) {
+      termPrint('HTTP ' + res.status + ' ' + res.statusText);
+      return null;
+    }
+    return res.text();
+  }).then(function (text) {
+    if (text !== null) {
+      if (text.length > 2000) {
+        termPrint(text.substring(0, 2000));
+        termPrint('\n... (truncated at 2000 characters)');
+      } else {
+        termPrint(text);
+      }
+    }
+  }).catch(function (err) {
+    termPrint('Error: ' + err.message, '#ff6666');
+  }).then(function () {
+    termPrint('');
+    termInput.disabled = false;
+    termInput.focus();
+  });
+}
+
 const FILESYSTEM = {
   'C:\\mpOS': {
     children: ['Desktop', 'Programs', 'Documents', 'Utilities']
@@ -4676,11 +4880,11 @@ const FILESYSTEM = {
 
 /* ── Command help groups ── */
 const HELP_GROUPS = {
-  'NAVIGATION': ['cd', 'dir', 'ls', 'tree'],
-  'FILES':      ['type', 'echo'],
-  'SYSTEM':     ['systeminfo', 'whoami', 'hostname', 'ver', 'date', 'time', 'tasklist', 'taskkill'],
+  'NAVIGATION': ['cd', 'dir', 'ls', 'tree', 'pwd'],
+  'FILES':      ['type', 'cat', 'echo', 'touch', 'rm', 'edit', 'nano'],
+  'SYSTEM':     ['systeminfo', 'whoami', 'hostname', 'ver', 'date', 'time', 'tasklist', 'taskkill', 'uptime', 'top', 'neofetch'],
   'PROGRAMS':   [],
-  'TERMINAL':   ['cls', 'color', 'title', 'start', 'ping', 'matrix', 'help', 'exit']
+  'TERMINAL':   ['cls', 'color', 'title', 'start', 'ping', 'matrix', 'help', 'exit', 'history', 'fortune', 'curl', 'fetch']
 };
 
 const COMMANDS = {
@@ -4728,7 +4932,20 @@ const COMMANDS = {
   'ver':         { run: cmdVer,          desc: 'Show version' },
   'matrix':      { run: cmdMatrix,       desc: 'Toggle matrix animation' },
   'taskmanager': { run: openTaskManager, desc: 'Open Task Manager' },
-  'search':      { run: openSearch,      desc: 'Open Search Results' }
+  'search':      { run: openSearch,      desc: 'Open Search Results' },
+  'pwd':         { run: cmdPwd,          desc: 'Print working directory' },
+  'cat':         { run: cmdType,         desc: 'Display the contents of a file' },
+  'uptime':      { run: cmdUptime,       desc: 'Show system uptime' },
+  'history':     { run: cmdHistory,      desc: 'Show command history' },
+  'touch':       { run: cmdTouch,        desc: 'Create an empty file' },
+  'rm':          { run: cmdRm,           desc: 'Delete a file' },
+  'fortune':     { run: cmdFortune,      desc: 'Display a random quote' },
+  'neofetch':    { run: cmdNeofetch,     desc: 'Display system info with logo' },
+  'curl':        { run: cmdCurl,         desc: 'Fetch a URL' },
+  'fetch':       { run: cmdCurl,         desc: 'Fetch a URL' },
+  'top':         { run: cmdTop,          desc: 'Process viewer' },
+  'edit':        { run: cmdEdit,         desc: 'Text editor' },
+  'nano':        { run: cmdEdit,         desc: 'Text editor' }
 };
 
 function termPrint(text, color) {
@@ -4769,10 +4986,12 @@ function cmdHelp() {
 
 function cmdCls() {
   stopMatrix();
+  stopTop();
+  stopEdit();
   termOutput.textContent = '';
 }
 
-function cmdVer() { termPrint('mpOS [Version 1.9.9]\n(c) Matthew Pritchard. All rights reserved.\n'); }
+function cmdVer() { termPrint('mpOS [Version 2.0.0]\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
 function cmdCd(args) {
   if (!args) { termPrint(termCwd + '\n'); return; }
@@ -5167,6 +5386,8 @@ function openRun() {
 
 function closeRun() {
   stopMatrix();
+  stopTop();
+  stopEdit();
   termOutput.textContent = '';
   let term = document.querySelector('#run .term');
   term.style.backgroundColor = '';
@@ -5184,6 +5405,10 @@ function closeRun() {
 }
 
 let matrixInterval = null;
+let topInterval = null;
+let topKeyHandler = null;
+let editFilename = null;
+
 function cmdMatrix() {
   let term = document.querySelector('#run .term');
   let existing = term.querySelector('.matrix-canvas');
@@ -5217,6 +5442,167 @@ function stopMatrix() {
   if (matrixInterval) { clearInterval(matrixInterval); matrixInterval = null; }
   let c = document.querySelector('#run .matrix-canvas');
   if (c) c.remove();
+}
+
+function stopTop() {
+  if (topInterval) { clearInterval(topInterval); topInterval = null; }
+  if (topKeyHandler) { document.removeEventListener('keydown', topKeyHandler); topKeyHandler = null; }
+  let el = document.querySelector('#run .top-overlay');
+  if (el) el.remove();
+  termInput.disabled = false;
+  termInput.focus();
+}
+
+function cmdTop() {
+  let term = document.querySelector('#run .term');
+  let existing = term.querySelector('.top-overlay');
+  if (existing) { stopTop(); return; }
+
+  termInput.disabled = true;
+
+  let overlay = document.createElement('div');
+  overlay.className = 'top-overlay';
+  let pre = document.createElement('pre');
+  pre.className = 'top-pre';
+  overlay.appendChild(pre);
+  term.appendChild(overlay);
+
+  function refreshTop() {
+    let ms = performance.now();
+    let secs = Math.floor(ms / 1000);
+    let h = Math.floor(secs / 3600);
+    let m = Math.floor((secs % 3600) / 60);
+    let s = secs % 60;
+    let uptimeStr = padTwo(h) + ':' + padTwo(m) + ':' + padTwo(s);
+    let now = new Date();
+    let timeStr = padTwo(now.getHours()) + ':' + padTwo(now.getMinutes()) + ':' + padTwo(now.getSeconds());
+
+    let lines = [];
+    lines.push('top - ' + timeStr + '  up ' + uptimeStr + '  mpOS 1.9.9');
+    lines.push('');
+    lines.push('  PID  STATUS     CPU%  MEM    PROCESS');
+    lines.push('  ---  ---------  ----  -----  -------------------------');
+
+    let pid = 1000;
+    Object.keys(WINDOW_NAMES).forEach(function (id) {
+      let win = document.getElementById(id);
+      if (win && win.style.display !== 'none') {
+        let name = WINDOW_NAMES[id] + '.exe';
+        let cpu = (Math.random() * 8).toFixed(1);
+        let mem = (Math.random() * 50 + 5).toFixed(0) + 'K';
+        lines.push('  ' + String(pid).padEnd(5) +
+          'Running    ' +
+          String(cpu).padStart(4) + '  ' +
+          mem.padStart(5) + '  ' + name);
+        pid += 4;
+      }
+    });
+
+    lines.push('');
+    lines.push('  Press Q to quit');
+    pre.textContent = lines.join('\n');
+  }
+
+  refreshTop();
+  topInterval = setInterval(refreshTop, 2000);
+
+  topKeyHandler = function (e) {
+    if (e.key === 'q' || e.key === 'Q') {
+      e.preventDefault();
+      stopTop();
+    }
+  };
+  document.addEventListener('keydown', topKeyHandler);
+}
+
+function stopEdit() {
+  let el = document.querySelector('#run .edit-overlay');
+  if (el) el.remove();
+  editFilename = null;
+  termInput.disabled = false;
+  termInput.focus();
+}
+
+function editSave(textarea) {
+  if (!editFilename) return;
+  let cur = FILESYSTEM[termCwd];
+  if (!cur) return;
+  if (!cur.files) cur.files = [];
+  let content = textarea.value;
+  let file = cur.files.find(function (f) {
+    return f.name.toLowerCase() === editFilename.toLowerCase();
+  });
+  if (file) {
+    file.content = content;
+    file.size = content.length;
+  } else {
+    cur.files.push({ name: editFilename, content: content, size: content.length });
+  }
+}
+
+function cmdEdit(args) {
+  if (!args || !args.trim()) {
+    termPrint('Usage: edit <filename>');
+    return;
+  }
+  let filename = args.trim();
+  editFilename = filename;
+
+  let cur = FILESYSTEM[termCwd];
+  let content = '';
+  if (cur && cur.files) {
+    let file = cur.files.find(function (f) {
+      return f.name.toLowerCase() === filename.toLowerCase();
+    });
+    if (file) content = file.content;
+  }
+
+  termInput.disabled = true;
+
+  let term = document.querySelector('#run .term');
+  let overlay = document.createElement('div');
+  overlay.className = 'edit-overlay';
+
+  let titlebar = document.createElement('div');
+  titlebar.className = 'edit-statusbar';
+  titlebar.textContent = '  mpOS Editor - ' + filename;
+  overlay.appendChild(titlebar);
+
+  let textarea = document.createElement('textarea');
+  textarea.className = 'edit-textarea';
+  textarea.value = content;
+  textarea.spellcheck = false;
+  overlay.appendChild(textarea);
+
+  let statusbar = document.createElement('div');
+  statusbar.className = 'edit-statusbar';
+  statusbar.textContent = '  ^S Save   ^X Exit   Esc Exit';
+  overlay.appendChild(statusbar);
+
+  term.appendChild(overlay);
+  textarea.focus();
+
+  textarea.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      stopEdit();
+      return;
+    }
+    if (e.ctrlKey && (e.key === 'x' || e.key === 'X')) {
+      e.preventDefault();
+      stopEdit();
+      return;
+    }
+    if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      editSave(textarea);
+      statusbar.textContent = '  Saved! | ^S Save   ^X Exit   Esc Exit';
+      setTimeout(function () {
+        statusbar.textContent = '  ^S Save   ^X Exit   Esc Exit';
+      }, 1500);
+      return;
+    }
+  });
 }
 
 termInput.addEventListener('keydown', function (e) {

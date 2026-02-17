@@ -314,6 +314,33 @@
 }
 .matrix-canvas { position: absolute; inset: 0; z-index: 10; background: #000; }
 
+/* top overlay — green-on-black Unix aesthetic */
+.top-overlay {
+  position: absolute; inset: 0; z-index: 10;
+  background: #000; color: #00ff00;
+  padding: 6px; overflow: hidden;
+  font-family: var(--mono); font-size: 12px;
+}
+.top-pre { margin: 0; white-space: pre; font: inherit; color: inherit; }
+
+/* edit/nano overlay — DOS blue editor */
+.edit-overlay {
+  position: absolute; inset: 0; z-index: 10;
+  background: #000; color: #c0c0c0;
+  display: flex; flex-direction: column;
+}
+.edit-textarea {
+  flex: 1; background: #000080; color: #fff;
+  border: none; outline: none; resize: none;
+  font-family: var(--mono); font-size: 13px;
+  line-height: 1.4; padding: 4px;
+}
+.edit-statusbar {
+  flex-shrink: 0; background: #c0c0c0; color: #000;
+  font-family: var(--mono); font-size: 12px;
+  padding: 2px 4px; line-height: 1.6;
+}
+
 /* Fish Finder window */
 #fishfinder { width: min(420px, 92vw); left: min(100px, 5vw); top: 50px; }
 .finder-label { font-size: 11px; font-weight: bold; color: var(--dk-shadow); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
