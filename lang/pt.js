@@ -66,6 +66,7 @@ window._mpLangRegister('pt', {
   'title.taskManager': 'Gestor de Tarefas',
   'title.chickenFingers': 'Chicken Fingers',
   'title.stopwatch': 'Cron\u00f3metro',
+  'title.stickyNotes': 'Notas Adesivas',
 
   /* Start menu: Search sub-items */
   'startSearch.files': 'Ficheiros ou Pastas...',
@@ -111,6 +112,9 @@ window._mpLangRegister('pt', {
   'app.noiseMixer.desc': 'Misture ru\u00eddo colorido para concentra\u00e7\u00e3o, sono ou relaxamento.',
   'app.stopwatch.name': 'Cron\u00f3metro',
   'app.stopwatch.desc': 'Cron\u00f3metro com voltas.',
+  'app.stickyNotes.name': 'Notas Adesivas',
+  'app.stickyNotes.desc': 'Notas tipo post-it no ambiente de trabalho.',
+  'sticky.deleteConfirm': 'Apagar esta nota?',
   'app.myComputer.name': 'O Meu Computador',
   'app.files.name': 'Ficheiros',
 

@@ -239,7 +239,8 @@ const FOLDER_ITEMS = {
     { name: 'Help', _key: 'help', desc: 'Browse the mpOS help documentation.', tag: 'HTML', action: 'openHelp' },
     { name: 'Search', _key: 'search', desc: 'Search for files, programs, and commands.', tag: 'HTML', action: 'openSearch' },
     { name: 'White Noise Mixer', _key: 'noiseMixer', desc: 'Mix colored noise for focus, sleep, or relaxation.', tag: 'HTML', action: 'openNoiseMixer' },
-    { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' }
+    { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' },
+    { name: 'Sticky Notes', _key: 'stickyNotes', desc: 'Post-it style notes on the desktop.', tag: 'HTML', action: 'openStickyNotes' }
   ]
 };
 
@@ -390,6 +391,7 @@ function getItemIcon(name) {
     'Search': '<defs><radialGradient id="ei-sr-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="30%" stop-color="#d8ecff"/><stop offset="60%" stop-color="#a8d0f0"/><stop offset="100%" stop-color="#78b0d8"/></radialGradient><linearGradient id="ei-sr-handle" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d0c8"/><stop offset="50%" stop-color="#a0a098"/><stop offset="100%" stop-color="#787870"/></linearGradient></defs><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="url(#ei-sr-handle)" stroke-width="3" stroke-linecap="round"/><circle cx="9" cy="9" r="6" fill="url(#ei-sr-lens)" stroke="#1a4a6e" stroke-width="1.2"/><circle cx="9" cy="9" r="4.5" fill="none" stroke="#1a4a6e" stroke-width="0.4" opacity="0.3"/><ellipse cx="7" cy="7" rx="3.5" ry="2.5" fill="white" opacity="0.4"/>',
     'Visitor Map': '<defs><radialGradient id="ei-vm" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="ei-vmc"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#ei-vm)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#ei-vmc)" opacity="0.45"><ellipse cx="6" cy="8" rx="4" ry="3" fill="#5aaa80"/><ellipse cx="14" cy="7" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="10" cy="14" rx="5" ry="2" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.6"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.6"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><circle cx="14" cy="6" r="2" fill="#ef5350" opacity="0.8"/><path d="M14 4 L14 6.5" stroke="#c62828" stroke-width="0.8" stroke-linecap="round"/><circle cx="14" cy="4" r="0.6" fill="#c62828"/><circle cx="13.7" cy="3.8" r="0.2" fill="white" opacity="0.7"/>',
     'Stopwatch': '<defs><linearGradient id="ei-sw-rim" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient><linearGradient id="ei-sw-face" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient></defs><rect x="8.5" y="0.5" width="3" height="2.5" rx="0.5" fill="#8aa8c8" stroke="#4a6a8e" stroke-width="0.5"/><circle cx="10" cy="11" r="7.5" fill="url(#ei-sw-rim)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="11" r="6" fill="url(#ei-sw-face)"/><ellipse cx="8.5" cy="8" rx="3.5" ry="2.5" fill="white" opacity="0.3"/><line x1="10" y1="5.5" x2="10" y2="6.5" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="15.5" y1="11" x2="14.5" y2="11" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="10" y1="16.5" x2="10" y2="15.5" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="4.5" y1="11" x2="5.5" y2="11" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="10" y1="11" x2="10" y2="6.8" stroke="#2a4a6e" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="11" x2="13.5" y2="11" stroke="#ef5350" stroke-width="0.6" stroke-linecap="round"/><circle cx="10" cy="11" r="0.7" fill="#2a4a6e"/>',
+    'Sticky Notes': '<defs><linearGradient id="ei-sn" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#fff9b1"/><stop offset="50%" stop-color="#f5e87b"/><stop offset="100%" stop-color="#e8d44d"/></linearGradient></defs><rect x="2" y="2" width="14" height="14" fill="url(#ei-sn)" stroke="#c4a82b" stroke-width="0.7"/><path d="M16 2 L16 9 L12 2 Z" fill="#e8d44d" stroke="#c4a82b" stroke-width="0.5"/><path d="M16 9 Q14 10 12 9 L12 2 Z" fill="#d4c43b" stroke="#c4a82b" stroke-width="0.5" opacity="0.6"/><line x1="4" y1="6" x2="11" y2="6" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/><line x1="4" y1="9" x2="11" y2="9" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/><line x1="4" y1="12" x2="9" y2="12" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/>',
     'White Noise Mixer': '<defs><linearGradient id="ei-nm" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient><linearGradient id="ei-nmf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#a0a0a0"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#ei-nm)" stroke="#606060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><rect x="3" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="3.2" y="8" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="3" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50"/><rect x="6.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="6.7" y="10" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="6.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.7"/><rect x="10" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="10.2" y="11" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="10" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.5"/><rect x="13.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="13.7" y="9" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="13.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.8"/>'
   };
   return icons[name] || '';
@@ -2478,6 +2480,304 @@ function swLap() {
   lapsEl.scrollTop = 0;
 }
 
+/* ── Sticky Notes ── */
+var STICKY_COLORS = ['yellow', 'pink', 'blue', 'green', 'purple'];
+var STICKY_DEFAULT_W = 200, STICKY_DEFAULT_H = 180;
+var STICKY_MIN_W = 140, STICKY_MIN_H = 100;
+var stickyNoteZ = 5;
+var stickyDragState = null;
+var stickyResizeState = null;
+var stickyNextId = 1;
+var saveStickyTimeout = null;
+
+function loadStickyNotes() {
+  try {
+    var raw = localStorage.getItem('mpOS-sticky-notes');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function saveStickyNotes() {
+  var notes = document.querySelectorAll('.sticky-note');
+  var data = [];
+  for (var i = 0; i < notes.length; i++) {
+    var n = notes[i];
+    data.push({
+      id: n.dataset.stickyId,
+      text: n.querySelector('.sticky-textarea').value,
+      color: n.dataset.stickyColor,
+      x: parseInt(n.style.left, 10),
+      y: parseInt(n.style.top, 10),
+      w: parseInt(n.style.width, 10),
+      h: parseInt(n.style.height, 10)
+    });
+  }
+  localStorage.setItem('mpOS-sticky-notes', JSON.stringify(data));
+}
+
+function saveStickyNotesDebounced() {
+  if (saveStickyTimeout) clearTimeout(saveStickyTimeout);
+  saveStickyTimeout = setTimeout(saveStickyNotes, 300);
+}
+
+function rebaseStickyZ() {
+  stickyNoteZ = 5;
+  var notes = document.querySelectorAll('.sticky-note');
+  for (var i = 0; i < notes.length; i++) notes[i].style.zIndex = 5;
+}
+
+function createStickyNote(data) {
+  var area = document.querySelector('.desktop-area');
+  if (!area) return null;
+
+  var note = document.createElement('div');
+  note.className = 'sticky-note sticky-' + data.color;
+  note.dataset.stickyId = data.id;
+  note.dataset.stickyColor = data.color;
+  note.style.left = data.x + 'px';
+  note.style.top = data.y + 'px';
+  note.style.width = data.w + 'px';
+  note.style.height = data.h + 'px';
+  note.style.zIndex = stickyNoteZ;
+
+  // Bring to front on mousedown
+  note.addEventListener('mousedown', function () {
+    stickyNoteZ++;
+    if (stickyNoteZ >= 9) rebaseStickyZ();
+    note.style.zIndex = stickyNoteZ;
+  });
+
+  // Header
+  var header = document.createElement('div');
+  header.className = 'sticky-header';
+
+  // Color dots
+  for (var c = 0; c < STICKY_COLORS.length; c++) {
+    var dot = document.createElement('div');
+    dot.className = 'sticky-color-dot' + (STICKY_COLORS[c] === data.color ? ' active' : '');
+    dot.dataset.color = STICKY_COLORS[c];
+    dot.style.background = { yellow: '#f5e87b', pink: '#f0a0c8', blue: '#a0c8f0', green: '#a0e0a0', purple: '#c8a0f0' }[STICKY_COLORS[c]];
+    dot.addEventListener('click', (function (col) {
+      return function () {
+        // Remove old color class, add new
+        for (var j = 0; j < STICKY_COLORS.length; j++) {
+          note.classList.remove('sticky-' + STICKY_COLORS[j]);
+        }
+        note.classList.add('sticky-' + col);
+        note.dataset.stickyColor = col;
+        // Update active dot
+        var dots = header.querySelectorAll('.sticky-color-dot');
+        for (var j = 0; j < dots.length; j++) {
+          dots[j].classList.toggle('active', dots[j].dataset.color === col);
+        }
+        saveStickyNotes();
+      };
+    })(STICKY_COLORS[c]));
+    header.appendChild(dot);
+  }
+
+  var spacer = document.createElement('div');
+  spacer.className = 'sticky-header-spacer';
+  header.appendChild(spacer);
+
+  // + button
+  var addBtn = document.createElement('button');
+  addBtn.className = 'sticky-btn';
+  addBtn.type = 'button';
+  addBtn.textContent = '+';
+  addBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var x = parseInt(note.style.left, 10) + 20;
+    var y = parseInt(note.style.top, 10) + 20;
+    var areaRect = area.getBoundingClientRect();
+    if (x + STICKY_DEFAULT_W > areaRect.width) x = Math.max(0, areaRect.width - STICKY_DEFAULT_W);
+    if (y + STICKY_DEFAULT_H > areaRect.height) y = Math.max(0, areaRect.height - STICKY_DEFAULT_H);
+    var newNote = createStickyNote({
+      id: 'sticky-' + stickyNextId++,
+      text: '', color: 'yellow',
+      x: x, y: y,
+      w: STICKY_DEFAULT_W, h: STICKY_DEFAULT_H
+    });
+    if (newNote) newNote.querySelector('.sticky-textarea').focus();
+    saveStickyNotes();
+  });
+  header.appendChild(addBtn);
+
+  // × button
+  var delBtn = document.createElement('button');
+  delBtn.className = 'sticky-btn';
+  delBtn.type = 'button';
+  delBtn.textContent = '\u00d7';
+  delBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    deleteStickyNote(note);
+  });
+  header.appendChild(delBtn);
+
+  note.appendChild(header);
+
+  // Body
+  var body = document.createElement('div');
+  body.className = 'sticky-body';
+  var textarea = document.createElement('textarea');
+  textarea.className = 'sticky-textarea';
+  textarea.value = data.text || '';
+  textarea.addEventListener('input', saveStickyNotesDebounced);
+  body.appendChild(textarea);
+  note.appendChild(body);
+
+  // Resize handle
+  var resizeHandle = document.createElement('div');
+  resizeHandle.className = 'sticky-resize';
+  resizeHandle.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    resizeHandle.setPointerCapture(e.pointerId);
+    stickyResizeState = {
+      note: note,
+      startX: e.clientX,
+      startY: e.clientY,
+      startW: parseInt(note.style.width, 10),
+      startH: parseInt(note.style.height, 10)
+    };
+  });
+  resizeHandle.addEventListener('pointermove', function (e) {
+    if (!stickyResizeState || stickyResizeState.note !== note) return;
+    var newW = Math.max(STICKY_MIN_W, stickyResizeState.startW + (e.clientX - stickyResizeState.startX));
+    var newH = Math.max(STICKY_MIN_H, stickyResizeState.startH + (e.clientY - stickyResizeState.startY));
+    note.style.width = newW + 'px';
+    note.style.height = newH + 'px';
+  });
+  resizeHandle.addEventListener('pointerup', function () {
+    if (stickyResizeState && stickyResizeState.note === note) {
+      stickyResizeState = null;
+      saveStickyNotes();
+    }
+  });
+  note.appendChild(resizeHandle);
+
+  // Drag via header
+  header.addEventListener('mousedown', function (e) {
+    if (e.target.closest('.sticky-btn') || e.target.closest('.sticky-color-dot')) return;
+    e.preventDefault();
+    var areaRect = area.getBoundingClientRect();
+    stickyDragState = {
+      note: note,
+      offsetX: e.clientX - parseInt(note.style.left, 10) - areaRect.left,
+      offsetY: e.clientY - parseInt(note.style.top, 10) - areaRect.top,
+      areaRect: areaRect
+    };
+    note.classList.add('dragging');
+  });
+  header.addEventListener('touchstart', function (e) {
+    if (e.target.closest('.sticky-btn') || e.target.closest('.sticky-color-dot')) return;
+    var touch = e.touches[0];
+    var areaRect = area.getBoundingClientRect();
+    stickyDragState = {
+      note: note,
+      offsetX: touch.clientX - parseInt(note.style.left, 10) - areaRect.left,
+      offsetY: touch.clientY - parseInt(note.style.top, 10) - areaRect.top,
+      areaRect: areaRect
+    };
+    note.classList.add('dragging');
+  }, { passive: true });
+
+  // Track next ID
+  var idNum = parseInt(data.id.replace('sticky-', ''), 10);
+  if (!isNaN(idNum) && idNum >= stickyNextId) stickyNextId = idNum + 1;
+
+  area.appendChild(note);
+  return note;
+}
+
+async function deleteStickyNote(noteEl) {
+  var text = noteEl.querySelector('.sticky-textarea').value.trim();
+  if (text && !(await mpConfirm(t('sticky.deleteConfirm')))) return;
+  noteEl.remove();
+  saveStickyNotes();
+}
+
+// Global drag listeners for sticky notes
+document.addEventListener('mousemove', function (e) {
+  if (!stickyDragState) return;
+  var s = stickyDragState;
+  var x = e.clientX - s.offsetX - s.areaRect.left;
+  var y = e.clientY - s.offsetY - s.areaRect.top;
+  var noteW = parseInt(s.note.style.width, 10);
+  var noteH = parseInt(s.note.style.height, 10);
+  x = Math.max(-noteW + 50, Math.min(x, s.areaRect.width - 50));
+  y = Math.max(0, Math.min(y, s.areaRect.height - 50));
+  s.note.style.left = x + 'px';
+  s.note.style.top = y + 'px';
+});
+document.addEventListener('mouseup', function () {
+  if (!stickyDragState) return;
+  stickyDragState.note.classList.remove('dragging');
+  stickyDragState = null;
+  saveStickyNotes();
+});
+document.addEventListener('touchmove', function (e) {
+  if (!stickyDragState) return;
+  var touch = e.touches[0];
+  var s = stickyDragState;
+  var x = touch.clientX - s.offsetX - s.areaRect.left;
+  var y = touch.clientY - s.offsetY - s.areaRect.top;
+  var noteW = parseInt(s.note.style.width, 10);
+  var noteH = parseInt(s.note.style.height, 10);
+  x = Math.max(-noteW + 50, Math.min(x, s.areaRect.width - 50));
+  y = Math.max(0, Math.min(y, s.areaRect.height - 50));
+  s.note.style.left = x + 'px';
+  s.note.style.top = y + 'px';
+}, { passive: true });
+document.addEventListener('touchend', function () {
+  if (!stickyDragState) return;
+  stickyDragState.note.classList.remove('dragging');
+  stickyDragState = null;
+  saveStickyNotes();
+});
+
+function openStickyNotes() {
+  var area = document.querySelector('.desktop-area');
+  if (!area) return;
+  var areaRect = area.getBoundingClientRect();
+  var x = Math.floor(Math.random() * Math.max(0, areaRect.width - STICKY_DEFAULT_W - 40)) + 20;
+  var y = Math.floor(Math.random() * Math.max(0, areaRect.height - STICKY_DEFAULT_H - 40)) + 20;
+  var newNote = createStickyNote({
+    id: 'sticky-' + stickyNextId++,
+    text: '', color: 'yellow',
+    x: x, y: y,
+    w: STICKY_DEFAULT_W, h: STICKY_DEFAULT_H
+  });
+  if (newNote) newNote.querySelector('.sticky-textarea').focus();
+  saveStickyNotes();
+}
+
+function reclampStickyNotes() {
+  var area = document.querySelector('.desktop-area');
+  if (!area) return;
+  var areaRect = area.getBoundingClientRect();
+  var notes = document.querySelectorAll('.sticky-note');
+  for (var i = 0; i < notes.length; i++) {
+    var n = notes[i];
+    var x = parseInt(n.style.left, 10);
+    var y = parseInt(n.style.top, 10);
+    var w = parseInt(n.style.width, 10);
+    var h = parseInt(n.style.height, 10);
+    if (x + w < 50) n.style.left = Math.max(0, 50 - w) + 'px';
+    if (x > areaRect.width - 50) n.style.left = (areaRect.width - 50) + 'px';
+    if (y + h < 50) n.style.top = Math.max(0, 50 - h) + 'px';
+    if (y > areaRect.height - 50) n.style.top = (areaRect.height - 50) + 'px';
+  }
+  saveStickyNotes();
+}
+
+// Auto-restore sticky notes
+(function () {
+  if (mobileQuery.matches) return;
+  var saved = loadStickyNotes();
+  for (var i = 0; i < saved.length; i++) createStickyNote(saved[i]);
+})();
+
 /* ── Calendar ── */
 let calYear, calMonth, calTitleEl, calGridEl;
 
@@ -4558,7 +4858,8 @@ const ACTION_MAP = {
   openVisitorMap: openVisitorMap,
   openSearch: openSearch,
   openNoiseMixer: openNoiseMixer,
-  openStopwatch: openStopwatch
+  openStopwatch: openStopwatch,
+  openStickyNotes: openStickyNotes
 };
 
 /* ── Run Terminal ── */
@@ -6798,7 +7099,8 @@ function buildLauncher() {
     { name: 'Disk Usage', _key: 'diskUsage', action: openDiskUsage },
     { name: 'Visitor Map', _key: 'visitorMap', action: openVisitorMap },
     { name: 'White Noise Mixer', _key: 'noiseMixer', action: openNoiseMixer },
-    { name: 'Stopwatch', _key: 'stopwatch', action: openStopwatch }
+    { name: 'Stopwatch', _key: 'stopwatch', action: openStopwatch },
+    { name: 'Sticky Notes', _key: 'stickyNotes', action: openStickyNotes }
   ];
   var system = [
     { name: 'My Computer', _key: 'myComputer', action: openMyComputer },
@@ -6939,6 +7241,7 @@ window.closeTaskManager = closeTaskManager;
 window.openNoiseMixer = openNoiseMixer;
 window.closeNoiseMixer = closeNoiseMixer;
 window.openStopwatch = openStopwatch;
+window.openStickyNotes = openStickyNotes;
 window.swStartStop = swStartStop;
 window.swLap = swLap;
 window.swReset = swReset;
@@ -7003,6 +7306,7 @@ document.addEventListener('touchstart', ssRecordActivity);
 window.addEventListener('resize', function () {
   if (displaySettings.wallpaper !== 'none') applyDisplaySettings();
   reclampDesktopIcons();
+  reclampStickyNotes();
 });
 mcLoadSettings();
 

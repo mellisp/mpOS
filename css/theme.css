@@ -323,6 +323,70 @@ body {
 .desktop-context-item:hover { background: var(--highlight); color: var(--highlight-text); }
 .desktop-context-sep { height: 1px; background: var(--shadow); margin: 2px 4px; }
 
+/* ── Sticky Notes ── */
+.sticky-note {
+  position: absolute; z-index: 5;
+  display: flex; flex-direction: column;
+  border-radius: 2px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.25);
+  min-width: 140px; min-height: 100px;
+  font-family: var(--font);
+}
+.sticky-note.dragging { opacity: 0.85; z-index: 8; }
+.sticky-header {
+  display: flex; align-items: center; gap: 3px;
+  padding: 3px 4px; cursor: move;
+  border-radius: 2px 2px 0 0;
+  user-select: none; -webkit-user-select: none;
+}
+.sticky-color-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer;
+  box-sizing: border-box; flex-shrink: 0;
+}
+.sticky-color-dot:hover { transform: scale(1.2); }
+.sticky-color-dot.active { border-color: rgba(0,0,0,0.5); }
+.sticky-header-spacer { flex: 1; }
+.sticky-btn {
+  width: 18px; height: 18px; border: none; background: transparent;
+  cursor: pointer; font-size: 14px; line-height: 18px; text-align: center;
+  padding: 0; color: rgba(0,0,0,0.5); font-family: var(--font); flex-shrink: 0;
+}
+.sticky-btn:hover { color: rgba(0,0,0,0.8); }
+.sticky-body { flex: 1; display: flex; }
+.sticky-textarea {
+  width: 100%; height: 100%; border: none; background: transparent;
+  resize: none; outline: none; padding: 4px 6px;
+  font-family: var(--font); font-size: 12px; color: #333;
+  box-sizing: border-box;
+}
+.sticky-resize {
+  position: absolute; bottom: 0; right: 0;
+  width: 14px; height: 14px; cursor: nwse-resize;
+}
+.sticky-resize::after {
+  content: ''; position: absolute; bottom: 2px; right: 2px;
+  width: 8px; height: 8px;
+  border-right: 2px solid rgba(0,0,0,0.2);
+  border-bottom: 2px solid rgba(0,0,0,0.2);
+}
+
+/* Sticky note colors */
+.sticky-yellow { background: #fff9b1; }
+.sticky-yellow .sticky-header { background: #f5e87b; }
+.sticky-pink { background: #ffc1e3; }
+.sticky-pink .sticky-header { background: #f0a0c8; }
+.sticky-blue { background: #c1e1ff; }
+.sticky-blue .sticky-header { background: #a0c8f0; }
+.sticky-green { background: #c1ffc1; }
+.sticky-green .sticky-header { background: #a0e0a0; }
+.sticky-purple { background: #e1c1ff; }
+.sticky-purple .sticky-header { background: #c8a0f0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sticky-note, .sticky-note * { transition: none !important; }
+}
+
 /* ============================================================
    Taskbar
    ============================================================ */
