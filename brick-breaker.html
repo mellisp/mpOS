@@ -222,13 +222,14 @@
     var DANGER_LINE_Y = 560;
     var DEBRIS_FILL_THRESHOLD = 25;
 
-    /* ── 3-Color Palette (Cyan / Amber / Rose) ── */
+    /* ── 4-Color Palette (Cyan / Amber / Rose / Lime) ── */
     var COLORS = {
       cyan:  { highlight: "#85ccff", base: "#279ced", shadow: "#0f68a2" },
       amber: { highlight: "#eabc6e", base: "#c68800", shadow: "#865900" },
-      rose:  { highlight: "#ffa6ba", base: "#e16788", shadow: "#99415a" }
+      rose:  { highlight: "#ffa6ba", base: "#e16788", shadow: "#99415a" },
+      lime:  { highlight: "#c8e688", base: "#7bb33a", shadow: "#4d7a1a" }
     };
-    var COLOR_KEYS = ["cyan", "amber", "rose"];
+    var COLOR_KEYS = ["cyan", "amber", "rose", "lime"];
 
     var POWERUP_TYPES = [
       { type: "widen",     letter: "W", color: "#279ced", weight: 20 },
@@ -273,6 +274,7 @@
     var elapsedTime = 0;
     var totalRowsSpawned = 0;
     var riseStartDelay = 10;
+    var BRICK_SLIDE_SPEED = 120; /* pixels per second for smooth slide */
 
     /* Cascade state */
     var cascadePending = [];
@@ -285,6 +287,10 @@
 
     /* Debris meter */
     var debrisMeter = 0;
+    var debrisParticles = [];
+
+    /* Wave clear flash effect */
+    var waveClearFlash = 0;
 
     /* Rising projectile bricks */
     var risingBricks = [];
@@ -335,7 +341,8 @@
 
     /* ── Brick helpers ── */
     function brickGridRow(brick) {
-      return Math.round((brick.y - GRID_Y) / (BRICK_H + BRICK_GAP_Y));
+      var y = (brick.targetY !== undefined) ? brick.targetY : brick.y;
+      return Math.round((y - GRID_Y) / (BRICK_H + BRICK_GAP_Y));
     }
 
     function brickGridCol(brick) {
@@ -372,7 +379,7 @@
           }
 
           var hazard = rng() < HAZARD_CHANCE;
-          var colorKey = COLOR_KEYS[Math.floor(rng() * 3)];
+          var colorKey = COLOR_KEYS[Math.floor(rng() * COLOR_KEYS.length)];
 
           var bx = GRID_X + c * (BRICK_W + BRICK_GAP_X);
           var by = GRID_Y + r * (BRICK_H + BRICK_GAP_Y);
@@ -397,7 +404,7 @@
             bricks.push({
               x: bx2, y: by2, w: BRICK_W, h: BRICK_H,
               type: "normal", hits: 1, maxHits: 1, points: 10,
-              colorKey: COLOR_KEYS[Math.floor(rng() * 3)],
+              colorKey: COLOR_KEYS[Math.floor(rng() * COLOR_KEYS.length)],
               alive: true, hazard: rng() < HAZARD_CHANCE,
               flashTimer: 0
             });
@@ -414,7 +421,7 @@
             bricks.push({
               x: bx3, y: by3, w: BRICK_W, h: BRICK_H,
               type: "normal", hits: 1, maxHits: 1, points: 10,
-              colorKey: COLOR_KEYS[Math.floor(rng() * 3)],
+              colorKey: COLOR_KEYS[Math.floor(rng() * COLOR_KEYS.length)],
               alive: true, hazard: rng() < HAZARD_CHANCE,
               flashTimer: 0
             });
@@ -436,21 +443,17 @@
       totalRowsSpawned++;
       var rowShift = BRICK_H + BRICK_GAP_Y;
 
-      // Shift all existing bricks DOWN
+      // Set target positions — bricks will slide smoothly
       for (var i = 0; i < bricks.length; i++) {
         if (bricks[i].alive) {
-          bricks[i].y += rowShift;
+          var currentTarget = (bricks[i].targetY !== undefined) ? bricks[i].targetY : bricks[i].y;
+          bricks[i].targetY = currentTarget + rowShift;
         }
       }
 
-      // Also shift falling hazards down
-      for (var h = 0; h < fallingHazards.length; h++) {
-        fallingHazards[h].y += rowShift;
-      }
-
-      // Check danger line — any brick past it means game over
+      // Check danger line using target positions
       for (var j = 0; j < bricks.length; j++) {
-        if (bricks[j].alive && bricks[j].y + bricks[j].h > DANGER_LINE_Y) {
+        if (bricks[j].alive && bricks[j].targetY + bricks[j].h > DANGER_LINE_Y) {
           triggerGameOver();
           return;
         }
@@ -459,8 +462,8 @@
       // Generate new row at the top
       var newRowY = GRID_Y;
 
-      // Fill rate increases over time: 60% -> 85%
-      var fillRate = Math.min(0.85, 0.6 + totalRowsSpawned * 0.005);
+      // Fill rate increases over time: 40% -> 65%
+      var fillRate = Math.min(0.65, 0.4 + totalRowsSpawned * 0.005);
       var hasTough = (totalRowsSpawned % 5 === 0);
       var hasBonus = (totalRowsSpawned % 8 === 0);
       var toughCol = hasTough ? Math.floor(rng() * COLS) : -1;
@@ -479,7 +482,7 @@
           type = "bonus"; hits = 1; points = 50;
         }
 
-        var colorKey = COLOR_KEYS[Math.floor(rng() * 3)];
+        var colorKey = COLOR_KEYS[Math.floor(rng() * COLOR_KEYS.length)];
         var bx = GRID_X + c * (BRICK_W + BRICK_GAP_X);
 
         bricks.push({
@@ -571,7 +574,7 @@
           b.alive = false;
           var mult = chainMultiplier(chainCounter);
           score += b.points * mult;
-          debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+          addDebris(b);
 
           if (b.hazard) {
             fallingHazards.push({
@@ -700,6 +703,8 @@
       longestChain = 0;
       comboStreak = 0;
       debrisMeter = 0;
+      debrisParticles = [];
+      waveClearFlash = 0;
       risingBricks = [];
       risingBrickTimer = RISING_BRICK_INTERVAL_MIN + Math.random() * (RISING_BRICK_INTERVAL_MAX - RISING_BRICK_INTERVAL_MIN);
       lastHitBrickCol = -1;
@@ -783,7 +788,7 @@
             var db = destroyed[bd];
             db.alive = false;
             score += db.points;
-            debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+            addDebris(db);
             if (db.hazard) {
               fallingHazards.push({ x: db.x, y: db.y, w: db.w, h: db.h, colorKey: db.colorKey });
             }
@@ -818,10 +823,32 @@
       }
     }
 
+    /* ── Debris junk pile ── */
+    function addDebris(brick) {
+      debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+      var palette = COLORS[brick.colorKey] || COLORS.cyan;
+      // Spawn 2-3 junk fragments that fall to the bottom
+      var count = 2 + Math.floor(Math.random() * 2);
+      for (var dp = 0; dp < count; dp++) {
+        debrisParticles.push({
+          x: brick.x + (brick.w || BRICK_W) * Math.random(),
+          y: brick.y + (brick.h || BRICK_H) * Math.random(),
+          targetY: VH - 2 - Math.random() * 14,
+          w: 4 + Math.random() * 6,
+          h: 3 + Math.random() * 4,
+          color: palette.base,
+          highlight: palette.highlight,
+          settled: false
+        });
+      }
+    }
+
     /* ── Wave Clear (debris meter) ── */
     function activateWaveClear() {
       if (debrisMeter < DEBRIS_FILL_THRESHOLD) return;
       debrisMeter = 0;
+      debrisParticles = [];
+      waveClearFlash = 0.35;
 
       // Find the bottommost row of alive bricks
       var maxRow = -1;
@@ -833,23 +860,26 @@
 
       if (maxRow < 0) return;
 
-      var cleared = 0;
       chainCounter = 1;
+      var waveTargets = [];
       for (var j = 0; j < bricks.length; j++) {
         var b = bricks[j];
         if (!b.alive) continue;
         if (brickGridRow(b) === maxRow) {
-          b.alive = false;
-          cleared++;
-          if (b.hazard) {
-            fallingHazards.push({ x: b.x, y: b.y, w: b.w, h: b.h, colorKey: b.colorKey });
-          }
+          b.flashTimer = 0.25;
+          waveTargets.push(b);
         }
       }
 
-      score += 100 * cleared;
+      // Queue them for delayed destruction via cascade system
+      for (var wt = 0; wt < waveTargets.length; wt++) {
+        cascadePending.push(waveTargets[wt]);
+      }
+      if (waveTargets.length > 0) cascadeDelay = 0.25;
 
-      // Trigger cascade after wave clear
+      score += 100 * waveTargets.length;
+
+      // Trigger cascade after wave clear (will run after delay)
       applyGravity();
       var checked = {};
       for (var k = 0; k < bricks.length; k++) {
@@ -880,12 +910,15 @@
         keys[e.key] = true;
         usePointer = false;
       }
-      if (e.key === " " || e.key === "Spacebar") {
+      if (e.key === " " || e.key === "Spacebar" || e.key === "d" || e.key === "D") {
         e.preventDefault();
-        if (gameStarted && !gameOver) launchBalls();
-      }
-      if ((e.key === "d" || e.key === "D") && gameStarted && !gameOver) {
-        activateWaveClear();
+        if (gameStarted && !gameOver) {
+          if (debrisMeter >= DEBRIS_FILL_THRESHOLD) {
+            activateWaveClear();
+          } else {
+            launchBalls();
+          }
+        }
       }
     });
 
@@ -910,26 +943,38 @@
       paddleX = Math.max(paddleW / 2, Math.min(VW - paddleW / 2, paddleX));
     }, { passive: false });
 
-    var lastTapTime = 0;
     canvas.addEventListener("pointerdown", function (e) {
       if (!gameStarted || gameOver) return;
       usePointer = true;
       var sx = scaleX();
-      var sy = scaleY();
       paddleX = e.clientX / sx;
       paddleX = Math.max(paddleW / 2, Math.min(VW - paddleW / 2, paddleX));
-      launchBalls();
-
-      // Double-tap bottom edge for Wave Clear (mobile)
-      var tapY = e.clientY / sy;
-      if (tapY > PADDLE_Y - 20) {
-        var now = Date.now();
-        if (now - lastTapTime < 400) {
-          activateWaveClear();
-        }
-        lastTapTime = now;
+      if (debrisMeter >= DEBRIS_FILL_THRESHOLD) {
+        activateWaveClear();
+      } else {
+        launchBalls();
       }
     });
+
+    // Swipe up on mobile to fire wave clear
+    var touchStartY = 0;
+    var touchStartTime = 0;
+    canvas.addEventListener("touchstart", function (e) {
+      if (!gameStarted || gameOver) return;
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+    }, { passive: true });
+
+    canvas.addEventListener("touchend", function (e) {
+      if (!gameStarted || gameOver) return;
+      var touchEndY = e.changedTouches[0].clientY;
+      var dy = touchStartY - touchEndY;
+      var elapsed = Date.now() - touchStartTime;
+      // Swipe up: at least 50px upward within 400ms
+      if (dy > 50 && elapsed < 400 && debrisMeter >= DEBRIS_FILL_THRESHOLD) {
+        activateWaveClear();
+      }
+    }, { passive: true });
 
     /* ── Collision: ball vs bricks ── */
     function ballBrickCollision(ball) {
@@ -975,7 +1020,7 @@
             b.alive = false;
             var mult = chainMultiplier(1);
             score += b.points * mult + comboBonus;
-            debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+            addDebris(b);
             ball.speed = Math.min(BALL_MAX_SPEED, ball.speed + BALL_SPEED_INC);
 
             var currentSpeed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
@@ -1083,6 +1128,26 @@
           ctx.stroke();
         }
       }
+    }
+
+    function drawDebrisJunk() {
+      var sx = scaleX();
+      var sy = scaleY();
+      var isFull = debrisMeter >= DEBRIS_FILL_THRESHOLD;
+      var pulse = isFull ? (0.7 + 0.3 * Math.sin(elapsedTime * 5)) : 1;
+
+      for (var i = 0; i < debrisParticles.length; i++) {
+        var dp = debrisParticles[i];
+        var rx = dp.x * sx;
+        var ry = dp.y * sy;
+        var rw = dp.w * sx;
+        var rh = dp.h * sy;
+
+        ctx.fillStyle = dp.settled && isFull ? dp.highlight : dp.color;
+        ctx.globalAlpha = pulse;
+        ctx.fillRect(rx, ry, rw, rh);
+      }
+      ctx.globalAlpha = 1;
     }
 
     function drawRisingBricks() {
@@ -1263,29 +1328,15 @@
         ctx.fillText("FREEZE " + Math.ceil(freezeTimer) + "s", canvas.width - 12 * sx, 30 * sy);
       }
 
-      // Debris meter — thin bar below paddle
-      var meterW = 200 * sx;
-      var meterH = 4 * sy;
-      var meterX = (VW / 2 * sx) - meterW / 2;
-      var meterY = (PADDLE_Y + PADDLE_H + 8) * sy;
-
-      // Background
-      ctx.fillStyle = "rgba(255,255,255,0.1)";
-      ctx.fillRect(meterX, meterY, meterW, meterH);
-
-      // Fill
-      var fillW = (debrisMeter / DEBRIS_FILL_THRESHOLD) * meterW;
-      ctx.fillStyle = debrisMeter >= DEBRIS_FILL_THRESHOLD ? "#85ccff" : "#279ced";
-      ctx.fillRect(meterX, meterY, fillW, meterH);
-
-      // "D" label when full
+      // "FIRE" label when debris pile is full
       if (debrisMeter >= DEBRIS_FILL_THRESHOLD) {
-        var smallFont = Math.round(9 * Math.min(sx, sy));
-        ctx.fillStyle = "#d0d4dc";
+        var pulse = 0.6 + 0.4 * Math.sin(elapsedTime * 4);
+        var smallFont = Math.round(10 * Math.min(sx, sy));
+        ctx.fillStyle = "rgba(133,204,255," + pulse + ")";
         ctx.font = "bold " + smallFont + "px sans-serif";
         ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-        ctx.fillText("PRESS D", VW / 2 * sx, meterY + meterH + 2);
+        ctx.textBaseline = "bottom";
+        ctx.fillText("WAVE CLEAR READY", VW / 2 * sx, (VH - 18) * sy);
       }
     }
 
@@ -1346,6 +1397,19 @@
           if (cascadeDelay <= 0) {
             cascadeDelay = 0;
             processCascadePending();
+          }
+        }
+
+        // Smooth brick slide toward targetY
+        for (var si = 0; si < bricks.length; si++) {
+          var sb = bricks[si];
+          if (!sb.alive || sb.targetY === undefined) continue;
+          if (sb.y < sb.targetY) {
+            sb.y = Math.min(sb.targetY, sb.y + BRICK_SLIDE_SPEED * dt);
+            if (sb.y >= sb.targetY) {
+              sb.y = sb.targetY;
+              delete sb.targetY;
+            }
           }
         }
 
@@ -1526,7 +1590,7 @@
             risingBricks.push({
               x: rbX, y: VH + BRICK_H,
               w: BRICK_W, h: BRICK_H,
-              colorKey: COLOR_KEYS[Math.floor(Math.random() * 3)],
+              colorKey: COLOR_KEYS[Math.floor(Math.random() * COLOR_KEYS.length)],
               col: rbCol
             });
           }
@@ -1549,7 +1613,7 @@
             if (rdx * rdx + rdy * rdy <= BALL_R * BALL_R) {
               if (!rball.burner) rball.vy = -rball.vy;
               score += 15;
-              debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+              addDebris(rb);
               risingBricks.splice(ri, 1);
               rbDestroyed = true;
               break;
@@ -1615,6 +1679,18 @@
             risingBricks.splice(ri, 1);
           }
         }
+
+        // Update debris junk particles
+        for (var di = debrisParticles.length - 1; di >= 0; di--) {
+          var dp = debrisParticles[di];
+          if (!dp.settled) {
+            dp.y += 400 * dt;
+            if (dp.y >= dp.targetY) {
+              dp.y = dp.targetY;
+              dp.settled = true;
+            }
+          }
+        }
       }
 
       /* ── Render ── */
@@ -1629,7 +1705,16 @@
         drawPowerups();
         drawPaddle();
         drawBalls();
+        drawDebrisJunk();
         drawHUD();
+
+        // Wave clear screen flash
+        if (waveClearFlash > 0) {
+          waveClearFlash -= dt;
+          var flashAlpha = Math.max(0, waveClearFlash / 0.35) * 0.25;
+          ctx.fillStyle = "rgba(133,204,255," + flashAlpha + ")";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
       }
 
       requestAnimationFrame(loop);
@@ -1643,12 +1728,11 @@
       if (isDesktop) {
         html += "<div><strong>Mouse:</strong> Move paddle</div>";
         html += "<div><strong>Arrow Keys:</strong> Move paddle</div>";
-        html += "<div><strong>Click / Space:</strong> Launch ball</div>";
-        html += "<div><strong>D:</strong> Wave Clear (when meter full)</div>";
+        html += "<div><strong>Click / Space / D:</strong> Launch ball or Wave Clear</div>";
       } else {
         html += "<div><strong>Drag:</strong> Move paddle</div>";
         html += "<div><strong>Tap:</strong> Launch ball</div>";
-        html += "<div><strong>Double-tap bottom:</strong> Wave Clear</div>";
+        html += "<div><strong>Swipe up:</strong> Wave Clear (when junk pile full)</div>";
       }
 
       html += '<div style="margin-top:10px;font-size:12px;"><strong>How it works</strong></div>';
