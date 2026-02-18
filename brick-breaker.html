@@ -521,22 +521,38 @@
     }
 
     function triggerCascade(destroyedBrick) {
-      var group = findConnectedGroup(destroyedBrick);
-      // The destroyed brick is already dead, so check remaining group members
-      var aliveInGroup = [];
-      for (var i = 0; i < group.length; i++) {
-        if (group[i].alive) aliveInGroup.push(group[i]);
-      }
+      var targetColor = destroyedBrick.colorKey;
+      var startRow = brickGridRow(destroyedBrick);
+      var startCol = brickGridCol(destroyedBrick);
+      var alreadyQueued = {};
 
-      if (aliveInGroup.length >= 3) {
-        // Mark them for cascade destruction
-        chainCounter++;
-        if (chainCounter > longestChain) longestChain = chainCounter;
-        for (var j = 0; j < aliveInGroup.length; j++) {
-          aliveInGroup[j].flashTimer = 0.2;
-          cascadePending.push(aliveInGroup[j]);
+      // Check each neighbor of the destroyed brick
+      var neighbors = [
+        { r: startRow - 1, c: startCol },
+        { r: startRow + 1, c: startCol },
+        { r: startRow, c: startCol - 1 },
+        { r: startRow, c: startCol + 1 }
+      ];
+
+      for (var n = 0; n < neighbors.length; n++) {
+        var nb = findBrickAt(neighbors[n].r, neighbors[n].c);
+        if (!nb || !nb.alive || nb.colorKey !== targetColor) continue;
+
+        var nKey = brickGridRow(nb) + "," + brickGridCol(nb);
+        if (alreadyQueued[nKey]) continue;
+
+        var group = findConnectedGroup(nb);
+        if (group.length >= 3) {
+          chainCounter++;
+          if (chainCounter > longestChain) longestChain = chainCounter;
+          for (var j = 0; j < group.length; j++) {
+            var gKey = brickGridRow(group[j]) + "," + brickGridCol(group[j]);
+            alreadyQueued[gKey] = true;
+            group[j].flashTimer = 0.2;
+            cascadePending.push(group[j]);
+          }
+          cascadeDelay = 0.2;
         }
-        cascadeDelay = 0.2;
       }
     }
 
@@ -967,7 +983,8 @@
               });
             }
 
-            // Trigger cascade check
+            // Settle bricks, then check for cascades
+            applyGravity();
             chainCounter = 1;
             triggerCascade(b);
           }
