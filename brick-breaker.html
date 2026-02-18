@@ -529,11 +529,15 @@
       return group;
     }
 
+    var _gravityDepth = 0;
     function applyGravity() {
+      _gravityDepth++;
+      if (_gravityDepth > 10) { _gravityDepth--; return; } // Prevent runaway cascades
       // Find the lowest occupied row per column, then settle gaps
       // Uses targetY for smooth animated falling instead of instant snaps
       var changed = true;
-      while (changed) {
+      var maxIter = bricks.length + 1; // Termination guard
+      while (changed && maxIter-- > 0) {
         changed = false;
         for (var i = 0; i < bricks.length; i++) {
           var b = bricks[i];
@@ -582,6 +586,33 @@
           }
         }
       }
+
+      // Cascade: check if gravity created new 3+ chains
+      var cascadeGroups = findAllChainGroups();
+      if (cascadeGroups.length > 0) {
+        for (var cgi = 0; cgi < cascadeGroups.length; cgi++) {
+          var cGroup = cascadeGroups[cgi];
+          chainCounter++;
+          if (chainCounter > longestChain) longestChain = chainCounter;
+          var cMult = chainMultiplier(chainCounter);
+          for (var cgj = 0; cgj < cGroup.length; cgj++) {
+            var cgBrick = cGroup[cgj];
+            cgBrick.alive = false;
+            cgBrick.flashTimer = 0.15;
+            score += cgBrick.points * cMult;
+            addDebris(cgBrick);
+            if (cgBrick.hazard) {
+              fallingHazards.push({
+                x: cgBrick.x, y: cgBrick.y, w: cgBrick.w, h: cgBrick.h, colorKey: cgBrick.colorKey
+              });
+            }
+            trySpawnPowerup(cgBrick.x + cgBrick.w / 2, cgBrick.y + cgBrick.h / 2);
+          }
+        }
+        // Recurse: gravity again after cascade clears
+        applyGravity();
+      }
+      _gravityDepth--;
     }
 
     function chainMultiplier(chain) {
@@ -888,6 +919,21 @@
               ball.vx = -ball.vx;
             } else {
               ball.vy = -ball.vy;
+            }
+
+            // Push ball out of brick to prevent re-collision next frame
+            var sepDist = BALL_R - Math.sqrt(distSq) + 0.5;
+            if (sepDist > 0 && distSq > 0) {
+              var sepLen = Math.sqrt(distSq);
+              ball.x += (dx / sepLen) * sepDist;
+              ball.y += (dy / sepLen) * sepDist;
+            } else if (distSq === 0) {
+              // Ball center inside brick, push out via smallest overlap
+              if (minOverlapX < minOverlapY) {
+                ball.x += (overlapLeft < overlapRight ? -1 : 1) * minOverlapX;
+              } else {
+                ball.y += (overlapTop < overlapBottom ? -1 : 1) * minOverlapY;
+              }
             }
           }
 
@@ -1440,52 +1486,67 @@
             }
           }
 
-          // Move ball
-          ball.x += ball.vx * dt;
-          ball.y += ball.vy * dt;
+          // Move ball with substep subdivision to prevent tunneling
+          var ballSpeed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+          var stepDist = BALL_R; // Max travel per substep = ball radius
+          var totalDist = ballSpeed * dt;
+          var numSteps = Math.max(1, Math.ceil(totalDist / stepDist));
+          var subDt = dt / numSteps;
 
-          // Wall bounces
-          if (ball.x - BALL_R <= 0) {
-            ball.x = BALL_R;
-            ball.vx = Math.abs(ball.vx);
-          } else if (ball.x + BALL_R >= VW) {
-            ball.x = VW - BALL_R;
-            ball.vx = -Math.abs(ball.vx);
-          }
+          for (var step = 0; step < numSteps; step++) {
+            ball.x += ball.vx * subDt;
+            ball.y += ball.vy * subDt;
 
-          if (ball.y - BALL_R <= 0) {
-            ball.y = BALL_R;
-            ball.vy = Math.abs(ball.vy);
-          }
-
-          // Paddle collision
-          if (ball.vy > 0 &&
-              ball.y + BALL_R >= PADDLE_Y &&
-              ball.y + BALL_R <= PADDLE_Y + PADDLE_H + ball.vy * dt &&
-              ball.x >= paddleX - paddleW / 2 &&
-              ball.x <= paddleX + paddleW / 2) {
-
-            ball.y = PADDLE_Y - BALL_R;
-            comboStreak = 0; // Reset combo on paddle contact
-
-            var hitPos = (ball.x - (paddleX - paddleW / 2)) / paddleW;
-            var angle = -150 + hitPos * 120;
-            var rad = angle * Math.PI / 180;
-
-            if (Math.abs(rad + Math.PI / 2) > (Math.PI / 2 - MIN_BOUNCE_ANGLE)) {
-              if (rad > -Math.PI / 2) {
-                rad = -(MIN_BOUNCE_ANGLE);
-              } else {
-                rad = -(Math.PI - MIN_BOUNCE_ANGLE);
-              }
+            // Wall bounces
+            if (ball.x - BALL_R <= 0) {
+              ball.x = BALL_R;
+              ball.vx = Math.abs(ball.vx);
+            } else if (ball.x + BALL_R >= VW) {
+              ball.x = VW - BALL_R;
+              ball.vx = -Math.abs(ball.vx);
             }
 
-            ball.vx = Math.cos(rad) * ball.speed;
-            ball.vy = Math.sin(rad) * ball.speed;
-          }
+            if (ball.y - BALL_R <= 0) {
+              ball.y = BALL_R;
+              ball.vy = Math.abs(ball.vy);
+            }
 
-          // Brick collisions
-          ballBrickCollision(ball);
+            // Paddle collision
+            if (ball.vy > 0 &&
+                ball.y + BALL_R >= PADDLE_Y &&
+                ball.y + BALL_R <= PADDLE_Y + PADDLE_H + ball.vy * subDt &&
+                ball.x >= paddleX - paddleW / 2 &&
+                ball.x <= paddleX + paddleW / 2) {
+
+              ball.y = PADDLE_Y - BALL_R;
+              comboStreak = 0; // Reset combo on paddle contact
+
+              var hitPos = (ball.x - (paddleX - paddleW / 2)) / paddleW;
+              // Map [0,1] to angle range with smooth curve for better edge control
+              var centered = hitPos * 2 - 1; // -1 to 1
+              var angle = -90 + centered * (90 - MIN_BOUNCE_ANGLE * 180 / Math.PI);
+              var rad = angle * Math.PI / 180;
+
+              ball.vx = Math.cos(rad) * ball.speed;
+              ball.vy = Math.sin(rad) * ball.speed;
+
+              // Prevent perfectly vertical bounce — nudge with minimum horizontal speed
+              var minVx = ball.speed * 0.08;
+              if (Math.abs(ball.vx) < minVx) {
+                ball.vx = (ball.vx >= 0 ? 1 : -1) * minVx;
+                // If vx was exactly 0, pick a random direction
+                if (ball.vx === 0) ball.vx = (Math.random() < 0.5 ? -1 : 1) * minVx;
+                // Re-normalize to maintain speed
+                var pSpd = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+                ball.vx = (ball.vx / pSpd) * ball.speed;
+                ball.vy = (ball.vy / pSpd) * ball.speed;
+              }
+              break; // Paddle bounce ends substep loop
+            }
+
+            // Brick collisions
+            ballBrickCollision(ball);
+          }
 
           // Ball out bottom
           if (ball.y > VH + BALL_R) {
@@ -1525,9 +1586,10 @@
           }
         }
 
-        // Update falling hazards
+        // Update falling hazards (paused during freeze)
         for (var hi = fallingHazards.length - 1; hi >= 0; hi--) {
           var haz = fallingHazards[hi];
+          if (freezeTimer > 0) continue; // Freeze pauses hazards
           haz.y += HAZARD_FALL_SPEED * dt;
 
           if (!gameOver &&
@@ -1548,8 +1610,8 @@
           }
         }
 
-        // Spawn rising bricks
-        if (elapsedTime > riseStartDelay) {
+        // Spawn rising bricks (paused during freeze)
+        if (elapsedTime > riseStartDelay && freezeTimer <= 0) {
           risingBrickTimer -= dt;
           if (risingBrickTimer <= 0) {
             risingBrickTimer = RISING_BRICK_INTERVAL_MIN + Math.random() * (RISING_BRICK_INTERVAL_MAX - RISING_BRICK_INTERVAL_MIN);
@@ -1564,20 +1626,22 @@
           }
         }
 
-        // Update rising bricks
+        // Update rising bricks (movement paused during freeze, but still check collisions)
         for (var ri = risingBricks.length - 1; ri >= 0; ri--) {
           var rb = risingBricks[ri];
           // Initialize velocity if not set (rising from below)
           if (rb.vy === undefined) rb.vy = -RISING_BRICK_SPEED;
           if (rb.vx === undefined) rb.vx = 0;
 
-          rb.y += rb.vy * dt;
-          rb.x += rb.vx * dt;
+          if (freezeTimer <= 0) {
+            rb.y += rb.vy * dt;
+            rb.x += rb.vx * dt;
+          }
 
-          // Keep within horizontal bounds and snap to nearest column
+          // Keep within horizontal bounds (account for brick width)
           if (rb.x < GRID_X) { rb.x = GRID_X; rb.vx = Math.abs(rb.vx) * 0.5; }
           var maxX = GRID_X + (COLS - 1) * (BRICK_W + BRICK_GAP_X);
-          if (rb.x > maxX) { rb.x = maxX; rb.vx = -Math.abs(rb.vx) * 0.5; }
+          if (rb.x + rb.w > maxX + BRICK_W) { rb.x = maxX; rb.vx = -Math.abs(rb.vx) * 0.5; }
 
           // Ball collision — deflect the rising brick upward
           var rbDeflected = false;
@@ -1590,9 +1654,16 @@
             var rdy = rball.y - rcy;
             if (rdx * rdx + rdy * rdy <= BALL_R * BALL_R) {
               if (!rball.burner) rball.vy = -rball.vy;
-              // Deflect brick upward
+              // Deflect brick upward with capped speed
               rb.vy = -RISING_BRICK_SPEED * 1.5;
               rb.vx = (rb.x + rb.w / 2 - rball.x) * 3;
+              // Cap total deflection speed to 1.8x rising speed
+              var rbMaxSpd = RISING_BRICK_SPEED * 1.8;
+              var rbSpd = Math.sqrt(rb.vx * rb.vx + rb.vy * rb.vy);
+              if (rbSpd > rbMaxSpd) {
+                rb.vx = (rb.vx / rbSpd) * rbMaxSpd;
+                rb.vy = (rb.vy / rbSpd) * rbMaxSpd;
+              }
               rb.deflected = true;
               rbDeflected = true;
               break;
@@ -1609,13 +1680,21 @@
             var hitPos = (rb.x + rb.w / 2 - paddleX) / (paddleW / 2); // -1 to 1
             rb.vy = -RISING_BRICK_SPEED * 1.8;
             rb.vx = hitPos * 200;
+            // Cap total deflection speed to 2x rising speed
+            var rbPMaxSpd = RISING_BRICK_SPEED * 2;
+            var rbPSpd = Math.sqrt(rb.vx * rb.vx + rb.vy * rb.vy);
+            if (rbPSpd > rbPMaxSpd) {
+              rb.vx = (rb.vx / rbPSpd) * rbPMaxSpd;
+              rb.vy = (rb.vy / rbPSpd) * rbPMaxSpd;
+            }
             rb.deflected = true;
           }
 
           // Settle into grid when moving upward and reaching a grid row
           if (rb.vy < 0 && rb.deflected) {
-            // Snap to nearest column
-            var nearestCol = Math.round((rb.x - GRID_X) / (BRICK_W + BRICK_GAP_X));
+            // Snap to nearest column using brick center
+            var rbCenterX = rb.x + rb.w / 2;
+            var nearestCol = Math.round((rbCenterX - GRID_X - BRICK_W / 2) / (BRICK_W + BRICK_GAP_X));
             nearestCol = Math.max(0, Math.min(COLS - 1, nearestCol));
 
             // Find topmost empty row in this column
@@ -1663,7 +1742,8 @@
 
           // Non-deflected bricks settle normally when reaching grid
           if (!rb.deflected) {
-            var nCol = Math.round((rb.x - GRID_X) / (BRICK_W + BRICK_GAP_X));
+            var nCenterX = rb.x + rb.w / 2;
+            var nCol = Math.round((nCenterX - GRID_X - BRICK_W / 2) / (BRICK_W + BRICK_GAP_X));
             nCol = Math.max(0, Math.min(COLS - 1, nCol));
             rb.col = nCol;
 
