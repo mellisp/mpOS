@@ -485,7 +485,7 @@ button.start-menu-item {
 }
 
 .start-menu-item.has-submenu:hover > .start-submenu { display: block; }
-.start-submenu > .start-menu-item { color: var(--btn-text); }
+.start-submenu .start-menu-item { color: #000; }
 
 /* Empty submenu placeholder */
 .start-menu-empty {
