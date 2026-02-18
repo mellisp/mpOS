@@ -287,6 +287,10 @@
 
     /* Debris meter */
     var debrisMeter = 0;
+    var debrisParticles = [];
+
+    /* Wave clear flash effect */
+    var waveClearFlash = 0;
 
     /* Rising projectile bricks */
     var risingBricks = [];
@@ -570,7 +574,7 @@
           b.alive = false;
           var mult = chainMultiplier(chainCounter);
           score += b.points * mult;
-          debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+          addDebris(b);
 
           if (b.hazard) {
             fallingHazards.push({
@@ -699,6 +703,8 @@
       longestChain = 0;
       comboStreak = 0;
       debrisMeter = 0;
+      debrisParticles = [];
+      waveClearFlash = 0;
       risingBricks = [];
       risingBrickTimer = RISING_BRICK_INTERVAL_MIN + Math.random() * (RISING_BRICK_INTERVAL_MAX - RISING_BRICK_INTERVAL_MIN);
       lastHitBrickCol = -1;
@@ -782,7 +788,7 @@
             var db = destroyed[bd];
             db.alive = false;
             score += db.points;
-            debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+            addDebris(db);
             if (db.hazard) {
               fallingHazards.push({ x: db.x, y: db.y, w: db.w, h: db.h, colorKey: db.colorKey });
             }
@@ -817,10 +823,32 @@
       }
     }
 
+    /* ── Debris junk pile ── */
+    function addDebris(brick) {
+      debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+      var palette = COLORS[brick.colorKey] || COLORS.cyan;
+      // Spawn 2-3 junk fragments that fall to the bottom
+      var count = 2 + Math.floor(Math.random() * 2);
+      for (var dp = 0; dp < count; dp++) {
+        debrisParticles.push({
+          x: brick.x + (brick.w || BRICK_W) * Math.random(),
+          y: brick.y + (brick.h || BRICK_H) * Math.random(),
+          targetY: VH - 2 - Math.random() * 14,
+          w: 4 + Math.random() * 6,
+          h: 3 + Math.random() * 4,
+          color: palette.base,
+          highlight: palette.highlight,
+          settled: false
+        });
+      }
+    }
+
     /* ── Wave Clear (debris meter) ── */
     function activateWaveClear() {
       if (debrisMeter < DEBRIS_FILL_THRESHOLD) return;
       debrisMeter = 0;
+      debrisParticles = [];
+      waveClearFlash = 0.35;
 
       // Find the bottommost row of alive bricks
       var maxRow = -1;
@@ -832,23 +860,26 @@
 
       if (maxRow < 0) return;
 
-      var cleared = 0;
       chainCounter = 1;
+      var waveTargets = [];
       for (var j = 0; j < bricks.length; j++) {
         var b = bricks[j];
         if (!b.alive) continue;
         if (brickGridRow(b) === maxRow) {
-          b.alive = false;
-          cleared++;
-          if (b.hazard) {
-            fallingHazards.push({ x: b.x, y: b.y, w: b.w, h: b.h, colorKey: b.colorKey });
-          }
+          b.flashTimer = 0.25;
+          waveTargets.push(b);
         }
       }
 
-      score += 100 * cleared;
+      // Queue them for delayed destruction via cascade system
+      for (var wt = 0; wt < waveTargets.length; wt++) {
+        cascadePending.push(waveTargets[wt]);
+      }
+      if (waveTargets.length > 0) cascadeDelay = 0.25;
 
-      // Trigger cascade after wave clear
+      score += 100 * waveTargets.length;
+
+      // Trigger cascade after wave clear (will run after delay)
       applyGravity();
       var checked = {};
       for (var k = 0; k < bricks.length; k++) {
@@ -974,7 +1005,7 @@
             b.alive = false;
             var mult = chainMultiplier(1);
             score += b.points * mult + comboBonus;
-            debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+            addDebris(b);
             ball.speed = Math.min(BALL_MAX_SPEED, ball.speed + BALL_SPEED_INC);
 
             var currentSpeed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
@@ -1082,6 +1113,26 @@
           ctx.stroke();
         }
       }
+    }
+
+    function drawDebrisJunk() {
+      var sx = scaleX();
+      var sy = scaleY();
+      var isFull = debrisMeter >= DEBRIS_FILL_THRESHOLD;
+      var pulse = isFull ? (0.7 + 0.3 * Math.sin(elapsedTime * 5)) : 1;
+
+      for (var i = 0; i < debrisParticles.length; i++) {
+        var dp = debrisParticles[i];
+        var rx = dp.x * sx;
+        var ry = dp.y * sy;
+        var rw = dp.w * sx;
+        var rh = dp.h * sy;
+
+        ctx.fillStyle = dp.settled && isFull ? dp.highlight : dp.color;
+        ctx.globalAlpha = pulse;
+        ctx.fillRect(rx, ry, rw, rh);
+      }
+      ctx.globalAlpha = 1;
     }
 
     function drawRisingBricks() {
@@ -1262,29 +1313,15 @@
         ctx.fillText("FREEZE " + Math.ceil(freezeTimer) + "s", canvas.width - 12 * sx, 30 * sy);
       }
 
-      // Debris meter — thin bar below paddle
-      var meterW = 200 * sx;
-      var meterH = 4 * sy;
-      var meterX = (VW / 2 * sx) - meterW / 2;
-      var meterY = (PADDLE_Y + PADDLE_H + 8) * sy;
-
-      // Background
-      ctx.fillStyle = "rgba(255,255,255,0.1)";
-      ctx.fillRect(meterX, meterY, meterW, meterH);
-
-      // Fill
-      var fillW = (debrisMeter / DEBRIS_FILL_THRESHOLD) * meterW;
-      ctx.fillStyle = debrisMeter >= DEBRIS_FILL_THRESHOLD ? "#85ccff" : "#279ced";
-      ctx.fillRect(meterX, meterY, fillW, meterH);
-
-      // "D" label when full
+      // "FIRE" label when debris pile is full
       if (debrisMeter >= DEBRIS_FILL_THRESHOLD) {
-        var smallFont = Math.round(9 * Math.min(sx, sy));
-        ctx.fillStyle = "#d0d4dc";
+        var pulse = 0.6 + 0.4 * Math.sin(elapsedTime * 4);
+        var smallFont = Math.round(10 * Math.min(sx, sy));
+        ctx.fillStyle = "rgba(133,204,255," + pulse + ")";
         ctx.font = "bold " + smallFont + "px sans-serif";
         ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-        ctx.fillText("PRESS D", VW / 2 * sx, meterY + meterH + 2);
+        ctx.textBaseline = "bottom";
+        ctx.fillText("PRESS D \u2014 WAVE CLEAR", VW / 2 * sx, (VH - 18) * sy);
       }
     }
 
@@ -1561,7 +1598,7 @@
             if (rdx * rdx + rdy * rdy <= BALL_R * BALL_R) {
               if (!rball.burner) rball.vy = -rball.vy;
               score += 15;
-              debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+              addDebris(rb);
               risingBricks.splice(ri, 1);
               rbDestroyed = true;
               break;
@@ -1627,6 +1664,18 @@
             risingBricks.splice(ri, 1);
           }
         }
+
+        // Update debris junk particles
+        for (var di = debrisParticles.length - 1; di >= 0; di--) {
+          var dp = debrisParticles[di];
+          if (!dp.settled) {
+            dp.y += 400 * dt;
+            if (dp.y >= dp.targetY) {
+              dp.y = dp.targetY;
+              dp.settled = true;
+            }
+          }
+        }
       }
 
       /* ── Render ── */
@@ -1641,7 +1690,16 @@
         drawPowerups();
         drawPaddle();
         drawBalls();
+        drawDebrisJunk();
         drawHUD();
+
+        // Wave clear screen flash
+        if (waveClearFlash > 0) {
+          waveClearFlash -= dt;
+          var flashAlpha = Math.max(0, waveClearFlash / 0.35) * 0.25;
+          ctx.fillStyle = "rgba(133,204,255," + flashAlpha + ")";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
       }
 
       requestAnimationFrame(loop);
