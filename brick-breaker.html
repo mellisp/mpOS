@@ -910,12 +910,15 @@
         keys[e.key] = true;
         usePointer = false;
       }
-      if (e.key === " " || e.key === "Spacebar") {
+      if (e.key === " " || e.key === "Spacebar" || e.key === "d" || e.key === "D") {
         e.preventDefault();
-        if (gameStarted && !gameOver) launchBalls();
-      }
-      if ((e.key === "d" || e.key === "D") && gameStarted && !gameOver) {
-        activateWaveClear();
+        if (gameStarted && !gameOver) {
+          if (debrisMeter >= DEBRIS_FILL_THRESHOLD) {
+            activateWaveClear();
+          } else {
+            launchBalls();
+          }
+        }
       }
     });
 
@@ -940,26 +943,38 @@
       paddleX = Math.max(paddleW / 2, Math.min(VW - paddleW / 2, paddleX));
     }, { passive: false });
 
-    var lastTapTime = 0;
     canvas.addEventListener("pointerdown", function (e) {
       if (!gameStarted || gameOver) return;
       usePointer = true;
       var sx = scaleX();
-      var sy = scaleY();
       paddleX = e.clientX / sx;
       paddleX = Math.max(paddleW / 2, Math.min(VW - paddleW / 2, paddleX));
-      launchBalls();
-
-      // Double-tap bottom edge for Wave Clear (mobile)
-      var tapY = e.clientY / sy;
-      if (tapY > PADDLE_Y - 20) {
-        var now = Date.now();
-        if (now - lastTapTime < 400) {
-          activateWaveClear();
-        }
-        lastTapTime = now;
+      if (debrisMeter >= DEBRIS_FILL_THRESHOLD) {
+        activateWaveClear();
+      } else {
+        launchBalls();
       }
     });
+
+    // Swipe up on mobile to fire wave clear
+    var touchStartY = 0;
+    var touchStartTime = 0;
+    canvas.addEventListener("touchstart", function (e) {
+      if (!gameStarted || gameOver) return;
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+    }, { passive: true });
+
+    canvas.addEventListener("touchend", function (e) {
+      if (!gameStarted || gameOver) return;
+      var touchEndY = e.changedTouches[0].clientY;
+      var dy = touchStartY - touchEndY;
+      var elapsed = Date.now() - touchStartTime;
+      // Swipe up: at least 50px upward within 400ms
+      if (dy > 50 && elapsed < 400 && debrisMeter >= DEBRIS_FILL_THRESHOLD) {
+        activateWaveClear();
+      }
+    }, { passive: true });
 
     /* ── Collision: ball vs bricks ── */
     function ballBrickCollision(ball) {
@@ -1321,7 +1336,7 @@
         ctx.font = "bold " + smallFont + "px sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
-        ctx.fillText("PRESS D \u2014 WAVE CLEAR", VW / 2 * sx, (VH - 18) * sy);
+        ctx.fillText("WAVE CLEAR READY", VW / 2 * sx, (VH - 18) * sy);
       }
     }
 
@@ -1713,12 +1728,11 @@
       if (isDesktop) {
         html += "<div><strong>Mouse:</strong> Move paddle</div>";
         html += "<div><strong>Arrow Keys:</strong> Move paddle</div>";
-        html += "<div><strong>Click / Space:</strong> Launch ball</div>";
-        html += "<div><strong>D:</strong> Wave Clear (when meter full)</div>";
+        html += "<div><strong>Click / Space / D:</strong> Launch ball or Wave Clear</div>";
       } else {
         html += "<div><strong>Drag:</strong> Move paddle</div>";
         html += "<div><strong>Tap:</strong> Launch ball</div>";
-        html += "<div><strong>Double-tap bottom:</strong> Wave Clear</div>";
+        html += "<div><strong>Swipe up:</strong> Wave Clear (when junk pile full)</div>";
       }
 
       html += '<div style="margin-top:10px;font-size:12px;"><strong>How it works</strong></div>';
