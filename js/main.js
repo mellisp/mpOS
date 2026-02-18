@@ -7283,6 +7283,7 @@ if (langBtn) {
   var isListening = false;
   var autoCloseTimer = null;
   var helpBuilt = false;
+  var voiceAudioCtx = null;
 
   // App name lookup: maps lowercase name → run function
   var VOICE_APPS = {};
@@ -7311,17 +7312,20 @@ if (langBtn) {
   function voiceBeep(freq, duration) {
     if (localStorage.getItem('mp-muted') === '1') return;
     var vol = parseFloat(localStorage.getItem('mp-volume') || '0.1');
-    var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    var osc = ctx.createOscillator();
-    var gain = ctx.createGain();
+    if (!voiceAudioCtx) {
+      voiceAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (voiceAudioCtx.state === 'suspended') voiceAudioCtx.resume();
+    var osc = voiceAudioCtx.createOscillator();
+    var gain = voiceAudioCtx.createGain();
     osc.type = 'sine';
     osc.frequency.value = freq;
     gain.gain.value = vol * 0.3;
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(voiceAudioCtx.destination);
     osc.start();
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-    osc.stop(ctx.currentTime + duration);
+    gain.gain.exponentialRampToValueAtTime(0.001, voiceAudioCtx.currentTime + duration);
+    osc.stop(voiceAudioCtx.currentTime + duration);
   }
 
   /* ── Auto-close popup after success ── */
