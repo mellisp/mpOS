@@ -11,7 +11,7 @@
   <style>
     body {
       overflow: hidden; width: 100vw; height: 100vh;
-      background: #1a1f2e;
+      background: #08090e;
       cursor: default;
     }
 
@@ -36,7 +36,7 @@
       border: 2px solid;
       border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
       box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
-      width: 320px;
+      width: 340px;
       max-width: 90vw;
     }
 
@@ -62,7 +62,7 @@
       justify-content: center;
       width: 20px;
       height: 13px;
-      border-radius: 6px;
+      border-radius: 2px;
       color: #fff;
       font-size: 10px;
       font-weight: bold;
@@ -96,6 +96,7 @@
     .gameover-dialog .window-body { padding: 20px; line-height: 1.6; }
     .gameover-dialog .final-score { font-size: 28px; font-weight: bold; margin: 8px 0; }
     .gameover-dialog .final-label { font-size: 13px; color: var(--dk-shadow); }
+    .gameover-dialog .final-stats { font-size: 12px; color: var(--dk-shadow); margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -118,6 +119,7 @@
       <div class="window-body">
         <div class="final-label" id="gameoverLabel">Final Score</div>
         <div class="final-score" id="finalScore">0</div>
+        <div class="final-stats" id="finalStats"></div>
         <div class="button-row" style="margin-top:12px;justify-content:center;">
           <button class="btn" id="playAgainBtn">Play Again</button>
         </div>
@@ -144,6 +146,7 @@
     var gameoverTitle = document.getElementById("gameoverTitle");
     var gameoverLabel = document.getElementById("gameoverLabel");
     var finalScoreEl = document.getElementById("finalScore");
+    var finalStatsEl = document.getElementById("finalStats");
 
     /* ── Virtual coordinate system ── */
     var VW = 480;
@@ -206,7 +209,6 @@
     var MIN_BOUNCE_ANGLE = 20 * Math.PI / 180;
 
     var MAX_LIVES = 3;
-    var MAX_PARTICLES = 128;
 
     var POWERUP_W = 24;
     var POWERUP_H = 14;
@@ -214,26 +216,34 @@
     var POWERUP_SPAWN_CHANCE = 0.12;
     var POWERUP_TIMER_DURATION = 8;
 
-    var HAZARD_CHANCE = 0.08;
+    var HAZARD_CHANCE = 0.07;
     var HAZARD_FALL_SPEED = 200;
 
-    /* GBC-style muted palette — 4 colors cycling 2 rows each */
-    var ROW_COLORS = [
-      "#5b8c7a", "#5b8c7a", "#6b7ea0", "#6b7ea0",
-      "#c4a882", "#c4a882", "#a87e8a", "#a87e8a"
-    ];
+    var DANGER_LINE_Y = 36;
+    var DEBRIS_FILL_THRESHOLD = 25;
 
-    var ROW_DARK = [
-      "#3d6655", "#3d6655", "#4a5d7a", "#4a5d7a",
-      "#9a7f5f", "#9a7f5f", "#7d5a65", "#7d5a65"
-    ];
+    /* ── 3-Color Palette (Cyan / Amber / Rose) ── */
+    var COLORS = {
+      cyan:  { highlight: "#85ccff", base: "#279ced", shadow: "#0f68a2" },
+      amber: { highlight: "#eabc6e", base: "#c68800", shadow: "#865900" },
+      rose:  { highlight: "#ffa6ba", base: "#e16788", shadow: "#99415a" }
+    };
+    var COLOR_KEYS = ["cyan", "amber", "rose"];
 
     var POWERUP_TYPES = [
-      { type: "widen",     letter: "W", color: "#5b8c7a" },
-      { type: "shrink",    letter: "S", color: "#b05050" },
-      { type: "multiball", letter: "M", color: "#6b7ea0" },
-      { type: "burner",    letter: "B", color: "#d08030" }
+      { type: "widen",     letter: "W", color: "#279ced", weight: 20 },
+      { type: "multiball", letter: "M", color: "#279ced", weight: 15 },
+      { type: "burner",    letter: "B", color: "#c68800", weight: 15 },
+      { type: "blast",     letter: "X", color: "#c68800", weight: 10 },
+      { type: "freeze",    letter: "F", color: "#e16788", weight: 15 },
+      { type: "magnetize", letter: "G", color: "#e16788", weight: 10 },
+      { type: "shrink",    letter: "S", color: "#404040", weight: 15 }
     ];
+
+    var POWERUP_TOTAL_WEIGHT = 0;
+    for (var pw = 0; pw < POWERUP_TYPES.length; pw++) {
+      POWERUP_TOTAL_WEIGHT += POWERUP_TYPES[pw].weight;
+    }
 
     /* ── Game state ── */
     var bricks = [];
@@ -244,22 +254,45 @@
     var lives = MAX_LIVES;
     var gameStarted = false;
     var gameOver = false;
-    var bricksRemaining = 0;
 
-    var particles = [];
-    var paddleFlash = null;
     var powerups = [];
     var fallingHazards = [];
 
     var widenTimer = 0;
     var shrinkTimer = 0;
     var burnerTimer = 0;
+    var freezeTimer = 0;
+    var magnetizeTimer = 0;
 
     var usePointer = true;
     var keys = {};
 
+    /* Rising tide state */
+    var riseTimer = 0;
+    var riseInterval = 12;
+    var elapsedTime = 0;
+    var totalRowsSpawned = 0;
+    var riseStartDelay = 10;
+
+    /* Cascade state */
+    var cascadePending = [];
+    var cascadeDelay = 0;
+    var chainCounter = 0;
+    var longestChain = 0;
+
+    /* Combo streak */
+    var comboStreak = 0;
+
+    /* Debris meter */
+    var debrisMeter = 0;
+
+    /* Last hit brick position (for Blast) */
+    var lastHitBrickCol = -1;
+    var lastHitBrickRow = -1;
+
     /* ── Daily seed ── */
     var dailySeed = fnv(todayKey());
+    var rng;
 
     /* ── Ball helpers ── */
     function createBall(x, y, vx, vy, speed, attached) {
@@ -293,11 +326,29 @@
       return launched;
     }
 
+    /* ── Brick helpers ── */
+    function brickGridRow(brick) {
+      return Math.round((brick.y - GRID_Y) / (BRICK_H + BRICK_GAP_Y));
+    }
+
+    function brickGridCol(brick) {
+      return Math.round((brick.x - GRID_X) / (BRICK_W + BRICK_GAP_X));
+    }
+
+    function findBrickAt(gridRow, gridCol) {
+      for (var i = 0; i < bricks.length; i++) {
+        if (!bricks[i].alive) continue;
+        if (brickGridRow(bricks[i]) === gridRow && brickGridCol(bricks[i]) === gridCol) {
+          return bricks[i];
+        }
+      }
+      return null;
+    }
+
     /* ── Brick generation ── */
     function generateBricks() {
-      var rng = mulberry32(dailySeed);
+      rng = mulberry32(dailySeed);
       bricks = [];
-      bricksRemaining = 0;
 
       for (var r = 0; r < ROWS; r++) {
         for (var c = 0; c < COLS; c++) {
@@ -305,18 +356,16 @@
 
           var typeRoll = rng();
           var type, hits, points;
-          if (typeRoll < 0.10) {
+          if (typeRoll < 0.08) {
             type = "bonus"; hits = 1; points = 50;
-          } else if (typeRoll < 0.35) {
+          } else if (typeRoll < 0.28) {
             type = "tough"; hits = 2; points = 25;
           } else {
             type = "normal"; hits = 1; points = 10;
           }
 
-          var hazard = false;
-          if (rng() < HAZARD_CHANCE) {
-            hazard = true;
-          }
+          var hazard = rng() < HAZARD_CHANCE;
+          var colorKey = COLOR_KEYS[Math.floor(rng() * 3)];
 
           var bx = GRID_X + c * (BRICK_W + BRICK_GAP_X);
           var by = GRID_Y + r * (BRICK_H + BRICK_GAP_Y);
@@ -324,16 +373,15 @@
           bricks.push({
             x: bx, y: by, w: BRICK_W, h: BRICK_H,
             type: type, hits: hits, maxHits: hits, points: points,
-            row: r, col: c, alive: true, hazard: hazard
+            colorKey: colorKey, alive: true, hazard: hazard,
+            flashTimer: 0
           });
-          bricksRemaining++;
         }
       }
 
       // Enforce minimum 20 bricks
-      if (bricksRemaining < 20) {
+      if (countAlive() < 20) {
         bricks = [];
-        bricksRemaining = 0;
         for (var r2 = 0; r2 < ROWS; r2++) {
           for (var c2 = 0; c2 < COLS; c2++) {
             if (rng() > 0.5) continue;
@@ -342,71 +390,317 @@
             bricks.push({
               x: bx2, y: by2, w: BRICK_W, h: BRICK_H,
               type: "normal", hits: 1, maxHits: 1, points: 10,
-              row: r2, col: c2, alive: true, hazard: rng() < HAZARD_CHANCE
+              colorKey: COLOR_KEYS[Math.floor(rng() * 3)],
+              alive: true, hazard: rng() < HAZARD_CHANCE,
+              flashTimer: 0
             });
-            bricksRemaining++;
           }
         }
-        if (bricksRemaining < 20) {
-          bricks = [];
-          bricksRemaining = 0;
-          for (var r3 = 0; r3 < ROWS; r3++) {
-            for (var c3 = 0; c3 < COLS; c3++) {
-              var bx3 = GRID_X + c3 * (BRICK_W + BRICK_GAP_X);
-              var by3 = GRID_Y + r3 * (BRICK_H + BRICK_GAP_Y);
-              bricks.push({
-                x: bx3, y: by3, w: BRICK_W, h: BRICK_H,
-                type: "normal", hits: 1, maxHits: 1, points: 10,
-                row: r3, col: c3, alive: true, hazard: rng() < HAZARD_CHANCE
-              });
-              bricksRemaining++;
+      }
+
+      if (countAlive() < 20) {
+        bricks = [];
+        for (var r3 = 0; r3 < ROWS; r3++) {
+          for (var c3 = 0; c3 < COLS; c3++) {
+            var bx3 = GRID_X + c3 * (BRICK_W + BRICK_GAP_X);
+            var by3 = GRID_Y + r3 * (BRICK_H + BRICK_GAP_Y);
+            bricks.push({
+              x: bx3, y: by3, w: BRICK_W, h: BRICK_H,
+              type: "normal", hits: 1, maxHits: 1, points: 10,
+              colorKey: COLOR_KEYS[Math.floor(rng() * 3)],
+              alive: true, hazard: rng() < HAZARD_CHANCE,
+              flashTimer: 0
+            });
+          }
+        }
+      }
+    }
+
+    function countAlive() {
+      var c = 0;
+      for (var i = 0; i < bricks.length; i++) {
+        if (bricks[i].alive) c++;
+      }
+      return c;
+    }
+
+    /* ── Rising tide: spawn new row at bottom ── */
+    function spawnRisingRow() {
+      totalRowsSpawned++;
+      var rowShift = BRICK_H + BRICK_GAP_Y;
+
+      // Shift all existing bricks up
+      for (var i = 0; i < bricks.length; i++) {
+        if (bricks[i].alive) {
+          bricks[i].y -= rowShift;
+        }
+      }
+
+      // Also shift falling hazards up
+      for (var h = 0; h < fallingHazards.length; h++) {
+        fallingHazards[h].y -= rowShift;
+      }
+
+      // Check danger line — any brick above it means game over
+      for (var j = 0; j < bricks.length; j++) {
+        if (bricks[j].alive && bricks[j].y < DANGER_LINE_Y) {
+          triggerGameOver();
+          return;
+        }
+      }
+
+      // Generate new row at the bottom-most row position
+      var newRowY = GRID_Y + (ROWS - 1) * (BRICK_H + BRICK_GAP_Y);
+      // Find actual bottom by scanning existing bricks
+      var maxY = 0;
+      for (var k = 0; k < bricks.length; k++) {
+        if (bricks[k].alive && bricks[k].y > maxY) maxY = bricks[k].y;
+      }
+      if (maxY > 0) newRowY = maxY + rowShift;
+
+      // Fill rate increases over time: 60% -> 85%
+      var fillRate = Math.min(0.85, 0.6 + totalRowsSpawned * 0.005);
+      var hasTough = (totalRowsSpawned % 5 === 0);
+      var hasBonus = (totalRowsSpawned % 8 === 0);
+      var toughCol = hasTough ? Math.floor(rng() * COLS) : -1;
+      var bonusCol = hasBonus ? Math.floor(rng() * COLS) : -1;
+
+      for (var c = 0; c < COLS; c++) {
+        if (rng() > fillRate) continue;
+
+        var type = "normal";
+        var hits = 1;
+        var points = 10;
+
+        if (c === toughCol) {
+          type = "tough"; hits = 2; points = 25;
+        } else if (c === bonusCol) {
+          type = "bonus"; hits = 1; points = 50;
+        }
+
+        var colorKey = COLOR_KEYS[Math.floor(rng() * 3)];
+        var bx = GRID_X + c * (BRICK_W + BRICK_GAP_X);
+
+        bricks.push({
+          x: bx, y: newRowY, w: BRICK_W, h: BRICK_H,
+          type: type, hits: hits, maxHits: hits, points: points,
+          colorKey: colorKey, alive: true,
+          hazard: rng() < HAZARD_CHANCE,
+          flashTimer: 0
+        });
+      }
+    }
+
+    /* ── Cascade system: flood-fill same-color adjacency ── */
+    function findConnectedGroup(brick) {
+      var targetColor = brick.colorKey;
+      var visited = {};
+      var group = [];
+      var startRow = brickGridRow(brick);
+      var startCol = brickGridCol(brick);
+      var queue = [{ r: startRow, c: startCol }];
+      visited[startRow + "," + startCol] = true;
+
+      while (queue.length > 0) {
+        var pos = queue.shift();
+        var found = findBrickAt(pos.r, pos.c);
+        if (!found || !found.alive || found.colorKey !== targetColor) continue;
+        group.push(found);
+
+        var neighbors = [
+          { r: pos.r - 1, c: pos.c },
+          { r: pos.r + 1, c: pos.c },
+          { r: pos.r, c: pos.c - 1 },
+          { r: pos.r, c: pos.c + 1 }
+        ];
+
+        for (var n = 0; n < neighbors.length; n++) {
+          var key = neighbors[n].r + "," + neighbors[n].c;
+          if (!visited[key]) {
+            visited[key] = true;
+            queue.push(neighbors[n]);
+          }
+        }
+      }
+
+      return group;
+    }
+
+    function triggerCascade(destroyedBrick) {
+      var group = findConnectedGroup(destroyedBrick);
+      // The destroyed brick is already dead, so check remaining group members
+      var aliveInGroup = [];
+      for (var i = 0; i < group.length; i++) {
+        if (group[i].alive) aliveInGroup.push(group[i]);
+      }
+
+      if (aliveInGroup.length >= 3) {
+        // Mark them for cascade destruction
+        chainCounter++;
+        if (chainCounter > longestChain) longestChain = chainCounter;
+        for (var j = 0; j < aliveInGroup.length; j++) {
+          aliveInGroup[j].flashTimer = 0.2;
+          cascadePending.push(aliveInGroup[j]);
+        }
+        cascadeDelay = 0.2;
+      }
+    }
+
+    function processCascadePending() {
+      var triggeredNew = false;
+      for (var i = cascadePending.length - 1; i >= 0; i--) {
+        var b = cascadePending[i];
+        if (b.alive) {
+          b.alive = false;
+          var mult = chainMultiplier(chainCounter);
+          score += b.points * mult;
+          debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+
+          if (b.hazard) {
+            fallingHazards.push({
+              x: b.x, y: b.y, w: b.w, h: b.h,
+              colorKey: b.colorKey
+            });
+          }
+
+          trySpawnPowerup(b.x + b.w / 2, b.y + b.h / 2);
+        }
+      }
+      cascadePending = [];
+
+      // Gravity settle
+      applyGravity();
+
+      // Check for new cascades from settled bricks
+      var checked = {};
+      for (var j = 0; j < bricks.length; j++) {
+        var brick = bricks[j];
+        if (!brick.alive) continue;
+        var gr = brickGridRow(brick);
+        var gc = brickGridCol(brick);
+        var key = gr + "," + gc;
+        if (checked[key]) continue;
+        checked[key] = true;
+
+        var group = findConnectedGroup(brick);
+        if (group.length >= 3) {
+          chainCounter++;
+          if (chainCounter > longestChain) longestChain = chainCounter;
+          for (var k = 0; k < group.length; k++) {
+            group[k].flashTimer = 0.2;
+            cascadePending.push(group[k]);
+          }
+          triggeredNew = true;
+        }
+      }
+
+      if (triggeredNew) {
+        cascadeDelay = 0.2;
+      }
+    }
+
+    function applyGravity() {
+      // Find the lowest occupied row per column, then settle gaps
+      var changed = true;
+      while (changed) {
+        changed = false;
+        for (var i = 0; i < bricks.length; i++) {
+          var b = bricks[i];
+          if (!b.alive) continue;
+          var row = brickGridRow(b);
+          var col = brickGridCol(b);
+          var belowRow = row + 1;
+          var belowY = GRID_Y + belowRow * (BRICK_H + BRICK_GAP_Y);
+
+          // Don't fall below the play area
+          if (belowY > PADDLE_Y - PADDLE_H - BRICK_H) continue;
+
+          // Check if there's a brick below
+          var below = findBrickAt(belowRow, col);
+          if (!below) {
+            // Check if there's any alive brick at a lower row in this column
+            var hasLower = false;
+            for (var j = 0; j < bricks.length; j++) {
+              if (bricks[j].alive && brickGridCol(bricks[j]) === col && brickGridRow(bricks[j]) > row) {
+                hasLower = true;
+                break;
+              }
+            }
+            if (hasLower) {
+              // Move this brick down one row
+              b.y = belowY;
+              changed = true;
             }
           }
         }
       }
     }
 
+    function chainMultiplier(chain) {
+      if (chain <= 1) return 1;
+      if (chain === 2) return 3;
+      if (chain === 3) return 6;
+      if (chain === 4) return 10;
+      return 10 + (chain - 4) * 5;
+    }
+
+    /* ── Game over / reset ── */
+    function triggerGameOver() {
+      gameOver = true;
+      var minutes = Math.floor(elapsedTime / 60);
+      var survivalBonus = 100 * minutes;
+      score += survivalBonus;
+      gameoverTitle.textContent = "Game Over";
+      gameoverLabel.textContent = "Final Score";
+      finalScoreEl.textContent = score;
+      var survMin = Math.floor(elapsedTime / 60);
+      var survSec = Math.floor(elapsedTime % 60);
+      finalStatsEl.textContent = "Survived: " + survMin + "m " + survSec + "s" +
+        (longestChain > 1 ? " \u00b7 Longest chain: \u00d7" + longestChain : "");
+      gameoverOverlay.classList.add("active");
+    }
+
     function resetGame() {
       score = 0;
       lives = MAX_LIVES;
       gameOver = false;
-      particles = [];
-      paddleFlash = null;
       powerups = [];
       fallingHazards = [];
       widenTimer = 0;
       shrinkTimer = 0;
       burnerTimer = 0;
+      freezeTimer = 0;
+      magnetizeTimer = 0;
       paddleW = PADDLE_W;
       paddleX = VW / 2;
+      riseTimer = 0;
+      riseInterval = 12;
+      elapsedTime = 0;
+      totalRowsSpawned = 0;
+      cascadePending = [];
+      cascadeDelay = 0;
+      chainCounter = 0;
+      longestChain = 0;
+      comboStreak = 0;
+      debrisMeter = 0;
+      lastHitBrickCol = -1;
+      lastHitBrickRow = -1;
+      dailySeed = fnv(todayKey());
       generateBricks();
       attachBall();
       gameoverOverlay.classList.remove("active");
     }
 
-    /* ── Particle system ── */
-    function spawnParticles(x, y, color, count) {
-      for (var i = 0; i < count; i++) {
-        var angle = Math.random() * Math.PI * 2;
-        var speed = 80 + Math.random() * 120;
-        particles.push({
-          x: x, y: y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 60,
-          life: 0.4,
-          maxLife: 0.4,
-          color: color
-        });
-        if (particles.length > MAX_PARTICLES) {
-          particles.shift();
-        }
-      }
-    }
-
-    /* ── Power-up spawn ── */
+    /* ── Power-up spawn (weighted) ── */
     function trySpawnPowerup(bx, by) {
       if (Math.random() >= POWERUP_SPAWN_CHANCE) return;
-      var pick = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+      var roll = Math.random() * POWERUP_TOTAL_WEIGHT;
+      var accum = 0;
+      var pick = POWERUP_TYPES[0];
+      for (var i = 0; i < POWERUP_TYPES.length; i++) {
+        accum += POWERUP_TYPES[i].weight;
+        if (roll < accum) { pick = POWERUP_TYPES[i]; break; }
+      }
       powerups.push({
         x: bx, y: by,
         type: pick.type,
@@ -425,7 +719,6 @@
         shrinkTimer = POWERUP_TIMER_DURATION;
         widenTimer = 0;
       } else if (pu.type === "multiball") {
-        // Spawn 2 extra balls from first non-attached ball
         var src = null;
         for (var i = 0; i < balls.length; i++) {
           if (!balls[i].attached) { src = balls[i]; break; }
@@ -453,6 +746,111 @@
         for (var j = 0; j < balls.length; j++) {
           balls[j].burner = true;
         }
+      } else if (pu.type === "blast") {
+        // Destroy 3x3 area around last-hit brick
+        if (lastHitBrickRow >= 0 && lastHitBrickCol >= 0) {
+          var destroyed = [];
+          for (var bi = 0; bi < bricks.length; bi++) {
+            var brick = bricks[bi];
+            if (!brick.alive) continue;
+            var gr = brickGridRow(brick);
+            var gc = brickGridCol(brick);
+            if (Math.abs(gr - lastHitBrickRow) <= 1 && Math.abs(gc - lastHitBrickCol) <= 1) {
+              destroyed.push(brick);
+            }
+          }
+          chainCounter = 1;
+          for (var bd = 0; bd < destroyed.length; bd++) {
+            var db = destroyed[bd];
+            db.alive = false;
+            score += db.points;
+            debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+            if (db.hazard) {
+              fallingHazards.push({ x: db.x, y: db.y, w: db.w, h: db.h, colorKey: db.colorKey });
+            }
+          }
+          // Trigger cascades from blast
+          applyGravity();
+          var checked = {};
+          for (var bj = 0; bj < bricks.length; bj++) {
+            var cb = bricks[bj];
+            if (!cb.alive) continue;
+            var cbr = brickGridRow(cb);
+            var cbc = brickGridCol(cb);
+            var ck = cbr + "," + cbc;
+            if (checked[ck]) continue;
+            checked[ck] = true;
+            var group = findConnectedGroup(cb);
+            if (group.length >= 3) {
+              chainCounter++;
+              if (chainCounter > longestChain) longestChain = chainCounter;
+              for (var gk = 0; gk < group.length; gk++) {
+                group[gk].flashTimer = 0.2;
+                cascadePending.push(group[gk]);
+              }
+              cascadeDelay = 0.2;
+            }
+          }
+        }
+      } else if (pu.type === "freeze") {
+        freezeTimer = 15;
+      } else if (pu.type === "magnetize") {
+        magnetizeTimer = POWERUP_TIMER_DURATION;
+      }
+    }
+
+    /* ── Wave Clear (debris meter) ── */
+    function activateWaveClear() {
+      if (debrisMeter < DEBRIS_FILL_THRESHOLD) return;
+      debrisMeter = 0;
+
+      // Find the bottommost row of alive bricks
+      var maxRow = -1;
+      for (var i = 0; i < bricks.length; i++) {
+        if (!bricks[i].alive) continue;
+        var r = brickGridRow(bricks[i]);
+        if (r > maxRow) maxRow = r;
+      }
+
+      if (maxRow < 0) return;
+
+      var cleared = 0;
+      chainCounter = 1;
+      for (var j = 0; j < bricks.length; j++) {
+        var b = bricks[j];
+        if (!b.alive) continue;
+        if (brickGridRow(b) === maxRow) {
+          b.alive = false;
+          cleared++;
+          if (b.hazard) {
+            fallingHazards.push({ x: b.x, y: b.y, w: b.w, h: b.h, colorKey: b.colorKey });
+          }
+        }
+      }
+
+      score += 100 * cleared;
+
+      // Trigger cascade after wave clear
+      applyGravity();
+      var checked = {};
+      for (var k = 0; k < bricks.length; k++) {
+        var cb = bricks[k];
+        if (!cb.alive) continue;
+        var gr = brickGridRow(cb);
+        var gc = brickGridCol(cb);
+        var key = gr + "," + gc;
+        if (checked[key]) continue;
+        checked[key] = true;
+        var group = findConnectedGroup(cb);
+        if (group.length >= 3) {
+          chainCounter++;
+          if (chainCounter > longestChain) longestChain = chainCounter;
+          for (var gk = 0; gk < group.length; gk++) {
+            group[gk].flashTimer = 0.2;
+            cascadePending.push(group[gk]);
+          }
+          cascadeDelay = 0.2;
+        }
       }
     }
 
@@ -466,6 +864,9 @@
       if (e.key === " " || e.key === "Spacebar") {
         e.preventDefault();
         if (gameStarted && !gameOver) launchBalls();
+      }
+      if ((e.key === "d" || e.key === "D") && gameStarted && !gameOver) {
+        activateWaveClear();
       }
     });
 
@@ -490,13 +891,25 @@
       paddleX = Math.max(paddleW / 2, Math.min(VW - paddleW / 2, paddleX));
     }, { passive: false });
 
+    var lastTapTime = 0;
     canvas.addEventListener("pointerdown", function (e) {
       if (!gameStarted || gameOver) return;
       usePointer = true;
       var sx = scaleX();
+      var sy = scaleY();
       paddleX = e.clientX / sx;
       paddleX = Math.max(paddleW / 2, Math.min(VW - paddleW / 2, paddleX));
       launchBalls();
+
+      // Double-tap bottom edge for Wave Clear (mobile)
+      var tapY = e.clientY / sy;
+      if (tapY > PADDLE_Y - 20) {
+        var now = Date.now();
+        if (now - lastTapTime < 400) {
+          activateWaveClear();
+        }
+        lastTapTime = now;
+      }
     });
 
     /* ── Collision: ball vs bricks ── */
@@ -504,6 +917,7 @@
       for (var i = 0; i < bricks.length; i++) {
         var b = bricks[i];
         if (!b.alive) continue;
+        if (b.flashTimer > 0) continue; // Being cascade-destroyed
 
         var closestX = Math.max(b.x, Math.min(ball.x, b.x + b.w));
         var closestY = Math.max(b.y, Math.min(ball.y, b.y + b.h));
@@ -513,7 +927,6 @@
 
         if (distSq <= BALL_R * BALL_R) {
           if (!ball.burner) {
-            // Normal bounce
             var overlapLeft = (ball.x + BALL_R) - b.x;
             var overlapRight = (b.x + b.w) - (ball.x - BALL_R);
             var overlapTop = (ball.y + BALL_R) - b.y;
@@ -531,36 +944,40 @@
             }
           }
 
+          // Combo streak bonus
+          var comboBonus = comboStreak * 5;
+          comboStreak++;
+
           b.hits--;
+          lastHitBrickRow = brickGridRow(b);
+          lastHitBrickCol = brickGridCol(b);
+
           if (b.hits <= 0) {
             b.alive = false;
-            bricksRemaining--;
-            score += b.points;
+            var mult = chainMultiplier(1);
+            score += b.points * mult + comboBonus;
+            debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
             ball.speed = Math.min(BALL_MAX_SPEED, ball.speed + BALL_SPEED_INC);
 
-            // Normalize velocity to new speed
             var currentSpeed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
             if (currentSpeed > 0) {
               ball.vx = (ball.vx / currentSpeed) * ball.speed;
               ball.vy = (ball.vy / currentSpeed) * ball.speed;
             }
 
-            var color = ROW_COLORS[b.row] || "#fff";
-            var count = 6 + Math.floor(Math.random() * 3);
-            spawnParticles(b.x + b.w / 2, b.y + b.h / 2, color, count);
-
-            // Spawn power-up
             trySpawnPowerup(b.x + b.w / 2, b.y + b.h / 2);
 
-            // Hazard: spawn falling hazard
             if (b.hazard) {
               fallingHazards.push({
-                x: b.x, y: b.y, w: b.w, h: b.h, row: b.row
+                x: b.x, y: b.y, w: b.w, h: b.h, colorKey: b.colorKey
               });
             }
+
+            // Trigger cascade check
+            chainCounter = 1;
+            triggerCascade(b);
           }
 
-          // Burner ball: don't break — can hit multiple bricks per frame
           if (!ball.burner) break;
         }
       }
@@ -580,65 +997,59 @@
         var rw = b.w * sx;
         var rh = b.h * sy;
 
-        var color = ROW_COLORS[b.row] || "#fff";
-        var darkColor = ROW_DARK[b.row] || "#888";
+        var palette = COLORS[b.colorKey];
+        var baseColor = palette.base;
+        var highlightColor = palette.highlight;
+        var shadowColor = palette.shadow;
 
-        if (b.type === "tough" && b.hits < b.maxHits) {
-          color = darkColor;
+        // Flash inversion during cascade
+        if (b.flashTimer > 0) {
+          baseColor = palette.shadow;
+          highlightColor = palette.shadow;
+          shadowColor = palette.highlight;
         }
 
-        // Brick body
-        ctx.fillStyle = color;
+        if (b.type === "tough" && b.hits < b.maxHits) {
+          baseColor = shadowColor;
+        }
+
+        // Brick face
+        ctx.fillStyle = baseColor;
         ctx.fillRect(rx, ry, rw, rh);
 
         // Top highlight (1px)
-        ctx.fillStyle = "rgba(255,255,255,0.25)";
+        ctx.fillStyle = highlightColor;
         ctx.fillRect(rx, ry, rw, 1 * sy);
 
         // Bottom shadow (1px)
-        ctx.fillStyle = "rgba(0,0,0,0.2)";
+        ctx.fillStyle = shadowColor;
         ctx.fillRect(rx, ry + rh - 1 * sy, rw, 1 * sy);
 
-        // Tough brick: extra outline
-        if (b.type === "tough") {
-          ctx.strokeStyle = darkColor;
-          ctx.lineWidth = 1;
-          ctx.strokeRect(rx + 0.5, ry + 0.5, rw - 1, rh - 1);
-        }
-
-        // Tough brick with crack lines
+        // Tough brick with crack line after first hit
         if (b.type === "tough" && b.hits < b.maxHits) {
-          ctx.strokeStyle = "rgba(0,0,0,0.5)";
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(rx + rw * 0.3, ry);
-          ctx.lineTo(rx + rw * 0.5, ry + rh * 0.5);
-          ctx.lineTo(rx + rw * 0.4, ry + rh);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(rx + rw * 0.5, ry + rh * 0.5);
-          ctx.lineTo(rx + rw * 0.7, ry + rh * 0.3);
-          ctx.stroke();
+          ctx.fillStyle = shadowColor;
+          ctx.fillRect(rx + rw * 0.1, ry + rh * 0.45, rw * 0.8, 1);
         }
 
-        // Bonus brick: diamond marker
+        // Bonus brick: diamond outline
         if (b.type === "bonus") {
-          ctx.fillStyle = "rgba(255,255,255,0.5)";
           var cx = rx + rw / 2;
           var cy = ry + rh / 2;
           var dSize = Math.min(rw, rh) * 0.3;
+          ctx.strokeStyle = highlightColor;
+          ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(cx, cy - dSize);
           ctx.lineTo(cx + dSize, cy);
           ctx.lineTo(cx, cy + dSize);
           ctx.lineTo(cx - dSize, cy);
           ctx.closePath();
-          ctx.fill();
+          ctx.stroke();
         }
 
         // Hazard brick: X marker
         if (b.hazard) {
-          ctx.strokeStyle = "rgba(0,0,0,0.4)";
+          ctx.strokeStyle = shadowColor;
           ctx.lineWidth = 1.5;
           var xPad = rw * 0.3;
           var yPad = rh * 0.2;
@@ -654,6 +1065,13 @@
       }
     }
 
+    function drawDangerLine() {
+      var sx = scaleX();
+      var sy = scaleY();
+      ctx.fillStyle = "#99415a";
+      ctx.fillRect(0, DANGER_LINE_Y * sy, canvas.width, 1);
+    }
+
     function drawFallingHazards() {
       var sx = scaleX();
       var sy = scaleY();
@@ -665,8 +1083,8 @@
         var rh = h.h * sy;
 
         ctx.globalAlpha = 0.6;
-        var color = ROW_COLORS[h.row] || "#888";
-        ctx.fillStyle = color;
+        var palette = COLORS[h.colorKey] || COLORS.cyan;
+        ctx.fillStyle = palette.base;
         ctx.fillRect(rx, ry, rw, rh);
 
         // Red X
@@ -691,33 +1109,21 @@
       var sy = scaleY();
       for (var i = 0; i < powerups.length; i++) {
         var pu = powerups[i];
-        var rx = pu.x * sx;
-        var ry = pu.y * sy;
         var rw = POWERUP_W * sx;
         var rh = POWERUP_H * sy;
-        var cr = Math.min(rw, rh) * 0.4;
+        var rx = pu.x * sx - rw / 2;
+        var ry = pu.y * sy - rh / 2;
 
-        // Capsule shape
+        // Flat rectangle
         ctx.fillStyle = pu.color;
-        ctx.beginPath();
-        ctx.moveTo(rx - rw / 2 + cr, ry - rh / 2);
-        ctx.lineTo(rx + rw / 2 - cr, ry - rh / 2);
-        ctx.quadraticCurveTo(rx + rw / 2, ry - rh / 2, rx + rw / 2, ry - rh / 2 + cr);
-        ctx.lineTo(rx + rw / 2, ry + rh / 2 - cr);
-        ctx.quadraticCurveTo(rx + rw / 2, ry + rh / 2, rx + rw / 2 - cr, ry + rh / 2);
-        ctx.lineTo(rx - rw / 2 + cr, ry + rh / 2);
-        ctx.quadraticCurveTo(rx - rw / 2, ry + rh / 2, rx - rw / 2, ry + rh / 2 - cr);
-        ctx.lineTo(rx - rw / 2, ry - rh / 2 + cr);
-        ctx.quadraticCurveTo(rx - rw / 2, ry - rh / 2, rx - rw / 2 + cr, ry - rh / 2);
-        ctx.closePath();
-        ctx.fill();
+        ctx.fillRect(rx, ry, rw, rh);
 
         // Letter
         ctx.fillStyle = "#fff";
         ctx.font = "bold " + Math.round(10 * Math.min(sx, sy)) + "px sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(pu.letter, rx, ry);
+        ctx.fillText(pu.letter, pu.x * sx, pu.y * sy);
       }
     }
 
@@ -729,26 +1135,13 @@
       var pw = paddleW * sx;
       var ph = PADDLE_H * sy;
 
-      var grad = ctx.createLinearGradient(px, py, px, py + ph);
-      grad.addColorStop(0, "#c8e0f8");
-      grad.addColorStop(1, "#4a8abe");
-      ctx.fillStyle = grad;
-      var cr = 3 * sx;
-      ctx.beginPath();
-      ctx.moveTo(px + cr, py);
-      ctx.lineTo(px + pw - cr, py);
-      ctx.quadraticCurveTo(px + pw, py, px + pw, py + cr);
-      ctx.lineTo(px + pw, py + ph - cr);
-      ctx.quadraticCurveTo(px + pw, py + ph, px + pw - cr, py + ph);
-      ctx.lineTo(px + cr, py + ph);
-      ctx.quadraticCurveTo(px, py + ph, px, py + ph - cr);
-      ctx.lineTo(px, py + cr);
-      ctx.quadraticCurveTo(px, py, px + cr, py);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = "#1a4a6e";
-      ctx.lineWidth = 1;
-      ctx.stroke();
+      // Paddle face (cyan highlight)
+      ctx.fillStyle = "#85ccff";
+      ctx.fillRect(px, py, pw, ph);
+
+      // Bottom edge (cyan shadow, 2px)
+      ctx.fillStyle = "#0f68a2";
+      ctx.fillRect(px, py + ph - 2 * sy, pw, 2 * sy);
     }
 
     function drawBalls() {
@@ -760,17 +1153,9 @@
         var by = ball.y * sy;
         var br = BALL_R * Math.min(sx, sy);
 
-        var ballColor = ball.burner ? "#ff8c00" : "#fff";
-        var glowColor = ball.burner ? "rgba(255,140,0," : "rgba(255,255,255,";
+        var ballColor = ball.burner ? "#c68800" : "#f0f0f0";
 
-        // Glow
-        var glow = ctx.createRadialGradient(bx, by, 0, bx, by, br * 3);
-        glow.addColorStop(0, glowColor + "0.15)");
-        glow.addColorStop(1, glowColor + "0)");
-        ctx.fillStyle = glow;
-        ctx.fillRect(bx - br * 3, by - br * 3, br * 6, br * 6);
-
-        // Ball
+        // Solid circle, no glow
         ctx.beginPath();
         ctx.arc(bx, by, br, 0, Math.PI * 2);
         ctx.fillStyle = ballColor;
@@ -778,46 +1163,22 @@
       }
     }
 
-    function drawParticles() {
-      var sx = scaleX();
-      var sy = scaleY();
-      for (var i = 0; i < particles.length; i++) {
-        var p = particles[i];
-        var alpha = p.life / p.maxLife;
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x * sx - 2, p.y * sy - 2, 4, 4);
-      }
-      ctx.globalAlpha = 1;
-    }
-
-    function drawPaddleFlash() {
-      if (!paddleFlash) return;
-      var sx = scaleX();
-      var sy = scaleY();
-      var fx = paddleFlash.x * sx;
-      var fy = paddleFlash.y * sy;
-      var fr = paddleFlash.radius * Math.min(sx, sy);
-      var alpha = paddleFlash.life / paddleFlash.maxLife;
-
-      var grad = ctx.createRadialGradient(fx, fy, 0, fx, fy, fr);
-      grad.addColorStop(0, "rgba(255,255,255," + (alpha * 0.6) + ")");
-      grad.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(fx - fr, fy - fr, fr * 2, fr * 2);
-    }
-
     function drawHUD() {
       var sx = scaleX();
       var sy = scaleY();
-      var fontSize = Math.round(14 * Math.min(sx, sy));
+      var fontSize = Math.round(13 * Math.min(sx, sy));
 
       // Score — left side
-      ctx.fillStyle = "#c8e0f8";
+      ctx.fillStyle = "#d0d4dc";
       ctx.font = "bold " + fontSize + "px sans-serif";
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
       ctx.fillText("Score: " + score, 8 * sx, 10 * sy);
+
+      // Chain multiplier (if active)
+      if (chainCounter > 1) {
+        ctx.fillText("\u00d7" + chainMultiplier(chainCounter), 8 * sx, 26 * sy);
+      }
 
       // Lives — right side as dots
       var dotR = 5 * Math.min(sx, sy);
@@ -830,11 +1191,43 @@
         ctx.beginPath();
         ctx.arc(dotX, dotY, dotR, 0, Math.PI * 2);
         if (i < lives) {
-          ctx.fillStyle = "#5b8c7a";
+          ctx.fillStyle = "#279ced";
         } else {
-          ctx.fillStyle = "rgba(91,140,122,0.25)";
+          ctx.fillStyle = "rgba(39,156,237,0.25)";
         }
         ctx.fill();
+      }
+
+      // Freeze indicator
+      if (freezeTimer > 0) {
+        ctx.fillStyle = "#e16788";
+        ctx.textAlign = "right";
+        ctx.fillText("FREEZE " + Math.ceil(freezeTimer) + "s", canvas.width - 12 * sx, 30 * sy);
+      }
+
+      // Debris meter — thin bar below paddle
+      var meterW = 200 * sx;
+      var meterH = 4 * sy;
+      var meterX = (VW / 2 * sx) - meterW / 2;
+      var meterY = (PADDLE_Y + PADDLE_H + 8) * sy;
+
+      // Background
+      ctx.fillStyle = "rgba(255,255,255,0.1)";
+      ctx.fillRect(meterX, meterY, meterW, meterH);
+
+      // Fill
+      var fillW = (debrisMeter / DEBRIS_FILL_THRESHOLD) * meterW;
+      ctx.fillStyle = debrisMeter >= DEBRIS_FILL_THRESHOLD ? "#85ccff" : "#279ced";
+      ctx.fillRect(meterX, meterY, fillW, meterH);
+
+      // "D" label when full
+      if (debrisMeter >= DEBRIS_FILL_THRESHOLD) {
+        var smallFont = Math.round(9 * Math.min(sx, sy));
+        ctx.fillStyle = "#d0d4dc";
+        ctx.font = "bold " + smallFont + "px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        ctx.fillText("PRESS D", VW / 2 * sx, meterY + meterH + 2);
       }
     }
 
@@ -847,6 +1240,8 @@
 
       /* ── Update ── */
       if (gameStarted && !gameOver) {
+        elapsedTime += dt;
+
         // Paddle movement (keyboard)
         if (!usePointer) {
           if (keys.ArrowLeft) paddleX -= PADDLE_SPEED * dt;
@@ -878,6 +1273,40 @@
             }
           }
         }
+        if (freezeTimer > 0) {
+          freezeTimer -= dt;
+          if (freezeTimer <= 0) freezeTimer = 0;
+        }
+        if (magnetizeTimer > 0) {
+          magnetizeTimer -= dt;
+          if (magnetizeTimer <= 0) magnetizeTimer = 0;
+        }
+
+        // Process cascade delays
+        if (cascadeDelay > 0) {
+          cascadeDelay -= dt;
+          if (cascadeDelay <= 0) {
+            cascadeDelay = 0;
+            processCascadePending();
+          }
+        }
+
+        // Update flash timers
+        for (var fi = 0; fi < bricks.length; fi++) {
+          if (bricks[fi].flashTimer > 0) {
+            bricks[fi].flashTimer -= dt;
+          }
+        }
+
+        // Rising tide
+        if (elapsedTime > riseStartDelay && freezeTimer <= 0) {
+          riseTimer += dt;
+          riseInterval = Math.max(4, 12 - (elapsedTime / 60) * 0.8);
+          if (riseTimer >= riseInterval) {
+            riseTimer = 0;
+            spawnRisingRow();
+          }
+        }
 
         // Update balls
         for (var i = balls.length - 1; i >= 0; i--) {
@@ -887,6 +1316,38 @@
             ball.x = paddleX;
             ball.y = PADDLE_Y - BALL_R;
             continue;
+          }
+
+          // Magnetize: curve toward nearest brick cluster
+          if (magnetizeTimer > 0) {
+            var nearestDist = Infinity;
+            var nearestBrick = null;
+            for (var mi = 0; mi < bricks.length; mi++) {
+              if (!bricks[mi].alive) continue;
+              var mdx = (bricks[mi].x + bricks[mi].w / 2) - ball.x;
+              var mdy = (bricks[mi].y + bricks[mi].h / 2) - ball.y;
+              var md = mdx * mdx + mdy * mdy;
+              if (md < nearestDist) {
+                nearestDist = md;
+                nearestBrick = bricks[mi];
+              }
+            }
+            if (nearestBrick) {
+              var tx = (nearestBrick.x + nearestBrick.w / 2) - ball.x;
+              var ty = (nearestBrick.y + nearestBrick.h / 2) - ball.y;
+              var tLen = Math.sqrt(tx * tx + ty * ty);
+              if (tLen > 0) {
+                var magStrength = 80;
+                ball.vx += (tx / tLen) * magStrength * dt;
+                ball.vy += (ty / tLen) * magStrength * dt;
+                // Normalize to maintain speed
+                var cSpd = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+                if (cSpd > 0) {
+                  ball.vx = (ball.vx / cSpd) * ball.speed;
+                  ball.vy = (ball.vy / cSpd) * ball.speed;
+                }
+              }
+            }
           }
 
           // Move ball
@@ -915,6 +1376,7 @@
               ball.x <= paddleX + paddleW / 2) {
 
             ball.y = PADDLE_Y - BALL_R;
+            comboStreak = 0; // Reset combo on paddle contact
 
             var hitPos = (ball.x - (paddleX - paddleW / 2)) / paddleW;
             var angle = -150 + hitPos * 120;
@@ -930,23 +1392,12 @@
 
             ball.vx = Math.cos(rad) * ball.speed;
             ball.vy = Math.sin(rad) * ball.speed;
-
-            paddleFlash = {
-              x: ball.x, y: PADDLE_Y,
-              radius: 20,
-              life: 0.15, maxLife: 0.15
-            };
           }
 
           // Brick collisions
           ballBrickCollision(ball);
 
-          // Burner trail particle
-          if (ball.burner) {
-            spawnParticles(ball.x, ball.y, "#ff8c00", 1);
-          }
-
-          // Ball out bottom — splice
+          // Ball out bottom
           if (ball.y > VH + BALL_R) {
             balls.splice(i, 1);
           }
@@ -956,11 +1407,7 @@
         if (balls.length === 0 && !gameOver) {
           lives--;
           if (lives <= 0) {
-            gameOver = true;
-            gameoverTitle.textContent = "Game Over";
-            gameoverLabel.textContent = "Final Score";
-            finalScoreEl.textContent = score;
-            gameoverOverlay.classList.add("active");
+            triggerGameOver();
           } else {
             paddleW = PADDLE_W;
             widenTimer = 0;
@@ -974,7 +1421,6 @@
           var pu = powerups[pi];
           pu.y += POWERUP_FALL_SPEED * dt;
 
-          // Check paddle catch
           if (pu.y + POWERUP_H / 2 >= PADDLE_Y &&
               pu.y - POWERUP_H / 2 <= PADDLE_Y + PADDLE_H &&
               pu.x + POWERUP_W / 2 >= paddleX - paddleW / 2 &&
@@ -984,7 +1430,6 @@
             continue;
           }
 
-          // Off bottom
           if (pu.y > VH + POWERUP_H) {
             powerups.splice(pi, 1);
           }
@@ -995,71 +1440,36 @@
           var haz = fallingHazards[hi];
           haz.y += HAZARD_FALL_SPEED * dt;
 
-          // Check paddle collision
           if (!gameOver &&
               haz.y + haz.h >= PADDLE_Y &&
               haz.y <= PADDLE_Y + PADDLE_H &&
               haz.x + haz.w >= paddleX - paddleW / 2 &&
               haz.x <= paddleX + paddleW / 2) {
-            // Damage the player
             lives--;
-            spawnParticles(paddleX, PADDLE_Y, "#c04040", 10);
             fallingHazards.splice(hi, 1);
             if (lives <= 0 && !gameOver) {
-              gameOver = true;
-              gameoverTitle.textContent = "Game Over";
-              gameoverLabel.textContent = "Final Score";
-              finalScoreEl.textContent = score;
-              gameoverOverlay.classList.add("active");
+              triggerGameOver();
             }
             continue;
           }
 
-          // Off bottom
           if (haz.y > VH + haz.h) {
             fallingHazards.splice(hi, 1);
           }
         }
-
-        // Win check
-        if (bricksRemaining <= 0 && !gameOver) {
-          gameOver = true;
-          gameoverTitle.textContent = "You Win!";
-          gameoverLabel.textContent = "Final Score";
-          finalScoreEl.textContent = score;
-          gameoverOverlay.classList.add("active");
-        }
-
-        // Update particles
-        for (var pi2 = particles.length - 1; pi2 >= 0; pi2--) {
-          var p = particles[pi2];
-          p.x += p.vx * dt;
-          p.y += p.vy * dt;
-          p.vy += 200 * dt;
-          p.life -= dt;
-          if (p.life <= 0) particles.splice(pi2, 1);
-        }
-
-        // Update paddle flash
-        if (paddleFlash) {
-          paddleFlash.life -= dt;
-          paddleFlash.radius += 80 * dt;
-          if (paddleFlash.life <= 0) paddleFlash = null;
-        }
       }
 
       /* ── Render ── */
-      ctx.fillStyle = "#1a1f2e";
+      ctx.fillStyle = "#08090e";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (gameStarted) {
+        drawDangerLine();
         drawBricks();
         drawFallingHazards();
         drawPowerups();
         drawPaddle();
         drawBalls();
-        drawParticles();
-        drawPaddleFlash();
         drawHUD();
       }
 
@@ -1075,17 +1485,25 @@
         html += "<div><strong>Mouse:</strong> Move paddle</div>";
         html += "<div><strong>Arrow Keys:</strong> Move paddle</div>";
         html += "<div><strong>Click / Space:</strong> Launch ball</div>";
+        html += "<div><strong>D:</strong> Wave Clear (when meter full)</div>";
       } else {
         html += "<div><strong>Drag:</strong> Move paddle</div>";
         html += "<div><strong>Tap:</strong> Launch ball</div>";
+        html += "<div><strong>Double-tap bottom:</strong> Wave Clear</div>";
       }
 
-      html += '<div style="margin-top:10px;font-size:12px;"><strong>Power-ups</strong></div>';
+      html += '<div style="margin-top:10px;font-size:12px;"><strong>How it works</strong></div>';
+      html += '<div style="font-size:12px;">New rows rise from below. Match 3+ same-color bricks to chain-clear them. Survive as long as you can!</div>';
+
+      html += '<div style="margin-top:8px;font-size:12px;"><strong>Power-ups</strong></div>';
       html += '<div class="powerup-legend">';
-      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#5b8c7a">W</span> Widen</div>';
-      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#b05050">S</span> Shrink</div>';
-      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#6b7ea0">M</span> Multiball</div>';
-      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#d08030">B</span> Burner</div>';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#279ced">W</span> Widen</div>';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#279ced">M</span> Multi</div>';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#c68800">B</span> Burner</div>';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#c68800">X</span> Blast</div>';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#e16788">F</span> Freeze</div>';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#e16788">G</span> Magnet</div>';
+      html += '<div class="powerup-legend-item"><span class="powerup-swatch" style="background:#404040">S</span> Shrink</div>';
       html += '</div>';
 
       html += '<div style="margin-top:8px;font-size:12px;color:var(--dk-shadow);">Blocks marked with \u2717 can fall and damage you.</div>';
