@@ -6938,6 +6938,10 @@ window.openTaskManager = openTaskManager;
 window.closeTaskManager = closeTaskManager;
 window.openNoiseMixer = openNoiseMixer;
 window.closeNoiseMixer = closeNoiseMixer;
+window.openStopwatch = openStopwatch;
+window.swStartStop = swStartStop;
+window.swLap = swLap;
+window.swReset = swReset;
 
 /* ── Ctrl+Alt+Del → Task Manager ── */
 document.addEventListener('keydown', function (e) {
