@@ -537,10 +537,11 @@ button.start-menu-item {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   border: 1px solid;
   border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  padding: 1px 8px;
+  padding: 2px 8px;
+  line-height: 1;
 }
 
 .tray-icon {
@@ -549,7 +550,9 @@ button.start-menu-item {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
+.tray-icon svg { display: block; }
 
 .tray-lang {
   background: transparent;
@@ -560,16 +563,21 @@ button.start-menu-item {
   padding: 0 2px;
   cursor: pointer;
   line-height: 16px;
+  height: 16px;
   font-family: Tahoma, sans-serif;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 .tray-lang:hover {
   border-color: var(--white) var(--shadow) var(--shadow) var(--white);
 }
 
 .tray-clock {
-  font-size: var(--ui-font-sm);
-  padding-left: 6px;
+  font-size: var(--ui-font-xs);
+  line-height: 16px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Volume Popup */
