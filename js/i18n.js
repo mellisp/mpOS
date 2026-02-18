@@ -38,6 +38,9 @@
     'ui.redo': 'Redo',
     'ui.clear': 'Clear',
     'ui.confirm': 'mpOS',
+    'ui.stop': 'Stop',
+    'ui.reset': 'Reset',
+    'ui.lap': 'Lap',
 
     /* Desktop icon labels */
     'desktop.myComputer': 'My Computer',
@@ -69,6 +72,7 @@
     'title.paint': 'Paint',
     'title.taskManager': 'Task Manager',
     'title.chickenFingers': 'Chicken Fingers',
+    'title.stopwatch': 'Stopwatch',
 
     /* Start menu: Search sub-items */
     'startSearch.files': 'For Files or Folders...',
@@ -112,6 +116,8 @@
     'app.search.desc': 'Search for files, programs, and commands.',
     'app.noiseMixer.name': 'White Noise',
     'app.noiseMixer.desc': 'Mix colored noise for focus, sleep, or relaxation.',
+    'app.stopwatch.name': 'Stopwatch',
+    'app.stopwatch.desc': 'Stopwatch with lap times.',
     'app.myComputer.name': 'My Computer',
     'app.files.name': 'Files',
 
@@ -400,7 +406,8 @@
     'win.paint': 'Paint',
     'win.search': 'Search Results',
     'win.taskmanager': 'Task Manager',
-    'win.noisemixer': 'White Noise'
+    'win.noisemixer': 'White Noise',
+    'win.stopwatch': 'Stopwatch'
   });
 
   /* Restore saved language */

@@ -193,10 +193,11 @@
     browser: 'WikiBrowser', fishofday: 'Fish of the Day', fishfinder: 'Fish Finder',
     ontarget: 'On Target', aquarium: 'Virtual Aquarium', chickenfingers: 'Chicken Fingers',
     paint: 'Paint', brickbreaker: 'Brick Breaker', notepad: 'Notepad',
-    calculator: 'Calculator', calendar: 'Calendar', timezone: 'Time Zone',
-    weather: 'Weather', diskusage: 'Disk Usage', visitormap: 'Visitor Map',
-    search: 'Search', help: 'Help', mycomputer: 'My Computer', explorer: 'Files',
-    run: 'Run', taskmanager: 'Task Manager', noisemixer: 'White Noise Mixer'
+    calculator: 'Calculator', calendar: 'Calendar', stopwatch: 'Stopwatch',
+    timezone: 'Time Zone', weather: 'Weather', diskusage: 'Disk Usage',
+    visitormap: 'Visitor Map', search: 'Search', help: 'Help',
+    mycomputer: 'My Computer', explorer: 'Files', run: 'Run',
+    taskmanager: 'Task Manager', noisemixer: 'White Noise Mixer'
   };
 
   function minimizeWindow(id) {

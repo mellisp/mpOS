@@ -31,6 +31,9 @@ window._mpLangRegister('pt', {
   'ui.redo': 'Refazer',
   'ui.clear': 'Limpar',
   'ui.confirm': 'mpOS',
+  'ui.stop': 'Parar',
+  'ui.reset': 'Repor',
+  'ui.lap': 'Volta',
 
   /* Desktop icon labels */
   'desktop.myComputer': 'O Meu Computador',
@@ -62,6 +65,7 @@ window._mpLangRegister('pt', {
   'title.paint': 'Paint',
   'title.taskManager': 'Gestor de Tarefas',
   'title.chickenFingers': 'Chicken Fingers',
+  'title.stopwatch': 'Cron\u00f3metro',
 
   /* Start menu: Search sub-items */
   'startSearch.files': 'Ficheiros ou Pastas...',
@@ -105,6 +109,8 @@ window._mpLangRegister('pt', {
   'app.search.desc': 'Pesquisar ficheiros, programas e comandos.',
   'app.noiseMixer.name': 'Ru\u00eddo Branco',
   'app.noiseMixer.desc': 'Misture ru\u00eddo colorido para concentra\u00e7\u00e3o, sono ou relaxamento.',
+  'app.stopwatch.name': 'Cron\u00f3metro',
+  'app.stopwatch.desc': 'Cron\u00f3metro com voltas.',
   'app.myComputer.name': 'O Meu Computador',
   'app.files.name': 'Ficheiros',
 
@@ -393,5 +399,6 @@ window._mpLangRegister('pt', {
   'win.paint': 'Paint',
   'win.search': 'Resultados da Pesquisa',
   'win.taskmanager': 'Gestor de Tarefas',
-  'win.noisemixer': 'Ru\u00eddo Branco'
+  'win.noisemixer': 'Ru\u00eddo Branco',
+  'win.stopwatch': 'Cron\u00f3metro'
 });

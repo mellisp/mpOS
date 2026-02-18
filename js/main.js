@@ -238,7 +238,8 @@ const FOLDER_ITEMS = {
     { name: 'Visitor Map', _key: 'visitorMap', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
     { name: 'Help', _key: 'help', desc: 'Browse the mpOS help documentation.', tag: 'HTML', action: 'openHelp' },
     { name: 'Search', _key: 'search', desc: 'Search for files, programs, and commands.', tag: 'HTML', action: 'openSearch' },
-    { name: 'White Noise Mixer', _key: 'noiseMixer', desc: 'Mix colored noise for focus, sleep, or relaxation.', tag: 'HTML', action: 'openNoiseMixer' }
+    { name: 'White Noise Mixer', _key: 'noiseMixer', desc: 'Mix colored noise for focus, sleep, or relaxation.', tag: 'HTML', action: 'openNoiseMixer' },
+    { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' }
   ]
 };
 
@@ -388,6 +389,7 @@ function getItemIcon(name) {
     'Help': '<defs><linearGradient id="ei-hp" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffc107"/><stop offset="70%" stop-color="#e8a010"/><stop offset="100%" stop-color="#c49000"/></linearGradient><linearGradient id="ei-hpp" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient></defs><rect x="2" y="3" width="3" height="14" rx="0.5" fill="url(#ei-hp)" stroke="#c49000" stroke-width="0.6"/><rect x="5" y="4" width="11" height="12" rx="1" fill="url(#ei-hpp)" stroke="#8a8680" stroke-width="0.6"/><path d="M14 4 L14 8 L13.5 7 L13 8 L13 4" fill="#ef5350" stroke="#c62828" stroke-width="0.2"/><line x1="6" y1="4.5" x2="15" y2="4.5" stroke="white" stroke-width="0.5" opacity="0.5"/><path d="M9.5 8 Q9.5 6.5 11 6.5 Q12.5 6.5 12.5 8 Q12.5 9 11 9.5 L11 10.5" fill="none" stroke="#4a8abe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="12.5" r="0.7" fill="#4a8abe"/>',
     'Search': '<defs><radialGradient id="ei-sr-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="30%" stop-color="#d8ecff"/><stop offset="60%" stop-color="#a8d0f0"/><stop offset="100%" stop-color="#78b0d8"/></radialGradient><linearGradient id="ei-sr-handle" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d0c8"/><stop offset="50%" stop-color="#a0a098"/><stop offset="100%" stop-color="#787870"/></linearGradient></defs><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="url(#ei-sr-handle)" stroke-width="3" stroke-linecap="round"/><circle cx="9" cy="9" r="6" fill="url(#ei-sr-lens)" stroke="#1a4a6e" stroke-width="1.2"/><circle cx="9" cy="9" r="4.5" fill="none" stroke="#1a4a6e" stroke-width="0.4" opacity="0.3"/><ellipse cx="7" cy="7" rx="3.5" ry="2.5" fill="white" opacity="0.4"/>',
     'Visitor Map': '<defs><radialGradient id="ei-vm" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="ei-vmc"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#ei-vm)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#ei-vmc)" opacity="0.45"><ellipse cx="6" cy="8" rx="4" ry="3" fill="#5aaa80"/><ellipse cx="14" cy="7" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="10" cy="14" rx="5" ry="2" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.6"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.6"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><circle cx="14" cy="6" r="2" fill="#ef5350" opacity="0.8"/><path d="M14 4 L14 6.5" stroke="#c62828" stroke-width="0.8" stroke-linecap="round"/><circle cx="14" cy="4" r="0.6" fill="#c62828"/><circle cx="13.7" cy="3.8" r="0.2" fill="white" opacity="0.7"/>',
+    'Stopwatch': '<defs><linearGradient id="ei-sw-rim" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient><linearGradient id="ei-sw-face" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient></defs><rect x="8.5" y="0.5" width="3" height="2.5" rx="0.5" fill="#8aa8c8" stroke="#4a6a8e" stroke-width="0.5"/><circle cx="10" cy="11" r="7.5" fill="url(#ei-sw-rim)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="11" r="6" fill="url(#ei-sw-face)"/><ellipse cx="8.5" cy="8" rx="3.5" ry="2.5" fill="white" opacity="0.3"/><line x1="10" y1="5.5" x2="10" y2="6.5" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="15.5" y1="11" x2="14.5" y2="11" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="10" y1="16.5" x2="10" y2="15.5" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="4.5" y1="11" x2="5.5" y2="11" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="10" y1="11" x2="10" y2="6.8" stroke="#2a4a6e" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="11" x2="13.5" y2="11" stroke="#ef5350" stroke-width="0.6" stroke-linecap="round"/><circle cx="10" cy="11" r="0.7" fill="#2a4a6e"/>',
     'White Noise Mixer': '<defs><linearGradient id="ei-nm" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient><linearGradient id="ei-nmf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#a0a0a0"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#ei-nm)" stroke="#606060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><rect x="3" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="3.2" y="8" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="3" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50"/><rect x="6.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="6.7" y="10" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="6.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.7"/><rect x="10" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="10.2" y="11" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="10" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.5"/><rect x="13.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="13.7" y="9" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="13.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.8"/>'
   };
   return icons[name] || '';
@@ -2394,6 +2396,86 @@ function calcSciFn(fn) {
   }
   calcReset = true;
   calcUpdateDisplay();
+}
+
+/* ── Stopwatch ── */
+var swRunning = false;
+var swStart = 0;
+var swElapsed = 0;
+var swRafId = null;
+var swLaps = [];
+
+function openStopwatch() {
+  openWindow('stopwatch');
+}
+
+function swStartStop() {
+  if (swRunning) {
+    swElapsed += performance.now() - swStart;
+    swRunning = false;
+    if (swRafId) { cancelAnimationFrame(swRafId); swRafId = null; }
+    var btn = document.getElementById('swStartBtn');
+    btn.textContent = t('ui.start');
+    btn.classList.remove('sw-running');
+  } else {
+    swStart = performance.now();
+    swRunning = true;
+    var btn = document.getElementById('swStartBtn');
+    btn.textContent = t('ui.stop');
+    btn.classList.add('sw-running');
+    swTick();
+  }
+}
+
+function swTick() {
+  if (!swRunning) return;
+  var total = swElapsed + (performance.now() - swStart);
+  document.getElementById('swDisplay').textContent = swFmt(total);
+  swRafId = requestAnimationFrame(swTick);
+}
+
+function swFmt(ms) {
+  var totalSec = Math.floor(ms / 1000);
+  var m = Math.floor(totalSec / 60);
+  var s = totalSec % 60;
+  var cs = Math.floor((ms % 1000) / 10);
+  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s + '.' + (cs < 10 ? '0' : '') + cs;
+}
+
+function swReset() {
+  swRunning = false;
+  swElapsed = 0;
+  swLaps = [];
+  if (swRafId) { cancelAnimationFrame(swRafId); swRafId = null; }
+  document.getElementById('swDisplay').textContent = '00:00.00';
+  var btn = document.getElementById('swStartBtn');
+  btn.textContent = t('ui.start');
+  btn.classList.remove('sw-running');
+  var lapsEl = document.getElementById('swLaps');
+  lapsEl.textContent = '';
+  lapsEl.classList.remove('has-laps');
+}
+
+function swLap() {
+  if (!swRunning) return;
+  var total = swElapsed + (performance.now() - swStart);
+  var prev = swLaps.length ? swLaps[swLaps.length - 1] : 0;
+  swLaps.push(total);
+  var lapsEl = document.getElementById('swLaps');
+  lapsEl.classList.add('has-laps');
+  var row = document.createElement('div');
+  row.className = 'sw-lap-row';
+  var num = document.createElement('span');
+  num.textContent = '#' + swLaps.length;
+  var split = document.createElement('span');
+  split.textContent = '+' + swFmt(total - prev);
+  var abs = document.createElement('span');
+  abs.textContent = swFmt(total);
+  row.appendChild(num);
+  row.appendChild(split);
+  row.appendChild(abs);
+  lapsEl.insertBefore(row, lapsEl.firstChild);
+  lapsEl.scrollTop = 0;
 }
 
 /* ── Calendar ── */
@@ -4475,7 +4557,8 @@ const ACTION_MAP = {
   openBrickBreaker: openBrickBreaker,
   openVisitorMap: openVisitorMap,
   openSearch: openSearch,
-  openNoiseMixer: openNoiseMixer
+  openNoiseMixer: openNoiseMixer,
+  openStopwatch: openStopwatch
 };
 
 /* ── Run Terminal ── */
@@ -6714,7 +6797,8 @@ function buildLauncher() {
     { name: 'Weather', _key: 'weather', action: openWeather },
     { name: 'Disk Usage', _key: 'diskUsage', action: openDiskUsage },
     { name: 'Visitor Map', _key: 'visitorMap', action: openVisitorMap },
-    { name: 'White Noise Mixer', _key: 'noiseMixer', action: openNoiseMixer }
+    { name: 'White Noise Mixer', _key: 'noiseMixer', action: openNoiseMixer },
+    { name: 'Stopwatch', _key: 'stopwatch', action: openStopwatch }
   ];
   var system = [
     { name: 'My Computer', _key: 'myComputer', action: openMyComputer },
