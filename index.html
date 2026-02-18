@@ -41,6 +41,26 @@
     })();
     // Restore saved language before first paint
     try { var l = localStorage.getItem('mp-lang'); if (l === 'pt') document.documentElement.lang = 'pt'; } catch(e) {}
+    // Pre-position desktop icons from saved positions to prevent FOUC
+    (function () {
+      try {
+        var raw = localStorage.getItem('mpOS-icon-positions');
+        if (raw) {
+          var pos = JSON.parse(raw);
+          var css = '';
+          for (var k in pos) {
+            if (pos.hasOwnProperty(k) && pos[k]) {
+              css += '.desktop-icon[data-icon="' + k + '"]{left:' + pos[k].left + 'px;top:' + pos[k].top + 'px}';
+            }
+          }
+          if (css) {
+            var s = document.createElement('style');
+            s.textContent = css;
+            document.head.appendChild(s);
+          }
+        }
+      } catch (e) {}
+    })();
   </script>
 </head>
 <body>

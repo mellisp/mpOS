@@ -7101,6 +7101,11 @@ function initDesktopIcons() {
     positions = defaults;
   }
   applyIconPositions(positions);
+  requestAnimationFrame(function () {
+    document.querySelectorAll('.desktop-icon[data-icon]').forEach(function (icon) {
+      icon.classList.add('icon-ready');
+    });
+  });
 }
 
 function reclampDesktopIcons() {

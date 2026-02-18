@@ -279,6 +279,9 @@ body {
   border-radius: 2px;
   position: absolute;
   z-index: 1;
+}
+
+.desktop-icon.icon-ready {
   transition: left 0.15s ease, top 0.15s ease;
 }
 
@@ -300,7 +303,7 @@ body {
   max-width: 72px;
   overflow-wrap: break-word;
 }
-.desktop-icon.dragging { transition: none; z-index: 10; opacity: 0.85; }
+.desktop-icon.dragging { transition: none !important; z-index: 10; opacity: 0.85; }
 .desktop-icon.selected {
   background: rgba(0, 0, 0, 0.15);
   border-color: rgba(255, 255, 255, 0.3);
@@ -657,5 +660,5 @@ button.start-menu-item {
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .window.closing, .window.minimizing, .window.restoring { animation: none; }
-  .desktop-icon { transition: none; }
+  .desktop-icon.icon-ready { transition: none; }
 }
