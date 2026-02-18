@@ -274,11 +274,10 @@
     var elapsedTime = 0;
     var totalRowsSpawned = 0;
     var riseStartDelay = 10;
-    var BRICK_SLIDE_SPEED = 120; /* pixels per second for smooth slide */
+    var BRICK_SLIDE_SPEED = 120; /* pixels per second for rising-tide push */
+    var BRICK_GRAVITY_SPEED = 200; /* pixels per second for gravity drop */
 
-    /* Cascade state */
-    var cascadePending = [];
-    var cascadeDelay = 0;
+    /* Chain state */
     var chainCounter = 0;
     var longestChain = 0;
 
@@ -495,7 +494,7 @@
       }
     }
 
-    /* ── Cascade system: flood-fill same-color adjacency ── */
+    /* ── Color chain: flood-fill same-color adjacency ── */
     function findConnectedGroup(brick) {
       var targetColor = brick.colorKey;
       var visited = {};
@@ -530,104 +529,18 @@
       return group;
     }
 
-    function triggerCascade(destroyedBrick) {
-      var targetColor = destroyedBrick.colorKey;
-      var startRow = brickGridRow(destroyedBrick);
-      var startCol = brickGridCol(destroyedBrick);
-      var alreadyQueued = {};
-
-      // Check each neighbor of the destroyed brick
-      var neighbors = [
-        { r: startRow - 1, c: startCol },
-        { r: startRow + 1, c: startCol },
-        { r: startRow, c: startCol - 1 },
-        { r: startRow, c: startCol + 1 }
-      ];
-
-      for (var n = 0; n < neighbors.length; n++) {
-        var nb = findBrickAt(neighbors[n].r, neighbors[n].c);
-        if (!nb || !nb.alive || nb.colorKey !== targetColor) continue;
-
-        var nKey = brickGridRow(nb) + "," + brickGridCol(nb);
-        if (alreadyQueued[nKey]) continue;
-
-        var group = findConnectedGroup(nb);
-        if (group.length >= 3) {
-          chainCounter++;
-          if (chainCounter > longestChain) longestChain = chainCounter;
-          for (var j = 0; j < group.length; j++) {
-            var gKey = brickGridRow(group[j]) + "," + brickGridCol(group[j]);
-            alreadyQueued[gKey] = true;
-            group[j].flashTimer = 0.2;
-            cascadePending.push(group[j]);
-          }
-          cascadeDelay = 0.2;
-        }
-      }
-    }
-
-    function processCascadePending() {
-      var triggeredNew = false;
-      for (var i = cascadePending.length - 1; i >= 0; i--) {
-        var b = cascadePending[i];
-        if (b.alive) {
-          b.alive = false;
-          var mult = chainMultiplier(chainCounter);
-          score += b.points * mult;
-          addDebris(b);
-
-          if (b.hazard) {
-            fallingHazards.push({
-              x: b.x, y: b.y, w: b.w, h: b.h,
-              colorKey: b.colorKey
-            });
-          }
-
-          trySpawnPowerup(b.x + b.w / 2, b.y + b.h / 2);
-        }
-      }
-      cascadePending = [];
-
-      // Gravity settle
-      applyGravity();
-
-      // Check for new cascades from settled bricks
-      var checked = {};
-      for (var j = 0; j < bricks.length; j++) {
-        var brick = bricks[j];
-        if (!brick.alive) continue;
-        var gr = brickGridRow(brick);
-        var gc = brickGridCol(brick);
-        var key = gr + "," + gc;
-        if (checked[key]) continue;
-        checked[key] = true;
-
-        var group = findConnectedGroup(brick);
-        if (group.length >= 3) {
-          chainCounter++;
-          if (chainCounter > longestChain) longestChain = chainCounter;
-          for (var k = 0; k < group.length; k++) {
-            group[k].flashTimer = 0.2;
-            cascadePending.push(group[k]);
-          }
-          triggeredNew = true;
-        }
-      }
-
-      if (triggeredNew) {
-        cascadeDelay = 0.2;
-      }
-    }
-
     function applyGravity() {
       // Find the lowest occupied row per column, then settle gaps
+      // Uses targetY for smooth animated falling instead of instant snaps
       var changed = true;
       while (changed) {
         changed = false;
         for (var i = 0; i < bricks.length; i++) {
           var b = bricks[i];
           if (!b.alive) continue;
-          var row = brickGridRow(b);
+          // Use the effective Y (where brick is heading, or where it is)
+          var effectiveY = (b.targetY !== undefined) ? b.targetY : b.y;
+          var row = Math.round((effectiveY - GRID_Y) / (BRICK_H + BRICK_GAP_Y));
           var col = brickGridCol(b);
           var belowRow = row + 1;
           var belowY = GRID_Y + belowRow * (BRICK_H + BRICK_GAP_Y);
@@ -635,20 +548,35 @@
           // Don't fall below the play area
           if (belowY > PADDLE_Y - PADDLE_H - BRICK_H) continue;
 
-          // Check if there's a brick below
-          var below = findBrickAt(belowRow, col);
-          if (!below) {
-            // Check if there's any alive brick at a lower row in this column
-            var hasLower = false;
-            for (var j = 0; j < bricks.length; j++) {
-              if (bricks[j].alive && brickGridCol(bricks[j]) === col && brickGridRow(bricks[j]) > row) {
-                hasLower = true;
+          // Check if there's a brick below (using effective positions)
+          var below = null;
+          for (var j = 0; j < bricks.length; j++) {
+            if (bricks[j].alive && bricks[j] !== b) {
+              var ey = (bricks[j].targetY !== undefined) ? bricks[j].targetY : bricks[j].y;
+              var bRow = Math.round((ey - GRID_Y) / (BRICK_H + BRICK_GAP_Y));
+              if (bRow === belowRow && brickGridCol(bricks[j]) === col) {
+                below = bricks[j];
                 break;
               }
             }
+          }
+          if (!below) {
+            // Check if there's any alive brick at a lower row in this column
+            var hasLower = false;
+            for (var k = 0; k < bricks.length; k++) {
+              if (bricks[k].alive && bricks[k] !== b) {
+                var eyk = (bricks[k].targetY !== undefined) ? bricks[k].targetY : bricks[k].y;
+                var kRow = Math.round((eyk - GRID_Y) / (BRICK_H + BRICK_GAP_Y));
+                if (brickGridCol(bricks[k]) === col && kRow > row) {
+                  hasLower = true;
+                  break;
+                }
+              }
+            }
             if (hasLower) {
-              // Move this brick down one row
-              b.y = belowY;
+              // Smooth slide to new position
+              b.targetY = belowY;
+              b.gravityDrop = true;
               changed = true;
             }
           }
@@ -697,8 +625,6 @@
       riseInterval = 12;
       elapsedTime = 0;
       totalRowsSpawned = 0;
-      cascadePending = [];
-      cascadeDelay = 0;
       chainCounter = 0;
       longestChain = 0;
       comboStreak = 0;
@@ -793,28 +719,7 @@
               fallingHazards.push({ x: db.x, y: db.y, w: db.w, h: db.h, colorKey: db.colorKey });
             }
           }
-          // Trigger cascades from blast
           applyGravity();
-          var checked = {};
-          for (var bj = 0; bj < bricks.length; bj++) {
-            var cb = bricks[bj];
-            if (!cb.alive) continue;
-            var cbr = brickGridRow(cb);
-            var cbc = brickGridCol(cb);
-            var ck = cbr + "," + cbc;
-            if (checked[ck]) continue;
-            checked[ck] = true;
-            var group = findConnectedGroup(cb);
-            if (group.length >= 3) {
-              chainCounter++;
-              if (chainCounter > longestChain) longestChain = chainCounter;
-              for (var gk = 0; gk < group.length; gk++) {
-                group[gk].flashTimer = 0.2;
-                cascadePending.push(group[gk]);
-              }
-              cascadeDelay = 0.2;
-            }
-          }
         }
       } else if (pu.type === "freeze") {
         freezeTimer = 15;
@@ -871,36 +776,14 @@
         }
       }
 
-      // Queue them for delayed destruction via cascade system
+      // Destroy wave targets immediately
       for (var wt = 0; wt < waveTargets.length; wt++) {
-        cascadePending.push(waveTargets[wt]);
+        waveTargets[wt].alive = false;
+        score += 100;
+        addDebris(waveTargets[wt]);
       }
-      if (waveTargets.length > 0) cascadeDelay = 0.25;
 
-      score += 100 * waveTargets.length;
-
-      // Trigger cascade after wave clear (will run after delay)
       applyGravity();
-      var checked = {};
-      for (var k = 0; k < bricks.length; k++) {
-        var cb = bricks[k];
-        if (!cb.alive) continue;
-        var gr = brickGridRow(cb);
-        var gc = brickGridCol(cb);
-        var key = gr + "," + gc;
-        if (checked[key]) continue;
-        checked[key] = true;
-        var group = findConnectedGroup(cb);
-        if (group.length >= 3) {
-          chainCounter++;
-          if (chainCounter > longestChain) longestChain = chainCounter;
-          for (var gk = 0; gk < group.length; gk++) {
-            group[gk].flashTimer = 0.2;
-            cascadePending.push(group[gk]);
-          }
-          cascadeDelay = 0.2;
-        }
-      }
     }
 
     /* ── Input handling ── */
@@ -981,7 +864,7 @@
       for (var i = 0; i < bricks.length; i++) {
         var b = bricks[i];
         if (!b.alive) continue;
-        if (b.flashTimer > 0) continue; // Being cascade-destroyed
+        if (b.flashTimer > 0) continue; // Being chain-cleared
 
         var closestX = Math.max(b.x, Math.min(ball.x, b.x + b.w));
         var closestY = Math.max(b.y, Math.min(ball.y, b.y + b.h));
@@ -1017,30 +900,47 @@
           lastHitBrickCol = brickGridCol(b);
 
           if (b.hits <= 0) {
-            b.alive = false;
-            var mult = chainMultiplier(1);
-            score += b.points * mult + comboBonus;
-            addDebris(b);
-            ball.speed = Math.min(BALL_MAX_SPEED, ball.speed + BALL_SPEED_INC);
+            // Check if this brick is part of a color chain (3+ connected)
+            var chainGroup = findConnectedGroup(b);
+            if (chainGroup.length >= 3) {
+              // Destroy entire chain
+              chainCounter++;
+              if (chainCounter > longestChain) longestChain = chainCounter;
+              var mult = chainMultiplier(chainCounter);
+              for (var cg = 0; cg < chainGroup.length; cg++) {
+                var cgb = chainGroup[cg];
+                cgb.alive = false;
+                cgb.flashTimer = 0.15;
+                score += cgb.points * mult + (cg === 0 ? comboBonus : 0);
+                addDebris(cgb);
+                if (cgb.hazard) {
+                  fallingHazards.push({
+                    x: cgb.x, y: cgb.y, w: cgb.w, h: cgb.h, colorKey: cgb.colorKey
+                  });
+                }
+                trySpawnPowerup(cgb.x + cgb.w / 2, cgb.y + cgb.h / 2);
+              }
+            } else {
+              // Single brick destroy
+              b.alive = false;
+              score += b.points + comboBonus;
+              addDebris(b);
+              if (b.hazard) {
+                fallingHazards.push({
+                  x: b.x, y: b.y, w: b.w, h: b.h, colorKey: b.colorKey
+                });
+              }
+              trySpawnPowerup(b.x + b.w / 2, b.y + b.h / 2);
+            }
 
+            ball.speed = Math.min(BALL_MAX_SPEED, ball.speed + BALL_SPEED_INC);
             var currentSpeed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
             if (currentSpeed > 0) {
               ball.vx = (ball.vx / currentSpeed) * ball.speed;
               ball.vy = (ball.vy / currentSpeed) * ball.speed;
             }
 
-            trySpawnPowerup(b.x + b.w / 2, b.y + b.h / 2);
-
-            if (b.hazard) {
-              fallingHazards.push({
-                x: b.x, y: b.y, w: b.w, h: b.h, colorKey: b.colorKey
-              });
-            }
-
-            // Settle bricks, then check for cascades
             applyGravity();
-            chainCounter = 1;
-            triggerCascade(b);
           }
 
           if (!ball.burner) break;
@@ -1048,10 +948,38 @@
       }
     }
 
+    /* ── Find all chain groups (3+ connected same-color) ── */
+    function findAllChainGroups() {
+      var visited = {};
+      var groups = [];
+      for (var i = 0; i < bricks.length; i++) {
+        var b = bricks[i];
+        if (!b.alive) continue;
+        var key = brickGridRow(b) + "," + brickGridCol(b);
+        if (visited[key]) continue;
+        var group = findConnectedGroup(b);
+        for (var g = 0; g < group.length; g++) {
+          visited[brickGridRow(group[g]) + "," + brickGridCol(group[g])] = true;
+        }
+        if (group.length >= 3) groups.push(group);
+      }
+      return groups;
+    }
+
     /* ── Rendering ── */
     function drawBricks() {
       var sx = scaleX();
       var sy = scaleY();
+
+      // Pre-compute which bricks are in chain groups
+      var chainGroups = findAllChainGroups();
+      var inChain = {};
+      for (var gi = 0; gi < chainGroups.length; gi++) {
+        for (var gj = 0; gj < chainGroups[gi].length; gj++) {
+          var cb = chainGroups[gi][gj];
+          inChain[brickGridRow(cb) + "," + brickGridCol(cb)] = true;
+        }
+      }
 
       for (var i = 0; i < bricks.length; i++) {
         var b = bricks[i];
@@ -1067,7 +995,7 @@
         var highlightColor = palette.highlight;
         var shadowColor = palette.shadow;
 
-        // Flash inversion during cascade
+        // Flash inversion during chain clear
         if (b.flashTimer > 0) {
           baseColor = palette.shadow;
           highlightColor = palette.shadow;
@@ -1128,6 +1056,52 @@
           ctx.stroke();
         }
       }
+
+      // Draw subtle chain outlines around 3+ connected same-color groups
+      for (var ci = 0; ci < chainGroups.length; ci++) {
+        var grp = chainGroups[ci];
+        var palette2 = COLORS[grp[0].colorKey];
+        ctx.strokeStyle = palette2.highlight;
+        ctx.globalAlpha = 0.45;
+        ctx.lineWidth = 1.5;
+
+        // Build a set of grid positions in this group
+        var inGroup = {};
+        for (var cj = 0; cj < grp.length; cj++) {
+          inGroup[brickGridRow(grp[cj]) + "," + brickGridCol(grp[cj])] = true;
+        }
+
+        // For each brick, draw edges that aren't shared with a neighbor in the group
+        for (var ck = 0; ck < grp.length; ck++) {
+          var gb = grp[ck];
+          var grx = gb.x * sx;
+          var gry = gb.y * sy;
+          var grw = gb.w * sx;
+          var grh = gb.h * sy;
+          var gr = brickGridRow(gb);
+          var gc = brickGridCol(gb);
+
+          ctx.beginPath();
+          // Top edge
+          if (!inGroup[(gr - 1) + "," + gc]) {
+            ctx.moveTo(grx, gry); ctx.lineTo(grx + grw, gry);
+          }
+          // Bottom edge
+          if (!inGroup[(gr + 1) + "," + gc]) {
+            ctx.moveTo(grx, gry + grh); ctx.lineTo(grx + grw, gry + grh);
+          }
+          // Left edge
+          if (!inGroup[gr + "," + (gc - 1)]) {
+            ctx.moveTo(grx, gry); ctx.lineTo(grx, gry + grh);
+          }
+          // Right edge
+          if (!inGroup[gr + "," + (gc + 1)]) {
+            ctx.moveTo(grx + grw, gry); ctx.lineTo(grx + grw, gry + grh);
+          }
+          ctx.stroke();
+        }
+      }
+      ctx.globalAlpha = 1;
     }
 
     function drawDebrisJunk() {
@@ -1391,24 +1365,18 @@
           if (magnetizeTimer <= 0) magnetizeTimer = 0;
         }
 
-        // Process cascade delays
-        if (cascadeDelay > 0) {
-          cascadeDelay -= dt;
-          if (cascadeDelay <= 0) {
-            cascadeDelay = 0;
-            processCascadePending();
-          }
-        }
 
         // Smooth brick slide toward targetY
         for (var si = 0; si < bricks.length; si++) {
           var sb = bricks[si];
           if (!sb.alive || sb.targetY === undefined) continue;
           if (sb.y < sb.targetY) {
-            sb.y = Math.min(sb.targetY, sb.y + BRICK_SLIDE_SPEED * dt);
+            var speed = sb.gravityDrop ? BRICK_GRAVITY_SPEED : BRICK_SLIDE_SPEED;
+            sb.y = Math.min(sb.targetY, sb.y + speed * dt);
             if (sb.y >= sb.targetY) {
               sb.y = sb.targetY;
               delete sb.targetY;
+              delete sb.gravityDrop;
             }
           }
         }
@@ -1599,10 +1567,20 @@
         // Update rising bricks
         for (var ri = risingBricks.length - 1; ri >= 0; ri--) {
           var rb = risingBricks[ri];
-          rb.y -= RISING_BRICK_SPEED * dt;
+          // Initialize velocity if not set (rising from below)
+          if (rb.vy === undefined) rb.vy = -RISING_BRICK_SPEED;
+          if (rb.vx === undefined) rb.vx = 0;
 
-          // Ball collision — destroy the rising brick
-          var rbDestroyed = false;
+          rb.y += rb.vy * dt;
+          rb.x += rb.vx * dt;
+
+          // Keep within horizontal bounds and snap to nearest column
+          if (rb.x < GRID_X) { rb.x = GRID_X; rb.vx = Math.abs(rb.vx) * 0.5; }
+          var maxX = GRID_X + (COLS - 1) * (BRICK_W + BRICK_GAP_X);
+          if (rb.x > maxX) { rb.x = maxX; rb.vx = -Math.abs(rb.vx) * 0.5; }
+
+          // Ball collision — deflect the rising brick upward
+          var rbDeflected = false;
           for (var rbi = 0; rbi < balls.length; rbi++) {
             var rball = balls[rbi];
             if (rball.attached) continue;
@@ -1612,70 +1590,129 @@
             var rdy = rball.y - rcy;
             if (rdx * rdx + rdy * rdy <= BALL_R * BALL_R) {
               if (!rball.burner) rball.vy = -rball.vy;
-              score += 15;
-              addDebris(rb);
-              risingBricks.splice(ri, 1);
-              rbDestroyed = true;
+              // Deflect brick upward
+              rb.vy = -RISING_BRICK_SPEED * 1.5;
+              rb.vx = (rb.x + rb.w / 2 - rball.x) * 3;
+              rb.deflected = true;
+              rbDeflected = true;
               break;
             }
           }
-          if (rbDestroyed) continue;
 
-          // Paddle collision — smash the rising brick
-          if (rb.y <= PADDLE_Y + PADDLE_H &&
+          // Paddle collision — deflect the rising brick upward with aim
+          if (!rbDeflected && !rb.deflected &&
               rb.y + rb.h >= PADDLE_Y &&
+              rb.y <= PADDLE_Y + PADDLE_H &&
               rb.x + rb.w >= paddleX - paddleW / 2 &&
               rb.x <= paddleX + paddleW / 2) {
-            score += 15;
-            risingBricks.splice(ri, 1);
-            continue;
+            // Aim based on where it hit the paddle (like ball aiming)
+            var hitPos = (rb.x + rb.w / 2 - paddleX) / (paddleW / 2); // -1 to 1
+            rb.vy = -RISING_BRICK_SPEED * 1.8;
+            rb.vx = hitPos * 200;
+            rb.deflected = true;
           }
 
-          // Settle into grid: find bottommost brick in this column
-          var settleY = -1;
-          var bottomBrickY = -1;
-          for (var li = 0; li < bricks.length; li++) {
-            if (!bricks[li].alive) continue;
-            if (brickGridCol(bricks[li]) !== rb.col) continue;
-            if (bricks[li].y > bottomBrickY) bottomBrickY = bricks[li].y;
-          }
+          // Settle into grid when moving upward and reaching a grid row
+          if (rb.vy < 0 && rb.deflected) {
+            // Snap to nearest column
+            var nearestCol = Math.round((rb.x - GRID_X) / (BRICK_W + BRICK_GAP_X));
+            nearestCol = Math.max(0, Math.min(COLS - 1, nearestCol));
 
-          if (bottomBrickY >= 0) {
-            // Settle one row below the bottommost brick
-            var targetY = bottomBrickY + BRICK_H + BRICK_GAP_Y;
-            if (rb.y <= targetY) settleY = targetY;
-          } else if (rb.y <= GRID_Y) {
-            // Empty column — settle at top
-            settleY = GRID_Y;
-          }
-
-          if (settleY >= 0) {
-            // Snap to grid and become a regular brick
-            bricks.push({
-              x: rb.x, y: settleY, w: BRICK_W, h: BRICK_H,
-              type: "normal", hits: 1, maxHits: 1, points: 10,
-              colorKey: rb.colorKey, alive: true, hazard: false,
-              flashTimer: 0
-            });
-            risingBricks.splice(ri, 1);
-
-            // Check for cascades from the newly settled brick
-            var settledBrick = bricks[bricks.length - 1];
-            var sGroup = findConnectedGroup(settledBrick);
-            if (sGroup.length >= 3) {
-              chainCounter = 1;
-              if (chainCounter > longestChain) longestChain = chainCounter;
-              for (var sg = 0; sg < sGroup.length; sg++) {
-                sGroup[sg].flashTimer = 0.2;
-                cascadePending.push(sGroup[sg]);
-              }
-              cascadeDelay = 0.2;
+            // Find topmost empty row in this column
+            var topRow = -1;
+            var lowestOccupied = -1;
+            for (var li = 0; li < bricks.length; li++) {
+              if (!bricks[li].alive) continue;
+              if (brickGridCol(bricks[li]) !== nearestCol) continue;
+              var bRow = brickGridRow(bricks[li]);
+              if (bRow > lowestOccupied) lowestOccupied = bRow;
             }
-            continue;
+
+            var settleRow = (lowestOccupied >= 0) ? lowestOccupied + 1 : 0;
+            var settleY = GRID_Y + settleRow * (BRICK_H + BRICK_GAP_Y);
+
+            // Settle when brick reaches the target row
+            if (rb.y <= settleY && settleY < PADDLE_Y - PADDLE_H - BRICK_H) {
+              var snapX = GRID_X + nearestCol * (BRICK_W + BRICK_GAP_X);
+              bricks.push({
+                x: snapX, y: settleY, w: BRICK_W, h: BRICK_H,
+                type: "normal", hits: 1, maxHits: 1, points: 10,
+                colorKey: rb.colorKey, alive: true, hazard: false,
+                flashTimer: 0
+              });
+              risingBricks.splice(ri, 1);
+
+              // Check if settling completes or joins a chain
+              var settledBrick = bricks[bricks.length - 1];
+              var sGroup = findConnectedGroup(settledBrick);
+              if (sGroup.length >= 3) {
+                chainCounter++;
+                if (chainCounter > longestChain) longestChain = chainCounter;
+                var sMult = chainMultiplier(chainCounter);
+                for (var sg = 0; sg < sGroup.length; sg++) {
+                  sGroup[sg].flashTimer = 0.15;
+                  sGroup[sg].alive = false;
+                  score += sGroup[sg].points * sMult;
+                  addDebris(sGroup[sg]);
+                }
+                applyGravity();
+              }
+              continue;
+            }
           }
 
-          // Off top of screen — remove
-          if (rb.y + rb.h < 0) {
+          // Non-deflected bricks settle normally when reaching grid
+          if (!rb.deflected) {
+            var nCol = Math.round((rb.x - GRID_X) / (BRICK_W + BRICK_GAP_X));
+            nCol = Math.max(0, Math.min(COLS - 1, nCol));
+            rb.col = nCol;
+
+            var bottomBrickY = -1;
+            for (var nli = 0; nli < bricks.length; nli++) {
+              if (!bricks[nli].alive) continue;
+              if (brickGridCol(bricks[nli]) !== nCol) continue;
+              if (bricks[nli].y > bottomBrickY) bottomBrickY = bricks[nli].y;
+            }
+
+            var nSettleY = -1;
+            if (bottomBrickY >= 0) {
+              var nTarget = bottomBrickY + BRICK_H + BRICK_GAP_Y;
+              if (rb.y <= nTarget) nSettleY = nTarget;
+            } else if (rb.y <= GRID_Y) {
+              nSettleY = GRID_Y;
+            }
+
+            if (nSettleY >= 0 && nSettleY < PADDLE_Y - PADDLE_H - BRICK_H) {
+              var nSnapX = GRID_X + nCol * (BRICK_W + BRICK_GAP_X);
+              bricks.push({
+                x: nSnapX, y: nSettleY, w: BRICK_W, h: BRICK_H,
+                type: "normal", hits: 1, maxHits: 1, points: 10,
+                colorKey: rb.colorKey, alive: true, hazard: false,
+                flashTimer: 0
+              });
+              risingBricks.splice(ri, 1);
+
+              // Check if settling forms a chain
+              var nSettled = bricks[bricks.length - 1];
+              var nGroup = findConnectedGroup(nSettled);
+              if (nGroup.length >= 3) {
+                chainCounter++;
+                if (chainCounter > longestChain) longestChain = chainCounter;
+                var nMult = chainMultiplier(chainCounter);
+                for (var ng = 0; ng < nGroup.length; ng++) {
+                  nGroup[ng].flashTimer = 0.15;
+                  nGroup[ng].alive = false;
+                  score += nGroup[ng].points * nMult;
+                  addDebris(nGroup[ng]);
+                }
+                applyGravity();
+              }
+              continue;
+            }
+          }
+
+          // Off screen — remove
+          if (rb.y + rb.h < -50 || rb.y > VH + 50) {
             risingBricks.splice(ri, 1);
           }
         }
@@ -1736,7 +1773,7 @@
       }
 
       html += '<div style="margin-top:10px;font-size:12px;"><strong>How it works</strong></div>';
-      html += '<div style="font-size:12px;">New rows push down from the top. Match 3+ same-color bricks to chain-clear them. Loose bricks fly up from below \u2014 smash them with the paddle or let them settle to build chains!</div>';
+      html += '<div style="font-size:12px;">New rows push down from the top. Groups of 3+ same-color bricks glow with an outline \u2014 hit any brick in the group to clear the whole chain! Loose bricks rise from below \u2014 deflect them with the paddle or ball to aim them into matching chains.</div>';
 
       html += '<div style="margin-top:8px;font-size:12px;"><strong>Power-ups</strong></div>';
       html += '<div class="powerup-legend">';
