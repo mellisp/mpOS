@@ -218,12 +218,13 @@
 
     /* ── 4-Color Palette (Cyan / Amber / Rose / Lime) ── */
     var COLORS = {
-      cyan:  { highlight: "#85ccff", base: "#279ced", shadow: "#0f68a2" },
-      amber: { highlight: "#eabc6e", base: "#c68800", shadow: "#865900" },
-      rose:  { highlight: "#ffa6ba", base: "#e16788", shadow: "#99415a" },
-      lime:  { highlight: "#c8e688", base: "#7bb33a", shadow: "#4d7a1a" }
+      cyan:   { highlight: "#85ccff", base: "#279ced", shadow: "#0f68a2" },
+      amber:  { highlight: "#eabc6e", base: "#c68800", shadow: "#865900" },
+      rose:   { highlight: "#ffa6ba", base: "#e16788", shadow: "#99415a" },
+      lime:   { highlight: "#c8e688", base: "#7bb33a", shadow: "#4d7a1a" },
+      violet: { highlight: "#c9a0dc", base: "#8e44ad", shadow: "#5b2c6f" }
     };
-    var COLOR_KEYS = ["cyan", "amber", "rose", "lime"];
+    var COLOR_KEYS = ["cyan", "amber", "rose", "lime", "violet"];
 
     /* Power-ups: 4 clean, understandable effects */
     var POWERUP_TYPES = [
@@ -258,10 +259,10 @@
 
     /* Rising tide state */
     var riseTimer = 0;
-    var riseInterval = 12;
+    var riseInterval = 16;
     var elapsedTime = 0;
     var totalRowsSpawned = 0;
-    var riseStartDelay = 10;
+    var riseStartDelay = 15;
     var BRICK_SLIDE_SPEED = 120;
     var BRICK_GRAVITY_SPEED = 200;
 
@@ -275,7 +276,7 @@
     var risingBricks = [];
     var risingBrickTimer = 0;
     var RISING_BRICK_SPEED = 180;
-    var RISING_BRICK_INTERVAL_MIN = 6;
+    var RISING_BRICK_INTERVAL_MIN = 5;
     var RISING_BRICK_INTERVAL_MAX = 14;
 
     /* ── Juice: screen shake ── */
@@ -563,14 +564,11 @@
       return groups;
     }
 
-    /* ── Gravity with cascade chain detection ── */
-    var _gravityDepth = 0;
-    function applyGravity() {
-      _gravityDepth++;
-      if (_gravityDepth > 10) { _gravityDepth--; return; }
-
+    /* ── Gravity: drop bricks to fill column gaps (returns indices of moved bricks) ── */
+    function runGravity() {
+      var moved = [];
       var changed = true;
-      var maxIter = bricks.length + 1;
+      var maxIter = bricks.length * 2 + 1;
       while (changed && maxIter-- > 0) {
         changed = false;
         for (var i = 0; i < bricks.length; i++) {
@@ -610,41 +608,70 @@
             if (hasLower) {
               b.targetY = belowY;
               b.gravityDrop = true;
+              if (moved.indexOf(i) === -1) moved.push(i);
               changed = true;
             }
           }
         }
       }
+      return moved;
+    }
 
-      // Cascade: gravity may form new chains
-      var cascadeGroups = findAllChainGroups();
-      if (cascadeGroups.length > 0) {
-        for (var cgi = 0; cgi < cascadeGroups.length; cgi++) {
-          var cGroup = cascadeGroups[cgi];
-          chainCounter++;
-          chainTimer = CHAIN_TIMEOUT;
-          if (chainCounter > longestChain) longestChain = chainCounter;
-          var cMult = chainMultiplier(chainCounter);
-          var cx = 0, cy = 0;
-          for (var cgj = 0; cgj < cGroup.length; cgj++) {
-            var cgBrick = cGroup[cgj];
-            cgBrick.alive = false;
-            cgBrick.flashTimer = 0.15;
-            score += cgBrick.points * cMult;
-            cx += cgBrick.x + cgBrick.w / 2;
-            cy += cgBrick.y + cgBrick.h / 2;
-            spawnBrickParticles(cgBrick);
-            trySpawnPowerup(cgBrick.x + cgBrick.w / 2, cgBrick.y + cgBrick.h / 2);
-          }
-          cx /= cGroup.length;
-          cy /= cGroup.length;
-          var totalPts = cGroup.length * cGroup[0].points * cMult;
-          spawnScorePopup(cx, cy, "CHAIN x" + chainCounter + "  +" + totalPts, COLORS[cGroup[0].colorKey].highlight);
-          triggerShake(3 + chainCounter, 0.2);
-        }
-        applyGravity();
+    /* ── Cascade: clear chain groups triggered by moved/placed bricks (Puyo Puyo-style) ── */
+    var _cascadeDepth = 0;
+    function cascadeCheck(triggerIndices) {
+      _cascadeDepth++;
+      if (_cascadeDepth > 10) { _cascadeDepth--; return; }
+
+      var triggerSet = {};
+      for (var t = 0; t < triggerIndices.length; t++) {
+        triggerSet[triggerIndices[t]] = true;
       }
-      _gravityDepth--;
+
+      var chainGroups = findAllChainGroups();
+      var clearedAny = false;
+
+      for (var g = 0; g < chainGroups.length; g++) {
+        var group = chainGroups[g];
+        var hasTrigger = false;
+        for (var j = 0; j < group.length; j++) {
+          var idx = bricks.indexOf(group[j]);
+          if (triggerSet[idx]) { hasTrigger = true; break; }
+        }
+        if (!hasTrigger) continue;
+
+        clearedAny = true;
+        chainCounter++;
+        chainTimer = CHAIN_TIMEOUT;
+        if (chainCounter > longestChain) longestChain = chainCounter;
+        var mult = chainMultiplier(chainCounter);
+        var cx = 0, cy = 0, totalPts = 0;
+        for (var k = 0; k < group.length; k++) {
+          var gb = group[k];
+          gb.alive = false;
+          gb.flashTimer = 0.15;
+          var pts = gb.points * mult;
+          score += pts;
+          totalPts += pts;
+          cx += gb.x + gb.w / 2;
+          cy += gb.y + gb.h / 2;
+          spawnBrickParticles(gb);
+          trySpawnPowerup(gb.x + gb.w / 2, gb.y + gb.h / 2);
+        }
+        cx /= group.length;
+        cy /= group.length;
+        spawnScorePopup(cx, cy, "CHAIN x" + chainCounter + "  +" + totalPts, COLORS[group[0].colorKey].highlight);
+        triggerShake(3 + chainCounter, 0.2);
+      }
+
+      if (clearedAny) {
+        var moved = runGravity();
+        if (moved.length > 0) {
+          cascadeCheck(moved);
+        }
+      }
+
+      _cascadeDepth--;
     }
 
     function chainMultiplier(chain) {
@@ -683,7 +710,7 @@
       paddleW = PADDLE_W;
       paddleX = VW / 2;
       riseTimer = 0;
-      riseInterval = 12;
+      riseInterval = 16;
       elapsedTime = 0;
       totalRowsSpawned = 0;
       chainCounter = 0;
@@ -850,39 +877,12 @@
           b.hits--;
 
           if (b.hits <= 0) {
-            // Check chain
-            var chainGroup = findConnectedGroup(b);
-            if (chainGroup.length >= 3) {
-              chainCounter++;
-              chainTimer = CHAIN_TIMEOUT;
-              if (chainCounter > longestChain) longestChain = chainCounter;
-              var mult = chainMultiplier(chainCounter);
-              var totalChainPts = 0;
-              var avgX = 0, avgY = 0;
-              for (var cg = 0; cg < chainGroup.length; cg++) {
-                var cgb = chainGroup[cg];
-                cgb.alive = false;
-                cgb.flashTimer = 0.15;
-                var pts = cgb.points * mult;
-                score += pts;
-                totalChainPts += pts;
-                avgX += cgb.x + cgb.w / 2;
-                avgY += cgb.y + cgb.h / 2;
-                spawnBrickParticles(cgb);
-                trySpawnPowerup(cgb.x + cgb.w / 2, cgb.y + cgb.h / 2);
-              }
-              avgX /= chainGroup.length;
-              avgY /= chainGroup.length;
-              spawnScorePopup(avgX, avgY, "CHAIN x" + chainCounter + "  +" + totalChainPts, COLORS[b.colorKey].highlight);
-              triggerShake(2 + chainCounter * 1.5, 0.15 + chainCounter * 0.03);
-            } else {
-              // Single brick destroy
-              b.alive = false;
-              score += b.points;
-              spawnBrickParticles(b);
-              spawnScorePopup(b.x + b.w / 2, b.y + b.h / 2, "+" + b.points);
-              trySpawnPowerup(b.x + b.w / 2, b.y + b.h / 2);
-            }
+            // Destroy single brick (chains come from gravity cascades, not direct hits)
+            b.alive = false;
+            score += b.points;
+            spawnBrickParticles(b);
+            spawnScorePopup(b.x + b.w / 2, b.y + b.h / 2, "+" + b.points);
+            trySpawnPowerup(b.x + b.w / 2, b.y + b.h / 2);
 
             ball.speed = Math.min(BALL_MAX_SPEED, ball.speed + BALL_SPEED_INC);
             var currentSpeed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
@@ -891,7 +891,11 @@
               ball.vy = (ball.vy / currentSpeed) * ball.speed;
             }
 
-            applyGravity();
+            // Gravity may trigger cascade chains (Puyo Puyo-style)
+            var moved = runGravity();
+            if (moved.length > 0) {
+              cascadeCheck(moved);
+            }
           } else {
             // Brick took a hit but didn't die (tough brick)
             triggerShake(1.5, 0.08);
@@ -1319,7 +1323,7 @@
         // Rising tide (paused during freeze)
         if (elapsedTime > riseStartDelay && freezeTimer <= 0) {
           riseTimer += dt;
-          riseInterval = Math.max(4, 12 - (elapsedTime / 60) * 0.8);
+          riseInterval = Math.max(6, 16 - (elapsedTime / 60) * 0.8);
           if (riseTimer >= riseInterval) {
             riseTimer = 0;
             spawnRisingRow();
@@ -1537,30 +1541,8 @@
               });
               risingBricks.splice(ri, 1);
 
-              var settledBrick = bricks[bricks.length - 1];
-              var sGroup = findConnectedGroup(settledBrick);
-              if (sGroup.length >= 3) {
-                chainCounter++;
-                chainTimer = CHAIN_TIMEOUT;
-                if (chainCounter > longestChain) longestChain = chainCounter;
-                var sMult = chainMultiplier(chainCounter);
-                var sAvgX = 0, sAvgY = 0, sTotalPts = 0;
-                for (var sg = 0; sg < sGroup.length; sg++) {
-                  sGroup[sg].flashTimer = 0.15;
-                  sGroup[sg].alive = false;
-                  var sPts = sGroup[sg].points * sMult;
-                  score += sPts;
-                  sTotalPts += sPts;
-                  sAvgX += sGroup[sg].x + sGroup[sg].w / 2;
-                  sAvgY += sGroup[sg].y + sGroup[sg].h / 2;
-                  spawnBrickParticles(sGroup[sg]);
-                }
-                sAvgX /= sGroup.length;
-                sAvgY /= sGroup.length;
-                spawnScorePopup(sAvgX, sAvgY, "CHAIN x" + chainCounter + "  +" + sTotalPts, COLORS[settledBrick.colorKey].highlight);
-                triggerShake(2 + chainCounter * 1.5, 0.15);
-                applyGravity();
-              }
+              // Placed brick may trigger cascade chains
+              cascadeCheck([bricks.length - 1]);
               continue;
             }
           }
@@ -1596,30 +1578,8 @@
               });
               risingBricks.splice(ri, 1);
 
-              var nSettled = bricks[bricks.length - 1];
-              var nGroup = findConnectedGroup(nSettled);
-              if (nGroup.length >= 3) {
-                chainCounter++;
-                chainTimer = CHAIN_TIMEOUT;
-                if (chainCounter > longestChain) longestChain = chainCounter;
-                var nMult = chainMultiplier(chainCounter);
-                var nAvgX = 0, nAvgY = 0, nTotalPts = 0;
-                for (var ng = 0; ng < nGroup.length; ng++) {
-                  nGroup[ng].flashTimer = 0.15;
-                  nGroup[ng].alive = false;
-                  var nPts = nGroup[ng].points * nMult;
-                  score += nPts;
-                  nTotalPts += nPts;
-                  nAvgX += nGroup[ng].x + nGroup[ng].w / 2;
-                  nAvgY += nGroup[ng].y + nGroup[ng].h / 2;
-                  spawnBrickParticles(nGroup[ng]);
-                }
-                nAvgX /= nGroup.length;
-                nAvgY /= nGroup.length;
-                spawnScorePopup(nAvgX, nAvgY, "CHAIN x" + chainCounter + "  +" + nTotalPts, COLORS[nSettled.colorKey].highlight);
-                triggerShake(2 + chainCounter * 1.5, 0.15);
-                applyGravity();
-              }
+              // Placed brick may trigger cascade chains
+              cascadeCheck([bricks.length - 1]);
               continue;
             }
           }
@@ -1708,8 +1668,8 @@
       }
 
       html += '<div style="margin-top:10px;font-size:12px;"><strong>How to play</strong></div>';
-      html += '<div style="font-size:12px;">Break bricks with the ball. Groups of <strong>3+ same-color bricks</strong> touching each other glow with an outline \u2014 hit any one to <strong>clear the whole chain</strong> for big points!</div>';
-      html += '<div style="font-size:12px;margin-top:4px;">New rows push down from above. Don\u2019t let them reach the red line! Loose bricks rise from below \u2014 <strong>deflect them with the paddle</strong> to aim them into matching chains.</div>';
+      html += '<div style="font-size:12px;">Break bricks with the ball. When a brick is destroyed, bricks above it fall. If falling bricks form groups of <strong>3+ same-color</strong>, they <strong>cascade-clear</strong> for big points! Chain multiple cascades for huge multipliers.</div>';
+      html += '<div style="font-size:12px;margin-top:4px;">New rows push down from above. Don\u2019t let them reach the red line! Loose bricks rise from below \u2014 <strong>deflect them into matching colors</strong> to trigger chains.</div>';
 
       html += '<div style="margin-top:8px;font-size:12px;"><strong>Power-ups</strong></div>';
       html += '<div class="powerup-legend">';
