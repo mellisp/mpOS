@@ -274,7 +274,8 @@
     var elapsedTime = 0;
     var totalRowsSpawned = 0;
     var riseStartDelay = 10;
-    var BRICK_SLIDE_SPEED = 120; /* pixels per second for smooth slide */
+    var BRICK_SLIDE_SPEED = 120; /* pixels per second for rising-tide push */
+    var BRICK_GRAVITY_SPEED = 200; /* pixels per second for gravity drop */
 
     /* Cascade state */
     var cascadePending = [];
@@ -621,13 +622,16 @@
 
     function applyGravity() {
       // Find the lowest occupied row per column, then settle gaps
+      // Uses targetY for smooth animated falling instead of instant snaps
       var changed = true;
       while (changed) {
         changed = false;
         for (var i = 0; i < bricks.length; i++) {
           var b = bricks[i];
           if (!b.alive) continue;
-          var row = brickGridRow(b);
+          // Use the effective Y (where brick is heading, or where it is)
+          var effectiveY = (b.targetY !== undefined) ? b.targetY : b.y;
+          var row = Math.round((effectiveY - GRID_Y) / (BRICK_H + BRICK_GAP_Y));
           var col = brickGridCol(b);
           var belowRow = row + 1;
           var belowY = GRID_Y + belowRow * (BRICK_H + BRICK_GAP_Y);
@@ -635,20 +639,35 @@
           // Don't fall below the play area
           if (belowY > PADDLE_Y - PADDLE_H - BRICK_H) continue;
 
-          // Check if there's a brick below
-          var below = findBrickAt(belowRow, col);
-          if (!below) {
-            // Check if there's any alive brick at a lower row in this column
-            var hasLower = false;
-            for (var j = 0; j < bricks.length; j++) {
-              if (bricks[j].alive && brickGridCol(bricks[j]) === col && brickGridRow(bricks[j]) > row) {
-                hasLower = true;
+          // Check if there's a brick below (using effective positions)
+          var below = null;
+          for (var j = 0; j < bricks.length; j++) {
+            if (bricks[j].alive && bricks[j] !== b) {
+              var ey = (bricks[j].targetY !== undefined) ? bricks[j].targetY : bricks[j].y;
+              var bRow = Math.round((ey - GRID_Y) / (BRICK_H + BRICK_GAP_Y));
+              if (bRow === belowRow && brickGridCol(bricks[j]) === col) {
+                below = bricks[j];
                 break;
               }
             }
+          }
+          if (!below) {
+            // Check if there's any alive brick at a lower row in this column
+            var hasLower = false;
+            for (var k = 0; k < bricks.length; k++) {
+              if (bricks[k].alive && bricks[k] !== b) {
+                var eyk = (bricks[k].targetY !== undefined) ? bricks[k].targetY : bricks[k].y;
+                var kRow = Math.round((eyk - GRID_Y) / (BRICK_H + BRICK_GAP_Y));
+                if (brickGridCol(bricks[k]) === col && kRow > row) {
+                  hasLower = true;
+                  break;
+                }
+              }
+            }
             if (hasLower) {
-              // Move this brick down one row
-              b.y = belowY;
+              // Smooth slide to new position
+              b.targetY = belowY;
+              b.gravityDrop = true;
               changed = true;
             }
           }
@@ -1405,10 +1424,12 @@
           var sb = bricks[si];
           if (!sb.alive || sb.targetY === undefined) continue;
           if (sb.y < sb.targetY) {
-            sb.y = Math.min(sb.targetY, sb.y + BRICK_SLIDE_SPEED * dt);
+            var speed = sb.gravityDrop ? BRICK_GRAVITY_SPEED : BRICK_SLIDE_SPEED;
+            sb.y = Math.min(sb.targetY, sb.y + speed * dt);
             if (sb.y >= sb.targetY) {
               sb.y = sb.targetY;
               delete sb.targetY;
+              delete sb.gravityDrop;
             }
           }
         }
