@@ -219,7 +219,7 @@
     var HAZARD_CHANCE = 0.07;
     var HAZARD_FALL_SPEED = 200;
 
-    var DANGER_LINE_Y = 36;
+    var DANGER_LINE_Y = 560;
     var DEBRIS_FILL_THRESHOLD = 25;
 
     /* ── 3-Color Palette (Cyan / Amber / Rose) ── */
@@ -285,6 +285,13 @@
 
     /* Debris meter */
     var debrisMeter = 0;
+
+    /* Rising projectile bricks */
+    var risingBricks = [];
+    var risingBrickTimer = 0;
+    var RISING_BRICK_SPEED = 180;
+    var RISING_BRICK_INTERVAL_MIN = 6;
+    var RISING_BRICK_INTERVAL_MAX = 14;
 
     /* Last hit brick position (for Blast) */
     var lastHitBrickCol = -1;
@@ -424,39 +431,33 @@
       return c;
     }
 
-    /* ── Rising tide: spawn new row at bottom ── */
+    /* ── Rising tide: spawn new row at top, push bricks down ── */
     function spawnRisingRow() {
       totalRowsSpawned++;
       var rowShift = BRICK_H + BRICK_GAP_Y;
 
-      // Shift all existing bricks up
+      // Shift all existing bricks DOWN
       for (var i = 0; i < bricks.length; i++) {
         if (bricks[i].alive) {
-          bricks[i].y -= rowShift;
+          bricks[i].y += rowShift;
         }
       }
 
-      // Also shift falling hazards up
+      // Also shift falling hazards down
       for (var h = 0; h < fallingHazards.length; h++) {
-        fallingHazards[h].y -= rowShift;
+        fallingHazards[h].y += rowShift;
       }
 
-      // Check danger line — any brick above it means game over
+      // Check danger line — any brick past it means game over
       for (var j = 0; j < bricks.length; j++) {
-        if (bricks[j].alive && bricks[j].y < DANGER_LINE_Y) {
+        if (bricks[j].alive && bricks[j].y + bricks[j].h > DANGER_LINE_Y) {
           triggerGameOver();
           return;
         }
       }
 
-      // Generate new row at the bottom-most row position
-      var newRowY = GRID_Y + (ROWS - 1) * (BRICK_H + BRICK_GAP_Y);
-      // Find actual bottom by scanning existing bricks
-      var maxY = 0;
-      for (var k = 0; k < bricks.length; k++) {
-        if (bricks[k].alive && bricks[k].y > maxY) maxY = bricks[k].y;
-      }
-      if (maxY > 0) newRowY = maxY + rowShift;
+      // Generate new row at the top
+      var newRowY = GRID_Y;
 
       // Fill rate increases over time: 60% -> 85%
       var fillRate = Math.min(0.85, 0.6 + totalRowsSpawned * 0.005);
@@ -527,22 +528,38 @@
     }
 
     function triggerCascade(destroyedBrick) {
-      var group = findConnectedGroup(destroyedBrick);
-      // The destroyed brick is already dead, so check remaining group members
-      var aliveInGroup = [];
-      for (var i = 0; i < group.length; i++) {
-        if (group[i].alive) aliveInGroup.push(group[i]);
-      }
+      var targetColor = destroyedBrick.colorKey;
+      var startRow = brickGridRow(destroyedBrick);
+      var startCol = brickGridCol(destroyedBrick);
+      var alreadyQueued = {};
 
-      if (aliveInGroup.length >= 3) {
-        // Mark them for cascade destruction
-        chainCounter++;
-        if (chainCounter > longestChain) longestChain = chainCounter;
-        for (var j = 0; j < aliveInGroup.length; j++) {
-          aliveInGroup[j].flashTimer = 0.2;
-          cascadePending.push(aliveInGroup[j]);
+      // Check each neighbor of the destroyed brick
+      var neighbors = [
+        { r: startRow - 1, c: startCol },
+        { r: startRow + 1, c: startCol },
+        { r: startRow, c: startCol - 1 },
+        { r: startRow, c: startCol + 1 }
+      ];
+
+      for (var n = 0; n < neighbors.length; n++) {
+        var nb = findBrickAt(neighbors[n].r, neighbors[n].c);
+        if (!nb || !nb.alive || nb.colorKey !== targetColor) continue;
+
+        var nKey = brickGridRow(nb) + "," + brickGridCol(nb);
+        if (alreadyQueued[nKey]) continue;
+
+        var group = findConnectedGroup(nb);
+        if (group.length >= 3) {
+          chainCounter++;
+          if (chainCounter > longestChain) longestChain = chainCounter;
+          for (var j = 0; j < group.length; j++) {
+            var gKey = brickGridRow(group[j]) + "," + brickGridCol(group[j]);
+            alreadyQueued[gKey] = true;
+            group[j].flashTimer = 0.2;
+            cascadePending.push(group[j]);
+          }
+          cascadeDelay = 0.2;
         }
-        cascadeDelay = 0.2;
       }
     }
 
@@ -683,6 +700,8 @@
       longestChain = 0;
       comboStreak = 0;
       debrisMeter = 0;
+      risingBricks = [];
+      risingBrickTimer = RISING_BRICK_INTERVAL_MIN + Math.random() * (RISING_BRICK_INTERVAL_MAX - RISING_BRICK_INTERVAL_MIN);
       lastHitBrickCol = -1;
       lastHitBrickRow = -1;
       dailySeed = fnv(todayKey());
@@ -973,7 +992,8 @@
               });
             }
 
-            // Trigger cascade check
+            // Settle bricks, then check for cascades
+            applyGravity();
             chainCounter = 1;
             triggerCascade(b);
           }
@@ -1065,11 +1085,49 @@
       }
     }
 
+    function drawRisingBricks() {
+      var sx = scaleX();
+      var sy = scaleY();
+      for (var i = 0; i < risingBricks.length; i++) {
+        var rb = risingBricks[i];
+        var rx = rb.x * sx;
+        var ry = rb.y * sy;
+        var rw = rb.w * sx;
+        var rh = rb.h * sy;
+        var palette = COLORS[rb.colorKey];
+
+        // Brick face
+        ctx.fillStyle = palette.base;
+        ctx.fillRect(rx, ry, rw, rh);
+        // Top highlight
+        ctx.fillStyle = palette.highlight;
+        ctx.fillRect(rx, ry, rw, 1 * sy);
+        // Bottom shadow
+        ctx.fillStyle = palette.shadow;
+        ctx.fillRect(rx, ry + rh - 1 * sy, rw, 1 * sy);
+
+        // Upward arrow indicator
+        var cx = rx + rw / 2;
+        var cy = ry + rh / 2;
+        var aSize = Math.min(rw, rh) * 0.25;
+        ctx.strokeStyle = palette.highlight;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx - aSize, cy + aSize * 0.5);
+        ctx.lineTo(cx, cy - aSize * 0.5);
+        ctx.lineTo(cx + aSize, cy + aSize * 0.5);
+        ctx.stroke();
+      }
+    }
+
     function drawDangerLine() {
       var sx = scaleX();
       var sy = scaleY();
       ctx.fillStyle = "#99415a";
       ctx.fillRect(0, DANGER_LINE_Y * sy, canvas.width, 1);
+      // Subtle warning zone above danger line
+      ctx.fillStyle = "rgba(153,65,90,0.08)";
+      ctx.fillRect(0, DANGER_LINE_Y * sy, canvas.width, (PADDLE_Y - DANGER_LINE_Y) * sy);
     }
 
     function drawFallingHazards() {
@@ -1457,6 +1515,106 @@
             fallingHazards.splice(hi, 1);
           }
         }
+
+        // Spawn rising bricks
+        if (elapsedTime > riseStartDelay) {
+          risingBrickTimer -= dt;
+          if (risingBrickTimer <= 0) {
+            risingBrickTimer = RISING_BRICK_INTERVAL_MIN + Math.random() * (RISING_BRICK_INTERVAL_MAX - RISING_BRICK_INTERVAL_MIN);
+            var rbCol = Math.floor(Math.random() * COLS);
+            var rbX = GRID_X + rbCol * (BRICK_W + BRICK_GAP_X);
+            risingBricks.push({
+              x: rbX, y: VH + BRICK_H,
+              w: BRICK_W, h: BRICK_H,
+              colorKey: COLOR_KEYS[Math.floor(Math.random() * 3)],
+              col: rbCol
+            });
+          }
+        }
+
+        // Update rising bricks
+        for (var ri = risingBricks.length - 1; ri >= 0; ri--) {
+          var rb = risingBricks[ri];
+          rb.y -= RISING_BRICK_SPEED * dt;
+
+          // Ball collision — destroy the rising brick
+          var rbDestroyed = false;
+          for (var rbi = 0; rbi < balls.length; rbi++) {
+            var rball = balls[rbi];
+            if (rball.attached) continue;
+            var rcx = Math.max(rb.x, Math.min(rball.x, rb.x + rb.w));
+            var rcy = Math.max(rb.y, Math.min(rball.y, rb.y + rb.h));
+            var rdx = rball.x - rcx;
+            var rdy = rball.y - rcy;
+            if (rdx * rdx + rdy * rdy <= BALL_R * BALL_R) {
+              if (!rball.burner) rball.vy = -rball.vy;
+              score += 15;
+              debrisMeter = Math.min(DEBRIS_FILL_THRESHOLD, debrisMeter + 1);
+              risingBricks.splice(ri, 1);
+              rbDestroyed = true;
+              break;
+            }
+          }
+          if (rbDestroyed) continue;
+
+          // Paddle collision — smash the rising brick
+          if (rb.y <= PADDLE_Y + PADDLE_H &&
+              rb.y + rb.h >= PADDLE_Y &&
+              rb.x + rb.w >= paddleX - paddleW / 2 &&
+              rb.x <= paddleX + paddleW / 2) {
+            score += 15;
+            risingBricks.splice(ri, 1);
+            continue;
+          }
+
+          // Settle into grid: find bottommost brick in this column
+          var settleY = -1;
+          var bottomBrickY = -1;
+          for (var li = 0; li < bricks.length; li++) {
+            if (!bricks[li].alive) continue;
+            if (brickGridCol(bricks[li]) !== rb.col) continue;
+            if (bricks[li].y > bottomBrickY) bottomBrickY = bricks[li].y;
+          }
+
+          if (bottomBrickY >= 0) {
+            // Settle one row below the bottommost brick
+            var targetY = bottomBrickY + BRICK_H + BRICK_GAP_Y;
+            if (rb.y <= targetY) settleY = targetY;
+          } else if (rb.y <= GRID_Y) {
+            // Empty column — settle at top
+            settleY = GRID_Y;
+          }
+
+          if (settleY >= 0) {
+            // Snap to grid and become a regular brick
+            bricks.push({
+              x: rb.x, y: settleY, w: BRICK_W, h: BRICK_H,
+              type: "normal", hits: 1, maxHits: 1, points: 10,
+              colorKey: rb.colorKey, alive: true, hazard: false,
+              flashTimer: 0
+            });
+            risingBricks.splice(ri, 1);
+
+            // Check for cascades from the newly settled brick
+            var settledBrick = bricks[bricks.length - 1];
+            var sGroup = findConnectedGroup(settledBrick);
+            if (sGroup.length >= 3) {
+              chainCounter = 1;
+              if (chainCounter > longestChain) longestChain = chainCounter;
+              for (var sg = 0; sg < sGroup.length; sg++) {
+                sGroup[sg].flashTimer = 0.2;
+                cascadePending.push(sGroup[sg]);
+              }
+              cascadeDelay = 0.2;
+            }
+            continue;
+          }
+
+          // Off top of screen — remove
+          if (rb.y + rb.h < 0) {
+            risingBricks.splice(ri, 1);
+          }
+        }
       }
 
       /* ── Render ── */
@@ -1466,6 +1624,7 @@
       if (gameStarted) {
         drawDangerLine();
         drawBricks();
+        drawRisingBricks();
         drawFallingHazards();
         drawPowerups();
         drawPaddle();
@@ -1493,7 +1652,7 @@
       }
 
       html += '<div style="margin-top:10px;font-size:12px;"><strong>How it works</strong></div>';
-      html += '<div style="font-size:12px;">New rows rise from below. Match 3+ same-color bricks to chain-clear them. Survive as long as you can!</div>';
+      html += '<div style="font-size:12px;">New rows push down from the top. Match 3+ same-color bricks to chain-clear them. Loose bricks fly up from below \u2014 smash them with the paddle or let them settle to build chains!</div>';
 
       html += '<div style="margin-top:8px;font-size:12px;"><strong>Power-ups</strong></div>';
       html += '<div class="powerup-legend">';
