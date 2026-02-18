@@ -377,6 +377,17 @@ window._mpLangRegister('pt', {
   'error.geoTimeout': 'O pedido de localiza\u00e7\u00e3o expirou.',
   'error.geoFallback': 'N\u00e3o foi poss\u00edvel determinar a sua localiza\u00e7\u00e3o.',
 
+  /* Voice Commands */
+  'voice.title': 'Comandos de Voz',
+  'voice.clickToSpeak': 'Clique no mic para falar',
+  'voice.listening': 'A ouvir\u2026',
+  'voice.launched': 'Aberto!',
+  'voice.noSpeech': 'Nenhuma fala detetada',
+  'voice.denied': 'Acesso ao microfone negado',
+  'voice.error': 'Erro de reconhecimento',
+  'voice.notRecognized': 'Comando n\u00e3o reconhecido',
+  'voice.tryAgain': 'Tente novamente',
+
   /* Mobile launcher */
   'launcher.programs': 'Programas',
   'launcher.utilities': 'Utilit\u00e1rios',

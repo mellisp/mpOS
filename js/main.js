@@ -7264,6 +7264,235 @@ if (langBtn) {
   });
 }
 
+/* ── Voice Commands (system tray) ── */
+(function () {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+
+  var micIcon = document.getElementById('trayMicIcon');
+  var micPopup = document.getElementById('micPopup');
+  var micStatus = document.getElementById('micStatus');
+  var micTranscript = document.getElementById('micTranscript');
+  if (!micIcon || !micPopup) return;
+
+  micIcon.style.display = '';
+
+  var recognition = null;
+  var isListening = false;
+
+  // App name lookup: maps lowercase name → run function
+  var VOICE_APPS = {};
+  var allItems = (FOLDER_ITEMS.programs || []).concat(FOLDER_ITEMS.utilities || []);
+  for (var i = 0; i < allItems.length; i++) {
+    var item = allItems[i];
+    var fn = item.action && ACTION_MAP[item.action];
+    if (fn) {
+      // English fallback name
+      VOICE_APPS[item.name.toLowerCase()] = { fn: fn, label: item.name, item: item };
+    }
+  }
+
+  // Terminal COMMANDS that launch apps (skip shell-only commands)
+  var APP_COMMANDS = {};
+  var skipCommands = ['help','cd','ls','dir','echo','date','time','type','tree',
+    'whoami','hostname','systeminfo','ping','color','title','tasklist','taskkill',
+    'start','cls','clear','exit','ver','matrix','pwd','cat','uptime','history',
+    'touch','rm','fortune','neofetch','curl','fetch','top','edit','nano','ipconfig'];
+  for (var key in COMMANDS) {
+    if (skipCommands.indexOf(key) === -1 && COMMANDS[key].run) {
+      APP_COMMANDS[key] = COMMANDS[key].run;
+    }
+  }
+
+  function voiceStart() {
+    if (isListening) { voiceStop(); return; }
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 3;
+    recognition.lang = getLang() === 'pt' ? 'pt-PT' : 'en-US';
+
+    micIcon.classList.add('listening');
+    isListening = true;
+    micStatus.textContent = t('voice.listening');
+    micTranscript.textContent = '';
+    micTranscript.className = 'mic-popup-transcript';
+
+    recognition.onresult = function (ev) {
+      var last = ev.results[ev.results.length - 1];
+      micTranscript.textContent = last[0].transcript;
+      micTranscript.className = 'mic-popup-transcript';
+      if (last.isFinal) {
+        voiceProcessCommand(last[0].transcript, last);
+      }
+    };
+
+    recognition.onerror = function (ev) {
+      if (ev.error === 'no-speech') {
+        micStatus.textContent = t('voice.noSpeech');
+      } else if (ev.error === 'not-allowed') {
+        micStatus.textContent = t('voice.denied');
+      } else {
+        micStatus.textContent = t('voice.error');
+      }
+      micTranscript.className = 'mic-popup-transcript mic-error';
+    };
+
+    recognition.onend = function () {
+      voiceStop();
+    };
+
+    recognition.start();
+  }
+
+  function voiceStop() {
+    micIcon.classList.remove('listening');
+    isListening = false;
+    if (recognition) {
+      try { recognition.abort(); } catch (e) {}
+      recognition = null;
+    }
+  }
+
+  function voiceProcessCommand(transcript, results) {
+    var text = transcript.toLowerCase().trim();
+    // Strip command prefixes
+    var prefixes = ['open ', 'launch ', 'start ', 'abrir ', 'iniciar '];
+    for (var i = 0; i < prefixes.length; i++) {
+      if (text.indexOf(prefixes[i]) === 0) {
+        text = text.slice(prefixes[i].length).trim();
+        break;
+      }
+    }
+
+    // Try matching with primary transcript
+    var match = voiceMatchApp(text);
+
+    // Try speech alternatives if no match
+    if (!match && results.length > 1) {
+      for (var a = 1; a < results.length; a++) {
+        var altText = results[a].transcript.toLowerCase().trim();
+        for (var j = 0; j < prefixes.length; j++) {
+          if (altText.indexOf(prefixes[j]) === 0) {
+            altText = altText.slice(prefixes[j].length).trim();
+            break;
+          }
+        }
+        match = voiceMatchApp(altText);
+        if (match) break;
+      }
+    }
+
+    // Levenshtein fuzzy match as last resort
+    if (!match) {
+      match = voiceFuzzyMatch(text);
+    }
+
+    if (match) {
+      micStatus.textContent = t('voice.launched');
+      micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + match.label + '</span>';
+      match.fn();
+    } else {
+      micStatus.textContent = t('voice.notRecognized');
+      micTranscript.innerHTML = '<span class="mic-result mic-error">"' +
+        transcript + '"</span><br><span class="mic-error">' + t('voice.tryAgain') + '</span>';
+    }
+  }
+
+  function voiceMatchApp(text) {
+    // 1. Exact COMMANDS key
+    var normalized = text.replace(/\s+/g, '');
+    if (APP_COMMANDS[normalized]) {
+      var label = COMMANDS[normalized] ? COMMANDS[normalized].desc.replace(/^(Launch |Open )/, '') : normalized;
+      return { fn: APP_COMMANDS[normalized], label: label };
+    }
+
+    // 2. FOLDER_ITEMS name match (localized) — exact then substring
+    for (var i = 0; i < allItems.length; i++) {
+      var item = allItems[i];
+      var fn = item.action && ACTION_MAP[item.action];
+      if (!fn) continue;
+      var name = itemName(item).toLowerCase();
+      if (name === text) return { fn: fn, label: itemName(item), item: item };
+    }
+    for (var j = 0; j < allItems.length; j++) {
+      var item2 = allItems[j];
+      var fn2 = item2.action && ACTION_MAP[item2.action];
+      if (!fn2) continue;
+      var name2 = itemName(item2).toLowerCase();
+      if (name2.indexOf(text) !== -1 && text.length >= 3) return { fn: fn2, label: itemName(item2), item: item2 };
+    }
+
+    return null;
+  }
+
+  function voiceFuzzyMatch(text) {
+    var bestDist = Infinity;
+    var bestMatch = null;
+    // Check against all app names
+    for (var i = 0; i < allItems.length; i++) {
+      var item = allItems[i];
+      var fn = item.action && ACTION_MAP[item.action];
+      if (!fn) continue;
+      var name = itemName(item).toLowerCase();
+      var dist = voiceLevenshtein(text, name);
+      var threshold = Math.max(2, Math.floor(name.length * 0.35));
+      if (dist <= threshold && dist < bestDist) {
+        bestDist = dist;
+        bestMatch = { fn: fn, label: itemName(item), item: item };
+      }
+    }
+    // Also check COMMANDS keys
+    for (var key in APP_COMMANDS) {
+      var dist2 = voiceLevenshtein(text, key);
+      var threshold2 = Math.max(2, Math.floor(key.length * 0.35));
+      if (dist2 <= threshold2 && dist2 < bestDist) {
+        bestDist = dist2;
+        var label = COMMANDS[key] ? COMMANDS[key].desc.replace(/^(Launch |Open )/, '') : key;
+        bestMatch = { fn: APP_COMMANDS[key], label: label };
+      }
+    }
+    return bestMatch;
+  }
+
+  function voiceLevenshtein(a, b) {
+    var m = a.length, n = b.length;
+    var dp = [];
+    for (var i = 0; i <= m; i++) {
+      dp[i] = [i];
+      for (var j = 1; j <= n; j++) {
+        dp[i][j] = i === 0 ? j :
+          Math.min(
+            dp[i - 1][j] + 1,
+            dp[i][j - 1] + 1,
+            dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+          );
+      }
+    }
+    return dp[m][n];
+  }
+
+  micIcon.addEventListener('click', function (e) {
+    e.stopPropagation();
+    // Close other popups
+    var vp = document.querySelector('.volume-popup');
+    if (vp) vp.classList.remove('open');
+    var np = document.querySelector('.net-popup');
+    if (np) np.classList.remove('open');
+    var sm = document.querySelector('.start-menu');
+    var sb = document.querySelector('.start-btn');
+    if (sm) sm.classList.remove('open');
+    if (sb) sb.classList.remove('pressed');
+
+    micPopup.classList.toggle('open');
+    if (micPopup.classList.contains('open')) {
+      voiceStart();
+    } else {
+      voiceStop();
+    }
+  });
+})();
+
 /* ── Refresh dynamic content on language change ── */
 function isVisible(id) {
   var el = document.getElementById(id);

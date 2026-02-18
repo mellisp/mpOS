@@ -384,6 +384,17 @@
     'error.geoTimeout': 'Location request timed out.',
     'error.geoFallback': 'Could not determine your location.',
 
+    /* Voice Commands */
+    'voice.title': 'Voice Commands',
+    'voice.clickToSpeak': 'Click mic to speak',
+    'voice.listening': 'Listening\u2026',
+    'voice.launched': 'Launched!',
+    'voice.noSpeech': 'No speech detected',
+    'voice.denied': 'Microphone access denied',
+    'voice.error': 'Recognition error',
+    'voice.notRecognized': 'Command not recognized',
+    'voice.tryAgain': 'Try again',
+
     /* Mobile launcher */
     'launcher.programs': 'Programs',
     'launcher.utilities': 'Utilities',
