@@ -51,6 +51,7 @@
       if (np) np.classList.remove('open');
       var mp = document.getElementById('micPopup');
       if (mp) mp.classList.remove('open');
+      if (window.mpVoiceStop) window.mpVoiceStop();
       if (startMenu) startMenu.classList.remove('open');
       if (startBtn) startBtn.classList.remove('pressed');
     });
@@ -122,6 +123,7 @@
       if (volumePopup) volumePopup.classList.remove('open');
       var mp = document.getElementById('micPopup');
       if (mp) mp.classList.remove('open');
+      if (window.mpVoiceStop) window.mpVoiceStop();
       if (startMenu) startMenu.classList.remove('open');
       if (startBtn) startBtn.classList.remove('pressed');
     });
@@ -156,6 +158,7 @@
     var micIcon = document.getElementById('trayMicIcon');
     if (micPopup && !micPopup.contains(e.target) && micIcon && !micIcon.contains(e.target)) {
       micPopup.classList.remove('open');
+      if (window.mpVoiceStop) window.mpVoiceStop();
     }
   });
 

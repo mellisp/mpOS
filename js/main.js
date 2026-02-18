@@ -7273,12 +7273,16 @@ if (langBtn) {
   var micPopup = document.getElementById('micPopup');
   var micStatus = document.getElementById('micStatus');
   var micTranscript = document.getElementById('micTranscript');
+  var micHelpToggle = document.getElementById('micHelpToggle');
+  var micHelpList = document.getElementById('micHelpList');
   if (!micIcon || !micPopup) return;
 
   micIcon.style.display = '';
 
   var recognition = null;
   var isListening = false;
+  var autoCloseTimer = null;
+  var helpBuilt = false;
 
   // App name lookup: maps lowercase name → run function
   var VOICE_APPS = {};
@@ -7287,7 +7291,6 @@ if (langBtn) {
     var item = allItems[i];
     var fn = item.action && ACTION_MAP[item.action];
     if (fn) {
-      // English fallback name
       VOICE_APPS[item.name.toLowerCase()] = { fn: fn, label: item.name, item: item };
     }
   }
@@ -7304,8 +7307,49 @@ if (langBtn) {
     }
   }
 
+  /* ── Audio feedback (Web Audio API) ── */
+  function voiceBeep(freq, duration) {
+    if (localStorage.getItem('mp-muted') === '1') return;
+    var vol = parseFloat(localStorage.getItem('mp-volume') || '0.1');
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.value = vol * 0.3;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.stop(ctx.currentTime + duration);
+  }
+
+  /* ── Auto-close popup after success ── */
+  function voiceAutoClose() {
+    autoCloseTimer = setTimeout(function () {
+      micPopup.classList.add('fading');
+      micPopup.addEventListener('animationend', function onFade() {
+        micPopup.removeEventListener('animationend', onFade);
+        micPopup.classList.remove('open', 'fading');
+      });
+      autoCloseTimer = null;
+    }, 1500);
+  }
+
+  function cancelAutoClose() {
+    if (autoCloseTimer) { clearTimeout(autoCloseTimer); autoCloseTimer = null; }
+    micPopup.classList.remove('fading');
+  }
+
+  /* ── Window ID from FOLDER_ITEMS action ── */
+  function voiceGetWinId(item) {
+    if (!item || !item.action) return null;
+    return item.action.slice(4).toLowerCase(); // openCalculator → calculator
+  }
+
   function voiceStart() {
     if (isListening) { voiceStop(); return; }
+    cancelAutoClose();
     recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = true;
@@ -7317,6 +7361,7 @@ if (langBtn) {
     micStatus.textContent = t('voice.listening');
     micTranscript.textContent = '';
     micTranscript.className = 'mic-popup-transcript';
+    voiceBeep(783.99, 0.12); // G5 — start listening
 
     recognition.onresult = function (ev) {
       var last = ev.results[ev.results.length - 1];
@@ -7336,6 +7381,8 @@ if (langBtn) {
         micStatus.textContent = t('voice.error');
       }
       micTranscript.className = 'mic-popup-transcript mic-error';
+      voiceBeep(659.25, 0.12);
+      setTimeout(function () { voiceBeep(523.25, 0.12); }, 120);
     };
 
     recognition.onend = function () {
@@ -7356,12 +7403,49 @@ if (langBtn) {
 
   function voiceProcessCommand(transcript, results) {
     var text = transcript.toLowerCase().trim();
-    // Strip command prefixes
-    var prefixes = ['open ', 'launch ', 'start ', 'abrir ', 'iniciar '];
-    for (var i = 0; i < prefixes.length; i++) {
-      if (text.indexOf(prefixes[i]) === 0) {
-        text = text.slice(prefixes[i].length).trim();
+    var action = 'open'; // default action
+
+    // Check for language switch
+    var langPrefixes = ['switch language', 'change language', 'mudar idioma', 'trocar idioma'];
+    for (var lp = 0; lp < langPrefixes.length; lp++) {
+      if (text === langPrefixes[lp] || text.indexOf(langPrefixes[lp]) === 0) {
+        setLanguage(getLang() === 'pt' ? 'en' : 'pt');
+        micStatus.textContent = t('voice.langSwitched');
+        micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + t('voice.langSwitched') + '</span>';
+        voiceBeep(523.25, 0.1);
+        setTimeout(function () { voiceBeep(659.25, 0.1); }, 100);
+        return;
+      }
+    }
+
+    // Check for close/minimize prefixes
+    var closePrefixes = ['close ', 'fechar '];
+    var minPrefixes = ['minimize ', 'minimizar '];
+    for (var cp = 0; cp < closePrefixes.length; cp++) {
+      if (text.indexOf(closePrefixes[cp]) === 0) {
+        action = 'close';
+        text = text.slice(closePrefixes[cp].length).trim();
         break;
+      }
+    }
+    if (action === 'open') {
+      for (var mp = 0; mp < minPrefixes.length; mp++) {
+        if (text.indexOf(minPrefixes[mp]) === 0) {
+          action = 'minimize';
+          text = text.slice(minPrefixes[mp].length).trim();
+          break;
+        }
+      }
+    }
+
+    // Strip open/launch/start prefixes (only if still action=open)
+    if (action === 'open') {
+      var openPrefixes = ['open ', 'launch ', 'start ', 'abrir ', 'iniciar '];
+      for (var op = 0; op < openPrefixes.length; op++) {
+        if (text.indexOf(openPrefixes[op]) === 0) {
+          text = text.slice(openPrefixes[op].length).trim();
+          break;
+        }
       }
     }
 
@@ -7372,9 +7456,11 @@ if (langBtn) {
     if (!match && results.length > 1) {
       for (var a = 1; a < results.length; a++) {
         var altText = results[a].transcript.toLowerCase().trim();
-        for (var j = 0; j < prefixes.length; j++) {
-          if (altText.indexOf(prefixes[j]) === 0) {
-            altText = altText.slice(prefixes[j].length).trim();
+        // Strip same prefixes from alternatives
+        var allPrefixes = closePrefixes.concat(minPrefixes, ['open ', 'launch ', 'start ', 'abrir ', 'iniciar ']);
+        for (var ap = 0; ap < allPrefixes.length; ap++) {
+          if (altText.indexOf(allPrefixes[ap]) === 0) {
+            altText = altText.slice(allPrefixes[ap].length).trim();
             break;
           }
         }
@@ -7383,19 +7469,87 @@ if (langBtn) {
       }
     }
 
-    // Levenshtein fuzzy match as last resort
+    // Levenshtein fuzzy match as last resort (tight threshold)
     if (!match) {
-      match = voiceFuzzyMatch(text);
+      match = voiceFuzzyMatch(text, false);
     }
 
     if (match) {
-      micStatus.textContent = t('voice.launched');
-      micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + match.label + '</span>';
-      match.fn();
+      if (action === 'close' || action === 'minimize') {
+        var winId = match.item ? voiceGetWinId(match.item) : null;
+        var win = winId && document.getElementById(winId);
+        if (win && win.style.display !== 'none') {
+          if (action === 'close') {
+            mpTaskbar.closeWindow(winId);
+            micStatus.textContent = t('voice.closed');
+            micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + t('voice.close') + ' ' + match.label + '</span>';
+          } else {
+            mpTaskbar.minimizeWindow(winId);
+            micStatus.textContent = t('voice.minimized');
+            micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + t('voice.minimize') + ' ' + match.label + '</span>';
+          }
+          voiceBeep(523.25, 0.1);
+          setTimeout(function () { voiceBeep(659.25, 0.1); }, 100);
+        } else {
+          micStatus.textContent = t('voice.noWindow');
+          micTranscript.innerHTML = '<span class="mic-result mic-error">"' + transcript + '"</span>';
+          voiceBeep(659.25, 0.12);
+          setTimeout(function () { voiceBeep(523.25, 0.12); }, 120);
+        }
+      } else {
+        // Open action
+        micStatus.textContent = t('voice.launched');
+        micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + match.label + '</span>';
+        match.fn();
+        voiceBeep(523.25, 0.1);
+        setTimeout(function () { voiceBeep(659.25, 0.1); }, 100);
+        voiceAutoClose();
+      }
     } else {
-      micStatus.textContent = t('voice.notRecognized');
-      micTranscript.innerHTML = '<span class="mic-result mic-error">"' +
-        transcript + '"</span><br><span class="mic-error">' + t('voice.tryAgain') + '</span>';
+      // No match — try wider fuzzy for "Did you mean?"
+      var suggestion = voiceFuzzyMatch(text, true);
+      if (suggestion) {
+        micStatus.textContent = t('voice.didYouMean', { app: suggestion.label });
+        micTranscript.innerHTML = '';
+        var btn = document.createElement('button');
+        btn.className = 'mic-suggestion';
+        btn.textContent = suggestion.label;
+        btn.onclick = function () {
+          if (action === 'close' || action === 'minimize') {
+            var sWinId = suggestion.item ? voiceGetWinId(suggestion.item) : null;
+            var sWin = sWinId && document.getElementById(sWinId);
+            if (sWin && sWin.style.display !== 'none') {
+              if (action === 'close') {
+                mpTaskbar.closeWindow(sWinId);
+                micStatus.textContent = t('voice.closed');
+                micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + t('voice.close') + ' ' + suggestion.label + '</span>';
+              } else {
+                mpTaskbar.minimizeWindow(sWinId);
+                micStatus.textContent = t('voice.minimized');
+                micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + t('voice.minimize') + ' ' + suggestion.label + '</span>';
+              }
+            } else {
+              micStatus.textContent = t('voice.noWindow');
+              micTranscript.innerHTML = '';
+            }
+          } else {
+            suggestion.fn();
+            micStatus.textContent = t('voice.launched');
+            micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + suggestion.label + '</span>';
+            voiceAutoClose();
+          }
+          voiceBeep(523.25, 0.1);
+          setTimeout(function () { voiceBeep(659.25, 0.1); }, 100);
+        };
+        micTranscript.appendChild(btn);
+        voiceBeep(587.33, 0.1); // D5 — questioning tone
+      } else {
+        micStatus.textContent = t('voice.notRecognized');
+        micTranscript.innerHTML = '<span class="mic-result mic-error">"' +
+          transcript + '"</span><br><span class="mic-error">' + t('voice.tryAgain') + '</span>';
+        voiceBeep(659.25, 0.12);
+        setTimeout(function () { voiceBeep(523.25, 0.12); }, 120);
+      }
     }
   }
 
@@ -7426,30 +7580,32 @@ if (langBtn) {
     return null;
   }
 
-  function voiceFuzzyMatch(text) {
+  function voiceFuzzyMatch(text, wide) {
     var bestDist = Infinity;
     var bestMatch = null;
-    // Check against all app names
     for (var i = 0; i < allItems.length; i++) {
       var item = allItems[i];
       var fn = item.action && ACTION_MAP[item.action];
       if (!fn) continue;
       var name = itemName(item).toLowerCase();
       var dist = voiceLevenshtein(text, name);
-      var threshold = Math.max(2, Math.floor(name.length * 0.35));
+      var threshold = wide
+        ? Math.max(3, Math.floor(name.length * 0.5))
+        : Math.max(2, Math.floor(name.length * 0.35));
       if (dist <= threshold && dist < bestDist) {
         bestDist = dist;
         bestMatch = { fn: fn, label: itemName(item), item: item };
       }
     }
-    // Also check COMMANDS keys
-    for (var key in APP_COMMANDS) {
-      var dist2 = voiceLevenshtein(text, key);
-      var threshold2 = Math.max(2, Math.floor(key.length * 0.35));
-      if (dist2 <= threshold2 && dist2 < bestDist) {
-        bestDist = dist2;
-        var label = COMMANDS[key] ? COMMANDS[key].desc.replace(/^(Launch |Open )/, '') : key;
-        bestMatch = { fn: APP_COMMANDS[key], label: label };
+    if (!wide) {
+      for (var key in APP_COMMANDS) {
+        var dist2 = voiceLevenshtein(text, key);
+        var threshold2 = Math.max(2, Math.floor(key.length * 0.35));
+        if (dist2 <= threshold2 && dist2 < bestDist) {
+          bestDist = dist2;
+          var label = COMMANDS[key] ? COMMANDS[key].desc.replace(/^(Launch |Open )/, '') : key;
+          bestMatch = { fn: APP_COMMANDS[key], label: label };
+        }
       }
     }
     return bestMatch;
@@ -7472,8 +7628,53 @@ if (langBtn) {
     return dp[m][n];
   }
 
+  /* ── Help list ("What can I say?") ── */
+  function buildHelpList() {
+    if (!micHelpList) return;
+    micHelpList.innerHTML = '';
+    var dl = document.createElement('dl');
+
+    // Open apps
+    var dtOpen = document.createElement('dt');
+    dtOpen.textContent = t('voice.helpOpen').replace(/"/g, '');
+    dl.appendChild(dtOpen);
+    for (var i = 0; i < allItems.length; i++) {
+      var dd = document.createElement('dd');
+      dd.textContent = itemName(allItems[i]);
+      dl.appendChild(dd);
+    }
+
+    // Actions
+    var dtAct = document.createElement('dt');
+    dtAct.textContent = (getLang() === 'pt' ? 'A\u00e7\u00f5es:' : 'Actions:');
+    dl.appendChild(dtAct);
+    var actions = [t('voice.helpClose'), t('voice.helpMinimize'), t('voice.helpLang')];
+    for (var j = 0; j < actions.length; j++) {
+      var ddA = document.createElement('dd');
+      ddA.textContent = actions[j];
+      dl.appendChild(ddA);
+    }
+
+    micHelpList.appendChild(dl);
+    helpBuilt = true;
+  }
+
+  if (micHelpToggle) {
+    micHelpToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (!helpBuilt) buildHelpList();
+      var showing = micHelpList.style.display !== 'none';
+      micHelpList.style.display = showing ? 'none' : '';
+    });
+  }
+
+  window.addEventListener('languagechange', function () {
+    if (helpBuilt) { helpBuilt = false; buildHelpList(); }
+  });
+
   micIcon.addEventListener('click', function (e) {
     e.stopPropagation();
+    cancelAutoClose();
     // Close other popups
     var vp = document.querySelector('.volume-popup');
     if (vp) vp.classList.remove('open');
@@ -7491,6 +7692,8 @@ if (langBtn) {
       voiceStop();
     }
   });
+
+  window.mpVoiceStop = voiceStop;
 })();
 
 /* ── Refresh dynamic content on language change ── */

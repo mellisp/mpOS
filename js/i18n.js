@@ -394,6 +394,18 @@
     'voice.error': 'Recognition error',
     'voice.notRecognized': 'Command not recognized',
     'voice.tryAgain': 'Try again',
+    'voice.didYouMean': 'Did you mean "{app}"?',
+    'voice.close': 'Close',
+    'voice.minimize': 'Minimize',
+    'voice.closed': 'Closed',
+    'voice.minimized': 'Minimized',
+    'voice.langSwitched': 'Language switched',
+    'voice.noWindow': 'No open window found',
+    'voice.helpTitle': 'What can I say?',
+    'voice.helpOpen': '"Open [app name]"',
+    'voice.helpClose': '"Close [app name]"',
+    'voice.helpMinimize': '"Minimize [app name]"',
+    'voice.helpLang': '"Switch language"',
 
     /* Mobile launcher */
     'launcher.programs': 'Programs',

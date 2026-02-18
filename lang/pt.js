@@ -387,6 +387,18 @@ window._mpLangRegister('pt', {
   'voice.error': 'Erro de reconhecimento',
   'voice.notRecognized': 'Comando n\u00e3o reconhecido',
   'voice.tryAgain': 'Tente novamente',
+  'voice.didYouMean': 'Quis dizer "{app}"?',
+  'voice.close': 'Fechar',
+  'voice.minimize': 'Minimizar',
+  'voice.closed': 'Fechado',
+  'voice.minimized': 'Minimizado',
+  'voice.langSwitched': 'Idioma alterado',
+  'voice.noWindow': 'Nenhuma janela aberta encontrada',
+  'voice.helpTitle': 'O que posso dizer?',
+  'voice.helpOpen': '"Abrir [nome do app]"',
+  'voice.helpClose': '"Fechar [nome do app]"',
+  'voice.helpMinimize': '"Minimizar [nome do app]"',
+  'voice.helpLang': '"Mudar idioma"',
 
   /* Mobile launcher */
   'launcher.programs': 'Programas',
