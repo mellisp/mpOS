@@ -217,38 +217,43 @@ let explorerCurrentView = 'list';
 let explorerTreeItems = null;
 
 const FOLDER_ITEMS = {
-  programs: [
+  games: [
+    { name: 'On Target', _key: 'onTarget', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget' },
+    { name: 'Chicken Fingers', _key: 'chickenFingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers', href: 'chicken-fingers.html' },
+    { name: 'Brick Breaker', _key: 'brickBreaker', desc: 'Daily brick-breaking challenge.', tag: 'HTML', action: 'openBrickBreaker' }
+  ],
+  internet: [
     { name: 'WikiBrowser', _key: 'wikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'HTML', action: 'openBrowser' },
     { name: 'Fish of the Day', _key: 'fishOfDay', desc: 'A new fish every day, powered by Wikipedia.', tag: 'HTML', action: 'openFishOfDay' },
     { name: 'Fish Finder', _key: 'fishFinder', desc: 'Find the closest aquarium near you.', tag: 'HTML', action: 'openFishFinder' },
-    { name: 'On Target', _key: 'onTarget', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget' },
-    { name: 'Virtual Aquarium', _key: 'aquarium', desc: 'Watch real fish, in real-time.', tag: 'HTML', action: 'openAquarium' },
-    { name: 'Chicken Fingers', _key: 'chickenFingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers', href: 'chicken-fingers.html' },
+    { name: 'Virtual Aquarium', _key: 'aquarium', desc: 'Watch real fish, in real-time.', tag: 'HTML', action: 'openAquarium' }
+  ],
+  accessories: [
+    { name: 'Notepad', _key: 'notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad' },
     { name: 'Paint', _key: 'paint', desc: 'Create and edit images.', tag: 'HTML', action: 'openPaint' },
-    { name: 'Brick Breaker', _key: 'brickBreaker', desc: 'Daily brick-breaking challenge.', tag: 'HTML', action: 'openBrickBreaker' }
+    { name: 'Sticky Notes', _key: 'stickyNotes', desc: 'Post-it style notes on the desktop.', tag: 'HTML', action: 'openStickyNotes' },
+    { name: 'White Noise Mixer', _key: 'noiseMixer', desc: 'Mix colored noise for focus, sleep, or relaxation.', tag: 'HTML', action: 'openNoiseMixer' }
   ],
   documents: [],
   utilities: [
-    { name: 'Notepad', _key: 'notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad' },
     { name: 'Calculator', _key: 'calculator', desc: 'Basic arithmetic calculator.', tag: 'HTML', action: 'openCalculator' },
     { name: 'Calendar', _key: 'calendar', desc: 'Monthly calendar viewer.', tag: 'HTML', action: 'openCalendar' },
     { name: 'Time Zone', _key: 'timeZone', desc: 'World clocks for 8 cities.', tag: 'HTML', action: 'openTimeZone' },
     { name: 'Weather', _key: 'weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather' },
     { name: 'Disk Usage', _key: 'diskUsage', desc: 'Source code breakdown by file type.', tag: 'HTML', action: 'openDiskUsage' },
     { name: 'Visitor Map', _key: 'visitorMap', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
-    { name: 'Help', _key: 'help', desc: 'Browse the mpOS help documentation.', tag: 'HTML', action: 'openHelp' },
-    { name: 'Search', _key: 'search', desc: 'Search for files, programs, and commands.', tag: 'HTML', action: 'openSearch' },
-    { name: 'White Noise Mixer', _key: 'noiseMixer', desc: 'Mix colored noise for focus, sleep, or relaxation.', tag: 'HTML', action: 'openNoiseMixer' },
-    { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' },
-    { name: 'Sticky Notes', _key: 'stickyNotes', desc: 'Post-it style notes on the desktop.', tag: 'HTML', action: 'openStickyNotes' }
+    { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' }
   ]
 };
 
 const FOLDER_NAMES = {
-  all: { title: 'Files', address: 'C:\\mpOS', _titleKey: 'title.files' },
-  programs: { title: 'Programs', address: 'C:\\mpOS\\Programs', _titleKey: 'ui.programs' },
-  documents: { title: 'Documents', address: 'C:\\mpOS\\Documents', _titleKey: 'ui.documents' },
-  utilities: { title: 'Utilities', address: 'C:\\mpOS\\Utilities', _titleKey: 'ui.utilities' }
+  all:         { title: 'Files',       address: 'C:\\mpOS',                        _titleKey: 'title.files' },
+  programs:    { title: 'Programs',    address: 'C:\\mpOS\\Programs',              _titleKey: 'ui.programs',    children: ['games', 'internet', 'accessories'] },
+  games:       { title: 'Games',       address: 'C:\\mpOS\\Programs\\Games',       _titleKey: 'ui.games' },
+  internet:    { title: 'Internet',    address: 'C:\\mpOS\\Programs\\Internet',    _titleKey: 'ui.internet' },
+  accessories: { title: 'Accessories', address: 'C:\\mpOS\\Programs\\Accessories', _titleKey: 'ui.accessories' },
+  documents:   { title: 'Documents',   address: 'C:\\mpOS\\Documents',             _titleKey: 'ui.documents' },
+  utilities:   { title: 'Utilities',   address: 'C:\\mpOS\\Utilities',             _titleKey: 'ui.utilities' }
 };
 
 function itemName(item) { return item._key ? t('app.' + item._key + '.name') : item.name; }
@@ -271,7 +276,7 @@ function navigateExplorer(folder) {
   document.getElementById('explorerAddress').textContent = info.address;
 
   if (!explorerTreeItems) explorerTreeItems = document.querySelectorAll('#explorer .tree-item');
-  var folderIndex = { all: 0, programs: 1, documents: 2, utilities: 3 };
+  var folderIndex = { all: 0, programs: 1, games: 2, internet: 3, accessories: 4, documents: 5, utilities: 6 };
   explorerTreeItems.forEach(function (el, i) {
     el.classList.toggle('active', i === folderIndex[folder]);
   });
@@ -292,10 +297,61 @@ function explorerItemAction(item) {
 function renderExplorerContent() {
   var body = document.getElementById('explorerBody');
   var status = document.getElementById('explorerStatus');
-  var items;
+  var info = FOLDER_NAMES[explorerCurrentFolder];
 
+  // Parent folders with children show subfolder tiles
+  if (info && info.children) {
+    var keys = info.children;
+    status.textContent = tPlural('explorer.itemCount', keys.length);
+    var container = document.createElement('div');
+    container.className = explorerCurrentView === 'icon' ? 'folder-icon-view' : 'folder-list-view';
+    keys.forEach(function (key) {
+      var sub = FOLDER_NAMES[key];
+      if (!sub) return;
+      var label = sub._titleKey ? t(sub._titleKey) : sub.title;
+      if (explorerCurrentView === 'icon') {
+        var tile = document.createElement('div');
+        tile.className = 'folder-icon-tile';
+        tile.addEventListener('dblclick', function () { navigateExplorer(key); });
+        var icon = document.createElement('span');
+        icon.className = 'folder-tile-icon';
+        icon.textContent = '\uD83D\uDCC2';
+        tile.appendChild(icon);
+        var nameEl = document.createElement('span');
+        nameEl.className = 'folder-icon-label';
+        nameEl.textContent = label;
+        tile.appendChild(nameEl);
+      } else {
+        var tile = document.createElement('div');
+        tile.className = 'folder-list-item';
+        tile.addEventListener('dblclick', function () { navigateExplorer(key); });
+        var icon = document.createElement('span');
+        icon.className = 'folder-tile-icon';
+        icon.textContent = '\uD83D\uDCC2';
+        tile.appendChild(icon);
+        var nameEl = document.createElement('span');
+        nameEl.className = 'folder-list-name';
+        nameEl.textContent = label;
+        tile.appendChild(nameEl);
+        var descEl = document.createElement('span');
+        descEl.className = 'folder-list-desc';
+        descEl.textContent = '';
+        tile.appendChild(descEl);
+        var tagEl = document.createElement('span');
+        tagEl.className = 'tag';
+        tagEl.textContent = 'Folder';
+        tile.appendChild(tagEl);
+      }
+      container.appendChild(tile);
+    });
+    body.textContent = '';
+    body.appendChild(container);
+    return;
+  }
+
+  var items;
   if (explorerCurrentFolder === 'all') {
-    items = FOLDER_ITEMS.programs.concat(FOLDER_ITEMS.documents, FOLDER_ITEMS.utilities);
+    items = FOLDER_ITEMS.games.concat(FOLDER_ITEMS.internet, FOLDER_ITEMS.accessories, FOLDER_ITEMS.documents, FOLDER_ITEMS.utilities);
   } else {
     items = FOLDER_ITEMS[explorerCurrentFolder];
   }
@@ -4688,25 +4744,23 @@ function searchNow() {
 
   var totalCount = 0;
 
-  // 1. Programs
-  var progMatches = FOLDER_ITEMS.programs.filter(function (item) {
-    return itemName(item).toLowerCase().indexOf(query) !== -1 ||
-           itemDesc(item).toLowerCase().indexOf(query) !== -1;
+  // 1. Search all app categories
+  var searchCategories = [
+    { key: 'games',       i18n: 'search.group.games' },
+    { key: 'internet',    i18n: 'search.group.internet' },
+    { key: 'accessories', i18n: 'search.group.accessories' },
+    { key: 'utilities',   i18n: 'search.group.utilities' }
+  ];
+  searchCategories.forEach(function (cat) {
+    var matches = FOLDER_ITEMS[cat.key].filter(function (item) {
+      return itemName(item).toLowerCase().indexOf(query) !== -1 ||
+             itemDesc(item).toLowerCase().indexOf(query) !== -1;
+    });
+    if (matches.length) {
+      totalCount += matches.length;
+      results.appendChild(searchBuildGroup(t(cat.i18n), matches, 'program'));
+    }
   });
-  if (progMatches.length) {
-    totalCount += progMatches.length;
-    results.appendChild(searchBuildGroup(t('search.group.programs'), progMatches, 'program'));
-  }
-
-  // 2. Utilities
-  var utilMatches = FOLDER_ITEMS.utilities.filter(function (item) {
-    return itemName(item).toLowerCase().indexOf(query) !== -1 ||
-           itemDesc(item).toLowerCase().indexOf(query) !== -1;
-  });
-  if (utilMatches.length) {
-    totalCount += utilMatches.length;
-    results.appendChild(searchBuildGroup(t('search.group.utilities'), utilMatches, 'program'));
-  }
 
   // 3. Files
   var fileMatches = [];
@@ -6028,7 +6082,12 @@ const FILESYSTEM = {
       { name: 'WikiBrowser', run: function () { openBrowser(); } }
     ]
   },
-  'C:\\mpOS\\Programs': { items: FOLDER_ITEMS.programs },
+  'C:\\mpOS\\Programs': {
+    children: ['Games', 'Internet', 'Accessories']
+  },
+  'C:\\mpOS\\Programs\\Games': { items: FOLDER_ITEMS.games },
+  'C:\\mpOS\\Programs\\Internet': { items: FOLDER_ITEMS.internet },
+  'C:\\mpOS\\Programs\\Accessories': { items: FOLDER_ITEMS.accessories },
   'C:\\mpOS\\Documents': {
     items: FOLDER_ITEMS.documents
   },
@@ -6070,9 +6129,12 @@ const COMMANDS = {
   'browser':     { run: openBrowser,     desc: 'Launch WikiBrowser' },
   'mycomputer':  { run: function () { openMyComputer(); }, desc: 'Open System Properties' },
   'explorer':    { run: openExplorer,    desc: 'Open Files' },
-  'programs':    { run: function () { openExplorerTo('programs'); },   desc: 'Open Programs folder' },
-  'documents':   { run: function () { openExplorerTo('documents'); },  desc: 'Open Documents folder' },
-  'utilities':   { run: function () { openExplorerTo('utilities'); },  desc: 'Open Utilities folder' },
+  'programs':    { run: function () { openExplorerTo('programs'); },     desc: 'Open Programs folder' },
+  'games':       { run: function () { openExplorerTo('games'); },       desc: 'Open Games folder' },
+  'internet':    { run: function () { openExplorerTo('internet'); },    desc: 'Open Internet folder' },
+  'accessories': { run: function () { openExplorerTo('accessories'); }, desc: 'Open Accessories folder' },
+  'documents':   { run: function () { openExplorerTo('documents'); },   desc: 'Open Documents folder' },
+  'utilities':   { run: function () { openExplorerTo('utilities'); },   desc: 'Open Utilities folder' },
   'notepad':     { run: openNotepad,     desc: 'Open Notepad' },
   'calculator':  { run: openCalculator,  desc: 'Open Calculator' },
   'calendar':    { run: openCalendar,    desc: 'Open Calendar' },
@@ -7080,27 +7142,31 @@ mobileQuery.addEventListener('change', function (e) {
 
 /* ── Mobile Launcher ── */
 function buildLauncher() {
-  var programs = [
+  var games = [
+    { name: 'On Target', _key: 'onTarget', action: openOnTarget },
+    { name: 'Chicken Fingers', _key: 'chickenFingers', action: null, href: 'chicken-fingers.html' },
+    { name: 'Brick Breaker', _key: 'brickBreaker', action: openBrickBreaker }
+  ];
+  var internet = [
     { name: 'WikiBrowser', _key: 'wikiBrowser', action: openBrowser },
     { name: 'Fish of the Day', _key: 'fishOfDay', action: openFishOfDay },
     { name: 'Fish Finder', _key: 'fishFinder', action: openFishFinder },
-    { name: 'On Target', _key: 'onTarget', action: openOnTarget },
-    { name: 'Virtual Aquarium', _key: 'aquarium', action: openAquarium },
-    { name: 'Chicken Fingers', _key: 'chickenFingers', action: null, href: 'chicken-fingers.html' },
+    { name: 'Virtual Aquarium', _key: 'aquarium', action: openAquarium }
+  ];
+  var accessories = [
+    { name: 'Notepad', _key: 'notepad', action: openNotepad },
     { name: 'Paint', _key: 'paint', action: openPaint },
-    { name: 'Brick Breaker', _key: 'brickBreaker', action: openBrickBreaker }
+    { name: 'Sticky Notes', _key: 'stickyNotes', action: openStickyNotes },
+    { name: 'White Noise Mixer', _key: 'noiseMixer', action: openNoiseMixer }
   ];
   var utilities = [
-    { name: 'Notepad', _key: 'notepad', action: openNotepad },
     { name: 'Calculator', _key: 'calculator', action: openCalculator },
     { name: 'Calendar', _key: 'calendar', action: openCalendar },
     { name: 'Time Zone', _key: 'timeZone', action: openTimeZone },
     { name: 'Weather', _key: 'weather', action: openWeather },
     { name: 'Disk Usage', _key: 'diskUsage', action: openDiskUsage },
     { name: 'Visitor Map', _key: 'visitorMap', action: openVisitorMap },
-    { name: 'White Noise Mixer', _key: 'noiseMixer', action: openNoiseMixer },
-    { name: 'Stopwatch', _key: 'stopwatch', action: openStopwatch },
-    { name: 'Sticky Notes', _key: 'stickyNotes', action: openStickyNotes }
+    { name: 'Stopwatch', _key: 'stopwatch', action: openStopwatch }
   ];
   var system = [
     { name: 'My Computer', _key: 'myComputer', action: openMyComputer },
@@ -7110,14 +7176,14 @@ function buildLauncher() {
   ];
 
   // Clear grids (may be called again on language change)
-  ['launcherPrograms', 'launcherUtilities', 'launcherSystem'].forEach(function (id) {
+  ['launcherGames', 'launcherInternet', 'launcherAccessories', 'launcherUtilities', 'launcherSystem'].forEach(function (id) {
     var el = document.getElementById(id);
     if (el) el.textContent = '';
   });
 
   // Update section titles
   var secTitles = document.querySelectorAll('.launcher-section-title');
-  var titleKeys = ['launcher.programs', 'launcher.utilities', 'launcher.system'];
+  var titleKeys = ['launcher.games', 'launcher.internet', 'launcher.accessories', 'launcher.utilities', 'launcher.system'];
   for (var i = 0; i < secTitles.length && i < titleKeys.length; i++) {
     secTitles[i].textContent = t(titleKeys[i]);
   }
@@ -7147,14 +7213,16 @@ function buildLauncher() {
     });
   }
 
-  populateGrid('launcherPrograms', programs);
+  populateGrid('launcherGames', games);
+  populateGrid('launcherInternet', internet);
+  populateGrid('launcherAccessories', accessories);
   populateGrid('launcherUtilities', utilities);
   populateGrid('launcherSystem', system);
 }
 
 if (mobileQuery.matches) buildLauncher();
 mobileQuery.addEventListener('change', function (e) {
-  if (e.matches && !document.getElementById('launcherPrograms').children.length) {
+  if (e.matches && !document.getElementById('launcherGames').children.length) {
     buildLauncher();
   }
 });
@@ -7287,7 +7355,7 @@ if (langBtn) {
 
   // App name lookup: maps lowercase name → run function
   var VOICE_APPS = {};
-  var allItems = (FOLDER_ITEMS.programs || []).concat(FOLDER_ITEMS.utilities || []);
+  var allItems = (FOLDER_ITEMS.games || []).concat(FOLDER_ITEMS.internet || [], FOLDER_ITEMS.accessories || [], FOLDER_ITEMS.utilities || []);
   for (var i = 0; i < allItems.length; i++) {
     var item = allItems[i];
     var fn = item.action && ACTION_MAP[item.action];

@@ -3,6 +3,9 @@ window._mpLangRegister('pt', {
   /* UI chrome */
   'ui.start': 'Iniciar',
   'ui.programs': 'Programas',
+  'ui.games': 'Jogos',
+  'ui.internet': 'Internet',
+  'ui.accessories': 'Acess\u00f3rios',
   'ui.documents': 'Documentos',
   'ui.utilities': 'Utilit\u00e1rios',
   'ui.help': 'Ajuda',
@@ -126,6 +129,9 @@ window._mpLangRegister('pt', {
   /* Explorer sidebar */
   'explorer.sidebar.mpOS': 'mpOS',
   'explorer.sidebar.programs': 'Programas',
+  'explorer.sidebar.games': 'Jogos',
+  'explorer.sidebar.internet': 'Internet',
+  'explorer.sidebar.accessories': 'Acess\u00f3rios',
   'explorer.sidebar.documents': 'Documentos',
   'explorer.sidebar.utilities': 'Utilit\u00e1rios',
 
@@ -366,7 +372,9 @@ window._mpLangRegister('pt', {
   'search.ready': 'Pronto',
   'search.noResults': 'Nenhum item corresponde \u00e0 pesquisa.',
   'search.itemsFound': '{count} itens encontrados',
-  'search.group.programs': 'Programas',
+  'search.group.games': 'Jogos',
+  'search.group.internet': 'Internet',
+  'search.group.accessories': 'Acess\u00f3rios',
   'search.group.utilities': 'Utilit\u00e1rios',
   'search.group.files': 'Ficheiros',
   'search.group.commands': 'Comandos',
@@ -401,7 +409,9 @@ window._mpLangRegister('pt', {
   'voice.helpLang': '"Mudar idioma"',
 
   /* Mobile launcher */
-  'launcher.programs': 'Programas',
+  'launcher.games': 'Jogos',
+  'launcher.internet': 'Internet',
+  'launcher.accessories': 'Acess\u00f3rios',
   'launcher.utilities': 'Utilit\u00e1rios',
   'launcher.system': 'Sistema',
 

@@ -13,10 +13,12 @@
 */
 
 var HELP_TREE = [
-  { title: 'Getting Started', title_pt: 'Primeiros Passos', children: ['welcome', 'desktop', 'startmenu', 'taskbar'] },
-  { title: 'Programs',        title_pt: 'Programas',        children: ['wikibrowser', 'fishofday', 'fishfinder', 'ontarget', 'aquarium', 'chickenfingers', 'paint', 'brickbreaker'] },
-  { title: 'Utilities',       title_pt: 'Utilit\u00e1rios', children: ['notepad', 'calculator', 'calendar', 'timezone', 'weather', 'diskusage', 'visitormap', 'search'] },
-  { title: 'System',          title_pt: 'Sistema',          children: ['mycomputer', 'explorer', 'run', 'taskmanager'] }
+  { title: 'Getting Started', title_pt: 'Primeiros Passos',  children: ['welcome', 'desktop', 'startmenu', 'taskbar'] },
+  { title: 'Games',           title_pt: 'Jogos',             children: ['ontarget', 'chickenfingers', 'brickbreaker'] },
+  { title: 'Internet',        title_pt: 'Internet',          children: ['wikibrowser', 'fishofday', 'fishfinder', 'aquarium'] },
+  { title: 'Accessories',     title_pt: 'Acess\u00f3rios',   children: ['notepad', 'paint'] },
+  { title: 'Utilities',       title_pt: 'Utilit\u00e1rios',  children: ['calculator', 'calendar', 'timezone', 'weather', 'diskusage', 'visitormap', 'search'] },
+  { title: 'System',          title_pt: 'Sistema',           children: ['mycomputer', 'explorer', 'run', 'taskmanager'] }
 ];
 
 var HELP_TOPICS = {

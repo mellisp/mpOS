@@ -725,6 +725,7 @@
 .tree-item:hover { background: var(--highlight); color: var(--highlight-text); }
 .tree-item.active { background: var(--highlight); color: var(--highlight-text); font-weight: bold; }
 .tree-child { padding-left: 24px; }
+.tree-grandchild { padding-left: 40px; }
 .tree-icon { font-size: 14px; }
 
 .explorer-content {
@@ -761,6 +762,7 @@
 }
 
 .folder-icon-tile svg { width: var(--ui-icon-md); height: var(--ui-icon-md); margin-bottom: 4px; }
+.folder-icon-tile .folder-tile-icon { font-size: var(--ui-icon-md); line-height: 1; margin-bottom: 4px; }
 
 .folder-icon-tile .folder-icon-label {
   font-size: var(--ui-font-xs);
@@ -789,6 +791,7 @@
 .folder-list-item:hover .tag { background: var(--title-light); color: var(--highlight); }
 
 .folder-list-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.folder-list-item .folder-tile-icon { font-size: 16px; flex-shrink: 0; }
 
 .folder-list-item .folder-list-name {
   font-weight: bold;

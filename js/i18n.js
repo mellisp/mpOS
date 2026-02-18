@@ -10,6 +10,9 @@
     /* UI chrome */
     'ui.start': 'Start',
     'ui.programs': 'Programs',
+    'ui.games': 'Games',
+    'ui.internet': 'Internet',
+    'ui.accessories': 'Accessories',
     'ui.documents': 'Documents',
     'ui.utilities': 'Utilities',
     'ui.help': 'Help',
@@ -133,6 +136,9 @@
     /* Explorer sidebar */
     'explorer.sidebar.mpOS': 'mpOS',
     'explorer.sidebar.programs': 'Programs',
+    'explorer.sidebar.games': 'Games',
+    'explorer.sidebar.internet': 'Internet',
+    'explorer.sidebar.accessories': 'Accessories',
     'explorer.sidebar.documents': 'Documents',
     'explorer.sidebar.utilities': 'Utilities',
 
@@ -373,7 +379,9 @@
     'search.ready': 'Ready',
     'search.noResults': 'No items match your search.',
     'search.itemsFound': '{count} items found',
-    'search.group.programs': 'Programs',
+    'search.group.games': 'Games',
+    'search.group.internet': 'Internet',
+    'search.group.accessories': 'Accessories',
     'search.group.utilities': 'Utilities',
     'search.group.files': 'Files',
     'search.group.commands': 'Commands',
@@ -408,7 +416,9 @@
     'voice.helpLang': '"Switch language"',
 
     /* Mobile launcher */
-    'launcher.programs': 'Programs',
+    'launcher.games': 'Games',
+    'launcher.internet': 'Internet',
+    'launcher.accessories': 'Accessories',
     'launcher.utilities': 'Utilities',
     'launcher.system': 'System',
 
