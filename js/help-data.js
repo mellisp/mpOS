@@ -888,7 +888,7 @@ var HELP_TOPICS = {
     keywords: ['files', 'explorer', 'folder', 'browse', 'programs', 'documents', 'utilities', 'navigate'],
     keywords_pt: ['ficheiros', 'explorador', 'pasta', 'navegar', 'programas', 'documentos', 'utilit\u00e1rios', 'navegar'],
     body: [
-      { p: 'The Explorer window is a file browser for navigating mpOS applications, modeled after Windows 2000 Explorer.' },
+      { p: 'The Explorer window is a file browser for navigating mpOS applications, modeled after classic desktop file managers.' },
       { h: 'Layout' },
       { ul: [
         'The left sidebar shows a folder tree: mpOS (all items), Programs, Documents, and Utilities.',
@@ -905,7 +905,7 @@ var HELP_TOPICS = {
       { sa: ['startmenu', 'desktop'] }
     ],
     body_pt: [
-      { p: 'A janela do Explorador \u00e9 um navegador de ficheiros para percorrer as aplica\u00e7\u00f5es do mpOS, inspirado no Windows 2000 Explorer.' },
+      { p: 'A janela do Explorador \u00e9 um navegador de ficheiros para percorrer as aplica\u00e7\u00f5es do mpOS, inspirado nos gestores de ficheiros clássicos.' },
       { h: 'Disposi\u00e7\u00e3o' },
       { ul: [
         'A barra lateral esquerda mostra uma \u00e1rvore de pastas: mpOS (todos os itens), Programas, Documentos e Utilit\u00e1rios.',

@@ -6056,6 +6056,7 @@ function cmdRm(args) {
   }
   cur.files.splice(idx, 1);
   termPrint('Deleted: ' + filename);
+  termSaveState();
 }
 
 let fortuneIndex = Math.floor(Math.random() * FORTUNE_QUOTES.length);
@@ -6301,7 +6302,10 @@ function cmdCls() {
   termOutput.textContent = '';
 }
 
-const MPOS_VERSION = '2.0.1';
+let MPOS_VERSION = '2.4';
+fetch('version.json').then(function (r) { return r.json(); }).then(function (d) {
+  if (d && d.version) MPOS_VERSION = d.version;
+}).catch(function () {});
 
 function cmdVer() { termPrint('mpOS [Version ' + MPOS_VERSION + ']\n(c) Matthew Pritchard. All rights reserved.\n'); }
 
@@ -6688,6 +6692,7 @@ function cmdColor(args) {
   }
   term.style.backgroundColor = COLOR_TABLE[attr[0]];
   term.style.color = COLOR_TABLE[attr[1]];
+  termSaveState();
 }
 
 function cmdTitle(args) {
@@ -6698,6 +6703,7 @@ function cmdTitle(args) {
     return;
   }
   titleSpan.textContent = args.trim();
+  termSaveState();
 }
 
 function cmdTasklist() {
@@ -6915,7 +6921,7 @@ function editSave(textarea) {
   let cur = FILESYSTEM[termCwd];
   if (!cur) return;
   if (!cur.files) cur.files = [];
-  let content = textarea.value;
+  let content = textarea.value.slice(0, TERM_MAX_FILE_SIZE);
   let file = cur.files.find(function (f) {
     return f.name.toLowerCase() === editFilename.toLowerCase();
   });
@@ -6923,8 +6929,10 @@ function editSave(textarea) {
     file.content = content;
     file.size = content.length;
   } else {
+    if (termCountFiles() >= TERM_MAX_FILES) return;
     cur.files.push({ name: editFilename, content: content, size: content.length });
   }
+  termSaveState();
 }
 
 function cmdEdit(args) {
@@ -7080,6 +7088,8 @@ termInput.addEventListener('keydown', function (e) {
   /* Push to history */
   if (termHistory.length === 0 || termHistory[termHistory.length - 1] !== raw) {
     termHistory.push(raw);
+    if (termHistory.length > TERM_MAX_HISTORY) termHistory.shift();
+    termSaveState();
   }
   termHistoryIndex = -1;
   termSavedInput = '';
@@ -7090,24 +7100,7 @@ termInput.addEventListener('keydown', function (e) {
   if (COMMANDS[cmd]) {
     COMMANDS[cmd].run(args);
   } else {
-    /* Try local item execution in current directory */
-    let cur = FILESYSTEM[termCwd];
-    let localItem = null;
-    if (cur && cur.items) {
-      let input = raw.toLowerCase();
-      localItem = cur.items.find(function (item) {
-        return item.name.toLowerCase() === input;
-      });
-    }
-    if (localItem) {
-      if (localItem.run) {
-        localItem.run();
-      } else if (localItem.action && ACTION_MAP[localItem.action]) {
-        ACTION_MAP[localItem.action]();
-      }
-    } else {
-      termPrint("'" + raw + "' is not recognized as an internal or external command,\noperable program or batch file.\n");
-    }
+    termPrint("'" + raw + "' is not recognized as an internal or external command,\noperable program or batch file.\n");
   }
 });
 

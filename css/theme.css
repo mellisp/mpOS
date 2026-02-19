@@ -44,7 +44,7 @@ body {
   background: var(--desktop);
 }
 
-/* XP raised panel — shared border + shadow */
+/* Raised panel — shared border + shadow */
 .window,
 .device-dialog,
 .btn,
