@@ -1838,6 +1838,7 @@
     const autoBtn = document.getElementById('smAutoBtn');
     if (autoBtn) { autoBtn.classList.remove('sm-auto-active'); autoBtn.textContent = t('sm.auto'); }
     smSaveState();
+    smIntroShown = false;
     mpTaskbar.closeWindow('slotmachine');
   };
 

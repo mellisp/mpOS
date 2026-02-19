@@ -352,49 +352,6 @@ document.addEventListener('click', (e) => {
 
 /* ── Export public API ── */
 window.openWindow = openWindow;
-/* ── Global tooltip system (Win2000 style) ── */
-const tipEl = document.createElement('div');
-tipEl.id = 'mpTooltip';
-document.body.appendChild(tipEl);
-
-let tipTarget = null;
-let tipTimer = null;
-
-document.addEventListener('mouseover', (e) => {
-  const el = e.target.closest('[data-tip]');
-  if (!el) return;
-  tipTarget = el;
-  clearTimeout(tipTimer);
-  tipTimer = setTimeout(() => {
-    const text = el.getAttribute('data-tip');
-    if (!text) return;
-    tipEl.textContent = text;
-    tipEl.style.display = 'block';
-    // Position near cursor
-    const x = Math.min(e.clientX + 12, window.innerWidth - tipEl.offsetWidth - 4);
-    const y = e.clientY + 20;
-    tipEl.style.left = x + 'px';
-    tipEl.style.top = (y + tipEl.offsetHeight > window.innerHeight ? e.clientY - tipEl.offsetHeight - 4 : y) + 'px';
-  }, 400);
-}, true);
-
-document.addEventListener('mousemove', (e) => {
-  if (tipEl.style.display !== 'block') return;
-  const x = Math.min(e.clientX + 12, window.innerWidth - tipEl.offsetWidth - 4);
-  const y = e.clientY + 20;
-  tipEl.style.left = x + 'px';
-  tipEl.style.top = (y + tipEl.offsetHeight > window.innerHeight ? e.clientY - tipEl.offsetHeight - 4 : y) + 'px';
-}, true);
-
-document.addEventListener('mouseout', (e) => {
-  if (!tipTarget) return;
-  // Stay visible if still within the tooltip target
-  if (tipTarget.contains(e.relatedTarget)) return;
-  clearTimeout(tipTimer);
-  tipEl.style.display = 'none';
-  tipTarget = null;
-}, true);
-
 window.closeStartMenu = closeStartMenu;
 window.mpConfirm = mpConfirm;
 window.alertTriangleSVG = alertTriangleSVG;
@@ -417,5 +374,46 @@ Object.defineProperty(window, 'MPOS_VERSION', {
   set: (v) => { MPOS_VERSION = v; },
   configurable: true
 });
+
+/* ── Global tooltip system (Win2000 style) ── */
+const tipEl = document.createElement('div');
+tipEl.id = 'mpTooltip';
+document.body.appendChild(tipEl);
+
+let tipTarget = null;
+let tipTimer = null;
+
+document.addEventListener('mouseover', (e) => {
+  const el = e.target.closest('[data-tip]');
+  if (!el) return;
+  tipTarget = el;
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(() => {
+    const text = el.getAttribute('data-tip');
+    if (!text) return;
+    tipEl.textContent = text;
+    tipEl.style.display = 'block';
+    const x = Math.min(e.clientX + 12, window.innerWidth - tipEl.offsetWidth - 4);
+    const y = e.clientY + 20;
+    tipEl.style.left = x + 'px';
+    tipEl.style.top = (y + tipEl.offsetHeight > window.innerHeight ? e.clientY - tipEl.offsetHeight - 4 : y) + 'px';
+  }, 400);
+}, true);
+
+document.addEventListener('mousemove', (e) => {
+  if (tipEl.style.display !== 'block') return;
+  const x = Math.min(e.clientX + 12, window.innerWidth - tipEl.offsetWidth - 4);
+  const y = e.clientY + 20;
+  tipEl.style.left = x + 'px';
+  tipEl.style.top = (y + tipEl.offsetHeight > window.innerHeight ? e.clientY - tipEl.offsetHeight - 4 : y) + 'px';
+}, true);
+
+document.addEventListener('mouseout', (e) => {
+  if (!tipTarget) return;
+  if (tipTarget.contains(e.relatedTarget)) return;
+  clearTimeout(tipTimer);
+  tipEl.style.display = 'none';
+  tipTarget = null;
+}, true);
 
 })();
