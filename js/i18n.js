@@ -15,6 +15,7 @@
     'ui.games': 'Games',
     'ui.internet': 'Internet',
     'ui.accessories': 'Accessories',
+    'ui.audio': 'Audio',
     'ui.documents': 'Documents',
     'ui.utilities': 'Utilities',
     'ui.help': 'Help',
@@ -90,6 +91,7 @@
     'title.cryptography': 'Cryptography',
     'title.fractal': 'Fractal Explorer',
     'title.slotMachine': 'Slot Machine',
+    'title.reverb': 'Reverb',
 
     /* Start menu: Search sub-items */
     'startSearch.files': 'For Files or Folders...',
@@ -151,6 +153,8 @@
     'app.fractal.desc': 'Interactive Mandelbrot and Julia set visualizer.',
     'app.slotMachine.name': 'Slot Machine',
     'app.slotMachine.desc': 'Classic 3-reel slot machine with hold & nudge.',
+    'app.reverb.name': 'Reverb',
+    'app.reverb.desc': 'Audio reverb effect with patch cable routing.',
     'sticky.deleteConfirm': 'Delete this note?',
     'app.myComputer.name': 'My Computer',
     'app.files.name': 'Files',
@@ -166,6 +170,7 @@
     'explorer.sidebar.games': 'Games',
     'explorer.sidebar.internet': 'Internet',
     'explorer.sidebar.accessories': 'Accessories',
+    'explorer.sidebar.audio': 'Audio',
     'explorer.sidebar.documents': 'Documents',
     'explorer.sidebar.utilities': 'Utilities',
 
@@ -470,7 +475,7 @@
 
     /* Voice Commands */
     'voice.title': 'Voice Commands',
-    'voice.clickToSpeak': 'Click mic to speak',
+    'voice.clickToSpeak': 'Click mic or press Alt+Space',
     'voice.listening': 'Listening\u2026',
     'voice.launched': 'Launched!',
     'voice.noSpeech': 'No speech detected',
@@ -490,11 +495,16 @@
     'voice.helpClose': '"Close [app name]"',
     'voice.helpMinimize': '"Minimize [app name]"',
     'voice.helpLang': '"Switch language"',
+    'voice.continuous': 'Continuous listening',
+    'voice.stopped': 'Stopped listening',
+    'voice.clickToStop': 'Click to stop listening',
+    'voice.helpStop': '"Stop listening"',
 
     /* Mobile launcher */
     'launcher.games': 'Games',
     'launcher.internet': 'Internet',
     'launcher.accessories': 'Accessories',
+    'launcher.audio': 'Audio',
     'launcher.utilities': 'Utilities',
     'launcher.system': 'System',
 
@@ -527,6 +537,15 @@
     'win.cryptography': 'Cryptography',
     'win.fractal': 'Fractal Explorer',
     'win.slotmachine': 'Slot Machine',
+    'win.reverb': 'Reverb',
+
+    /* Reverb presets */
+    'reverb.preset.smallRoom': 'Small Room',
+    'reverb.preset.mediumRoom': 'Medium Room',
+    'reverb.preset.largeHall': 'Large Hall',
+    'reverb.preset.plate': 'Plate',
+    'reverb.preset.bathroom': 'Bathroom',
+    'reverb.preset.cathedral': 'Cathedral',
 
     /* Slot Machine */
     'sm.credit': 'CREDIT',

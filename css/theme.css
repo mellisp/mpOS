@@ -738,6 +738,75 @@ button.start-menu-item {
 .vc-mic-btn.listening svg line { stroke: #c62828; }
 .vc-mic-btn.listening { animation: mic-pulse 1s ease-in-out infinite; }
 
+/* Voice state: heard (solid red) */
+.tray-mic.heard svg rect,
+.tray-mic.heard svg path,
+.tray-mic.heard svg line { stroke: #c62828; fill: none; }
+.tray-mic.heard svg rect[fill] { fill: #c62828; }
+.tray-mic.heard { animation: none; opacity: 1; }
+
+.vc-mic-btn.heard svg rect[fill] { fill: #c62828; }
+.vc-mic-btn.heard svg path,
+.vc-mic-btn.heard svg line { stroke: #c62828; }
+.vc-mic-btn.heard { animation: none; opacity: 1; }
+
+/* Voice state: executing (green flash) */
+.tray-mic.executing svg rect,
+.tray-mic.executing svg path,
+.tray-mic.executing svg line { stroke: #2e7d32; fill: none; }
+.tray-mic.executing svg rect[fill] { fill: #2e7d32; }
+.tray-mic.executing { animation: none; opacity: 1; }
+
+.vc-mic-btn.executing svg rect[fill] { fill: #2e7d32; }
+.vc-mic-btn.executing svg path,
+.vc-mic-btn.executing svg line { stroke: #2e7d32; }
+.vc-mic-btn.executing { animation: none; opacity: 1; }
+
+/* Floating voice indicator pill */
+.voice-indicator {
+  display: none;
+  position: absolute;
+  bottom: 40px;
+  right: 8px;
+  z-index: 998;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+  padding: 3px 10px;
+  font-size: var(--ui-font-xs);
+  font-family: var(--font);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-items: center;
+  gap: 6px;
+}
+.voice-indicator.visible { display: flex; }
+
+.voice-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.voice-indicator.state-listening .voice-indicator-dot {
+  background: #c62828;
+  animation: mic-pulse 1s ease-in-out infinite;
+}
+.voice-indicator.state-heard .voice-indicator-dot {
+  background: #c62828;
+  animation: none;
+}
+.voice-indicator.state-executing .voice-indicator-dot {
+  background: #2e7d32;
+  animation: none;
+}
+
 /* "Did you mean?" clickable suggestion */
 .vc-suggestion {
   display: inline-block;
@@ -759,7 +828,8 @@ button.start-menu-item {
 .vc-error { color: #c62828; }
 
 @media (prefers-reduced-motion) {
-  .tray-mic.listening, .vc-mic-btn.listening { animation: none; }
+  .tray-mic.listening, .vc-mic-btn.listening,
+  .voice-indicator.state-listening .voice-indicator-dot { animation: none; }
 }
 
 /* ── Tablet breakpoint — touch-enhanced desktop ── */

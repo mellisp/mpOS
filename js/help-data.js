@@ -18,7 +18,7 @@ var HELP_TREE = [
   { title: 'Internet',        title_pt: 'Internet',          children: ['wikibrowser', 'archivebrowser', 'fishofday', 'fishfinder', 'aquarium'] },
   { title: 'Accessories',     title_pt: 'Acess\u00f3rios',   children: ['notepad', 'paint'] },
   { title: 'Utilities',       title_pt: 'Utilit\u00e1rios',  children: ['calculator', 'calendar', 'timezone', 'weather', 'diskusage', 'visitormap', 'search'] },
-  { title: 'System',          title_pt: 'Sistema',           children: ['mycomputer', 'explorer', 'run', 'taskmanager'] }
+  { title: 'System',          title_pt: 'Sistema',           children: ['mycomputer', 'explorer', 'run', 'taskmanager', 'voicecommands'] }
 ];
 
 var HELP_TOPICS = {
@@ -1075,6 +1075,59 @@ var HELP_TOPICS = {
         'Escreva TASKMANAGER no terminal Executar.'
       ]},
       { sa: ['run', 'mycomputer'] }
+    ]
+  },
+
+  voicecommands: {
+    title: 'Voice Commands',
+    title_pt: 'Comandos de Voz',
+    keywords: ['voice', 'commands', 'microphone', 'speech', 'recognition', 'alt space', 'continuous', 'listening', 'stop'],
+    keywords_pt: ['voz', 'comandos', 'microfone', 'fala', 'reconhecimento', 'alt espa\u00e7o', 'cont\u00ednua', 'ouvir', 'parar'],
+    body: [
+      { p: 'Voice Commands lets you control mpOS with your voice. Open and close apps, switch language, and more \u2014 all hands-free.' },
+      { h: 'Starting Voice Commands' },
+      { ul: [
+        'Press Alt+Space from anywhere to toggle voice listening on or off.',
+        'Click the microphone icon in the system tray.',
+        'Open the Voice Commands window from the Start menu or Explorer.'
+      ]},
+      { h: 'What You Can Say' },
+      { ul: [
+        '"Open [app name]" \u2014 launches any application (e.g., "Open Calculator").',
+        '"Close [app name]" \u2014 closes an open window.',
+        '"Minimize [app name]" \u2014 minimizes a window.',
+        '"Switch language" \u2014 toggles between English and Portuguese.',
+        '"Stop listening" \u2014 stops voice recognition.'
+      ]},
+      { h: 'Continuous Listening' },
+      { p: 'Enable the "Continuous listening" checkbox in the Voice Commands window. When on, recognition automatically restarts after each command so you can speak multiple commands without clicking again.' },
+      { p: 'Say "Stop listening" or press Alt+Space to turn off continuous mode.' },
+      { h: 'Floating Indicator' },
+      { p: 'When voice is active without the Voice Commands window open, a small floating indicator appears above the system tray showing the current state (listening, heard, executing). Click it to stop listening.' },
+      { sa: ['startmenu', 'taskmanager'] }
+    ],
+    body_pt: [
+      { p: 'Os Comandos de Voz permitem-lhe controlar o mpOS com a sua voz. Abrir e fechar aplica\u00e7\u00f5es, mudar idioma e muito mais \u2014 tudo sem usar as m\u00e3os.' },
+      { h: 'Iniciar os Comandos de Voz' },
+      { ul: [
+        'Pressione Alt+Espa\u00e7o em qualquer lugar para ativar ou desativar a escuta por voz.',
+        'Clique no \u00edcone do microfone no tabuleiro do sistema.',
+        'Abra a janela Comandos de Voz a partir do menu Iniciar ou do Explorador.'
+      ]},
+      { h: 'O Que Pode Dizer' },
+      { ul: [
+        '"Abrir [nome do app]" \u2014 abre qualquer aplica\u00e7\u00e3o (ex.: "Abrir Calculadora").',
+        '"Fechar [nome do app]" \u2014 fecha uma janela aberta.',
+        '"Minimizar [nome do app]" \u2014 minimiza uma janela.',
+        '"Mudar idioma" \u2014 alterna entre ingl\u00eas e portugu\u00eas.',
+        '"Parar de ouvir" \u2014 para o reconhecimento de voz.'
+      ]},
+      { h: 'Escuta Cont\u00ednua' },
+      { p: 'Ative a caixa de sele\u00e7\u00e3o "Escuta cont\u00ednua" na janela Comandos de Voz. Quando ativa, o reconhecimento reinicia automaticamente ap\u00f3s cada comando para que possa dizer v\u00e1rios comandos sem clicar novamente.' },
+      { p: 'Diga "Parar de ouvir" ou pressione Alt+Espa\u00e7o para desativar o modo cont\u00ednuo.' },
+      { h: 'Indicador Flutuante' },
+      { p: 'Quando a voz est\u00e1 ativa sem a janela Comandos de Voz aberta, um pequeno indicador flutuante aparece acima do tabuleiro do sistema mostrando o estado atual (a ouvir, ouvido, a executar). Clique nele para parar de ouvir.' },
+      { sa: ['startmenu', 'taskmanager'] }
     ]
   }
 };

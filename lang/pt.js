@@ -6,6 +6,7 @@ window._mpLangRegister('pt', {
   'ui.games': 'Jogos',
   'ui.internet': 'Internet',
   'ui.accessories': 'Acess\u00f3rios',
+  'ui.audio': '\u00c1udio',
   'ui.documents': 'Documentos',
   'ui.utilities': 'Utilit\u00e1rios',
   'ui.help': 'Ajuda',
@@ -81,6 +82,7 @@ window._mpLangRegister('pt', {
   'title.cryptography': 'Criptografia',
   'title.fractal': 'Explorador Fractal',
   'title.slotMachine': 'Ca\u00e7a-N\u00edqueis',
+  'title.reverb': 'Reverb',
 
   /* Start menu: Search sub-items */
   'startSearch.files': 'Ficheiros ou Pastas...',
@@ -142,6 +144,8 @@ window._mpLangRegister('pt', {
   'app.fractal.desc': 'Visualizador interativo de conjuntos de Mandelbrot e Julia.',
   'app.slotMachine.name': 'Ca\u00e7a-N\u00edqueis',
   'app.slotMachine.desc': 'Ca\u00e7a-n\u00edqueis cl\u00e1ssico de 3 rolos com reter e empurrar.',
+  'app.reverb.name': 'Reverb',
+  'app.reverb.desc': 'Efeito de reverb com cabos de patch.',
   'sticky.deleteConfirm': 'Apagar esta nota?',
   'app.myComputer.name': 'O Meu Computador',
   'app.files.name': 'Ficheiros',
@@ -157,6 +161,7 @@ window._mpLangRegister('pt', {
   'explorer.sidebar.games': 'Jogos',
   'explorer.sidebar.internet': 'Internet',
   'explorer.sidebar.accessories': 'Acess\u00f3rios',
+  'explorer.sidebar.audio': '\u00c1udio',
   'explorer.sidebar.documents': 'Documentos',
   'explorer.sidebar.utilities': 'Utilit\u00e1rios',
 
@@ -461,7 +466,7 @@ window._mpLangRegister('pt', {
 
   /* Voice Commands */
   'voice.title': 'Comandos de Voz',
-  'voice.clickToSpeak': 'Clique no mic para falar',
+  'voice.clickToSpeak': 'Clique no mic ou Alt+Espa\u00e7o',
   'voice.listening': 'A ouvir\u2026',
   'voice.launched': 'Aberto!',
   'voice.noSpeech': 'Nenhuma fala detetada',
@@ -481,11 +486,16 @@ window._mpLangRegister('pt', {
   'voice.helpClose': '"Fechar [nome do app]"',
   'voice.helpMinimize': '"Minimizar [nome do app]"',
   'voice.helpLang': '"Mudar idioma"',
+  'voice.continuous': 'Escuta cont\u00ednua',
+  'voice.stopped': 'Parou de ouvir',
+  'voice.clickToStop': 'Clique para parar',
+  'voice.helpStop': '"Parar de ouvir"',
 
   /* Mobile launcher */
   'launcher.games': 'Jogos',
   'launcher.internet': 'Internet',
   'launcher.accessories': 'Acess\u00f3rios',
+  'launcher.audio': '\u00c1udio',
   'launcher.utilities': 'Utilit\u00e1rios',
   'launcher.system': 'Sistema',
 
@@ -518,6 +528,15 @@ window._mpLangRegister('pt', {
   'win.cryptography': 'Criptografia',
   'win.fractal': 'Explorador Fractal',
   'win.slotmachine': 'Ca\u00e7a-N\u00edqueis',
+  'win.reverb': 'Reverb',
+
+  /* Reverb presets */
+  'reverb.preset.smallRoom': 'Sala Pequena',
+  'reverb.preset.mediumRoom': 'Sala M\u00e9dia',
+  'reverb.preset.largeHall': 'Sal\u00e3o Grande',
+  'reverb.preset.plate': 'Placa',
+  'reverb.preset.bathroom': 'Casa de Banho',
+  'reverb.preset.cathedral': 'Catedral',
 
   /* Ca\u00e7a-N\u00edqueis */
   'sm.credit': 'CR\u00c9DITO',

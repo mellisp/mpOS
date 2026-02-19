@@ -11,7 +11,7 @@
     openOnTarget, openBrickBreaker, openFractal, openSlotMachine,
     openBrowser, openArchiveBrowser, openFishOfDay, openFishFinder,
     openAquarium, openNeoTracker,
-    openNotepad, openPaint, openStickyNotes, openNoiseMixer,
+    openNotepad, openPaint, openStickyNotes, openNoiseMixer, openReverb,
     openCalculator, openCalendar, openTimeZone, openWeather,
     openDiskUsage, openVisitorMap, openStopwatch, openCryptography,
     openTuningFork, openMyComputer, openExplorer, openHelp, openSearch,
@@ -144,8 +144,12 @@
     const accessories = [
       { name: 'Notepad', _key: 'notepad', action: openNotepad },
       { name: 'Paint', _key: 'paint', action: openPaint },
-      { name: 'Sticky Notes', _key: 'stickyNotes', action: openStickyNotes },
-      { name: 'White Noise Mixer', _key: 'noiseMixer', action: openNoiseMixer }
+      { name: 'Sticky Notes', _key: 'stickyNotes', action: openStickyNotes }
+    ];
+    const audio = [
+      { name: 'White Noise Mixer', _key: 'noiseMixer', action: openNoiseMixer },
+      { name: 'Tuning Fork', _key: 'tuningFork', action: openTuningFork },
+      { name: 'Reverb', _key: 'reverb', action: openReverb }
     ];
     const utilities = [
       { name: 'Calculator', _key: 'calculator', action: openCalculator },
@@ -155,8 +159,7 @@
       { name: 'Disk Usage', _key: 'diskUsage', action: openDiskUsage },
       { name: 'Visitor Map', _key: 'visitorMap', action: openVisitorMap },
       { name: 'Stopwatch', _key: 'stopwatch', action: openStopwatch },
-      { name: 'Cryptography', _key: 'cryptography', action: openCryptography },
-      { name: 'Tuning Fork', _key: 'tuningFork', action: openTuningFork }
+      { name: 'Cryptography', _key: 'cryptography', action: openCryptography }
     ];
     const system = [
       { name: 'My Computer', _key: 'myComputer', action: openMyComputer },
@@ -166,7 +169,7 @@
     ];
 
     // Clear grids (may be called again on language change)
-    ['launcherGames', 'launcherInternet', 'launcherAccessories', 'launcherUtilities', 'launcherSystem']
+    ['launcherGames', 'launcherInternet', 'launcherAccessories', 'launcherAudio', 'launcherUtilities', 'launcherSystem']
       .forEach((id) => {
         const el = document.getElementById(id);
         if (el) el.textContent = '';
@@ -174,7 +177,7 @@
 
     // Update section titles
     const secTitles = document.querySelectorAll('.launcher-section-title');
-    const titleKeys = ['launcher.games', 'launcher.internet', 'launcher.accessories', 'launcher.utilities', 'launcher.system'];
+    const titleKeys = ['launcher.games', 'launcher.internet', 'launcher.accessories', 'launcher.audio', 'launcher.utilities', 'launcher.system'];
     for (let i = 0; i < secTitles.length && i < titleKeys.length; i++) {
       secTitles[i].textContent = t(titleKeys[i]);
     }
@@ -207,6 +210,7 @@
     populateGrid('launcherGames', games);
     populateGrid('launcherInternet', internet);
     populateGrid('launcherAccessories', accessories);
+    populateGrid('launcherAudio', audio);
     populateGrid('launcherUtilities', utilities);
     populateGrid('launcherSystem', system);
   };
@@ -228,6 +232,11 @@
     if (e.ctrlKey && e.altKey && (e.key === 'Delete' || e.key === 'Backspace' || e.key === 'Escape')) {
       e.preventDefault();
       openTaskManager();
+    }
+    // Alt+Space: toggle voice listening
+    if (e.altKey && e.code === 'Space' && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
+      e.preventDefault();
+      if (window._mpVoiceToggle) window._mpVoiceToggle();
     }
   });
 
@@ -268,6 +277,9 @@
     const vcHelpList = document.getElementById('vcHelpList');
     const vcStatusBar = document.getElementById('vcStatusBar');
     const vcWin = document.getElementById('voicecommands');
+    const vcContinuousChk = document.getElementById('vcContinuous');
+    const floatingIndicator = document.getElementById('voiceIndicator');
+    const floatingText = document.getElementById('voiceIndicatorText');
     if (!micIcon) return;
 
     micIcon.style.display = '';
@@ -276,6 +288,56 @@
     let isListening = false;
     let helpBuilt = false;
     let voiceAudioCtx = null;
+    let restartTimer = null;
+
+    /* -- Voice state machine: idle / listening / heard / executing -- */
+    let voiceState = 'idle';
+
+    const VOICE_STATE_CLASSES = ['listening', 'heard', 'executing'];
+
+    const isVcWindowVisible = () => vcWin && vcWin.style.display !== 'none';
+
+    const isContinuous = () => vcContinuousChk && vcContinuousChk.checked;
+
+    const updateFloatingIndicator = (state, text) => {
+      if (!floatingIndicator) return;
+      // Only show when VC window is hidden and voice is active
+      if (state === 'idle' || isVcWindowVisible()) {
+        floatingIndicator.classList.remove('visible');
+        return;
+      }
+      floatingIndicator.className = 'voice-indicator visible state-' + state;
+      if (floatingText) floatingText.textContent = text || '';
+    };
+
+    const setVoiceState = (state, detail) => {
+      voiceState = state;
+      // Update tray mic icon classes
+      VOICE_STATE_CLASSES.forEach((c) => micIcon.classList.remove(c));
+      if (state !== 'idle') micIcon.classList.add(state);
+      // Update VC window mic button classes
+      if (vcMicBtn) {
+        VOICE_STATE_CLASSES.forEach((c) => vcMicBtn.classList.remove(c));
+        if (state !== 'idle') vcMicBtn.classList.add(state);
+      }
+      // Status text
+      let statusText = '';
+      if (state === 'idle') statusText = t('voice.clickToSpeak');
+      else if (state === 'listening') statusText = t('voice.listening');
+      else if (state === 'heard') statusText = detail || '';
+      else if (state === 'executing') statusText = detail || t('voice.launched');
+      setStatus(statusText);
+      // Floating indicator
+      updateFloatingIndicator(state, statusText);
+    };
+
+    // Restore continuous checkbox from localStorage
+    if (vcContinuousChk) {
+      vcContinuousChk.checked = localStorage.getItem('mp-voice-continuous') === '1';
+      vcContinuousChk.addEventListener('change', () => {
+        localStorage.setItem('mp-voice-continuous', vcContinuousChk.checked ? '1' : '0');
+      });
+    }
 
     // App name lookup: maps lowercase name -> run function
     const VOICE_APPS = {};
@@ -335,13 +397,69 @@
     };
 
     const voiceStop = () => {
-      micIcon.classList.remove('listening');
-      if (vcMicBtn) vcMicBtn.classList.remove('listening');
+      if (restartTimer) { clearTimeout(restartTimer); restartTimer = null; }
       isListening = false;
       if (recognition) {
         try { recognition.abort(); } catch (e) { /* ignore */ }
         recognition = null;
       }
+      setVoiceState('idle');
+    };
+
+    /* -- Create a fresh recognition instance -- */
+    const createRecognition = () => {
+      const rec = new SpeechRecognition();
+      rec.continuous = false;
+      rec.interimResults = true;
+      rec.maxAlternatives = 3;
+      rec.lang = getLang() === 'pt' ? 'pt-PT' : 'en-US';
+
+      rec.onresult = (ev) => {
+        const last = ev.results[ev.results.length - 1];
+        if (vcTranscript) {
+          vcTranscript.textContent = last[0].transcript;
+          vcTranscript.className = 'vc-transcript sunken';
+        }
+        if (last.isFinal) {
+          setVoiceState('heard', last[0].transcript);
+          voiceProcessCommand(last[0].transcript, last);
+        }
+      };
+
+      rec.onerror = (ev) => {
+        if (ev.error === 'no-speech') {
+          setStatus(t('voice.noSpeech'));
+        } else if (ev.error === 'not-allowed') {
+          setStatus(t('voice.denied'));
+        } else {
+          setStatus(t('voice.error'));
+        }
+        if (vcTranscript) vcTranscript.className = 'vc-transcript sunken vc-error';
+        voiceBeep(659.25, 0.12);
+        setTimeout(() => { voiceBeep(523.25, 0.12); }, 120);
+      };
+
+      rec.onend = () => {
+        recognition = null;
+        // Auto-restart in continuous mode if still listening
+        if (isListening && isContinuous()) {
+          restartTimer = setTimeout(() => {
+            restartTimer = null;
+            if (!isListening) return;
+            try {
+              recognition = createRecognition();
+              recognition.start();
+              setVoiceState('listening');
+            } catch (e) {
+              voiceStop();
+            }
+          }, 800);
+        } else {
+          voiceStop();
+        }
+      };
+
+      return rec;
     };
 
     /* -- Matching helpers -- */
@@ -431,12 +549,32 @@
       let text = transcript.toLowerCase().trim();
       let action = 'open'; // default action
 
+      // Check for "stop listening" command first
+      const stopPhrases = ['stop listening', 'stop', 'parar de ouvir', 'parar'];
+      for (let sp = 0; sp < stopPhrases.length; sp++) {
+        if (text === stopPhrases[sp]) {
+          setVoiceState('executing', t('voice.stopped'));
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.stopped')}</span>`;
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          // Force stop — disable continuous for this session
+          isListening = false;
+          if (recognition) {
+            try { recognition.abort(); } catch (e) { /* ignore */ }
+            recognition = null;
+          }
+          setTimeout(() => { setVoiceState('idle'); }, 1500);
+          return;
+        }
+      }
+
       // Check for language switch
       const langPrefixes = ['switch language', 'change language', 'mudar idioma', 'trocar idioma'];
       for (let lp = 0; lp < langPrefixes.length; lp++) {
         if (text === langPrefixes[lp] || text.indexOf(langPrefixes[lp]) === 0) {
+          setVoiceState('executing', t('voice.langSwitched'));
           setLanguage(getLang() === 'pt' ? 'en' : 'pt');
-          setStatus(t('voice.langSwitched'));
+          setVoiceState('executing', t('voice.langSwitched'));
           if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.langSwitched')}</span>`;
           voiceBeep(523.25, 0.1);
           setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
@@ -507,11 +645,11 @@
           if (winOpen) {
             if (action === 'close') {
               mpTaskbar.closeWindow(winId);
-              setStatus(t('voice.closed'));
+              setVoiceState('executing', `${t('voice.close')} ${match.label}`);
               if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.close')} ${match.label}</span>`;
             } else {
               mpTaskbar.minimizeWindow(winId);
-              setStatus(t('voice.minimized'));
+              setVoiceState('executing', `${t('voice.minimize')} ${match.label}`);
               if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.minimize')} ${match.label}</span>`;
             }
             voiceBeep(523.25, 0.1);
@@ -524,7 +662,7 @@
           }
         } else {
           // Open action
-          setStatus(t('voice.launched'));
+          setVoiceState('executing', match.label);
           if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${match.label}</span>`;
           match.fn();
           voiceBeep(523.25, 0.1);
@@ -585,48 +723,18 @@
 
     const voiceStart = () => {
       if (isListening) { voiceStop(); return; }
-      recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.maxAlternatives = 3;
-      recognition.lang = getLang() === 'pt' ? 'pt-PT' : 'en-US';
-
-      micIcon.classList.add('listening');
-      if (vcMicBtn) vcMicBtn.classList.add('listening');
+      recognition = createRecognition();
       isListening = true;
-      setStatus(t('voice.listening'));
+      setVoiceState('listening');
       if (vcTranscript) { vcTranscript.textContent = ''; vcTranscript.className = 'vc-transcript sunken'; }
       voiceBeep(783.99, 0.12); // G5 -- start listening
-
-      recognition.onresult = (ev) => {
-        const last = ev.results[ev.results.length - 1];
-        if (vcTranscript) {
-          vcTranscript.textContent = last[0].transcript;
-          vcTranscript.className = 'vc-transcript sunken';
-        }
-        if (last.isFinal) {
-          voiceProcessCommand(last[0].transcript, last);
-        }
-      };
-
-      recognition.onerror = (ev) => {
-        if (ev.error === 'no-speech') {
-          setStatus(t('voice.noSpeech'));
-        } else if (ev.error === 'not-allowed') {
-          setStatus(t('voice.denied'));
-        } else {
-          setStatus(t('voice.error'));
-        }
-        if (vcTranscript) vcTranscript.className = 'vc-transcript sunken vc-error';
-        voiceBeep(659.25, 0.12);
-        setTimeout(() => { voiceBeep(523.25, 0.12); }, 120);
-      };
-
-      recognition.onend = () => {
-        voiceStop();
-      };
-
       recognition.start();
+    };
+
+    /* -- Toggle: start if idle, stop if active -- */
+    const voiceToggle = () => {
+      if (isListening) voiceStop();
+      else voiceStart();
     };
 
     /* -- Help list ("What can I say?") -- */
@@ -648,7 +756,7 @@
       const dtAct = document.createElement('dt');
       dtAct.textContent = getLang() === 'pt' ? 'A\u00e7\u00f5es:' : 'Actions:';
       vcHelpList.appendChild(dtAct);
-      const actions = [t('voice.helpClose'), t('voice.helpMinimize'), t('voice.helpLang')];
+      const actions = [t('voice.helpClose'), t('voice.helpMinimize'), t('voice.helpLang'), t('voice.helpStop')];
       for (let j = 0; j < actions.length; j++) {
         const ddA = document.createElement('dd');
         ddA.textContent = actions[j];
@@ -662,7 +770,7 @@
       if (helpBuilt) { helpBuilt = false; buildHelpList(); }
     });
 
-    // Tray icon: open window + start listening
+    // Tray icon: toggle listening directly
     micIcon.addEventListener('click', (e) => {
       e.stopPropagation();
       // Close other popups
@@ -675,25 +783,26 @@
       if (sm) sm.classList.remove('open');
       if (sb) sb.classList.remove('pressed');
 
-      if (vcWin && vcWin.style.display !== 'none') {
-        // Window already open -- toggle listening
-        if (isListening) voiceStop();
-        else voiceStart();
-      } else {
-        openVoiceCommands();
-      }
+      voiceToggle();
     });
+
+    // Floating indicator: click to stop
+    if (floatingIndicator) {
+      floatingIndicator.addEventListener('click', () => {
+        voiceStop();
+      });
+    }
 
     // Mic button in window: toggle listening
     if (vcMicBtn) {
       vcMicBtn.addEventListener('click', () => {
-        if (isListening) voiceStop();
-        else voiceStart();
+        voiceToggle();
       });
     }
 
     // Expose for openVoiceCommands / closeVoiceCommands
     window._mpVoiceStart = voiceStart;
+    window._mpVoiceToggle = voiceToggle;
     window._mpVoiceBuildHelp = () => { if (!helpBuilt) buildHelpList(); };
     window.mpVoiceStop = voiceStop;
   })();
