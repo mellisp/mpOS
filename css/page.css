@@ -524,6 +524,40 @@
 .sw-lap-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid var(--silver); }
 .sw-lap-row:last-child { border-bottom: none; }
 
+/* Tuning Fork window */
+#tuningfork { width: min(280px, 92vw); left: min(200px, 5vw); top: 80px; }
+#tuningforkBody { padding: 10px; }
+.tf-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.tf-label { font-size: 11px; min-width: 30px; font-weight: bold; }
+.tf-label-sm { min-width: 24px; }
+.tf-select { flex: 1; font-size: 12px; font-family: var(--font); padding: 2px; }
+.tf-select-sm { flex: 0; width: 44px; }
+.tf-freq-display {
+  font-size: 28px;
+  letter-spacing: 1px;
+  text-align: center;
+  font-family: var(--mono);
+  background: var(--white);
+  border: 1px solid var(--dark-border);
+  padding: 8px 0;
+  margin-bottom: 10px;
+}
+.tf-slider { flex: 1; }
+.tf-val { font-size: 11px; min-width: 44px; text-align: right; font-family: var(--mono); }
+.tf-strike-btn {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 14px;
+  font-family: var(--font);
+  font-weight: bold;
+  cursor: pointer;
+  background: var(--silver);
+  border: 2px outset var(--silver);
+  margin-top: 4px;
+}
+.tf-strike-btn:active { border-style: inset; }
+.tf-strike-btn.tf-active { background: #d4e4d0; border-style: inset; }
+
 /* Calendar window */
 #calendar { width: min(260px, 92vw); left: min(160px, 5vw); top: 80px; }
 

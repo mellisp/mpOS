@@ -81,6 +81,7 @@
     'title.stopwatch': 'Stopwatch',
     'title.stickyNotes': 'Sticky Notes',
     'title.voiceCommands': 'Voice Commands',
+    'title.tuningFork': 'Tuning Fork',
 
     /* Start menu: Search sub-items */
     'startSearch.files': 'For Files or Folders...',
@@ -130,6 +131,8 @@
     'app.stickyNotes.desc': 'Post-it style notes on the desktop.',
     'app.voiceCommands.name': 'Voice Commands',
     'app.voiceCommands.desc': 'Control mpOS with your voice.',
+    'app.tuningFork.name': 'Tuning Fork',
+    'app.tuningFork.desc': 'Pure tone generator for musical tuning.',
     'sticky.deleteConfirm': 'Delete this note?',
     'app.myComputer.name': 'My Computer',
     'app.files.name': 'Files',

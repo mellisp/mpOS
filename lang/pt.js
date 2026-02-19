@@ -74,6 +74,7 @@ window._mpLangRegister('pt', {
   'title.stopwatch': 'Cron\u00f3metro',
   'title.stickyNotes': 'Notas Adesivas',
   'title.voiceCommands': 'Comandos de Voz',
+  'title.tuningFork': 'Diapasão',
 
   /* Start menu: Search sub-items */
   'startSearch.files': 'Ficheiros ou Pastas...',
@@ -123,6 +124,8 @@ window._mpLangRegister('pt', {
   'app.stickyNotes.desc': 'Notas tipo post-it no ambiente de trabalho.',
   'app.voiceCommands.name': 'Comandos de Voz',
   'app.voiceCommands.desc': 'Controle o mpOS com a sua voz.',
+  'app.tuningFork.name': 'Diapasão',
+  'app.tuningFork.desc': 'Gerador de tom puro para afinação musical.',
   'sticky.deleteConfirm': 'Apagar esta nota?',
   'app.myComputer.name': 'O Meu Computador',
   'app.files.name': 'Ficheiros',

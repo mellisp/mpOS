@@ -463,6 +463,21 @@
       </div>
     </div>
 
+    <!-- Tuning Fork Window (hidden initially) -->
+    <div class="window draggable" id="tuningfork" style="display:none;">
+      <div class="titlebar">
+        <span data-i18n="title.tuningFork">Tuning Fork</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('tuningfork')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeTuningFork()">X</div>
+        </div>
+      </div>
+      <div class="window-body" id="tuningforkBody"></div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="tfStatus">Ready</div>
+      </div>
+    </div>
+
     <!-- Calendar Window (hidden initially) -->
     <div class="window draggable" id="calendar" style="display:none;">
       <div class="titlebar">
