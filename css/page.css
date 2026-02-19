@@ -272,6 +272,10 @@
 #browser { width: min(720px, 92vw); left: min(60px, 3vw); top: 30px; }
 #browser .window-body { padding: 0; display: flex; flex-direction: column; }
 
+/* Archive Browser window */
+#archivebrowser { width: min(720px, 92vw); left: min(90px, 4vw); top: 40px; }
+#archivebrowser .window-body { padding: 0; display: flex; flex-direction: column; }
+
 .browser-toolbar {
   gap: 4px;
   padding: 4px;

@@ -226,6 +226,7 @@ const FOLDER_ITEMS = {
   ],
   internet: [
     { name: 'WikiBrowser', _key: 'wikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'API', action: 'openBrowser' },
+    { name: 'Archive Browser', _key: 'archiveBrowser', desc: 'Browse the Internet Archive from within mpOS.', tag: 'API', action: 'openArchiveBrowser' },
     { name: 'Fish of the Day', _key: 'fishOfDay', desc: 'A new fish every day, powered by Wikipedia.', tag: 'API', action: 'openFishOfDay' },
     { name: 'Fish Finder', _key: 'fishFinder', desc: 'Find the closest aquarium near you.', tag: 'API', action: 'openFishFinder' },
     { name: 'Virtual Aquarium', _key: 'aquarium', desc: 'Watch real fish, in real-time.', tag: 'API', action: 'openAquarium' },
@@ -1862,6 +1863,67 @@ browserFrame.addEventListener('load', function () {
       browserUrl.value = loc;
       var title = browserFrame.contentDocument && browserFrame.contentDocument.title;
       browserTitle.textContent = title ? 'WikiBrowser \u2014 ' + title : 'WikiBrowser';
+    }
+  } catch (e) {
+    /* cross-origin — can't read iframe location */
+  }
+});
+
+/* ── Archive Browser ── */
+const ARCHIVE_HOME = 'https://archive.org/';
+const archiveBrowserFrame = document.getElementById('archiveBrowserFrame');
+const archiveBrowserUrl = document.getElementById('archiveBrowserUrl');
+const archiveBrowserTitle = document.getElementById('archiveBrowserTitle');
+
+function openArchiveBrowser() {
+  var vp = document.getElementById('archiveBrowserViewport');
+  openWindow('archivebrowser');
+  if (!vp.dataset.loaded) {
+    vp.dataset.loaded = '1';
+    archiveBrowserFrame.src = ARCHIVE_HOME;
+    archiveBrowserUrl.value = ARCHIVE_HOME;
+  }
+  setTimeout(function () { archiveBrowserUrl.focus(); archiveBrowserUrl.select(); }, 100);
+}
+
+function closeArchiveBrowser() {
+  var vp = document.getElementById('archiveBrowserViewport');
+  archiveBrowserFrame.src = 'about:blank';
+  vp.dataset.loaded = '';
+  archiveBrowserUrl.value = '';
+  archiveBrowserTitle.textContent = 'Archive Browser';
+  mpTaskbar.closeWindow('archivebrowser');
+}
+
+function archiveBrowserNavigate(query) {
+  query = query.trim();
+  if (!query) return;
+  var url;
+  if (/^https?:\/\/([^/]*\.)?archive\.org(\/|$)/.test(query)) {
+    url = query;
+  } else if (/^https?:\/\//.test(query)) {
+    url = 'https://web.archive.org/web/*/' + query;
+  } else {
+    url = 'https://archive.org/search?query=' + encodeURIComponent(query);
+  }
+  archiveBrowserFrame.src = url;
+  archiveBrowserUrl.value = url;
+}
+
+archiveBrowserUrl.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    archiveBrowserNavigate(archiveBrowserUrl.value);
+  }
+});
+
+archiveBrowserFrame.addEventListener('load', function () {
+  try {
+    var loc = archiveBrowserFrame.contentWindow.location.href;
+    if (loc && loc !== 'about:blank') {
+      archiveBrowserUrl.value = loc;
+      var title = archiveBrowserFrame.contentDocument && archiveBrowserFrame.contentDocument.title;
+      archiveBrowserTitle.textContent = title ? 'Archive Browser \u2014 ' + title : 'Archive Browser';
     }
   } catch (e) {
     /* cross-origin — can't read iframe location */
@@ -6638,6 +6700,7 @@ function openCryptography() {
 /* ── Action lookup map (replaces new Function for FOLDER_ITEMS actions) ── */
 const ACTION_MAP = {
   openBrowser: openBrowser,
+  openArchiveBrowser: openArchiveBrowser,
   openFishOfDay: openFishOfDay,
   openFishFinder: openFishFinder,
   openOnTarget: openOnTarget,
@@ -7730,7 +7793,8 @@ const WINDOW_NAMES = {
   'tuningfork': 'Tuning Fork', 'neotracker': 'NEO Tracker',
   'cryptography': 'Cryptography',
   'fractal': 'Fractal Explorer',
-  'slotmachine': 'Slot Machine'
+  'slotmachine': 'Slot Machine',
+  'archivebrowser': 'Archive Browser'
 };
 
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
@@ -7919,7 +7983,8 @@ const FILESYSTEM = {
     items: [
       { name: 'My Computer', run: function () { openMyComputer(); } },
       { name: 'Files', run: function () { openExplorer(); } },
-      { name: 'WikiBrowser', run: function () { openBrowser(); } }
+      { name: 'WikiBrowser', run: function () { openBrowser(); } },
+      { name: 'Archive Browser', run: function () { openArchiveBrowser(); } }
     ]
   },
   'C:\\mpOS\\Programs': {
@@ -7967,6 +8032,8 @@ const COMMANDS = {
   'fishfinder':  { run: openFishFinder,  desc: 'Launch Fish Finder' },
   'aquarium':    { run: openAquarium,    desc: 'Launch Virtual Aquarium' },
   'browser':     { run: openBrowser,     desc: 'Launch WikiBrowser' },
+  'archive':     { run: openArchiveBrowser, desc: 'Launch Archive Browser' },
+  'archivebrowser': { run: openArchiveBrowser, desc: 'Launch Archive Browser' },
   'mycomputer':  { run: function () { openMyComputer(); }, desc: 'Open System Properties' },
   'explorer':    { run: openExplorer,    desc: 'Open Files' },
   'programs':    { run: function () { openExplorerTo('programs'); },     desc: 'Open Programs folder' },
@@ -8872,7 +8939,8 @@ document.addEventListener('click', function (e) {
 const CLOSE_MAP = {
   mycomputer: closeMyComputer, aquarium: closeAquarium,
   ontarget: closeOnTarget, brickbreaker: closeBrickBreaker, fractal: closeFractal,
-  browser: closeBrowser, notepad: closeNotepad, timezone: closeTimeZone,
+  browser: closeBrowser, archivebrowser: closeArchiveBrowser,
+  notepad: closeNotepad, timezone: closeTimeZone,
   paint: closePaint, taskmanager: closeTaskManager, run: closeRun,
   noisemixer: closeNoiseMixer
 };
@@ -8979,6 +9047,7 @@ function buildLauncher() {
   ];
   var internet = [
     { name: 'WikiBrowser', _key: 'wikiBrowser', action: openBrowser },
+    { name: 'Archive Browser', _key: 'archiveBrowser', action: openArchiveBrowser },
     { name: 'Fish of the Day', _key: 'fishOfDay', action: openFishOfDay },
     { name: 'Fish Finder', _key: 'fishFinder', action: openFishFinder },
     { name: 'Virtual Aquarium', _key: 'aquarium', action: openAquarium },
@@ -9084,6 +9153,9 @@ window.openFishFinder = openFishFinder;
 window.openBrowser = openBrowser;
 window.closeBrowser = closeBrowser;
 window.browserNavigate = browserNavigate;
+window.openArchiveBrowser = openArchiveBrowser;
+window.closeArchiveBrowser = closeArchiveBrowser;
+window.archiveBrowserNavigate = archiveBrowserNavigate;
 window.openNotepad = openNotepad;
 window.notepadNew = notepadNew;
 window.notepadSave = notepadSave;
@@ -10055,7 +10127,8 @@ if (window.matchMedia('(pointer: coarse)').matches) {
   var iconActions = {
     openMyComputer: openMyComputer,
     openExplorer: openExplorer,
-    openBrowser: openBrowser
+    openBrowser: openBrowser,
+    openArchiveBrowser: openArchiveBrowser
   };
   document.querySelectorAll('.desktop-icon[ondblclick]').forEach(function (icon) {
     var attr = icon.getAttribute('ondblclick');

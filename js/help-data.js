@@ -15,7 +15,7 @@
 var HELP_TREE = [
   { title: 'Getting Started', title_pt: 'Primeiros Passos',  children: ['welcome', 'desktop', 'startmenu', 'taskbar'] },
   { title: 'Games',           title_pt: 'Jogos',             children: ['ontarget', 'chickenfingers', 'brickbreaker'] },
-  { title: 'Internet',        title_pt: 'Internet',          children: ['wikibrowser', 'fishofday', 'fishfinder', 'aquarium'] },
+  { title: 'Internet',        title_pt: 'Internet',          children: ['wikibrowser', 'archivebrowser', 'fishofday', 'fishfinder', 'aquarium'] },
   { title: 'Accessories',     title_pt: 'Acess\u00f3rios',   children: ['notepad', 'paint'] },
   { title: 'Utilities',       title_pt: 'Utilit\u00e1rios',  children: ['calculator', 'calendar', 'timezone', 'weather', 'diskusage', 'visitormap', 'search'] },
   { title: 'System',          title_pt: 'Sistema',           children: ['mycomputer', 'explorer', 'run', 'taskmanager'] }
@@ -212,7 +212,48 @@ var HELP_TOPICS = {
         'Menu Iniciar \u2192 Programas \u2192 WikiBrowser.',
         'Escreva BROWSER no terminal Executar.'
       ]},
-      { sa: ['fishofday', 'startmenu'] }
+      { sa: ['fishofday', 'archivebrowser', 'startmenu'] }
+    ]
+  },
+
+  archivebrowser: {
+    title: 'Archive Browser',
+    title_pt: 'Archive Browser',
+    keywords: ['archive', 'internet archive', 'wayback', 'wayback machine', 'browser', 'web', 'history'],
+    keywords_pt: ['archive', 'internet archive', 'wayback', 'wayback machine', 'navegador', 'web', 'hist\u00f3ria'],
+    body: [
+      { p: 'Archive Browser lets you browse the Internet Archive (archive.org) without leaving mpOS. You can search for books, videos, audio, software, and websites preserved in the Wayback Machine.' },
+      { h: 'How to Use' },
+      { ul: [
+        'Type a search term into the address bar and press Enter to search archive.org.',
+        'Enter an archive.org URL to navigate directly.',
+        'Enter any other URL (e.g. https://example.com) to look it up in the Wayback Machine.',
+        'The title bar updates to show the current page name.'
+      ]},
+      { h: 'Opening Archive Browser' },
+      { ul: [
+        'Double-click the Archive Browser icon on the desktop.',
+        'Start menu \u2192 Programs \u2192 Internet \u2192 Archive Browser.',
+        'Type ARCHIVE in the Run terminal.'
+      ]},
+      { sa: ['wikibrowser', 'startmenu'] }
+    ],
+    body_pt: [
+      { p: 'O Archive Browser permite-lhe navegar no Internet Archive (archive.org) sem sair do mpOS. Pode pesquisar livros, v\u00eddeos, \u00e1udio, software e websites preservados na Wayback Machine.' },
+      { h: 'Como Utilizar' },
+      { ul: [
+        'Escreva um termo de pesquisa na barra de endere\u00e7os e pressione Enter para pesquisar no archive.org.',
+        'Introduza um URL do archive.org para navegar diretamente.',
+        'Introduza qualquer outro URL (ex: https://example.com) para o procurar na Wayback Machine.',
+        'A barra de t\u00edtulo atualiza-se para mostrar o nome da p\u00e1gina atual.'
+      ]},
+      { h: 'Abrir o Archive Browser' },
+      { ul: [
+        'Clique duas vezes no \u00edcone Archive Browser no ambiente de trabalho.',
+        'Menu Iniciar \u2192 Programas \u2192 Internet \u2192 Archive Browser.',
+        'Escreva ARCHIVE no terminal Executar.'
+      ]},
+      { sa: ['wikibrowser', 'startmenu'] }
     ]
   },
 

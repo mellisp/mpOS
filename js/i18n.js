@@ -49,6 +49,7 @@
     'desktop.myComputer': 'My Computer',
     'desktop.files': 'Files',
     'desktop.wikiBrowser': 'WikiBrowser',
+    'desktop.archiveBrowser': 'Archive Browser',
     'desktop.arrangeIcons': 'Arrange Icons',
     'desktop.new': 'New',
     'desktop.newTextDoc': 'Text Document',
@@ -66,6 +67,7 @@
     'title.brickBreaker': 'Brick Breaker',
     'title.run': 'Run',
     'title.wikiBrowser': 'WikiBrowser',
+    'title.archiveBrowser': 'Archive Browser',
     'title.notepad': 'Notepad',
     'title.calculator': 'Calculator',
     'title.calendar': 'Calendar',
@@ -95,6 +97,8 @@
     /* App names (FOLDER_ITEMS + launcher) */
     'app.wikiBrowser.name': 'WikiBrowser',
     'app.wikiBrowser.desc': 'Browse Wikipedia from within mpOS.',
+    'app.archiveBrowser.name': 'Archive Browser',
+    'app.archiveBrowser.desc': 'Browse the Internet Archive from within mpOS.',
     'app.fishOfDay.name': 'Fish of the Day',
     'app.fishOfDay.desc': 'A new fish every day, powered by Wikipedia.',
     'app.fishFinder.name': 'Fish Finder',
@@ -249,6 +253,9 @@
 
     /* WikiBrowser */
     'browser.placeholder': 'Search Wikipedia or enter article name...',
+
+    /* Archive Browser */
+    'archiveBrowser.placeholder': 'Search archive.org or enter URL...',
 
     /* Notepad */
     'notepad.untitled': 'Untitled',
@@ -490,6 +497,7 @@
     'win.brickbreaker': 'Brick Breaker',
     'win.run': 'Run',
     'win.browser': 'WikiBrowser',
+    'win.archivebrowser': 'Archive Browser',
     'win.notepad': 'Notepad',
     'win.calculator': 'Calculator',
     'win.calendar': 'Calendar',

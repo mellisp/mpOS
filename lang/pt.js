@@ -42,6 +42,7 @@ window._mpLangRegister('pt', {
   'desktop.myComputer': 'O Meu Computador',
   'desktop.files': 'Ficheiros',
   'desktop.wikiBrowser': 'WikiBrowser',
+  'desktop.archiveBrowser': 'Archive Browser',
   'desktop.arrangeIcons': 'Organizar Ícones',
   'desktop.new': 'Novo',
   'desktop.newTextDoc': 'Documento de Texto',
@@ -59,6 +60,7 @@ window._mpLangRegister('pt', {
   'title.brickBreaker': 'Brick Breaker',
   'title.run': 'Executar',
   'title.wikiBrowser': 'WikiBrowser',
+  'title.archiveBrowser': 'Archive Browser',
   'title.notepad': 'Bloco de Notas',
   'title.calculator': 'Calculadora',
   'title.calendar': 'Calend\u00e1rio',
@@ -88,6 +90,8 @@ window._mpLangRegister('pt', {
   /* App names */
   'app.wikiBrowser.name': 'WikiBrowser',
   'app.wikiBrowser.desc': 'Navegar na Wikip\u00e9dia dentro do mpOS.',
+  'app.archiveBrowser.name': 'Archive Browser',
+  'app.archiveBrowser.desc': 'Navegar no Internet Archive dentro do mpOS.',
   'app.fishOfDay.name': 'Peixe do Dia',
   'app.fishOfDay.desc': 'Um peixe novo todos os dias, powered by Wikip\u00e9dia.',
   'app.fishFinder.name': 'Fish Finder',
@@ -242,6 +246,9 @@ window._mpLangRegister('pt', {
 
   /* WikiBrowser */
   'browser.placeholder': 'Pesquisar na Wikip\u00e9dia ou inserir nome do artigo...',
+
+  /* Archive Browser */
+  'archiveBrowser.placeholder': 'Pesquisar no archive.org ou inserir URL...',
 
   /* Notepad */
   'notepad.untitled': 'Sem t\u00edtulo',
@@ -483,6 +490,7 @@ window._mpLangRegister('pt', {
   'win.brickbreaker': 'Brick Breaker',
   'win.run': 'Executar',
   'win.browser': 'WikiBrowser',
+  'win.archivebrowser': 'Archive Browser',
   'win.notepad': 'Bloco de Notas',
   'win.calculator': 'Calculadora',
   'win.calendar': 'Calend\u00e1rio',
