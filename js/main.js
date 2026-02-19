@@ -243,7 +243,8 @@ const FOLDER_ITEMS = {
     { name: 'Disk Usage', _key: 'diskUsage', desc: 'Source code breakdown by file type.', tag: 'HTML', action: 'openDiskUsage' },
     { name: 'Visitor Map', _key: 'visitorMap', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
     { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' },
-    { name: 'Voice Commands', _key: 'voiceCommands', desc: 'Control mpOS with your voice.', tag: 'HTML', action: 'openVoiceCommands' }
+    { name: 'Voice Commands', _key: 'voiceCommands', desc: 'Control mpOS with your voice.', tag: 'HTML', action: 'openVoiceCommands' },
+    { name: 'Tuning Fork', _key: 'tuningFork', desc: 'Pure tone generator for musical tuning.', tag: 'HTML', action: 'openTuningFork' }
   ]
 };
 
@@ -4892,6 +4893,280 @@ function closeVoiceCommands() {
   mpTaskbar.closeWindow('voicecommands');
 }
 
+/* ── Tuning Fork ── */
+var tfCtx = null;
+var tfOsc = null;
+var tfGain = null;
+var tfEqNode = null;
+var tfBuilt = false;
+var tfPlaying = false;
+
+var TF_NOTES = [
+  { name: 'C',  freq: 261.63 },
+  { name: 'C#', freq: 277.18 },
+  { name: 'D',  freq: 293.66 },
+  { name: 'D#', freq: 311.13 },
+  { name: 'E',  freq: 329.63 },
+  { name: 'F',  freq: 349.23 },
+  { name: 'F#', freq: 369.99 },
+  { name: 'G',  freq: 392.00 },
+  { name: 'G#', freq: 415.30 },
+  { name: 'A',  freq: 440.00 },
+  { name: 'A#', freq: 466.16 },
+  { name: 'B',  freq: 493.88 }
+];
+
+function tfGetFreq() {
+  var sel = document.getElementById('tfNote');
+  var centsEl = document.getElementById('tfCents');
+  var octaveEl = document.getElementById('tfOctave');
+  if (!sel) return 440;
+  var baseFreq = parseFloat(sel.value);
+  var cents = centsEl ? parseInt(centsEl.value, 10) || 0 : 0;
+  var octave = octaveEl ? parseInt(octaveEl.value, 10) : 4;
+  var freq = baseFreq * Math.pow(2, octave - 4) * Math.pow(2, cents / 1200);
+  return freq;
+}
+
+function tfUpdateDisplay() {
+  var freqEl = document.getElementById('tfFreqDisplay');
+  if (freqEl) freqEl.textContent = tfGetFreq().toFixed(2) + ' Hz';
+  var centsEl = document.getElementById('tfCents');
+  var centsVal = document.getElementById('tfCentsVal');
+  if (centsEl && centsVal) centsVal.textContent = (parseInt(centsEl.value, 10) >= 0 ? '+' : '') + centsEl.value + '¢';
+  if (tfPlaying && tfOsc) tfOsc.frequency.setValueAtTime(tfGetFreq(), tfCtx.currentTime);
+}
+
+function tfGetVolume() {
+  var raw = parseFloat(localStorage.getItem('mp-volume') || '0.1');
+  var muted = localStorage.getItem('mp-muted') === '1';
+  return muted ? 0 : raw * 0.3;
+}
+
+function tfStrike() {
+  if (tfPlaying) { tfStop(); return; }
+  if (!tfCtx) tfCtx = new (window.AudioContext || window.webkitAudioContext)();
+  var waveEl = document.getElementById('tfWave');
+  var wave = waveEl ? waveEl.value : 'sine';
+  tfOsc = tfCtx.createOscillator();
+  tfOsc.type = wave;
+  tfOsc.frequency.setValueAtTime(tfGetFreq(), tfCtx.currentTime);
+
+  tfEqNode = tfCtx.createBiquadFilter();
+  tfEqNode.type = 'peaking';
+  tfEqNode.frequency.setValueAtTime(1000, tfCtx.currentTime);
+  tfEqNode.Q.setValueAtTime(1.0, tfCtx.currentTime);
+  var eqEl = document.getElementById('tfEq');
+  tfEqNode.gain.setValueAtTime(eqEl ? parseFloat(eqEl.value) : 0, tfCtx.currentTime);
+
+  tfGain = tfCtx.createGain();
+  tfGain.gain.setValueAtTime(0, tfCtx.currentTime);
+  tfGain.gain.linearRampToValueAtTime(tfGetVolume(), tfCtx.currentTime + 0.02);
+
+  tfOsc.connect(tfEqNode);
+  tfEqNode.connect(tfGain);
+  tfGain.connect(tfCtx.destination);
+  tfOsc.start();
+  tfPlaying = true;
+
+  var btn = document.getElementById('tfStrikeBtn');
+  if (btn) { btn.textContent = 'Stop'; btn.classList.add('tf-active'); }
+  var statusEl = document.getElementById('tfStatus');
+  if (statusEl) statusEl.textContent = 'Playing ' + tfGetFreq().toFixed(2) + ' Hz';
+}
+
+function tfStop() {
+  if (tfOsc) {
+    if (tfGain) tfGain.gain.linearRampToValueAtTime(0, tfCtx.currentTime + 0.05);
+    setTimeout(function () {
+      try { tfOsc.stop(); } catch (e) {}
+      tfOsc = null;
+      tfGain = null;
+      tfEqNode = null;
+    }, 80);
+  }
+  tfPlaying = false;
+  var btn = document.getElementById('tfStrikeBtn');
+  if (btn) { btn.textContent = 'Strike'; btn.classList.remove('tf-active'); }
+  var statusEl = document.getElementById('tfStatus');
+  if (statusEl) statusEl.textContent = 'Ready';
+}
+
+function tfNoteChange() { tfUpdateDisplay(); }
+function tfCentsChange() { tfUpdateDisplay(); }
+function tfWaveChange() {
+  if (tfPlaying && tfOsc) {
+    var waveEl = document.getElementById('tfWave');
+    if (waveEl) tfOsc.type = waveEl.value;
+  }
+}
+function tfEqChange() {
+  var eqEl = document.getElementById('tfEq');
+  var eqVal = document.getElementById('tfEqVal');
+  if (eqEl && eqVal) eqVal.textContent = (parseInt(eqEl.value, 10) >= 0 ? '+' : '') + eqEl.value + ' dB';
+  if (tfPlaying && tfEqNode && eqEl) {
+    tfEqNode.gain.setValueAtTime(parseFloat(eqEl.value), tfCtx.currentTime);
+  }
+}
+
+function tfBuildUI() {
+  var body = document.getElementById('tuningforkBody');
+  if (!body || tfBuilt) return;
+
+  // Note selector row
+  var noteRow = document.createElement('div');
+  noteRow.className = 'tf-row';
+  var noteLbl = document.createElement('label');
+  noteLbl.textContent = 'Note';
+  noteLbl.className = 'tf-label';
+  var noteSel = document.createElement('select');
+  noteSel.id = 'tfNote';
+  noteSel.className = 'tf-select';
+  noteSel.onchange = tfNoteChange;
+  for (var i = 0; i < TF_NOTES.length; i++) {
+    var opt = document.createElement('option');
+    opt.value = TF_NOTES[i].freq;
+    opt.textContent = TF_NOTES[i].name;
+    if (TF_NOTES[i].name === 'A') opt.selected = true;
+    noteSel.appendChild(opt);
+  }
+  noteRow.appendChild(noteLbl);
+  noteRow.appendChild(noteSel);
+
+  // Octave selector
+  var octLbl = document.createElement('label');
+  octLbl.textContent = 'Oct';
+  octLbl.className = 'tf-label tf-label-sm';
+  var octSel = document.createElement('select');
+  octSel.id = 'tfOctave';
+  octSel.className = 'tf-select tf-select-sm';
+  octSel.onchange = tfNoteChange;
+  for (var o = 2; o <= 7; o++) {
+    var oopt = document.createElement('option');
+    oopt.value = o;
+    oopt.textContent = o;
+    if (o === 4) oopt.selected = true;
+    octSel.appendChild(oopt);
+  }
+  noteRow.appendChild(octLbl);
+  noteRow.appendChild(octSel);
+  body.appendChild(noteRow);
+
+  // Frequency display
+  var freqDisp = document.createElement('div');
+  freqDisp.className = 'tf-freq-display';
+  freqDisp.id = 'tfFreqDisplay';
+  freqDisp.textContent = '440.00 Hz';
+  body.appendChild(freqDisp);
+
+  // Fine-tune cents slider
+  var centsRow = document.createElement('div');
+  centsRow.className = 'tf-row';
+  var centsLbl = document.createElement('label');
+  centsLbl.textContent = 'Fine';
+  centsLbl.className = 'tf-label';
+  var centsSlider = document.createElement('input');
+  centsSlider.type = 'range';
+  centsSlider.id = 'tfCents';
+  centsSlider.className = 'tf-slider';
+  centsSlider.min = '-50';
+  centsSlider.max = '50';
+  centsSlider.value = '0';
+  centsSlider.oninput = tfCentsChange;
+  var centsValSpan = document.createElement('span');
+  centsValSpan.className = 'tf-val';
+  centsValSpan.id = 'tfCentsVal';
+  centsValSpan.textContent = '+0¢';
+  centsRow.appendChild(centsLbl);
+  centsRow.appendChild(centsSlider);
+  centsRow.appendChild(centsValSpan);
+  body.appendChild(centsRow);
+
+  // Waveform selector
+  var waveRow = document.createElement('div');
+  waveRow.className = 'tf-row';
+  var waveLbl = document.createElement('label');
+  waveLbl.textContent = 'Wave';
+  waveLbl.className = 'tf-label';
+  var waveSel = document.createElement('select');
+  waveSel.id = 'tfWave';
+  waveSel.className = 'tf-select';
+  waveSel.onchange = tfWaveChange;
+  var waves = [
+    { val: 'sine', lbl: 'Sine' },
+    { val: 'triangle', lbl: 'Triangle' },
+    { val: 'square', lbl: 'Square' },
+    { val: 'sawtooth', lbl: 'Sawtooth' }
+  ];
+  for (var w = 0; w < waves.length; w++) {
+    var wopt = document.createElement('option');
+    wopt.value = waves[w].val;
+    wopt.textContent = waves[w].lbl;
+    waveSel.appendChild(wopt);
+  }
+  waveRow.appendChild(waveLbl);
+  waveRow.appendChild(waveSel);
+  body.appendChild(waveRow);
+
+  // EQ slider (mid-band boost/cut)
+  var eqRow = document.createElement('div');
+  eqRow.className = 'tf-row';
+  var eqLbl = document.createElement('label');
+  eqLbl.textContent = 'EQ';
+  eqLbl.className = 'tf-label';
+  var eqSlider = document.createElement('input');
+  eqSlider.type = 'range';
+  eqSlider.id = 'tfEq';
+  eqSlider.className = 'tf-slider';
+  eqSlider.min = '-12';
+  eqSlider.max = '12';
+  eqSlider.value = '0';
+  eqSlider.oninput = tfEqChange;
+  var eqValSpan = document.createElement('span');
+  eqValSpan.className = 'tf-val';
+  eqValSpan.id = 'tfEqVal';
+  eqValSpan.textContent = '+0 dB';
+  eqRow.appendChild(eqLbl);
+  eqRow.appendChild(eqSlider);
+  eqRow.appendChild(eqValSpan);
+  body.appendChild(eqRow);
+
+  // Strike button
+  var strikeBtn = document.createElement('button');
+  strikeBtn.type = 'button';
+  strikeBtn.id = 'tfStrikeBtn';
+  strikeBtn.className = 'tf-strike-btn';
+  strikeBtn.textContent = 'Strike';
+  strikeBtn.onclick = tfStrike;
+  body.appendChild(strikeBtn);
+
+  tfBuilt = true;
+}
+
+function openTuningFork() {
+  if (!tfBuilt) tfBuildUI();
+  openWindow('tuningfork');
+}
+
+function closeTuningFork() {
+  tfStop();
+  if (tfCtx) {
+    tfCtx.close();
+    tfCtx = null;
+  }
+  tfBuilt = false;
+  mpTaskbar.closeWindow('tuningfork');
+}
+
+// Volume integration for tuning fork
+var tfOrigAudioUpdate = window.mpAudioUpdateVolume;
+window.mpAudioUpdateVolume = function () {
+  if (tfOrigAudioUpdate) tfOrigAudioUpdate();
+  if (tfPlaying && tfGain && tfCtx) {
+    tfGain.gain.setValueAtTime(tfGetVolume(), tfCtx.currentTime);
+  }
+};
+
 /* ── Action lookup map (replaces new Function for FOLDER_ITEMS actions) ── */
 const ACTION_MAP = {
   openBrowser: openBrowser,
@@ -4914,7 +5189,8 @@ const ACTION_MAP = {
   openNoiseMixer: openNoiseMixer,
   openStopwatch: openStopwatch,
   openStickyNotes: openStickyNotes,
-  openVoiceCommands: openVoiceCommands
+  openVoiceCommands: openVoiceCommands,
+  openTuningFork: openTuningFork
 };
 
 /* ── Run Terminal ── */
@@ -5978,7 +6254,8 @@ const WINDOW_NAMES = {
   'timezone': 'Time Zone', 'weather': 'Weather', 'diskusage': 'Disk Usage',
   'visitormap': 'Visitor Map', 'help': 'Help', 'paint': 'Paint',
   'search': 'Search Results', 'taskmanager': 'Task Manager',
-  'noisemixer': 'White Noise Mixer', 'voicecommands': 'Voice Commands'
+  'noisemixer': 'White Noise Mixer', 'voicecommands': 'Voice Commands',
+  'tuningfork': 'Tuning Fork'
 };
 
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
@@ -7383,6 +7660,14 @@ window.openStopwatch = openStopwatch;
 window.openStickyNotes = openStickyNotes;
 window.openVoiceCommands = openVoiceCommands;
 window.closeVoiceCommands = closeVoiceCommands;
+window.openTuningFork = openTuningFork;
+window.closeTuningFork = closeTuningFork;
+window.tfStrike = tfStrike;
+window.tfStop = tfStop;
+window.tfNoteChange = tfNoteChange;
+window.tfCentsChange = tfCentsChange;
+window.tfWaveChange = tfWaveChange;
+window.tfEqChange = tfEqChange;
 window.swStartStop = swStartStop;
 window.swLap = swLap;
 window.swReset = swReset;
