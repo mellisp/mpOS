@@ -581,6 +581,179 @@
 .cry-direction-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
 .cry-direction-row label { font-size: 12px; display: flex; align-items: center; gap: 3px; cursor: default; }
 
+/* Slot Machine window */
+#slotmachine { width: min(340px, 92vw); left: min(180px, 5vw); top: 60px; }
+#slotmachineBody { padding: 8px; }
+
+.sm-lcd-row { display: flex; gap: 4px; margin-bottom: 8px; }
+.sm-lcd {
+  flex: 1;
+  background: #1a2a1a;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  padding: 4px 6px;
+  text-align: center;
+  font-family: var(--mono);
+}
+.sm-lcd-label { display: block; font-size: 9px; color: #5a8a5a; letter-spacing: 1px; }
+.sm-lcd-val { display: block; font-size: 16px; color: #4ade4a; font-weight: bold; }
+
+.sm-reel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 48px);
+  gap: 2px;
+  margin-bottom: 6px;
+  background: var(--dk-shadow);
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  padding: 2px;
+}
+/* Column-major order: reel0row0, reel0row1, reel0row2, reel1row0, ... */
+.sm-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  font-size: 20px;
+  font-family: var(--mono);
+  font-weight: bold;
+  border: 1px solid var(--silver);
+  user-select: none;
+}
+
+.sm-sym-seven { color: #ef5350; }
+.sm-sym-bar { color: #1a1a1a; font-size: 12px; font-weight: 900; }
+.sm-sym-bell { color: #ffc107; }
+.sm-sym-star { color: #ffc107; }
+.sm-sym-diamond { color: #2196f3; }
+.sm-sym-heart { color: #ef5350; }
+.sm-sym-spade { color: #333; }
+.sm-sym-club { color: #333; }
+.sm-sym-scatter { color: #ff9800; }
+
+.sm-spinning { opacity: 0.6; }
+
+@keyframes sm-bounce {
+  0% { transform: scaleY(0.85); }
+  40% { transform: scaleY(1.08); }
+  70% { transform: scaleY(0.96); }
+  100% { transform: scaleY(1); }
+}
+.sm-stop-bounce { animation: sm-bounce 0.25s ease-out; }
+
+@keyframes sm-win-flash {
+  0%, 100% { background: var(--white); }
+  50% { background: #fffde0; box-shadow: inset 0 0 6px #ffc107; }
+}
+.sm-win { animation: sm-win-flash 0.3s ease-in-out 3; }
+
+.sm-hold-row, .sm-nudge-row {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 4px;
+}
+.sm-hold-btn {
+  font-family: var(--font);
+  font-size: 10px;
+  padding: 2px 14px;
+  cursor: default;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+  animation: sm-hold-flash 0.6s ease-in-out infinite;
+}
+.sm-hold-btn:active { border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow); box-shadow: inset 1px 1px 0 var(--shadow); }
+.sm-hold-active { background: #d4e4d0; border-style: inset; animation: none; }
+
+@keyframes sm-hold-flash {
+  0%, 100% { background: var(--silver); }
+  50% { background: #ffe082; }
+}
+
+.sm-nudge-group { display: flex; gap: 2px; }
+.sm-nudge-btn {
+  font-size: 10px;
+  padding: 2px 8px;
+  cursor: default;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+}
+.sm-nudge-btn:active { border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow); box-shadow: inset 1px 1px 0 var(--shadow); }
+
+.sm-ctrl-row { display: flex; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.sm-ctrl-group { display: flex; align-items: center; gap: 3px; }
+.sm-ctrl-label { font-size: 11px; font-weight: bold; }
+.sm-opt-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  min-width: 24px;
+  padding: 2px 4px;
+  cursor: default;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+  text-align: center;
+}
+.sm-opt-btn:active { border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow); box-shadow: inset 1px 1px 0 var(--shadow); }
+.sm-opt-active { background: #d4e4d0; border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow); box-shadow: inset 1px 1px 0 var(--shadow); }
+
+.sm-btn-row { display: flex; gap: 4px; margin-bottom: 6px; }
+.sm-spin-btn {
+  flex: 2;
+  padding: 8px 0;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: bold;
+  cursor: default;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+}
+.sm-spin-btn:active:not(:disabled) { border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow); box-shadow: inset 1px 1px 0 var(--shadow); }
+.sm-spin-btn:disabled { opacity: 0.5; }
+.sm-max-btn, .sm-pay-btn {
+  flex: 1;
+  padding: 8px 0;
+  font-family: var(--font);
+  font-size: 11px;
+  cursor: default;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+}
+.sm-max-btn:active, .sm-pay-btn:active { border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow); box-shadow: inset 1px 1px 0 var(--shadow); }
+
+.sm-pay-panel {
+  background: var(--white);
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  padding: 6px;
+  font-size: 11px;
+  font-family: var(--mono);
+  max-height: 160px;
+  overflow-y: auto;
+}
+.sm-pay-title { font-weight: bold; text-align: center; margin-bottom: 4px; font-size: 12px; }
+.sm-pay-row { display: flex; justify-content: space-between; padding: 1px 0; border-bottom: 1px dotted var(--silver); }
+.sm-pay-row:last-child { border-bottom: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-stop-bounce { animation: none; }
+  .sm-win { animation: none; background: #fffde0; box-shadow: inset 0 0 6px #ffc107; }
+  .sm-hold-btn { animation: none; }
+  .sm-spinning { opacity: 1; }
+}
+
 /* Calendar window */
 #calendar { width: min(260px, 92vw); left: min(160px, 5vw); top: 80px; }
 

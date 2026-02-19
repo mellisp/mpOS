@@ -221,7 +221,8 @@ const FOLDER_ITEMS = {
     { name: 'On Target', _key: 'onTarget', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget' },
     { name: 'Chicken Fingers', _key: 'chickenFingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers', href: 'chicken-fingers.html' },
     { name: 'Brick Breaker', _key: 'brickBreaker', desc: 'Daily brick-breaking challenge.', tag: 'HTML', action: 'openBrickBreaker' },
-    { name: 'Fractal Explorer', _key: 'fractal', desc: 'Interactive Mandelbrot and Julia set visualizer.', tag: 'HTML', action: 'openFractal' }
+    { name: 'Fractal Explorer', _key: 'fractal', desc: 'Interactive Mandelbrot and Julia set visualizer.', tag: 'HTML', action: 'openFractal' },
+    { name: 'Slot Machine', _key: 'slotMachine', desc: 'Classic 3-reel slot machine with hold & nudge.', tag: 'HTML', action: 'openSlotMachine' }
   ],
   internet: [
     { name: 'WikiBrowser', _key: 'wikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'API', action: 'openBrowser' },
@@ -457,6 +458,7 @@ function getItemIcon(name) {
     'Tuning Fork': '<defs><linearGradient id="ei-tf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d0d0d0"/><stop offset="50%" stop-color="#a0a0a0"/><stop offset="100%" stop-color="#707070"/></linearGradient></defs><path d="M7 2 L7 11 Q7 14 10 14 Q13 14 13 11 L13 2" fill="none" stroke="url(#ei-tf)" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="14" x2="10" y2="19" stroke="url(#ei-tf)" stroke-width="2" stroke-linecap="round"/><ellipse cx="7" cy="3" rx="1" ry="0.5" fill="white" opacity="0.4"/><ellipse cx="13" cy="3" rx="1" ry="0.5" fill="white" opacity="0.4"/>',
     'NEO Tracker': '<defs><radialGradient id="ei-neo" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#d0c8b8"/><stop offset="50%" stop-color="#a09080"/><stop offset="100%" stop-color="#706050"/></radialGradient></defs><circle cx="10" cy="10" r="4.5" fill="url(#ei-neo)" stroke="#504030" stroke-width="0.8"/><ellipse cx="8.5" cy="8" rx="2.5" ry="1.5" fill="white" opacity="0.3"/><circle cx="12" cy="8.5" r="0.8" fill="#504030" opacity="0.5"/><circle cx="8" cy="11" r="0.6" fill="#504030" opacity="0.4"/><line x1="5" y1="5" x2="3" y2="3" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="15" y1="5" x2="17" y2="3" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="5" y1="15" x2="3" y2="17" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="15" y1="15" x2="17" y2="17" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><circle cx="3" cy="3" r="0.5" fill="#c0a080"/><circle cx="17" cy="3" r="0.4" fill="#c0a080"/><circle cx="3" cy="17" r="0.3" fill="#c0a080"/><circle cx="17" cy="17" r="0.4" fill="#c0a080"/>',
     'Fractal Explorer': '<defs><radialGradient id="ei-fr" cx="0.4" cy="0.4" r="0.65"><stop offset="0%" stop-color="#a0d0ff"/><stop offset="40%" stop-color="#4a8abe"/><stop offset="70%" stop-color="#2a5a8e"/><stop offset="100%" stop-color="#1a2a4e"/></radialGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#ei-fr)" stroke="#1a2a4e" stroke-width="0.8"/><ellipse cx="8" cy="7.5" rx="4" ry="3" fill="white" opacity="0.2"/><path d="M10 10 Q12 6 10 4 Q8 6 10 10 Q14 8 16 10 Q14 12 10 10 Q8 14 10 16 Q12 14 10 10 Q6 12 4 10 Q6 8 10 10Z" fill="none" stroke="#c0e0ff" stroke-width="0.7" opacity="0.8"/><circle cx="10" cy="10" r="2.5" fill="none" stroke="#80b0e0" stroke-width="0.5"/><circle cx="10" cy="10" r="5" fill="none" stroke="#6090c0" stroke-width="0.4" opacity="0.6"/><circle cx="10" cy="10" r="1" fill="#e0f0ff"/>',
+    'Slot Machine': '<defs><linearGradient id="ei-sm" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e8d060"/><stop offset="30%" stop-color="#c8a030"/><stop offset="70%" stop-color="#a08020"/><stop offset="100%" stop-color="#806010"/></linearGradient><linearGradient id="ei-smf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="100%" stop-color="#d8e8f8"/></linearGradient></defs><rect x="2" y="1" width="16" height="18" rx="2" fill="url(#ei-sm)" stroke="#604800" stroke-width="0.8"/><line x1="3" y1="2" x2="17" y2="2" stroke="white" stroke-width="0.5" opacity="0.4"/><rect x="4" y="4" width="4" height="6" rx="0.5" fill="url(#ei-smf)" stroke="#604800" stroke-width="0.5"/><rect x="8.5" y="4" width="4" height="6" rx="0.5" fill="url(#ei-smf)" stroke="#604800" stroke-width="0.5"/><rect x="13" y="4" width="4" height="6" rx="0.5" fill="url(#ei-smf)" stroke="#604800" stroke-width="0.5"/><text x="6" y="8.5" font-size="4" font-weight="bold" fill="#ef5350" text-anchor="middle" font-family="sans-serif">7</text><text x="10.5" y="8.5" font-size="4" font-weight="bold" fill="#ef5350" text-anchor="middle" font-family="sans-serif">7</text><text x="15" y="8.5" font-size="4" font-weight="bold" fill="#ef5350" text-anchor="middle" font-family="sans-serif">7</text><rect x="7" y="13" width="6" height="3" rx="1" fill="#ef5350" stroke="#b71c1c" stroke-width="0.5"/><ellipse cx="10" cy="14.5" rx="2" ry="0.8" fill="white" opacity="0.3"/>',
     'White Noise Mixer': '<defs><linearGradient id="ei-nm" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient><linearGradient id="ei-nmf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#a0a0a0"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#ei-nm)" stroke="#606060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><rect x="3" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="3.2" y="8" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="3" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50"/><rect x="6.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="6.7" y="10" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="6.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.7"/><rect x="10" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="10.2" y="11" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="10" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.5"/><rect x="13.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="13.7" y="9" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="13.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.8"/>'
   };
   return icons[name] || '';
@@ -5194,6 +5196,697 @@ window.mpAudioUpdateVolume = function () {
   }
 };
 
+/* ── Slot Machine ── */
+var smBuilt = false;
+var smSpinning = false;
+var smCredits = 500;
+var smBetPerLine = 1;
+var smLines = 5;
+var smWin = 0;
+var smFreeSpins = 0;
+var smFreeMultiplier = 1;
+var smHoldOffered = false;
+var smNudgeOffered = false;
+var smNudgesLeft = 0;
+var smHeldReels = [false, false, false];
+var smReelResults = [[0,0,0],[0,0,0],[0,0,0]]; // [reel][row] indices into SM_SYMBOLS
+var smAnimTimers = [];
+var smAudioCtx = null;
+var smInsertCoinCooldown = 0;
+
+var SM_SYMBOLS = [
+  { ch: '7',    cls: 'sm-sym-seven',   tier: 'jackpot' },
+  { ch: 'BAR',  cls: 'sm-sym-bar',     tier: 'high' },
+  { ch: '\u2407', cls: 'sm-sym-bell',  tier: 'high' },
+  { ch: '\u2605', cls: 'sm-sym-star',  tier: 'mid' },
+  { ch: '\u2666', cls: 'sm-sym-diamond', tier: 'mid' },
+  { ch: '\u2665', cls: 'sm-sym-heart', tier: 'mid' },
+  { ch: '\u2660', cls: 'sm-sym-spade', tier: 'low' },
+  { ch: '\u2663', cls: 'sm-sym-club',  tier: 'low' },
+  { ch: '\u2731', cls: 'sm-sym-scatter', tier: 'scatter' }
+];
+
+// Reel strips: 20 positions each, indices into SM_SYMBOLS
+// 7=0, BAR=1, Bell=2, Star=3, Diamond=4, Heart=5, Spade=6, Club=7, Scatter=8
+var SM_REELS = [
+  [7,3,5,6,1,4,7,2,6,8,5,4,0,3,7,1,6,5,4,2],
+  [6,4,1,5,7,3,2,6,5,4,7,8,3,0,1,6,5,7,4,2],
+  [5,7,4,6,2,3,1,7,5,6,4,3,8,7,0,6,5,1,4,2]
+];
+
+var SM_PAY_TABLE = [
+  { match: [0,0,0], payout: 250, label: '7 7 7' },
+  { match: [1,1,1], payout: 50, label: 'BAR BAR BAR' },
+  { match: [2,2,2], payout: 25, label: '\u2407 \u2407 \u2407' },
+  { match: [3,3,3], payout: 15, label: '\u2605 \u2605 \u2605' },
+  { match: [4,4,4], payout: 10, label: '\u2666 \u2666 \u2666' },
+  { match: [5,5,5], payout: 10, label: '\u2665 \u2665 \u2665' },
+  { match: [6,6,6], payout: 5, label: '\u2660 \u2660 \u2660' },
+  { match: [7,7,7], payout: 5, label: '\u2663 \u2663 \u2663' }
+];
+
+var SM_PAYLINES = [
+  [1,1,1], // center row
+  [0,0,0], // top row
+  [2,2,2], // bottom row
+  [0,1,2], // diagonal top-left to bottom-right
+  [2,1,0]  // diagonal bottom-left to top-right
+];
+
+var smCells = []; // [reel][row] DOM elements
+var smHoldBtns = [];
+var smNudgeBtns = []; // [reel][0=up, 1=down]
+
+function smGetVolume() {
+  var raw = parseFloat(localStorage.getItem('mp-volume') || '0.1');
+  var muted = localStorage.getItem('mp-muted') === '1';
+  return muted ? 0 : raw * 0.15;
+}
+
+function smPlayTone(freq, duration, type) {
+  if (!smAudioCtx) smAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  var vol = smGetVolume();
+  if (vol <= 0) return;
+  var osc = smAudioCtx.createOscillator();
+  osc.type = type || 'square';
+  osc.frequency.setValueAtTime(freq, smAudioCtx.currentTime);
+  var gain = smAudioCtx.createGain();
+  gain.gain.setValueAtTime(vol, smAudioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(0, smAudioCtx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(smAudioCtx.destination);
+  osc.start();
+  osc.stop(smAudioCtx.currentTime + duration);
+}
+
+function smSoundSpin() {
+  smPlayTone(440, 0.06); setTimeout(function () { smPlayTone(554, 0.06); }, 50); setTimeout(function () { smPlayTone(659, 0.06); }, 100);
+}
+function smSoundReelStop() { smPlayTone(150, 0.08, 'triangle'); }
+function smSoundSmallWin() { smPlayTone(523, 0.1); setTimeout(function () { smPlayTone(659, 0.15); }, 100); }
+function smSoundBigWin() {
+  var notes = [523, 587, 659, 698, 784, 880];
+  notes.forEach(function (n, i) { setTimeout(function () { smPlayTone(n, 0.12); }, i * 80); });
+}
+function smSoundHoldNudge() { smPlayTone(880, 0.05); setTimeout(function () { smPlayTone(1047, 0.05); }, 60); }
+function smSoundNoCredits() { smPlayTone(392, 0.1); setTimeout(function () { smPlayTone(330, 0.1); }, 100); setTimeout(function () { smPlayTone(262, 0.15); }, 200); }
+
+function smBuildUI() {
+  var body = document.getElementById('slotmachineBody');
+  if (!body || smBuilt) return;
+
+  // LCD display row
+  var lcdRow = document.createElement('div');
+  lcdRow.className = 'sm-lcd-row';
+  var lcdCredit = document.createElement('div');
+  lcdCredit.className = 'sm-lcd';
+  lcdCredit.innerHTML = '<span class="sm-lcd-label" data-i18n="sm.credit">CREDIT</span><span class="sm-lcd-val" id="smCreditDisplay">' + smCredits + '</span>';
+  var lcdBet = document.createElement('div');
+  lcdBet.className = 'sm-lcd';
+  lcdBet.innerHTML = '<span class="sm-lcd-label" data-i18n="sm.bet">BET</span><span class="sm-lcd-val" id="smBetDisplay">' + (smBetPerLine * smLines) + '</span>';
+  var lcdWin = document.createElement('div');
+  lcdWin.className = 'sm-lcd';
+  lcdWin.innerHTML = '<span class="sm-lcd-label" data-i18n="sm.win">WIN</span><span class="sm-lcd-val" id="smWinDisplay">--</span>';
+  lcdRow.appendChild(lcdCredit);
+  lcdRow.appendChild(lcdBet);
+  lcdRow.appendChild(lcdWin);
+  body.appendChild(lcdRow);
+
+  // Hold buttons row (hidden by default)
+  var holdRow = document.createElement('div');
+  holdRow.className = 'sm-hold-row';
+  holdRow.id = 'smHoldRow';
+  holdRow.style.display = 'none';
+  for (var h = 0; h < 3; h++) {
+    var holdBtn = document.createElement('button');
+    holdBtn.type = 'button';
+    holdBtn.className = 'sm-hold-btn';
+    holdBtn.textContent = t('sm.hold');
+    holdBtn.dataset.reel = h;
+    holdBtn.addEventListener('click', (function (ri) { return function () { smToggleHold(ri); }; })(h));
+    smHoldBtns.push(holdBtn);
+    holdRow.appendChild(holdBtn);
+  }
+  body.appendChild(holdRow);
+
+  // Reel grid (row-major: top row L-R, center row L-R, bottom row L-R)
+  var reelGrid = document.createElement('div');
+  reelGrid.className = 'sm-reel-grid';
+  smCells = [[null,null,null],[null,null,null],[null,null,null]]; // [reel][row]
+  for (var row = 0; row < 3; row++) {
+    for (var r = 0; r < 3; r++) {
+      var cell = document.createElement('div');
+      cell.className = 'sm-cell';
+      cell.textContent = SM_SYMBOLS[SM_REELS[r][row]].ch;
+      cell.classList.add(SM_SYMBOLS[SM_REELS[r][row]].cls);
+      reelGrid.appendChild(cell);
+      smCells[r][row] = cell;
+    }
+  }
+  body.appendChild(reelGrid);
+
+  // Nudge buttons row (hidden by default)
+  var nudgeRow = document.createElement('div');
+  nudgeRow.className = 'sm-nudge-row';
+  nudgeRow.id = 'smNudgeRow';
+  nudgeRow.style.display = 'none';
+  smNudgeBtns = [];
+  for (var n = 0; n < 3; n++) {
+    var nudgeGroup = document.createElement('div');
+    nudgeGroup.className = 'sm-nudge-group';
+    var upBtn = document.createElement('button');
+    upBtn.type = 'button';
+    upBtn.className = 'sm-nudge-btn';
+    upBtn.textContent = '\u25B2';
+    upBtn.addEventListener('click', (function (ri) { return function () { smNudge(ri, -1); }; })(n));
+    var dnBtn = document.createElement('button');
+    dnBtn.type = 'button';
+    dnBtn.className = 'sm-nudge-btn';
+    dnBtn.textContent = '\u25BC';
+    dnBtn.addEventListener('click', (function (ri) { return function () { smNudge(ri, 1); }; })(n));
+    nudgeGroup.appendChild(upBtn);
+    nudgeGroup.appendChild(dnBtn);
+    smNudgeBtns.push([upBtn, dnBtn]);
+    nudgeRow.appendChild(nudgeGroup);
+  }
+  body.appendChild(nudgeRow);
+
+  // Controls row: lines & bet
+  var ctrlRow = document.createElement('div');
+  ctrlRow.className = 'sm-ctrl-row';
+  var linesGrp = document.createElement('div');
+  linesGrp.className = 'sm-ctrl-group';
+  var linesLabel = document.createElement('span');
+  linesLabel.className = 'sm-ctrl-label';
+  linesLabel.setAttribute('data-i18n', 'sm.lines');
+  linesLabel.textContent = t('sm.lines');
+  linesGrp.appendChild(linesLabel);
+  [1,3,5].forEach(function (lv) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sm-opt-btn' + (lv === smLines ? ' sm-opt-active' : '');
+    b.textContent = lv;
+    b.dataset.lines = lv;
+    b.addEventListener('click', function () { smSetLines(lv); });
+    linesGrp.appendChild(b);
+  });
+  ctrlRow.appendChild(linesGrp);
+
+  var betGrp = document.createElement('div');
+  betGrp.className = 'sm-ctrl-group';
+  var betLabel = document.createElement('span');
+  betLabel.className = 'sm-ctrl-label';
+  betLabel.setAttribute('data-i18n', 'sm.betPerLine');
+  betLabel.textContent = t('sm.betPerLine');
+  betGrp.appendChild(betLabel);
+  [1,2,5,10].forEach(function (bv) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sm-opt-btn' + (bv === smBetPerLine ? ' sm-opt-active' : '');
+    b.textContent = bv;
+    b.dataset.bet = bv;
+    b.addEventListener('click', function () { smSetBet(bv); });
+    betGrp.appendChild(b);
+  });
+  ctrlRow.appendChild(betGrp);
+  body.appendChild(ctrlRow);
+
+  // Action buttons row
+  var btnRow = document.createElement('div');
+  btnRow.className = 'sm-btn-row';
+  var spinBtn = document.createElement('button');
+  spinBtn.type = 'button';
+  spinBtn.className = 'sm-spin-btn';
+  spinBtn.id = 'smSpinBtn';
+  spinBtn.textContent = t('sm.spin');
+  spinBtn.addEventListener('click', smSpin);
+  btnRow.appendChild(spinBtn);
+
+  var maxBtn = document.createElement('button');
+  maxBtn.type = 'button';
+  maxBtn.className = 'sm-max-btn';
+  maxBtn.textContent = t('sm.maxBet');
+  maxBtn.addEventListener('click', smMaxBet);
+  btnRow.appendChild(maxBtn);
+
+  var payBtn = document.createElement('button');
+  payBtn.type = 'button';
+  payBtn.className = 'sm-pay-btn';
+  payBtn.textContent = t('sm.payTable');
+  payBtn.addEventListener('click', smTogglePayTable);
+  btnRow.appendChild(payBtn);
+  body.appendChild(btnRow);
+
+  // Pay table panel (hidden)
+  var payPanel = document.createElement('div');
+  payPanel.className = 'sm-pay-panel';
+  payPanel.id = 'smPayPanel';
+  payPanel.style.display = 'none';
+  var payTitle = document.createElement('div');
+  payTitle.className = 'sm-pay-title';
+  payTitle.textContent = t('sm.payTable');
+  payPanel.appendChild(payTitle);
+  SM_PAY_TABLE.forEach(function (entry) {
+    var row = document.createElement('div');
+    row.className = 'sm-pay-row';
+    row.innerHTML = '<span>' + entry.label + '</span><span>' + entry.payout + '</span>';
+    payPanel.appendChild(row);
+  });
+  // partial matches
+  var partials = [
+    { label: t('sm.anyTwo') + ' 7', payout: 5 },
+    { label: t('sm.anyTwo') + ' BAR', payout: 3 },
+    { label: t('sm.anyTwo') + ' \u2407', payout: 2 }
+  ];
+  partials.forEach(function (p) {
+    var row = document.createElement('div');
+    row.className = 'sm-pay-row';
+    row.innerHTML = '<span>' + p.label + '</span><span>' + p.payout + '</span>';
+    payPanel.appendChild(row);
+  });
+  // scatter
+  var scRow1 = document.createElement('div');
+  scRow1.className = 'sm-pay-row';
+  scRow1.innerHTML = '<span>2\u00D7 \u2731 ' + t('sm.scatter') + '</span><span>5 ' + t('sm.freeSpinsShort') + ' + 2\u00D7</span>';
+  payPanel.appendChild(scRow1);
+  var scRow2 = document.createElement('div');
+  scRow2.className = 'sm-pay-row';
+  scRow2.innerHTML = '<span>3\u00D7 \u2731 ' + t('sm.scatter') + '</span><span>10 ' + t('sm.freeSpinsShort') + ' + 5\u00D7</span>';
+  payPanel.appendChild(scRow2);
+  body.appendChild(payPanel);
+
+  smBuilt = true;
+  smLoadState();
+  smUpdateDisplays();
+}
+
+function smUpdateDisplays() {
+  var cd = document.getElementById('smCreditDisplay');
+  var bd = document.getElementById('smBetDisplay');
+  var wd = document.getElementById('smWinDisplay');
+  if (cd) cd.textContent = smCredits;
+  if (bd) bd.textContent = smBetPerLine * smLines;
+  if (wd) wd.textContent = smWin > 0 ? smWin : '--';
+  var st = document.getElementById('smStatus');
+  if (st) {
+    if (smFreeSpins > 0) st.textContent = t('sm.freeSpinsLeft', { count: smFreeSpins });
+    else st.textContent = t('sm.credits', { count: smCredits });
+  }
+}
+
+function smSetLines(n) {
+  if (smSpinning) return;
+  smLines = n;
+  var btns = document.querySelectorAll('.sm-opt-btn[data-lines]');
+  btns.forEach(function (b) { b.classList.toggle('sm-opt-active', parseInt(b.dataset.lines) === n); });
+  smUpdateDisplays();
+}
+
+function smSetBet(n) {
+  if (smSpinning) return;
+  smBetPerLine = n;
+  var btns = document.querySelectorAll('.sm-opt-btn[data-bet]');
+  btns.forEach(function (b) { b.classList.toggle('sm-opt-active', parseInt(b.dataset.bet) === n); });
+  smUpdateDisplays();
+}
+
+function smMaxBet() {
+  if (smSpinning) return;
+  smSetLines(5);
+  smSetBet(10);
+  smSpin();
+}
+
+function smTogglePayTable() {
+  var panel = document.getElementById('smPayPanel');
+  if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+}
+
+function smToggleHold(reelIdx) {
+  if (!smHoldOffered || smSpinning) return;
+  smHeldReels[reelIdx] = !smHeldReels[reelIdx];
+  smHoldBtns[reelIdx].classList.toggle('sm-hold-active', smHeldReels[reelIdx]);
+}
+
+function smNudge(reelIdx, dir) {
+  if (!smNudgeOffered || smNudgesLeft <= 0 || smSpinning) return;
+  var strip = SM_REELS[reelIdx];
+  var len = strip.length;
+  // Shift reel position (dir: -1=up, +1=down)
+  smReelPositions[reelIdx] = (smReelPositions[reelIdx] + dir + len) % len;
+  for (var row = 0; row < 3; row++) {
+    smReelResults[reelIdx][row] = strip[(smReelPositions[reelIdx] + row) % len];
+  }
+  for (var row2 = 0; row2 < 3; row2++) {
+    var sym = smReelResults[reelIdx][row2];
+    smCells[reelIdx][row2].textContent = SM_SYMBOLS[sym].ch;
+    smCells[reelIdx][row2].className = 'sm-cell ' + SM_SYMBOLS[sym].cls;
+  }
+  smNudgesLeft--;
+  smSoundReelStop();
+  if (smNudgesLeft <= 0) {
+    smNudgeOffered = false;
+    document.getElementById('smNudgeRow').style.display = 'none';
+    smEvaluateWins();
+  }
+}
+
+// Track strip positions per reel for nudge
+var smReelPositions = [0, 0, 0]; // top-row position in strip
+
+function smSpin() {
+  if (smSpinning) return;
+  // If hold is offered, this is the re-spin
+  if (smHoldOffered) {
+    smHoldOffered = false;
+    document.getElementById('smHoldRow').style.display = 'none';
+    smSpinReels(true);
+    return;
+  }
+  // If nudge offered, cancel it
+  if (smNudgeOffered) {
+    smNudgeOffered = false;
+    document.getElementById('smNudgeRow').style.display = 'none';
+  }
+
+  var totalBet = smBetPerLine * smLines;
+  if (smFreeSpins > 0) {
+    smFreeSpins--;
+    totalBet = 0;
+  } else if (smCredits < totalBet) {
+    smSoundNoCredits();
+    smOfferInsertCoin();
+    return;
+  }
+  smCredits -= totalBet;
+  smWin = 0;
+  smHeldReels = [false, false, false];
+  smUpdateDisplays();
+  smSpinReels(false);
+}
+
+function smSpinReels(isRespin) {
+  smSpinning = true;
+  smSoundSpin();
+  var spinBtn = document.getElementById('smSpinBtn');
+  if (spinBtn) spinBtn.disabled = true;
+
+  // Clear previous win highlights
+  for (var r = 0; r < 3; r++) {
+    for (var row = 0; row < 3; row++) {
+      smCells[r][row].classList.remove('sm-win');
+    }
+  }
+
+  // Generate results for non-held reels
+  for (var ri = 0; ri < 3; ri++) {
+    if (isRespin && smHeldReels[ri]) continue;
+    var strip = SM_REELS[ri];
+    var pos = Math.floor(Math.random() * strip.length);
+    smReelPositions[ri] = pos;
+    for (var row2 = 0; row2 < 3; row2++) {
+      smReelResults[ri][row2] = strip[(pos + row2) % strip.length];
+    }
+  }
+
+  // Animate each reel
+  var reelDelays = [800, 1200, 1600];
+  var startTime = Date.now();
+
+  for (var ai = 0; ai < 3; ai++) {
+    if (isRespin && smHeldReels[ai]) continue;
+    (function (reelIdx) {
+      function tick() {
+        var elapsed = Date.now() - startTime;
+        if (elapsed >= reelDelays[reelIdx]) {
+          // Set final symbols
+          for (var row2 = 0; row2 < 3; row2++) {
+            var sym = smReelResults[reelIdx][row2];
+            smCells[reelIdx][row2].textContent = SM_SYMBOLS[sym].ch;
+            smCells[reelIdx][row2].className = 'sm-cell ' + SM_SYMBOLS[sym].cls + ' sm-stop-bounce';
+          }
+          smSoundReelStop();
+          // Check if all reels done
+          if (reelIdx === 2 || (isRespin && reelIdx === smLastUnheldReel())) {
+            setTimeout(function () { smAfterSpin(); }, 200);
+          }
+          return;
+        }
+        // Show random symbols during spin
+        for (var row = 0; row < 3; row++) {
+          var randSym = Math.floor(Math.random() * SM_SYMBOLS.length);
+          smCells[reelIdx][row].textContent = SM_SYMBOLS[randSym].ch;
+          smCells[reelIdx][row].className = 'sm-cell sm-spinning';
+        }
+        // Decelerate as approaching stop time
+        var remaining = reelDelays[reelIdx] - elapsed;
+        var delay = remaining < 200 ? 200 : remaining < 400 ? 120 : remaining < 600 ? 80 : 60;
+        var t = setTimeout(tick, delay);
+        smAnimTimers.push(t);
+      }
+      tick();
+    })(ai);
+  }
+
+  // If all reels held (shouldn't happen, but safety)
+  if (isRespin && smHeldReels[0] && smHeldReels[1] && smHeldReels[2]) {
+    smAfterSpin();
+  }
+}
+
+function smLastUnheldReel() {
+  for (var i = 2; i >= 0; i--) { if (!smHeldReels[i]) return i; }
+  return 2;
+}
+
+function smAfterSpin() {
+  smSpinning = false;
+  var spinBtn = document.getElementById('smSpinBtn');
+  if (spinBtn) spinBtn.disabled = false;
+  smEvaluateWins();
+}
+
+function smEvaluateWins() {
+  smWin = 0;
+  var winCells = [];
+
+  // Check paylines
+  var activeLines = SM_PAYLINES.slice(0, smLines);
+  for (var li = 0; li < activeLines.length; li++) {
+    var line = activeLines[li];
+    var syms = [smReelResults[0][line[0]], smReelResults[1][line[1]], smReelResults[2][line[2]]];
+
+    // Check 3-of-a-kind
+    var matched = false;
+    for (var pi = 0; pi < SM_PAY_TABLE.length; pi++) {
+      var pay = SM_PAY_TABLE[pi];
+      if (syms[0] === pay.match[0] && syms[1] === pay.match[1] && syms[2] === pay.match[2]) {
+        smWin += pay.payout * smBetPerLine;
+        winCells.push([0, line[0]], [1, line[1]], [2, line[2]]);
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      // Check 2-of-a-kind for 7, BAR, Bell
+      var partials = [[0, 5], [1, 3], [2, 2]]; // symbolIdx, payout
+      for (var pk = 0; pk < partials.length; pk++) {
+        var pSym = partials[pk][0];
+        var pPay = partials[pk][1];
+        var count = 0;
+        var pCells = [];
+        for (var s = 0; s < 3; s++) {
+          if (syms[s] === pSym) { count++; pCells.push([s, line[s]]); }
+        }
+        if (count >= 2) {
+          smWin += pPay * smBetPerLine;
+          winCells = winCells.concat(pCells);
+          break;
+        }
+      }
+    }
+  }
+
+  // Check scatters (anywhere on grid)
+  var scatterCount = 0;
+  var scatterCells = [];
+  for (var sr = 0; sr < 3; sr++) {
+    for (var srow = 0; srow < 3; srow++) {
+      if (smReelResults[sr][srow] === 8) {
+        scatterCount++;
+        scatterCells.push([sr, srow]);
+      }
+    }
+  }
+  if (scatterCount >= 2) {
+    winCells = winCells.concat(scatterCells);
+    if (scatterCount >= 3) {
+      smFreeSpins += 10;
+      smFreeMultiplier = 2;
+      smWin += 5 * smBetPerLine * smLines;
+    } else {
+      smFreeSpins += 5;
+      smFreeMultiplier = 1;
+      smWin += 2 * smBetPerLine * smLines;
+    }
+    smSoundHoldNudge();
+  }
+
+  // Apply free spin multiplier
+  if (smFreeMultiplier > 1 && smFreeSpins > 0) {
+    smWin = smWin * smFreeMultiplier;
+  }
+
+  smCredits += smWin;
+
+  // Animate wins
+  if (winCells.length > 0) {
+    smAnimateWin(winCells);
+    if (smWin >= 250 * smBetPerLine) {
+      smSoundBigWin();
+      var st = document.getElementById('smStatus');
+      if (st) st.textContent = t('sm.jackpot');
+      smAnimateJackpot();
+    } else if (smWin > 0) {
+      smSoundSmallWin();
+    }
+    smAnimateWinCounter();
+  }
+
+  smUpdateDisplays();
+  smSaveState();
+
+  // Offer hold or nudge (only if not in free spins and not already offered)
+  if (smFreeSpins <= 0 && smWin === 0) {
+    var holdChance = Math.random();
+    var nudgeChance = Math.random();
+    if (holdChance < 0.25) {
+      smOfferHold();
+    } else if (nudgeChance < 0.15) {
+      smOfferNudge();
+    }
+  }
+
+  // Check if out of credits
+  if (smCredits <= 0 && smFreeSpins <= 0) {
+    setTimeout(function () {
+      smSoundNoCredits();
+      smOfferInsertCoin();
+    }, 500);
+  }
+}
+
+function smAnimateWin(cells) {
+  var count = 0;
+  var flashTimer = setInterval(function () {
+    cells.forEach(function (c) {
+      smCells[c[0]][c[1]].classList.toggle('sm-win');
+    });
+    count++;
+    if (count >= 6) clearInterval(flashTimer);
+  }, 200);
+}
+
+function smAnimateWinCounter() {
+  var wd = document.getElementById('smWinDisplay');
+  if (!wd || smWin <= 0) return;
+  var current = 0;
+  var step = Math.max(1, Math.floor(smWin / 15));
+  var ct = setInterval(function () {
+    current += step;
+    if (current >= smWin) { current = smWin; clearInterval(ct); }
+    wd.textContent = current;
+  }, 50);
+}
+
+function smAnimateJackpot() {
+  var st = document.getElementById('smStatus');
+  if (!st) return;
+  var colors = ['#ef5350', '#ffc107', '#4caf50', '#2196f3', '#9c27b0'];
+  var i = 0;
+  var jt = setInterval(function () {
+    st.style.color = colors[i % colors.length];
+    i++;
+    if (i >= 15) { clearInterval(jt); st.style.color = ''; }
+  }, 100);
+}
+
+function smOfferHold() {
+  smHoldOffered = true;
+  smHeldReels = [false, false, false];
+  smHoldBtns.forEach(function (b) { b.classList.remove('sm-hold-active'); });
+  document.getElementById('smHoldRow').style.display = '';
+  smSoundHoldNudge();
+  var st = document.getElementById('smStatus');
+  if (st) st.textContent = t('sm.holdOffered');
+}
+
+function smOfferNudge() {
+  smNudgeOffered = true;
+  smNudgesLeft = Math.floor(Math.random() * 3) + 1;
+  document.getElementById('smNudgeRow').style.display = '';
+  smSoundHoldNudge();
+  var st = document.getElementById('smStatus');
+  if (st) st.textContent = t('sm.nudgeOffered', { count: smNudgesLeft });
+}
+
+async function smOfferInsertCoin() {
+  var now = Date.now();
+  if (now - smInsertCoinCooldown < 30000) {
+    var st = document.getElementById('smStatus');
+    if (st) st.textContent = t('sm.waitCooldown');
+    return;
+  }
+  var ok = await mpConfirm(t('sm.gameOver'));
+  if (ok) {
+    smInsertCoinCooldown = Date.now();
+    smCredits += 100;
+    smUpdateDisplays();
+    smSaveState();
+  }
+}
+
+function smSaveState() {
+  try {
+    localStorage.setItem('mpOS-slotmachine', JSON.stringify({
+      credits: smCredits,
+      freeSpins: smFreeSpins
+    }));
+  } catch (e) {}
+}
+
+function smLoadState() {
+  try {
+    var raw = localStorage.getItem('mpOS-slotmachine');
+    if (!raw) return;
+    var state = JSON.parse(raw);
+    if (typeof state.credits === 'number') smCredits = state.credits;
+    if (typeof state.freeSpins === 'number') smFreeSpins = state.freeSpins;
+  } catch (e) {}
+}
+
+function openSlotMachine() {
+  if (!smBuilt) smBuildUI();
+  openWindow('slotmachine');
+}
+
+function closeSlotMachine() {
+  // Stop any running animations
+  smAnimTimers.forEach(function (t) { clearInterval(t); });
+  smAnimTimers = [];
+  smSpinning = false;
+  smHoldOffered = false;
+  smNudgeOffered = false;
+  smSaveState();
+  mpTaskbar.closeWindow('slotmachine');
+}
+
+// Volume integration for slot machine
+var smOrigAudioUpdate = window.mpAudioUpdateVolume;
+window.mpAudioUpdateVolume = function () {
+  if (smOrigAudioUpdate) smOrigAudioUpdate();
+};
+
 /* ── NEO Tracker ── */
 let neoLoaded = false;
 
@@ -5621,7 +6314,8 @@ const ACTION_MAP = {
   openTuningFork: openTuningFork,
   openNeoTracker: openNeoTracker,
   openCryptography: openCryptography,
-  openFractal: openFractal
+  openFractal: openFractal,
+  openSlotMachine: openSlotMachine
 };
 
 /* ── Run Terminal ── */
@@ -6688,7 +7382,8 @@ const WINDOW_NAMES = {
   'noisemixer': 'White Noise Mixer', 'voicecommands': 'Voice Commands',
   'tuningfork': 'Tuning Fork', 'neotracker': 'NEO Tracker',
   'cryptography': 'Cryptography',
-  'fractal': 'Fractal Explorer'
+  'fractal': 'Fractal Explorer',
+  'slotmachine': 'Slot Machine'
 };
 
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
@@ -6968,7 +7663,8 @@ const COMMANDS = {
   'netstat':     { run: cmdNetstat,     desc: 'Display active connections' },
   'noisemixer':  { run: openNoiseMixer, desc: 'Open White Noise Mixer' },
   'cryptography': { run: openCryptography, desc: 'Open Cryptography' },
-  'fractal':      { run: openFractal,      desc: 'Launch Fractal Explorer' }
+  'fractal':      { run: openFractal,      desc: 'Launch Fractal Explorer' },
+  'slotmachine':  { run: openSlotMachine,  desc: 'Launch Slot Machine' }
 };
 
 function termPrint(text, color) {
@@ -7929,7 +8625,8 @@ function buildLauncher() {
     { name: 'On Target', _key: 'onTarget', action: openOnTarget },
     { name: 'Chicken Fingers', _key: 'chickenFingers', action: null, href: 'chicken-fingers.html' },
     { name: 'Brick Breaker', _key: 'brickBreaker', action: openBrickBreaker },
-    { name: 'Fractal Explorer', _key: 'fractal', action: openFractal }
+    { name: 'Fractal Explorer', _key: 'fractal', action: openFractal },
+    { name: 'Slot Machine', _key: 'slotMachine', action: openSlotMachine }
   ];
   var internet = [
     { name: 'WikiBrowser', _key: 'wikiBrowser', action: openBrowser },
@@ -8101,6 +8798,8 @@ window.openTuningFork = openTuningFork;
 window.openCryptography = openCryptography;
 window.openFractal = openFractal;
 window.closeFractal = closeFractal;
+window.openSlotMachine = openSlotMachine;
+window.closeSlotMachine = closeSlotMachine;
 window.closeTuningFork = closeTuningFork;
 window.tfStrike = tfStrike;
 window.tfStop = tfStop;

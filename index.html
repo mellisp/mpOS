@@ -494,6 +494,21 @@
       </div>
     </div>
 
+    <!-- Slot Machine Window (hidden initially) -->
+    <div class="window draggable" id="slotmachine" style="display:none;">
+      <div class="titlebar">
+        <span data-i18n="title.slotMachine">Slot Machine</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('slotmachine')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeSlotMachine()">X</div>
+        </div>
+      </div>
+      <div class="window-body" id="slotmachineBody"></div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="smStatus">Ready</div>
+      </div>
+    </div>
+
     <!-- Cryptography Window (hidden initially) -->
     <div class="window draggable" id="cryptography" style="display:none;">
       <div class="titlebar">
