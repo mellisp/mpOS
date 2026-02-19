@@ -84,6 +84,7 @@
     'title.tuningFork': 'Tuning Fork',
     'title.neoTracker': 'NEO Tracker',
     'title.cryptography': 'Cryptography',
+    'title.fractal': 'Fractal Explorer',
 
     /* Start menu: Search sub-items */
     'startSearch.files': 'For Files or Folders...',
@@ -139,6 +140,8 @@
     'app.neoTracker.desc': 'Track near-Earth objects approaching Earth.',
     'app.cryptography.name': 'Cryptography',
     'app.cryptography.desc': 'Encrypt and decrypt messages with classic ciphers.',
+    'app.fractal.name': 'Fractal Explorer',
+    'app.fractal.desc': 'Interactive Mandelbrot and Julia set visualizer.',
     'sticky.deleteConfirm': 'Delete this note?',
     'app.myComputer.name': 'My Computer',
     'app.files.name': 'Files',
@@ -476,6 +479,7 @@
     'win.voicecommands': 'Voice Commands',
     'win.neotracker': 'NEO Tracker',
     'win.cryptography': 'Cryptography',
+    'win.fractal': 'Fractal Explorer',
     'crypto.cipher': 'Cipher',
     'crypto.caesarName': 'Caesar Shift',
     'crypto.subName': 'Substitution',

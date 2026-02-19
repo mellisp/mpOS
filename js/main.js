@@ -220,7 +220,8 @@ const FOLDER_ITEMS = {
   games: [
     { name: 'On Target', _key: 'onTarget', desc: 'A two-player target shooting game.', tag: 'HTML', action: 'openOnTarget' },
     { name: 'Chicken Fingers', _key: 'chickenFingers', desc: 'A two-player touch game.', tag: 'HTML', action: 'openChickenFingers', href: 'chicken-fingers.html' },
-    { name: 'Brick Breaker', _key: 'brickBreaker', desc: 'Daily brick-breaking challenge.', tag: 'HTML', action: 'openBrickBreaker' }
+    { name: 'Brick Breaker', _key: 'brickBreaker', desc: 'Daily brick-breaking challenge.', tag: 'HTML', action: 'openBrickBreaker' },
+    { name: 'Fractal Explorer', _key: 'fractal', desc: 'Interactive Mandelbrot and Julia set visualizer.', tag: 'HTML', action: 'openFractal' }
   ],
   internet: [
     { name: 'WikiBrowser', _key: 'wikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'API', action: 'openBrowser' },
@@ -455,6 +456,7 @@ function getItemIcon(name) {
     'Voice Commands': '<rect x="7.5" y="2" width="5" height="9" rx="2.5" fill="#444"/><path d="M5.5 9v1.5a4.5 4.5 0 0 0 9 0V9" stroke="#444" stroke-width="1.2" fill="none"/><line x1="10" y1="15" x2="10" y2="18" stroke="#444" stroke-width="1.2"/><line x1="7.5" y1="18" x2="12.5" y2="18" stroke="#444" stroke-width="1.2"/>',
     'Tuning Fork': '<defs><linearGradient id="ei-tf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d0d0d0"/><stop offset="50%" stop-color="#a0a0a0"/><stop offset="100%" stop-color="#707070"/></linearGradient></defs><path d="M7 2 L7 11 Q7 14 10 14 Q13 14 13 11 L13 2" fill="none" stroke="url(#ei-tf)" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="14" x2="10" y2="19" stroke="url(#ei-tf)" stroke-width="2" stroke-linecap="round"/><ellipse cx="7" cy="3" rx="1" ry="0.5" fill="white" opacity="0.4"/><ellipse cx="13" cy="3" rx="1" ry="0.5" fill="white" opacity="0.4"/>',
     'NEO Tracker': '<defs><radialGradient id="ei-neo" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#d0c8b8"/><stop offset="50%" stop-color="#a09080"/><stop offset="100%" stop-color="#706050"/></radialGradient></defs><circle cx="10" cy="10" r="4.5" fill="url(#ei-neo)" stroke="#504030" stroke-width="0.8"/><ellipse cx="8.5" cy="8" rx="2.5" ry="1.5" fill="white" opacity="0.3"/><circle cx="12" cy="8.5" r="0.8" fill="#504030" opacity="0.5"/><circle cx="8" cy="11" r="0.6" fill="#504030" opacity="0.4"/><line x1="5" y1="5" x2="3" y2="3" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="15" y1="5" x2="17" y2="3" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="5" y1="15" x2="3" y2="17" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="15" y1="15" x2="17" y2="17" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><circle cx="3" cy="3" r="0.5" fill="#c0a080"/><circle cx="17" cy="3" r="0.4" fill="#c0a080"/><circle cx="3" cy="17" r="0.3" fill="#c0a080"/><circle cx="17" cy="17" r="0.4" fill="#c0a080"/>',
+    'Fractal Explorer': '<defs><radialGradient id="ei-fr" cx="0.4" cy="0.4" r="0.65"><stop offset="0%" stop-color="#a0d0ff"/><stop offset="40%" stop-color="#4a8abe"/><stop offset="70%" stop-color="#2a5a8e"/><stop offset="100%" stop-color="#1a2a4e"/></radialGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#ei-fr)" stroke="#1a2a4e" stroke-width="0.8"/><ellipse cx="8" cy="7.5" rx="4" ry="3" fill="white" opacity="0.2"/><path d="M10 10 Q12 6 10 4 Q8 6 10 10 Q14 8 16 10 Q14 12 10 10 Q8 14 10 16 Q12 14 10 10 Q6 12 4 10 Q6 8 10 10Z" fill="none" stroke="#c0e0ff" stroke-width="0.7" opacity="0.8"/><circle cx="10" cy="10" r="2.5" fill="none" stroke="#80b0e0" stroke-width="0.5"/><circle cx="10" cy="10" r="5" fill="none" stroke="#6090c0" stroke-width="0.4" opacity="0.6"/><circle cx="10" cy="10" r="1" fill="#e0f0ff"/>',
     'White Noise Mixer': '<defs><linearGradient id="ei-nm" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient><linearGradient id="ei-nmf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#a0a0a0"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#ei-nm)" stroke="#606060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><rect x="3" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="3.2" y="8" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="3" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50"/><rect x="6.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="6.7" y="10" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="6.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.7"/><rect x="10" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="10.2" y="11" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="10" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.5"/><rect x="13.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="13.7" y="9" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="13.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.8"/>'
   };
   return icons[name] || '';
@@ -1565,6 +1567,27 @@ function closeBrickBreaker() {
   if (iframe) iframe.remove();
   embed.dataset.loaded = '';
   mpTaskbar.closeWindow('brickbreaker');
+}
+
+/* ── Fractal Explorer (embedded game) ── */
+function openFractal() {
+  var embed = document.getElementById('fractalEmbed');
+  openWindow('fractal');
+  if (!embed.dataset.loaded) {
+    embed.dataset.loaded = '1';
+    var iframe = document.createElement('iframe');
+    iframe.src = 'fractal.html';
+    iframe.title = 'Fractal Explorer';
+    embed.appendChild(iframe);
+  }
+}
+
+function closeFractal() {
+  var embed = document.getElementById('fractalEmbed');
+  var iframe = embed.querySelector('iframe');
+  if (iframe) iframe.remove();
+  embed.dataset.loaded = '';
+  mpTaskbar.closeWindow('fractal');
 }
 
 function openFishOfDay() {
@@ -5597,7 +5620,8 @@ const ACTION_MAP = {
   openVoiceCommands: openVoiceCommands,
   openTuningFork: openTuningFork,
   openNeoTracker: openNeoTracker,
-  openCryptography: openCryptography
+  openCryptography: openCryptography,
+  openFractal: openFractal
 };
 
 /* ── Run Terminal ── */
@@ -6663,7 +6687,8 @@ const WINDOW_NAMES = {
   'search': 'Search Results', 'taskmanager': 'Task Manager',
   'noisemixer': 'White Noise Mixer', 'voicecommands': 'Voice Commands',
   'tuningfork': 'Tuning Fork', 'neotracker': 'NEO Tracker',
-  'cryptography': 'Cryptography'
+  'cryptography': 'Cryptography',
+  'fractal': 'Fractal Explorer'
 };
 
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
@@ -6942,7 +6967,8 @@ const COMMANDS = {
   'ifconfig':    { run: cmdIpconfig,    desc: 'Display network configuration' },
   'netstat':     { run: cmdNetstat,     desc: 'Display active connections' },
   'noisemixer':  { run: openNoiseMixer, desc: 'Open White Noise Mixer' },
-  'cryptography': { run: openCryptography, desc: 'Open Cryptography' }
+  'cryptography': { run: openCryptography, desc: 'Open Cryptography' },
+  'fractal':      { run: openFractal,      desc: 'Launch Fractal Explorer' }
 };
 
 function termPrint(text, color) {
@@ -7800,7 +7826,7 @@ document.addEventListener('click', function (e) {
 /* ── Mobile window navigation ── */
 const CLOSE_MAP = {
   mycomputer: closeMyComputer, aquarium: closeAquarium,
-  ontarget: closeOnTarget, brickbreaker: closeBrickBreaker,
+  ontarget: closeOnTarget, brickbreaker: closeBrickBreaker, fractal: closeFractal,
   browser: closeBrowser, notepad: closeNotepad, timezone: closeTimeZone,
   paint: closePaint, taskmanager: closeTaskManager, run: closeRun,
   noisemixer: closeNoiseMixer
@@ -7902,7 +7928,8 @@ function buildLauncher() {
   var games = [
     { name: 'On Target', _key: 'onTarget', action: openOnTarget },
     { name: 'Chicken Fingers', _key: 'chickenFingers', action: null, href: 'chicken-fingers.html' },
-    { name: 'Brick Breaker', _key: 'brickBreaker', action: openBrickBreaker }
+    { name: 'Brick Breaker', _key: 'brickBreaker', action: openBrickBreaker },
+    { name: 'Fractal Explorer', _key: 'fractal', action: openFractal }
   ];
   var internet = [
     { name: 'WikiBrowser', _key: 'wikiBrowser', action: openBrowser },
@@ -8072,6 +8099,8 @@ window.openVoiceCommands = openVoiceCommands;
 window.closeVoiceCommands = closeVoiceCommands;
 window.openTuningFork = openTuningFork;
 window.openCryptography = openCryptography;
+window.openFractal = openFractal;
+window.closeFractal = closeFractal;
 window.closeTuningFork = closeTuningFork;
 window.tfStrike = tfStrike;
 window.tfStop = tfStop;

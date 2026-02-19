@@ -202,7 +202,8 @@
     taskmanager: 'Task Manager', noisemixer: 'White Noise Mixer',
     voicecommands: 'Voice Commands',
     tuningfork: 'Tuning Fork',
-    neotracker: 'NEO Tracker'
+    neotracker: 'NEO Tracker',
+    fractal: 'Fractal Explorer'
   };
 
   function minimizeWindow(id) {

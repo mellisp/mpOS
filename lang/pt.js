@@ -77,6 +77,7 @@ window._mpLangRegister('pt', {
   'title.tuningFork': 'Diapasão',
   'title.neoTracker': 'NEO Tracker',
   'title.cryptography': 'Criptografia',
+  'title.fractal': 'Explorador Fractal',
 
   /* Start menu: Search sub-items */
   'startSearch.files': 'Ficheiros ou Pastas...',
@@ -132,6 +133,8 @@ window._mpLangRegister('pt', {
   'app.neoTracker.desc': 'Acompanhe objetos próximos da Terra.',
   'app.cryptography.name': 'Criptografia',
   'app.cryptography.desc': 'Cifre e decifre mensagens com cifras clássicas.',
+  'app.fractal.name': 'Explorador Fractal',
+  'app.fractal.desc': 'Visualizador interativo de conjuntos de Mandelbrot e Julia.',
   'sticky.deleteConfirm': 'Apagar esta nota?',
   'app.myComputer.name': 'O Meu Computador',
   'app.files.name': 'Ficheiros',
@@ -469,6 +472,7 @@ window._mpLangRegister('pt', {
   'win.voicecommands': 'Comandos de Voz',
   'win.neotracker': 'NEO Tracker',
   'win.cryptography': 'Criptografia',
+  'win.fractal': 'Explorador Fractal',
   'crypto.cipher': 'Cifra',
   'crypto.caesarName': 'Deslocamento César',
   'crypto.subName': 'Substituição',
