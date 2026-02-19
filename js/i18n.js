@@ -1,9 +1,11 @@
 /* i18n engine — mpOS */
 (function () {
-  var LANGS = {};
-  var current = 'en';
+  'use strict';
 
-  function registerLang(code, strings) { LANGS[code] = strings; }
+  const LANGS = {};
+  let current = 'en';
+
+  const registerLang = (code, strings) => { LANGS[code] = strings; };
 
   /* ── English strings ── */
   registerLang('en', {
@@ -558,53 +560,47 @@
 
   /* Restore saved language */
   try {
-    var saved = localStorage.getItem('mp-lang');
-    if (saved && saved === 'pt') current = 'pt';
-  } catch (e) {}
+    const saved = localStorage.getItem('mp-lang');
+    if (saved === 'pt') current = 'pt';
+  } catch (e) { /* private browsing */ }
 
   /* Lookup with {var} interpolation */
-  function t(key, vars) {
-    var str = (LANGS[current] && LANGS[current][key]) || (LANGS.en && LANGS.en[key]) || key;
+  const t = (key, vars) => {
+    let str = LANGS[current]?.[key] ?? LANGS.en?.[key] ?? key;
     if (vars) {
-      for (var k in vars) {
-        if (vars.hasOwnProperty(k)) {
-          str = str.replace(new RegExp('\\{' + k + '\\}', 'g'), String(vars[k]));
-        }
+      for (const [k, v] of Object.entries(vars)) {
+        str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
       }
     }
     return str;
-  }
+  };
 
   /* Plural helper: Portuguese 0/1 = singular, English only 1 = singular */
-  function tPlural(key, count, vars) {
-    var suffix = (current === 'pt')
+  const tPlural = (key, count, vars) => {
+    const suffix = (current === 'pt')
       ? (count === 0 || count === 1 ? '.one' : '.other')
       : (count === 1 ? '.one' : '.other');
-    var merged = {};
-    if (vars) { for (var k in vars) { if (vars.hasOwnProperty(k)) merged[k] = vars[k]; } }
-    merged.count = count;
+    const merged = { ...vars, count };
     return t(key + suffix, merged);
-  }
+  };
 
-  function setLanguage(lang) {
+  const setLanguage = (lang) => {
     if (!LANGS[lang]) return;
     current = lang;
-    try { localStorage.setItem('mp-lang', lang); } catch (e) {}
+    try { localStorage.setItem('mp-lang', lang); } catch (e) { /* private browsing */ }
     document.documentElement.lang = lang;
     /* Scan data-i18n elements */
-    var els = document.querySelectorAll('[data-i18n]');
-    for (var i = 0; i < els.length; i++) {
-      var el = els[i];
-      var k = el.getAttribute('data-i18n');
-      var attr = el.getAttribute('data-i18n-attr');
+    for (const el of document.querySelectorAll('[data-i18n]')) {
+      const k = el.getAttribute('data-i18n');
+      const attr = el.getAttribute('data-i18n-attr');
       if (attr === 'placeholder') el.placeholder = t(k);
       else if (attr === 'title') el.title = t(k);
       else el.textContent = t(k);
     }
     window.dispatchEvent(new Event('languagechange'));
-  }
+  };
 
-  function getLang() { return current; }
+  const getLang = () => current;
 
   window.t = t;
   window.tPlural = tPlural;

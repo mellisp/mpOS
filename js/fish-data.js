@@ -432,5 +432,5 @@ function checkFishDay() {
   return true;
 }
 
-/* Image preload moved to fetch-based loading in main.js showFishImage() */
+/* Image preload moved to fetch-based loading in fish.js showFishImage() */
 

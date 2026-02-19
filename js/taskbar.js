@@ -1,5 +1,7 @@
 /* Taskbar — Window Management */
 (function () {
+  'use strict';
+
   const startBtn = document.querySelector('.start-btn');
   const startMenu = document.querySelector('.start-menu');
   const clockEl = document.querySelector('.tray-clock');
@@ -11,7 +13,7 @@
 
   // --- Start Button ---
   if (startBtn && startMenu) {
-    startBtn.addEventListener('mousedown', function (e) {
+    startBtn.addEventListener('mousedown', (e) => {
       e.stopPropagation();
       startBtn.classList.toggle('pressed');
       startMenu.classList.toggle('open');
@@ -19,24 +21,23 @@
   }
 
   // --- Clock ---
-  function updateClock() {
+  const updateClock = () => {
     if (!clockEl) return;
     const now = new Date();
     const h = now.getHours();
-    const m = now.getMinutes();
-    const mm = (m < 10 ? '0' : '') + m;
+    const m = String(now.getMinutes()).padStart(2, '0');
     if (localStorage.getItem('mp-clock') === '24') {
-      clockEl.textContent = h + ':' + mm;
+      clockEl.textContent = `${h}:${m}`;
     } else {
-      clockEl.textContent = (h % 12 || 12) + ':' + mm + ' ' + (h >= 12 ? 'PM' : 'AM');
+      clockEl.textContent = `${h % 12 || 12}:${m} ${h >= 12 ? 'PM' : 'AM'}`;
     }
-  }
+  };
 
   window.mpClockUpdate = updateClock;
 
   if (clockEl) {
     updateClock();
-    setTimeout(function () {
+    setTimeout(() => {
       updateClock();
       setInterval(updateClock, 60000);
     }, (60 - new Date().getSeconds()) * 1000);
@@ -44,31 +45,30 @@
 
   // --- Volume ---
   if (volumeIcon && volumePopup) {
-    volumeIcon.addEventListener('click', function (e) {
+    volumeIcon.addEventListener('click', (e) => {
       e.stopPropagation();
       volumePopup.classList.toggle('open');
-      var np = document.querySelector('.net-popup');
-      if (np) np.classList.remove('open');
-      if (window.mpVoiceStop) window.mpVoiceStop();
-      if (startMenu) startMenu.classList.remove('open');
-      if (startBtn) startBtn.classList.remove('pressed');
+      document.querySelector('.net-popup')?.classList.remove('open');
+      window.mpVoiceStop?.();
+      startMenu?.classList.remove('open');
+      startBtn?.classList.remove('pressed');
     });
   }
 
   if (volumeSlider) {
     const savedVol = localStorage.getItem('mp-volume');
     volumeSlider.value = savedVol !== null ? parseFloat(savedVol) * 100 : 10;
-    volumeSlider.addEventListener('input', function () {
+    volumeSlider.addEventListener('input', () => {
       localStorage.setItem('mp-volume', (volumeSlider.value / 100).toString());
-      if (window.mpAudioUpdateVolume) window.mpAudioUpdateVolume();
+      window.mpAudioUpdateVolume?.();
     });
   }
 
   if (muteCheckbox) {
     muteCheckbox.checked = localStorage.getItem('mp-muted') === '1';
-    muteCheckbox.addEventListener('change', function () {
+    muteCheckbox.addEventListener('change', () => {
       localStorage.setItem('mp-muted', muteCheckbox.checked ? '1' : '0');
-      if (window.mpAudioUpdateVolume) window.mpAudioUpdateVolume();
+      window.mpAudioUpdateVolume?.();
     });
   }
 
@@ -77,7 +77,7 @@
   const netPopup = document.querySelector('.net-popup');
   const netPopupBody = document.getElementById('netPopupBody');
 
-  function updateNetStatus() {
+  const updateNetStatus = () => {
     if (!netIcon) return;
     if (navigator.onLine) {
       netIcon.classList.remove('offline');
@@ -87,62 +87,60 @@
       netIcon.title = 'Disconnected';
     }
     renderNetPopup();
-  }
+  };
 
-  function renderNetPopup() {
+  const renderNetPopup = () => {
     if (!netPopupBody) return;
     netPopupBody.textContent = '';
-    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const conn = navigator.connection ?? navigator.mozConnection ?? navigator.webkitConnection;
     const rows = [
       { label: 'Status', value: navigator.onLine ? 'Connected' : 'Disconnected' },
-      { label: 'Type', value: conn ? conn.effectiveType || 'Unknown' : 'N/A (Chromium only)' },
-      { label: 'Downlink', value: conn && conn.downlink != null ? conn.downlink + ' Mbps' : 'N/A' },
-      { label: 'RTT', value: conn && conn.rtt != null ? conn.rtt + ' ms' : 'N/A' }
+      { label: 'Type', value: conn ? conn.effectiveType ?? 'Unknown' : 'N/A (Chromium only)' },
+      { label: 'Downlink', value: conn?.downlink != null ? `${conn.downlink} Mbps` : 'N/A' },
+      { label: 'RTT', value: conn?.rtt != null ? `${conn.rtt} ms` : 'N/A' }
     ];
-    for (let i = 0; i < rows.length; i++) {
+    for (const { label, value } of rows) {
       const row = document.createElement('div');
       row.className = 'net-popup-row';
       const lbl = document.createElement('span');
       lbl.className = 'net-label';
-      lbl.textContent = rows[i].label;
+      lbl.textContent = label;
       const val = document.createElement('span');
-      val.textContent = rows[i].value;
-      row.appendChild(lbl);
-      row.appendChild(val);
+      val.textContent = value;
+      row.append(lbl, val);
       netPopupBody.appendChild(row);
     }
-  }
+  };
 
   if (netIcon && netPopup) {
-    netIcon.addEventListener('click', function (e) {
+    netIcon.addEventListener('click', (e) => {
       e.stopPropagation();
       updateNetStatus();
       netPopup.classList.toggle('open');
-      if (volumePopup) volumePopup.classList.remove('open');
-      if (window.mpVoiceStop) window.mpVoiceStop();
-      if (startMenu) startMenu.classList.remove('open');
-      if (startBtn) startBtn.classList.remove('pressed');
+      volumePopup?.classList.remove('open');
+      window.mpVoiceStop?.();
+      startMenu?.classList.remove('open');
+      startBtn?.classList.remove('pressed');
     });
   }
 
   window.addEventListener('online', updateNetStatus);
   window.addEventListener('offline', updateNetStatus);
-  if (navigator.connection && navigator.connection.addEventListener) {
-    navigator.connection.addEventListener('change', updateNetStatus);
-  }
+  navigator.connection?.addEventListener?.('change', updateNetStatus);
   updateNetStatus();
 
   // --- Dismiss popups on outside click (single listener) ---
-  function clearTouchSubmenus() {
-    document.querySelectorAll('.start-submenu.touch-open').forEach(function (s) {
+  const clearTouchSubmenus = () => {
+    for (const s of document.querySelectorAll('.start-submenu.touch-open')) {
       s.classList.remove('touch-open');
-    });
-  }
+    }
+  };
 
-  document.addEventListener('mousedown', function (e) {
-    if (startBtn && !startBtn.contains(e.target) && (!startMenu || !startMenu.contains(e.target))) {
+  document.addEventListener('mousedown', (e) => {
+    if (startBtn && !startBtn.contains(e.target) && !startMenu?.contains(e.target)) {
       startBtn.classList.remove('pressed');
-      if (startMenu) { startMenu.classList.remove('open'); clearTouchSubmenus(); }
+      startMenu?.classList.remove('open');
+      clearTouchSubmenus();
     }
     if (volumePopup && !volumePopup.contains(e.target) && volumeIcon && !volumeIcon.contains(e.target)) {
       volumePopup.classList.remove('open');
@@ -154,42 +152,42 @@
 
   // --- Touch: tap-to-toggle submenus (instead of hover) ---
   if (window.matchMedia('(pointer: coarse)').matches) {
-    document.querySelectorAll('.start-menu-item.has-submenu').forEach(function (item) {
-      item.addEventListener('click', function (e) {
+    for (const item of document.querySelectorAll('.start-menu-item.has-submenu')) {
+      item.addEventListener('click', (e) => {
         if (e.target.closest('.start-submenu')) return;
         e.stopPropagation();
-        var sub = item.querySelector('.start-submenu');
+        const sub = item.querySelector('.start-submenu');
         if (!sub) return;
-        document.querySelectorAll('.start-submenu.touch-open').forEach(function (s) {
+        for (const s of document.querySelectorAll('.start-submenu.touch-open')) {
           if (s !== sub) s.classList.remove('touch-open');
-        });
+        }
         sub.classList.toggle('touch-open');
       });
-    });
+    }
   }
 
   // --- Window Management ---
   let topZ = 10;
 
-  function bringToFront(win) {
+  const bringToFront = (win) => {
     if (!win || win.style.display === 'none') return;
     topZ++;
     win.style.zIndex = topZ;
-  }
+  };
 
-  document.addEventListener('mousedown', function (e) {
-    var win = e.target.closest('.window.draggable');
+  document.addEventListener('mousedown', (e) => {
+    const win = e.target.closest('.window.draggable');
     if (win) bringToFront(win);
   });
 
-  function onAnimEnd(el, cls, cb) {
+  const onAnimEnd = (el, cls, cb) => {
     el.classList.add(cls);
     el.addEventListener('animationend', function handler() {
       el.removeEventListener('animationend', handler);
       el.classList.remove(cls);
       cb();
     });
-  }
+  };
 
   const TASKBAR_ICONS = {
     browser: 'WikiBrowser', fishofday: 'Fish of the Day', fishfinder: 'Fish Finder',
@@ -206,10 +204,10 @@
     fractal: 'Fractal Explorer'
   };
 
-  function minimizeWindow(id) {
+  const minimizeWindow = (id) => {
     const win = document.getElementById(id);
     if (!win) return;
-    onAnimEnd(win, 'minimizing', function () { win.style.display = 'none'; });
+    onAnimEnd(win, 'minimizing', () => { win.style.display = 'none'; });
     if (taskbarItems) {
       const item = document.createElement('button');
       item.className = 'taskbar-item';
@@ -231,72 +229,70 @@
       label.textContent = titleText;
       item.title = titleText;
       item.appendChild(label);
-      item.addEventListener('click', function () { restoreWindow(id); });
+      item.addEventListener('click', () => { restoreWindow(id); });
       taskbarItems.appendChild(item);
     }
-  }
+  };
 
-  function restoreWindow(id) {
+  const restoreWindow = (id) => {
     const win = document.getElementById(id);
     if (!win) return;
     win.style.display = '';
     bringToFront(win);
-    onAnimEnd(win, 'restoring', function () {});
+    onAnimEnd(win, 'restoring', () => {});
     if (taskbarItems) {
-      const item = taskbarItems.querySelector('[data-window-id="' + id + '"]');
-      if (item) item.remove();
+      taskbarItems.querySelector(`[data-window-id="${id}"]`)?.remove();
     }
-  }
+  };
 
-  function closeWindow(id) {
+  const closeWindow = (id) => {
     const win = document.getElementById(id);
     if (!win) return;
-    onAnimEnd(win, 'closing', function () { win.style.display = 'none'; });
+    onAnimEnd(win, 'closing', () => { win.style.display = 'none'; });
     if (taskbarItems) {
-      const item = taskbarItems.querySelector('[data-window-id="' + id + '"]');
-      if (item) item.remove();
+      taskbarItems.querySelector(`[data-window-id="${id}"]`)?.remove();
     }
-  }
+  };
 
   // --- Dragging ---
   let dragState = null;
 
-  function onDragMove(clientX, clientY) {
+  const onDragMove = (clientX, clientY) => {
     if (!dragState) return;
-    const win = dragState.win;
-    const x = Math.max(0, Math.min(clientX - dragState.ox, window.innerWidth - win.offsetWidth));
-    const y = Math.max(0, Math.min(clientY - dragState.oy, window.innerHeight - win.offsetHeight));
-    win.style.left = x + 'px';
-    win.style.top = y + 'px';
-  }
+    const { win, ox, oy } = dragState;
+    const x = Math.max(0, Math.min(clientX - ox, window.innerWidth - win.offsetWidth));
+    const y = Math.max(0, Math.min(clientY - oy, window.innerHeight - win.offsetHeight));
+    win.style.left = `${x}px`;
+    win.style.top = `${y}px`;
+  };
 
-  document.addEventListener('mousemove', function (e) { onDragMove(e.clientX, e.clientY); });
-  document.addEventListener('mouseup', function () { dragState = null; });
+  document.addEventListener('mousemove', (e) => { onDragMove(e.clientX, e.clientY); });
+  document.addEventListener('mouseup', () => { dragState = null; });
 
-  document.addEventListener('touchmove', function (e) {
+  document.addEventListener('touchmove', (e) => {
     if (!dragState) return;
     e.preventDefault();
-    const t = e.touches[0];
-    onDragMove(t.clientX, t.clientY);
+    const touch = e.touches[0];
+    onDragMove(touch.clientX, touch.clientY);
   }, { passive: false });
 
-  document.addEventListener('touchend', function () { dragState = null; });
-  document.addEventListener('touchcancel', function () { dragState = null; });
+  document.addEventListener('touchend', () => { dragState = null; });
+  document.addEventListener('touchcancel', () => { dragState = null; });
 
-  function makeDraggable(win) {
+  const makeDraggable = (win) => {
     const titlebar = win.querySelector('.titlebar');
     if (!titlebar) return;
-    titlebar.addEventListener('mousedown', function (e) {
+    titlebar.addEventListener('mousedown', (e) => {
       if (e.target.classList.contains('titlebar-btn') || e.target.closest('.titlebar-buttons')) return;
-      dragState = { win: win, ox: e.clientX - win.offsetLeft, oy: e.clientY - win.offsetTop };
+      dragState = { win, ox: e.clientX - win.offsetLeft, oy: e.clientY - win.offsetTop };
       e.preventDefault();
     });
-    titlebar.addEventListener('touchstart', function (e) {
+    titlebar.addEventListener('touchstart', (e) => {
       if (e.target.classList.contains('titlebar-btn') || e.target.closest('.titlebar-buttons')) return;
-      const t = e.touches[0];
-      dragState = { win: win, ox: t.clientX - win.offsetLeft, oy: t.clientY - win.offsetTop };
+      const touch = e.touches[0];
+      dragState = { win, ox: touch.clientX - win.offsetLeft, oy: touch.clientY - win.offsetTop };
     }, { passive: true });
-  }
+  };
 
   document.querySelectorAll('.window.draggable').forEach(makeDraggable);
 
@@ -306,77 +302,72 @@
   const MIN_H = 250;
   let resizeState = null;
 
-  function makeResizable(win) {
-    for (let i = 0; i < RESIZE_DIRS.length; i++) {
-      const dir = RESIZE_DIRS[i];
+  const onResizeMove = (cx, cy) => {
+    if (!resizeState) return;
+    const s = resizeState;
+    const dx = cx - s.startX;
+    const dy = cy - s.startY;
+    const { dir } = s;
+    let newW = s.startW;
+    let newH = s.startH;
+    let newLeft = s.startLeft;
+    let newTop = s.startTop;
+
+    if (dir.includes('e')) newW = Math.max(MIN_W, s.startW + dx);
+    if (dir.includes('w')) {
+      newW = Math.max(MIN_W, s.startW - dx);
+      newLeft = s.startLeft + (s.startW - newW);
+    }
+    if (dir.includes('s')) newH = Math.max(MIN_H, s.startH + dy);
+    if (dir.includes('n')) {
+      newH = Math.max(MIN_H, s.startH - dy);
+      newTop = s.startTop + (s.startH - newH);
+    }
+
+    s.win.style.width = `${newW}px`;
+    s.win.style.height = `${newH}px`;
+    s.win.style.left = `${newLeft}px`;
+    s.win.style.top = `${newTop}px`;
+  };
+
+  const makeResizable = (win) => {
+    for (const dir of RESIZE_DIRS) {
       const handle = document.createElement('div');
-      handle.className = 'resize-handle resize-handle-' + dir;
+      handle.className = `resize-handle resize-handle-${dir}`;
       handle.dataset.dir = dir;
-      handle.addEventListener('pointerdown', function (e) {
+      handle.addEventListener('pointerdown', (e) => {
         e.stopPropagation();
         e.preventDefault();
         handle.setPointerCapture(e.pointerId);
         resizeState = {
-          win: win,
-          dir: dir,
-          startX: e.clientX,
-          startY: e.clientY,
-          startW: win.offsetWidth,
-          startH: win.offsetHeight,
-          startLeft: win.offsetLeft,
-          startTop: win.offsetTop
+          win, dir,
+          startX: e.clientX, startY: e.clientY,
+          startW: win.offsetWidth, startH: win.offsetHeight,
+          startLeft: win.offsetLeft, startTop: win.offsetTop
         };
       });
-      handle.addEventListener('pointermove', function (e) {
+      handle.addEventListener('pointermove', (e) => {
         if (!resizeState || resizeState.win !== win) return;
         onResizeMove(e.clientX, e.clientY);
       });
-      handle.addEventListener('pointerup', function () {
+      handle.addEventListener('pointerup', () => {
         if (!resizeState || resizeState.win !== win) return;
-        var w = resizeState.win;
+        const w = resizeState.win;
         resizeState = null;
         w.dispatchEvent(new Event('windowresize'));
       });
       win.appendChild(handle);
     }
-  }
-
-  function onResizeMove(cx, cy) {
-    if (!resizeState) return;
-    var s = resizeState;
-    var dx = cx - s.startX;
-    var dy = cy - s.startY;
-    var dir = s.dir;
-    var newW = s.startW;
-    var newH = s.startH;
-    var newLeft = s.startLeft;
-    var newTop = s.startTop;
-
-    if (dir.indexOf('e') !== -1) newW = Math.max(MIN_W, s.startW + dx);
-    if (dir.indexOf('w') !== -1) {
-      newW = Math.max(MIN_W, s.startW - dx);
-      newLeft = s.startLeft + (s.startW - newW);
-    }
-    if (dir.indexOf('s') !== -1) newH = Math.max(MIN_H, s.startH + dy);
-    if (dir.indexOf('n') !== -1) {
-      newH = Math.max(MIN_H, s.startH - dy);
-      newTop = s.startTop + (s.startH - newH);
-    }
-
-    s.win.style.width = newW + 'px';
-    s.win.style.height = newH + 'px';
-    s.win.style.left = newLeft + 'px';
-    s.win.style.top = newTop + 'px';
-  }
+  };
 
   document.querySelectorAll('.window.resizable').forEach(makeResizable);
 
   window.mpTaskbar = {
-    minimizeWindow: minimizeWindow,
-    restoreWindow: restoreWindow,
-    closeWindow: closeWindow,
-    makeDraggable: makeDraggable,
-    makeResizable: makeResizable,
-    bringToFront: bringToFront
+    minimizeWindow,
+    restoreWindow,
+    closeWindow,
+    makeDraggable,
+    makeResizable,
+    bringToFront
   };
 })();

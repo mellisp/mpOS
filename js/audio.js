@@ -1,39 +1,39 @@
 /* Audio System — Lazy-loads and plays UI sounds from audio/<name>.mp3 */
 
 (function () {
+  'use strict';
+
   const cache = {};
-  const defaultVolume = 0.1;
+  const DEFAULT_VOLUME = 0.1;
 
-  function getVolume() {
+  const getVolume = () => {
     const saved = localStorage.getItem('mp-volume');
-    return saved !== null ? parseFloat(saved) : defaultVolume;
-  }
+    return saved !== null ? parseFloat(saved) : DEFAULT_VOLUME;
+  };
 
-  function isMuted() {
-    return localStorage.getItem('mp-muted') === '1';
-  }
+  const isMuted = () => localStorage.getItem('mp-muted') === '1';
 
-  function playSound(name) {
+  const playSound = (name) => {
     if (isMuted()) return;
 
     if (!cache[name]) {
-      cache[name] = new Audio('audio/' + name + '.mp3');
+      cache[name] = new Audio(`audio/${name}.mp3`);
     }
 
     const sound = cache[name];
     sound.volume = getVolume();
     sound.currentTime = 0;
-    sound.play().catch(function () { /* autoplay blocked — ignore */ });
-  }
+    sound.play().catch(() => { /* autoplay blocked — ignore */ });
+  };
 
-  function updateVolume() {
+  const updateVolume = () => {
     const vol = getVolume();
     const muted = isMuted();
     for (const key in cache) {
       cache[key].volume = muted ? 0 : vol;
     }
-  }
+  };
 
-  window.mpAudio = { playSound: playSound };
+  window.mpAudio = { playSound };
   window.mpAudioUpdateVolume = updateVolume;
 })();
