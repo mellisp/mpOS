@@ -236,7 +236,7 @@ body {
   position: fixed;
   inset: 0;
   background: var(--desktop);
-  z-index: 100;
+  z-index: 10000;
   align-items: center;
   justify-content: center;
   padding: 24px;
@@ -311,7 +311,7 @@ body {
 
 /* Desktop context menu */
 .desktop-context-menu {
-  position: absolute; z-index: 50;
+  position: absolute; z-index: 999;
   background: var(--silver);
   border: 2px solid;
   border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
@@ -445,7 +445,7 @@ body {
   bottom: 34px;
   left: 4px;
   min-width: 180px;
-  z-index: 50;
+  z-index: 999;
 }
 
 .start-menu.open { display: block; }
@@ -598,7 +598,7 @@ button.start-menu-item {
   bottom: 36px;
   right: 4px;
   padding: 12px;
-  z-index: 50;
+  z-index: 999;
   text-align: center;
 }
 
@@ -632,7 +632,7 @@ button.start-menu-item {
   bottom: 36px;
   right: 4px;
   padding: 12px;
-  z-index: 50;
+  z-index: 999;
   min-width: 200px;
 }
 
