@@ -757,22 +757,23 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 20px;
+  justify-content: flex-start;
+  padding: 18px 16px 14px;
+  overflow-y: auto;
   background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
 }
 .sm-intro-title {
   font-family: var(--mono);
-  font-size: 28px;
+  font-size: 22px;
   font-weight: bold;
   color: #ffc107;
   text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
-  margin-bottom: 16px;
-  letter-spacing: 4px;
+  margin-bottom: 10px;
+  letter-spacing: 3px;
 }
-.sm-intro-reels { display: flex; gap: 16px; margin-bottom: 20px; }
+.sm-intro-reels { display: flex; gap: 12px; margin-bottom: 12px; }
 .sm-intro-sym {
-  font-size: 52px;
+  font-size: 40px;
   font-family: var(--mono);
   color: #ef5350;
   text-shadow: 0 0 12px rgba(239, 83, 80, 0.6);
@@ -786,37 +787,39 @@
 }
 .sm-intro-prize {
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: 13px;
   color: #4ade4a;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   letter-spacing: 1px;
 }
 .sm-intro-stats {
   font-family: var(--mono);
   font-size: 11px;
-  color: #8888bb;
-  margin-bottom: 8px;
+  color: #b0b0dd;
+  margin-bottom: 6px;
 }
 .sm-intro-bonus {
   font-family: var(--mono);
   font-size: 13px;
   font-weight: bold;
   color: #ffc107;
-  margin-bottom: 14px;
+  background: rgba(255, 193, 7, 0.12);
+  padding: 3px 10px;
+  margin-bottom: 10px;
   animation: sm-hold-flash 0.6s ease-in-out infinite;
 }
 .sm-intro-play {
   font-family: var(--font);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
-  padding: 10px 44px;
+  padding: 8px 36px;
   background: var(--silver);
   border: 2px solid;
   border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
   box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
   cursor: default;
   color: #333;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 .sm-intro-play:active {
   border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
@@ -1234,7 +1237,7 @@
 }
 
 /* NEO Tracker window */
-#neotracker { width: min(640px, 94vw); left: min(60px, 3vw); top: 30px; }
+#neotracker { width: min(860px, 94vw); left: min(40px, 2vw); top: 30px; }
 
 .neo-wrap {
   padding: 6px;
@@ -1317,12 +1320,19 @@
   z-index: 10;
 }
 
-/* Sortable table */
+/* Table + detail sidebar row */
+.neo-content-row {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+
 .neo-table-wrap {
+  flex: 1;
+  min-width: 0;
   max-height: 280px;
   overflow: auto;
   background: var(--white);
-  margin-bottom: 6px;
 }
 
 .neo-table {
@@ -1353,8 +1363,8 @@
 .neo-th-sortable:hover {
   background: #c8c4bc;
 }
-.neo-th-sortable[title] { cursor: help; }
-.neo-stat-box[title] { cursor: help; }
+.neo-th-sortable[data-tip] { cursor: help; }
+.neo-stat-box[data-tip] { cursor: help; }
 
 .neo-sort-arrow {
   font-size: 9px;
@@ -1415,10 +1425,28 @@
   font-weight: bold;
 }
 
-/* Detail panel */
+/* Detail sidebar */
 .neo-detail {
+  width: 220px;
+  min-width: 220px;
+  max-height: 280px;
+  overflow-y: auto;
   background: var(--white);
   padding: 8px 10px;
+  position: relative;
+}
+
+.neo-detail-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  font-size: 13px;
+  line-height: 14px;
+  padding: 0;
+  text-align: center;
+  cursor: default;
 }
 
 .neo-detail-title {
@@ -1443,16 +1471,15 @@
 .neo-detail-grid {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 3px 12px;
+  gap: 2px 8px;
   font-size: 11px;
 }
 
 .neo-detail-lbl {
   font-weight: bold;
-  white-space: nowrap;
   color: var(--text-muted);
 }
-.neo-detail-lbl[title] { cursor: help; text-decoration: underline dotted var(--text-muted); text-underline-offset: 2px; }
+.neo-detail-lbl[data-tip] { cursor: help; text-decoration: underline dotted var(--text-muted); text-underline-offset: 2px; }
 
 .neo-detail-val {
   word-break: break-word;
@@ -2753,6 +2780,10 @@
 
   /* Time Zone mobile */
   .tz-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* NEO Tracker mobile */
+  .neo-content-row { flex-direction: column; }
+  .neo-detail { width: auto; min-width: 0; max-height: none; }
 
   /* Visitor Map mobile */
   #visitormap .window-body { flex-direction: column; }

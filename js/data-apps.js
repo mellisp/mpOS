@@ -127,7 +127,7 @@ function renderNeoData(body, allNeos) {
 
   const statPha = document.createElement('div');
   statPha.className = 'neo-stat-box sunken';
-  statPha.title = t('neo.tip.pha');
+  statPha.setAttribute('data-tip', t('neo.tip.pha'));
   statPha.innerHTML = `<div class="neo-stat-val${phaCount > 0 ? ' neo-pha' : ''}">${phaCount}</div><div class="neo-stat-lbl">${t('neo.phaCount')}</div>`;
   statsRow.appendChild(statPha);
 
@@ -135,7 +135,7 @@ function renderNeoData(body, allNeos) {
   const closestLunar = parseFloat(allNeos[closestIdx].approach.miss_distance.lunar) || 0;
   const statClosest = document.createElement('div');
   statClosest.className = 'neo-stat-box sunken';
-  statClosest.title = t('neo.tip.lunar');
+  statClosest.setAttribute('data-tip', t('neo.tip.lunar'));
   statClosest.innerHTML = `<div class="neo-stat-val">${closestLunar.toFixed(1)} LD</div><div class="neo-stat-lbl">${t('neo.closestApproach')}: ${closestName}</div>`;
   statsRow.appendChild(statClosest);
 
@@ -148,7 +148,7 @@ function renderNeoData(body, allNeos) {
   const gaugeTitle = document.createElement('div');
   gaugeTitle.className = 'neo-gauge-title';
   gaugeTitle.textContent = t('neo.gaugeTitle');
-  gaugeTitle.title = t('neo.tip.gauge');
+  gaugeTitle.setAttribute('data-tip', t('neo.tip.gauge'));
   gaugeWrap.appendChild(gaugeTitle);
 
   const gW = 700, gH = 80;
@@ -273,7 +273,7 @@ function renderNeoData(body, allNeos) {
     const th = document.createElement('th');
     th.className = 'neo-th-sortable';
     th.setAttribute('data-col', c);
-    if (colTips[c]) th.title = t(colTips[c]);
+    if (colTips[c]) th.setAttribute('data-tip', t(colTips[c]));
     const thText = document.createElement('span');
     thText.textContent = t(colKeys[c]);
     th.appendChild(thText);
@@ -327,7 +327,7 @@ function renderNeoData(body, allNeos) {
     if (isPhaRow) {
       const badge = document.createElement('span');
       badge.className = 'neo-pha-badge';
-      badge.title = t('neo.phaTooltip');
+      badge.setAttribute('data-tip', t('neo.phaTooltip'));
       badge.textContent = '\u26A0 ';
       tdName.appendChild(badge);
     }
@@ -374,7 +374,7 @@ function renderNeoData(body, allNeos) {
     const hVal = neo.absolute_magnitude_h;
     if (hVal != null && !isNaN(hVal)) {
       tdH.textContent = hVal.toFixed(1);
-      if (isPhaRow) { tdH.className = 'neo-pha'; tdH.title = t('neo.phaTooltip'); }
+      if (isPhaRow) { tdH.className = 'neo-pha'; tdH.setAttribute('data-tip', t('neo.phaTooltip')); }
     } else {
       tdH.textContent = '\u2014';
     }
@@ -384,13 +384,18 @@ function renderNeoData(body, allNeos) {
   }
   table.appendChild(tbody);
   tableWrap.appendChild(table);
-  wrap.appendChild(tableWrap);
 
-  /* -- Detail panel (hidden by default) -- */
+  /* -- Content row: table + sidebar detail -- */
+  const contentRow = document.createElement('div');
+  contentRow.className = 'neo-content-row';
+  contentRow.appendChild(tableWrap);
+
   const detailPanel = document.createElement('div');
   detailPanel.className = 'neo-detail sunken';
   detailPanel.style.display = 'none';
-  wrap.appendChild(detailPanel);
+  contentRow.appendChild(detailPanel);
+
+  wrap.appendChild(contentRow);
 
   if (neoState.selectedIdx >= 0) {
     showNeoDetail(wrap, allNeos, neoState.selectedIdx, useMiles, KM_MI);
@@ -425,6 +430,17 @@ function showNeoDetail(wrap, allNeos, idx, useMiles, KM_MI) {
 
   panel.textContent = '';
   panel.style.display = '';
+
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'neo-detail-close raised';
+  closeBtn.textContent = '\u00D7';
+  closeBtn.onclick = () => {
+    neoState.selectedIdx = -1;
+    panel.style.display = 'none';
+    highlightNeoRow(wrap, -1);
+  };
+  panel.appendChild(closeBtn);
 
   // Title row
   const titleRow = document.createElement('div');
@@ -474,12 +490,12 @@ function showNeoDetail(wrap, allNeos, idx, useMiles, KM_MI) {
     const lbl = document.createElement('div');
     lbl.className = 'neo-detail-lbl';
     lbl.textContent = pairs[p][0];
-    if (pairs[p][2]) lbl.title = t(pairs[p][2]);
+    if (pairs[p][2]) lbl.setAttribute('data-tip', t(pairs[p][2]));
     grid.appendChild(lbl);
     const val = document.createElement('div');
     val.className = 'neo-detail-val';
     val.textContent = pairs[p][1];
-    if (pairs[p][2]) val.title = t(pairs[p][2]);
+    if (pairs[p][2]) val.setAttribute('data-tip', t(pairs[p][2]));
     if (pairs[p][0] === t('neo.detailPha') && isPha) val.className += ' neo-pha';
     grid.appendChild(val);
   }
@@ -496,8 +512,9 @@ function showNeoDetail(wrap, allNeos, idx, useMiles, KM_MI) {
     panel.appendChild(jplLink);
   }
 
-  // Scroll detail into view
-  setTimeout(() => { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
+  // Scroll selected row into view in table
+  const selectedRow = wrap.querySelector('.neo-row-selected');
+  if (selectedRow) setTimeout(() => { selectedRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
 }
 
 

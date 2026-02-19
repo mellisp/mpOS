@@ -1206,19 +1206,19 @@
     ];
     tips.forEach(([sel, key]) => {
       const el = body.querySelector(sel);
-      if (el) el.title = t(key);
+      if (el) el.setAttribute('data-tip', t(key));
     });
-    body.querySelectorAll('.sm-max-btn').forEach((b) => { b.title = t('sm.tipMaxBet'); });
-    body.querySelectorAll('.sm-pay-btn').forEach((b) => { b.title = t('sm.tipPayTable'); });
+    body.querySelectorAll('.sm-max-btn').forEach((b) => { b.setAttribute('data-tip', t('sm.tipMaxBet')); });
+    body.querySelectorAll('.sm-pay-btn').forEach((b) => { b.setAttribute('data-tip', t('sm.tipPayTable')); });
     body.querySelectorAll('.sm-opt-btn[data-lines]').forEach((b) => {
-      b.title = `${b.dataset.lines} ${t('sm.lines').replace(':', '')}`;
+      b.setAttribute('data-tip', `${b.dataset.lines} ${t('sm.lines').replace(':', '')}`);
     });
     body.querySelectorAll('.sm-opt-btn[data-bet]').forEach((b) => {
-      b.title = `${t('sm.betPerLine').replace(':', '')} ${b.dataset.bet}`;
+      b.setAttribute('data-tip', `${t('sm.betPerLine').replace(':', '')} ${b.dataset.bet}`);
     });
-    body.querySelectorAll('.sm-hold-btn').forEach((b) => { b.title = t('sm.tipHold'); });
+    body.querySelectorAll('.sm-hold-btn').forEach((b) => { b.setAttribute('data-tip', t('sm.tipHold')); });
     body.querySelectorAll('.sm-nudge-btn').forEach((b) => {
-      b.title = b.textContent === '\u25B2' ? t('sm.tipNudgeUp') : t('sm.tipNudgeDown');
+      b.setAttribute('data-tip', b.textContent === '\u25B2' ? t('sm.tipNudgeUp') : t('sm.tipNudgeDown'));
     });
   };
 
