@@ -4928,6 +4928,86 @@ let termSavedInput = '';
 let tabMatches = [];
 let tabIndex = -1;
 
+const TERM_STORAGE_KEY = 'mpOS-terminal';
+const TERM_MAX_HISTORY = 200;
+const TERM_MAX_FILES = 50;
+const TERM_MAX_FILE_SIZE = 10000;
+
+function termCountFiles() {
+  let count = 0;
+  Object.keys(FILESYSTEM).forEach(function (path) {
+    if (FILESYSTEM[path].files) count += FILESYSTEM[path].files.length;
+  });
+  return count;
+}
+
+function termLoadState() {
+  try {
+    let raw = localStorage.getItem(TERM_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function termSaveState() {
+  try {
+    let files = {};
+    Object.keys(FILESYSTEM).forEach(function (path) {
+      let dir = FILESYSTEM[path];
+      if (dir.files && dir.files.length > 0) {
+        files[path] = dir.files.map(function (f) {
+          return {
+            name: f.name,
+            content: (f.content || '').slice(0, TERM_MAX_FILE_SIZE),
+            size: Math.min(f.size || 0, TERM_MAX_FILE_SIZE)
+          };
+        });
+      }
+    });
+
+    let term = document.querySelector('#run .term');
+    let titleSpan = document.querySelector('#run .titlebar span');
+
+    let state = {
+      history: termHistory.slice(-TERM_MAX_HISTORY),
+      bgColor: term.style.backgroundColor || '',
+      fgColor: term.style.color || '',
+      title: titleSpan.textContent !== 'Run' ? titleSpan.textContent : '',
+      files: files
+    };
+    localStorage.setItem(TERM_STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    /* localStorage full or unavailable */
+  }
+}
+
+function termRestoreState() {
+  let state = termLoadState();
+  if (!state) return;
+
+  if (state.history && Array.isArray(state.history)) {
+    termHistory = state.history.slice(-TERM_MAX_HISTORY);
+  }
+
+  let term = document.querySelector('#run .term');
+  if (state.bgColor) term.style.backgroundColor = state.bgColor;
+  if (state.fgColor) term.style.color = state.fgColor;
+
+  if (state.title) {
+    document.querySelector('#run .titlebar span').textContent = state.title;
+  }
+
+  if (state.files) {
+    Object.keys(state.files).forEach(function (path) {
+      if (FILESYSTEM[path]) {
+        FILESYSTEM[path].files = state.files[path];
+      }
+    });
+  }
+}
+
 const COLOR_TABLE = {
   '0': '#000000', '1': '#000080', '2': '#008000', '3': '#008080',
   '4': '#800000', '5': '#800080', '6': '#808000', '7': '#c0c0c0',
@@ -5918,6 +5998,7 @@ function cmdHistory(args) {
   if (args && args.trim().toLowerCase() === 'clear') {
     termHistory = [];
     termHistoryIndex = -1;
+    termSaveState();
     termPrint('History cleared.');
     return;
   }
@@ -5946,8 +6027,13 @@ function cmdTouch(args) {
     termPrint('File already exists: ' + filename);
     return;
   }
+  if (termCountFiles() >= TERM_MAX_FILES) {
+    termPrint('Error: file limit reached (maximum ' + TERM_MAX_FILES + ' files).');
+    return;
+  }
   cur.files.push({ name: filename, content: '', size: 0 });
   termPrint('Created: ' + filename);
+  termSaveState();
 }
 
 function cmdRm(args) {
@@ -6675,20 +6761,17 @@ function cmdStart(args) {
 
 function openRun() {
   openWindow('run');
-  termOutput.textContent = '';
+  termRestoreState();
   termCwd = 'C:\\mpOS';
-  let term = document.querySelector('#run .term');
-  term.style.backgroundColor = '';
-  term.style.color = '';
-  document.querySelector('#run .titlebar span').textContent = 'Run';
   document.querySelector('#run .term-prompt').textContent = 'C:\\mpOS> ';
-  termHistory = [];
   termHistoryIndex = -1;
   termSavedInput = '';
   tabMatches = [];
   tabIndex = -1;
-  cmdVer();
-  termPrint('Type HELP for a list of available commands.\n');
+  if (termOutput.children.length === 0) {
+    cmdVer();
+    termPrint('Type HELP for a list of available commands.\n');
+  }
   termInput.value = '';
   termInput.disabled = false;
   setTimeout(function () { termInput.focus(); }, 100);
@@ -6698,14 +6781,8 @@ function closeRun() {
   stopMatrix();
   stopTop();
   stopEdit();
-  termOutput.textContent = '';
-  let term = document.querySelector('#run .term');
-  term.style.backgroundColor = '';
-  term.style.color = '';
-  document.querySelector('#run .titlebar span').textContent = 'Run';
-  document.querySelector('#run .term-prompt').textContent = 'C:\\mpOS> ';
+  termSaveState();
   termCwd = 'C:\\mpOS';
-  termHistory = [];
   termHistoryIndex = -1;
   termSavedInput = '';
   tabMatches = [];
@@ -7543,7 +7620,8 @@ if (langBtn) {
       if (action === 'close' || action === 'minimize') {
         var winId = match.item ? voiceGetWinId(match.item) : null;
         var win = winId && document.getElementById(winId);
-        if (win && win.style.display !== 'none') {
+        var winOpen = win && (win.style.display !== 'none' || document.querySelector('.taskbar-item[data-window-id="' + winId + '"]'));
+        if (winOpen) {
           if (action === 'close') {
             mpTaskbar.closeWindow(winId);
             setStatus(t('voice.closed'));
@@ -7583,7 +7661,8 @@ if (langBtn) {
             if (action === 'close' || action === 'minimize') {
               var sWinId = suggestion.item ? voiceGetWinId(suggestion.item) : null;
               var sWin = sWinId && document.getElementById(sWinId);
-              if (sWin && sWin.style.display !== 'none') {
+              var sWinOpen = sWin && (sWin.style.display !== 'none' || document.querySelector('.taskbar-item[data-window-id="' + sWinId + '"]'));
+              if (sWinOpen) {
                 if (action === 'close') {
                   mpTaskbar.closeWindow(sWinId);
                   setStatus(t('voice.closed'));
