@@ -223,10 +223,10 @@ const FOLDER_ITEMS = {
     { name: 'Brick Breaker', _key: 'brickBreaker', desc: 'Daily brick-breaking challenge.', tag: 'HTML', action: 'openBrickBreaker' }
   ],
   internet: [
-    { name: 'WikiBrowser', _key: 'wikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'HTML', action: 'openBrowser' },
-    { name: 'Fish of the Day', _key: 'fishOfDay', desc: 'A new fish every day, powered by Wikipedia.', tag: 'HTML', action: 'openFishOfDay' },
-    { name: 'Fish Finder', _key: 'fishFinder', desc: 'Find the closest aquarium near you.', tag: 'HTML', action: 'openFishFinder' },
-    { name: 'Virtual Aquarium', _key: 'aquarium', desc: 'Watch real fish, in real-time.', tag: 'HTML', action: 'openAquarium' }
+    { name: 'WikiBrowser', _key: 'wikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'API', action: 'openBrowser' },
+    { name: 'Fish of the Day', _key: 'fishOfDay', desc: 'A new fish every day, powered by Wikipedia.', tag: 'API', action: 'openFishOfDay' },
+    { name: 'Fish Finder', _key: 'fishFinder', desc: 'Find the closest aquarium near you.', tag: 'API', action: 'openFishFinder' },
+    { name: 'Virtual Aquarium', _key: 'aquarium', desc: 'Watch real fish, in real-time.', tag: 'API', action: 'openAquarium' }
   ],
   accessories: [
     { name: 'Notepad', _key: 'notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad' },
