@@ -201,7 +201,8 @@
     mycomputer: 'My Computer', explorer: 'Files', run: 'Run',
     taskmanager: 'Task Manager', noisemixer: 'White Noise Mixer',
     voicecommands: 'Voice Commands',
-    tuningfork: 'Tuning Fork'
+    tuningfork: 'Tuning Fork',
+    neotracker: 'NEO Tracker'
   };
 
   function minimizeWindow(id) {

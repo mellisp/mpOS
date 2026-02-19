@@ -82,6 +82,8 @@
     'title.stickyNotes': 'Sticky Notes',
     'title.voiceCommands': 'Voice Commands',
     'title.tuningFork': 'Tuning Fork',
+    'title.neoTracker': 'NEO Tracker',
+    'title.cryptography': 'Cryptography',
 
     /* Start menu: Search sub-items */
     'startSearch.files': 'For Files or Folders...',
@@ -133,6 +135,10 @@
     'app.voiceCommands.desc': 'Control mpOS with your voice.',
     'app.tuningFork.name': 'Tuning Fork',
     'app.tuningFork.desc': 'Pure tone generator for musical tuning.',
+    'app.neoTracker.name': 'NEO Tracker',
+    'app.neoTracker.desc': 'Track near-Earth objects approaching Earth.',
+    'app.cryptography.name': 'Cryptography',
+    'app.cryptography.desc': 'Encrypt and decrypt messages with classic ciphers.',
     'sticky.deleteConfirm': 'Delete this note?',
     'app.myComputer.name': 'My Computer',
     'app.files.name': 'Files',
@@ -312,6 +318,19 @@
     'weather.code.99': 'Severe thunderstorm',
     'weather.unknown': 'Unknown',
 
+    /* NEO Tracker */
+    'neo.loading': 'Loading NEO data...',
+    'neo.poweredBy': 'Powered by NASA SBDB',
+    'neo.error': 'Failed to load NEO data. Please try again later.',
+    'neo.name': 'Name',
+    'neo.date': 'Date',
+    'neo.distance': 'Distance',
+    'neo.velocity': 'Velocity',
+    'neo.diameter': 'Diameter',
+    'neo.hMag': 'H (mag)',
+    'neo.unknown': 'Unknown',
+    'neo.objectCount': '{count} closest approaches (next 60 days)',
+
     /* Disk Usage */
     'du.scanning': 'Scanning disk...',
     'du.noFiles': 'No files found.',
@@ -454,7 +473,24 @@
     'win.taskmanager': 'Task Manager',
     'win.noisemixer': 'White Noise',
     'win.stopwatch': 'Stopwatch',
-    'win.voicecommands': 'Voice Commands'
+    'win.voicecommands': 'Voice Commands',
+    'win.neotracker': 'NEO Tracker',
+    'win.cryptography': 'Cryptography',
+    'crypto.cipher': 'Cipher',
+    'crypto.caesarName': 'Caesar Shift',
+    'crypto.subName': 'Substitution',
+    'crypto.mode': 'Mode',
+    'crypto.encrypt': 'Encrypt',
+    'crypto.decrypt': 'Decrypt',
+    'crypto.shift': 'Shift',
+    'crypto.key': 'Key',
+    'crypto.genKey': 'New Key',
+    'crypto.input': 'Input',
+    'crypto.inputPlaceholder': 'Type or paste your message here\u2026',
+    'crypto.run': 'Apply',
+    'crypto.swap': 'Swap \u21C5',
+    'crypto.output': 'Output',
+    'crypto.copy': 'Copy Output'
   });
 
   /* Restore saved language */

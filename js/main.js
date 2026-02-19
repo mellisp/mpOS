@@ -226,7 +226,8 @@ const FOLDER_ITEMS = {
     { name: 'WikiBrowser', _key: 'wikiBrowser', desc: 'Browse Wikipedia from within mpOS.', tag: 'API', action: 'openBrowser' },
     { name: 'Fish of the Day', _key: 'fishOfDay', desc: 'A new fish every day, powered by Wikipedia.', tag: 'API', action: 'openFishOfDay' },
     { name: 'Fish Finder', _key: 'fishFinder', desc: 'Find the closest aquarium near you.', tag: 'API', action: 'openFishFinder' },
-    { name: 'Virtual Aquarium', _key: 'aquarium', desc: 'Watch real fish, in real-time.', tag: 'API', action: 'openAquarium' }
+    { name: 'Virtual Aquarium', _key: 'aquarium', desc: 'Watch real fish, in real-time.', tag: 'API', action: 'openAquarium' },
+    { name: 'NEO Tracker', _key: 'neoTracker', desc: 'Track near-Earth objects approaching Earth.', tag: 'API', action: 'openNeoTracker' }
   ],
   accessories: [
     { name: 'Notepad', _key: 'notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad' },
@@ -244,7 +245,8 @@ const FOLDER_ITEMS = {
     { name: 'Visitor Map', _key: 'visitorMap', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
     { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' },
     { name: 'Voice Commands', _key: 'voiceCommands', desc: 'Control mpOS with your voice.', tag: 'HTML', action: 'openVoiceCommands' },
-    { name: 'Tuning Fork', _key: 'tuningFork', desc: 'Pure tone generator for musical tuning.', tag: 'HTML', action: 'openTuningFork' }
+    { name: 'Tuning Fork', _key: 'tuningFork', desc: 'Pure tone generator for musical tuning.', tag: 'HTML', action: 'openTuningFork' },
+    { name: 'Cryptography', _key: 'cryptography', desc: 'Encrypt and decrypt messages with classic ciphers.', tag: 'HTML', action: 'openCryptography' }
   ]
 };
 
@@ -452,6 +454,7 @@ function getItemIcon(name) {
     'Sticky Notes': '<defs><linearGradient id="ei-sn" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#fff9b1"/><stop offset="50%" stop-color="#f5e87b"/><stop offset="100%" stop-color="#e8d44d"/></linearGradient></defs><rect x="2" y="2" width="14" height="14" fill="url(#ei-sn)" stroke="#c4a82b" stroke-width="0.7"/><path d="M16 2 L16 9 L12 2 Z" fill="#e8d44d" stroke="#c4a82b" stroke-width="0.5"/><path d="M16 9 Q14 10 12 9 L12 2 Z" fill="#d4c43b" stroke="#c4a82b" stroke-width="0.5" opacity="0.6"/><line x1="4" y1="6" x2="11" y2="6" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/><line x1="4" y1="9" x2="11" y2="9" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/><line x1="4" y1="12" x2="9" y2="12" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/>',
     'Voice Commands': '<rect x="7.5" y="2" width="5" height="9" rx="2.5" fill="#444"/><path d="M5.5 9v1.5a4.5 4.5 0 0 0 9 0V9" stroke="#444" stroke-width="1.2" fill="none"/><line x1="10" y1="15" x2="10" y2="18" stroke="#444" stroke-width="1.2"/><line x1="7.5" y1="18" x2="12.5" y2="18" stroke="#444" stroke-width="1.2"/>',
     'Tuning Fork': '<defs><linearGradient id="ei-tf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d0d0d0"/><stop offset="50%" stop-color="#a0a0a0"/><stop offset="100%" stop-color="#707070"/></linearGradient></defs><path d="M7 2 L7 11 Q7 14 10 14 Q13 14 13 11 L13 2" fill="none" stroke="url(#ei-tf)" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="14" x2="10" y2="19" stroke="url(#ei-tf)" stroke-width="2" stroke-linecap="round"/><ellipse cx="7" cy="3" rx="1" ry="0.5" fill="white" opacity="0.4"/><ellipse cx="13" cy="3" rx="1" ry="0.5" fill="white" opacity="0.4"/>',
+    'NEO Tracker': '<defs><radialGradient id="ei-neo" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#d0c8b8"/><stop offset="50%" stop-color="#a09080"/><stop offset="100%" stop-color="#706050"/></radialGradient></defs><circle cx="10" cy="10" r="4.5" fill="url(#ei-neo)" stroke="#504030" stroke-width="0.8"/><ellipse cx="8.5" cy="8" rx="2.5" ry="1.5" fill="white" opacity="0.3"/><circle cx="12" cy="8.5" r="0.8" fill="#504030" opacity="0.5"/><circle cx="8" cy="11" r="0.6" fill="#504030" opacity="0.4"/><line x1="5" y1="5" x2="3" y2="3" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="15" y1="5" x2="17" y2="3" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="5" y1="15" x2="3" y2="17" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="15" y1="15" x2="17" y2="17" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><circle cx="3" cy="3" r="0.5" fill="#c0a080"/><circle cx="17" cy="3" r="0.4" fill="#c0a080"/><circle cx="3" cy="17" r="0.3" fill="#c0a080"/><circle cx="17" cy="17" r="0.4" fill="#c0a080"/>',
     'White Noise Mixer': '<defs><linearGradient id="ei-nm" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient><linearGradient id="ei-nmf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#a0a0a0"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#ei-nm)" stroke="#606060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><rect x="3" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="3.2" y="8" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="3" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50"/><rect x="6.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="6.7" y="10" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="6.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.7"/><rect x="10" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="10.2" y="11" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="10" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.5"/><rect x="13.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="13.7" y="9" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="13.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.8"/>'
   };
   return icons[name] || '';
@@ -5168,6 +5171,407 @@ window.mpAudioUpdateVolume = function () {
   }
 };
 
+/* ── NEO Tracker ── */
+let neoLoaded = false;
+
+function openNeoTracker() {
+  openWindow('neotracker');
+  fetchNeoData();
+}
+
+function fetchNeoData() {
+  if (neoLoaded) return;
+  var body = document.getElementById('neotrackerBody');
+  var status = document.getElementById('neotrackerStatus');
+  showLoadingMessage(body, t('neo.loading'));
+
+  fetch('https://ssd-api.jpl.nasa.gov/cad.api?sort=dist&limit=10&fullname=true&diameter=true')
+    .then(function (r) { if (!r.ok) throw new Error('API error'); return r.json(); })
+    .then(function (data) {
+      neoLoaded = true;
+      renderNeoData(body, data);
+      status.textContent = t('neo.poweredBy');
+    })
+    .catch(function () {
+      showErrorPanel(body, t('neo.error'), 'al-tri-neo');
+    });
+}
+
+function renderNeoData(body, data) {
+  body.textContent = '';
+  var fields = data.fields;
+  var rows = data.data;
+  if (!rows || !rows.length) {
+    showErrorPanel(body, t('neo.error'), 'al-tri-neo');
+    return;
+  }
+
+  // Field index lookup
+  var idx = {};
+  for (var i = 0; i < fields.length; i++) idx[fields[i]] = i;
+
+  var useMiles = localStorage.getItem('mp-tempunit') === 'F';
+  var AU_KM = 149597870.7;
+  var KM_MI = 1.60934;
+
+  var wrap = document.createElement('div');
+  wrap.className = 'neo-wrap';
+
+  var table = document.createElement('table');
+  table.className = 'neo-table';
+
+  // Header
+  var thead = document.createElement('thead');
+  var hrow = document.createElement('tr');
+  var cols = ['neo.name', 'neo.date', 'neo.distance', 'neo.velocity', 'neo.diameter', 'neo.hMag'];
+  for (var c = 0; c < cols.length; c++) {
+    var th = document.createElement('th');
+    th.textContent = t(cols[c]);
+    hrow.appendChild(th);
+  }
+  thead.appendChild(hrow);
+  table.appendChild(thead);
+
+  // Body
+  var tbody = document.createElement('tbody');
+  for (var r = 0; r < rows.length; r++) {
+    var row = rows[r];
+    var tr = document.createElement('tr');
+
+    // Name (fullname field — trim leading whitespace from API)
+    var tdName = document.createElement('td');
+    tdName.className = 'neo-name';
+    var nameStr = (row[idx.fullname] || row[idx.des] || '—').trim();
+    tdName.textContent = nameStr;
+    tr.appendChild(tdName);
+
+    // Date (cd field — "YYYY-Mon-DD HH:MM")
+    var tdDate = document.createElement('td');
+    tdDate.textContent = row[idx.cd] || '—';
+    tr.appendChild(tdDate);
+
+    // Distance (dist field is in AU)
+    var tdDist = document.createElement('td');
+    var distAU = parseFloat(row[idx.dist]);
+    if (!isNaN(distAU)) {
+      var distKm = distAU * AU_KM;
+      var distMi = distKm / KM_MI;
+      if (useMiles) {
+        tdDist.textContent = formatDistance(distMi) + ' mi (' + formatDistance(distKm) + ' km)';
+      } else {
+        tdDist.textContent = formatDistance(distKm) + ' km (' + formatDistance(distMi) + ' mi)';
+      }
+    } else {
+      tdDist.textContent = '—';
+    }
+    tr.appendChild(tdDist);
+
+    // Velocity (v_rel field is in km/s)
+    var tdVel = document.createElement('td');
+    var vel = parseFloat(row[idx.v_rel]);
+    tdVel.textContent = !isNaN(vel) ? vel.toFixed(2) + ' km/s' : '—';
+    tr.appendChild(tdVel);
+
+    // Diameter (in km from API, convert to meters)
+    var tdDiam = document.createElement('td');
+    var dKm = row[idx.diameter] ? parseFloat(row[idx.diameter]) : NaN;
+    if (!isNaN(dKm)) {
+      tdDiam.textContent = (dKm * 1000).toFixed(0) + ' m';
+    } else {
+      tdDiam.textContent = t('neo.unknown');
+      tdDiam.className = 'neo-unknown';
+    }
+    tr.appendChild(tdDiam);
+
+    // H magnitude
+    var tdH = document.createElement('td');
+    var hVal = parseFloat(row[idx.h]);
+    if (!isNaN(hVal)) {
+      tdH.textContent = hVal.toFixed(1);
+      if (hVal <= 22) {
+        tdH.className = 'neo-pha';
+        tdH.title = 'Potentially Hazardous (H \u2264 22)';
+      }
+    } else {
+      tdH.textContent = '—';
+    }
+    tr.appendChild(tdH);
+
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+
+  // Summary
+  var summary = document.createElement('div');
+  summary.className = 'neo-summary';
+  summary.textContent = t('neo.objectCount', { count: rows.length });
+  wrap.appendChild(summary);
+
+  body.appendChild(wrap);
+}
+
+function formatDistance(d) {
+  if (d >= 1e6) return (d / 1e6).toFixed(2) + 'M';
+  if (d >= 1e3) return (d / 1e3).toFixed(1) + 'K';
+  return d.toFixed(1);
+}
+
+/* ── Cryptography ── */
+var cryptoBuilt = false;
+var cryptoCipher = 'caesar';
+var cryptoDirection = 'encrypt';
+var cryptoShift = 3;
+var cryptoSubKey = '';
+
+function cryptoCaesar(text, shift, decrypt) {
+  var s = decrypt ? (26 - shift) % 26 : shift % 26;
+  return text.replace(/[a-zA-Z]/g, function (ch) {
+    var base = ch >= 'a' ? 97 : 65;
+    return String.fromCharCode((ch.charCodeAt(0) - base + s) % 26 + base);
+  });
+}
+
+function cryptoROT13(text) {
+  return cryptoCaesar(text, 13, false);
+}
+
+function cryptoSubstitution(text, key, decrypt) {
+  var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return text.replace(/[a-zA-Z]/g, function (ch) {
+    var upper = ch.toUpperCase();
+    var idx = decrypt ? key.indexOf(upper) : alpha.indexOf(upper);
+    if (idx < 0) return ch;
+    var mapped = decrypt ? alpha[idx] : key[idx];
+    return ch >= 'a' && ch <= 'z' ? mapped.toLowerCase() : mapped;
+  });
+}
+
+function cryptoGenSubKey() {
+  var arr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+  return arr.join('');
+}
+
+function cryptoRun() {
+  var inp = document.getElementById('cryInput');
+  var out = document.getElementById('cryOutput');
+  var status = document.getElementById('cryptoStatus');
+  if (!inp || !out) return;
+  var text = inp.value;
+  if (!text) { out.textContent = ''; status.textContent = t('crypto.mode') + ': ' + (cryptoDirection === 'encrypt' ? t('crypto.encrypt') : t('crypto.decrypt')); return; }
+  var result = '';
+  if (cryptoCipher === 'caesar') {
+    result = cryptoCaesar(text, cryptoShift, cryptoDirection === 'decrypt');
+    var preview = [];
+    for (var i = 0; i < Math.min(6, 26); i++) {
+      var from = String.fromCharCode(65 + i);
+      var shift = cryptoDirection === 'decrypt' ? (26 - cryptoShift) % 26 : cryptoShift % 26;
+      var to = String.fromCharCode((i + shift) % 26 + 65);
+      preview.push(from + '\u2192' + to);
+    }
+    status.textContent = preview.join(', ') + ' \u2026';
+  } else if (cryptoCipher === 'rot13') {
+    result = cryptoROT13(text);
+    status.textContent = 'A\u2192N, B\u2192O, C\u2192P, D\u2192Q \u2026';
+  } else {
+    if (!cryptoSubKey) { cryptoSubKey = cryptoGenSubKey(); var kd = document.getElementById('cryKeyDisplay'); if (kd) kd.textContent = cryptoSubKey; }
+    result = cryptoSubstitution(text, cryptoSubKey, cryptoDirection === 'decrypt');
+    var prev = [];
+    for (var k = 0; k < Math.min(4, 26); k++) {
+      prev.push(String.fromCharCode(65 + k) + '\u2192' + cryptoSubKey[k]);
+    }
+    status.textContent = prev.join(', ') + ' \u2026';
+  }
+  out.textContent = result;
+}
+
+function cryptoSwapIO() {
+  var inp = document.getElementById('cryInput');
+  var out = document.getElementById('cryOutput');
+  if (!inp || !out || !out.textContent) return;
+  inp.value = out.textContent;
+  cryptoDirection = cryptoDirection === 'encrypt' ? 'decrypt' : 'encrypt';
+  var encRadio = document.getElementById('cryEncrypt');
+  var decRadio = document.getElementById('cryDecrypt');
+  if (encRadio) encRadio.checked = cryptoDirection === 'encrypt';
+  if (decRadio) decRadio.checked = cryptoDirection === 'decrypt';
+  cryptoRun();
+}
+
+function cryptoCopyOutput() {
+  var out = document.getElementById('cryOutput');
+  if (!out || !out.textContent) return;
+  navigator.clipboard.writeText(out.textContent).then(function () {
+    var status = document.getElementById('cryptoStatus');
+    if (status) { status.textContent = 'Copied to clipboard!'; setTimeout(function () { cryptoRun(); }, 1500); }
+  });
+}
+
+function cryptoBuildUI() {
+  var body = document.getElementById('cryptographyBody');
+  if (!body || cryptoBuilt) return;
+  body.innerHTML = '';
+
+  // Cipher selector row
+  var cipherRow = document.createElement('div');
+  cipherRow.className = 'cry-row';
+  var cipherLabel = document.createElement('span');
+  cipherLabel.className = 'cry-label';
+  cipherLabel.textContent = t('crypto.cipher');
+  cipherLabel.setAttribute('data-i18n', 'crypto.cipher');
+  var cipherSel = document.createElement('select');
+  cipherSel.className = 'cry-select';
+  cipherSel.id = 'cryCipherSel';
+  var optCaesar = document.createElement('option');
+  optCaesar.value = 'caesar'; optCaesar.textContent = t('crypto.caesarName'); optCaesar.setAttribute('data-i18n', 'crypto.caesarName');
+  var optROT = document.createElement('option');
+  optROT.value = 'rot13'; optROT.textContent = 'ROT13';
+  var optSub = document.createElement('option');
+  optSub.value = 'substitution'; optSub.textContent = t('crypto.subName'); optSub.setAttribute('data-i18n', 'crypto.subName');
+  cipherSel.appendChild(optCaesar);
+  cipherSel.appendChild(optROT);
+  cipherSel.appendChild(optSub);
+  cipherRow.appendChild(cipherLabel);
+  cipherRow.appendChild(cipherSel);
+  body.appendChild(cipherRow);
+
+  // Direction row
+  var dirRow = document.createElement('div');
+  dirRow.className = 'cry-direction-row';
+  dirRow.id = 'cryDirectionRow';
+  var dirLabel = document.createElement('span');
+  dirLabel.className = 'cry-label';
+  dirLabel.textContent = t('crypto.mode');
+  dirLabel.setAttribute('data-i18n', 'crypto.mode');
+  dirRow.appendChild(dirLabel);
+  var encLabel = document.createElement('label');
+  var encRadio = document.createElement('input');
+  encRadio.type = 'radio'; encRadio.name = 'cryDir'; encRadio.id = 'cryEncrypt'; encRadio.checked = true;
+  var encText = document.createTextNode(' ' + t('crypto.encrypt'));
+  encLabel.appendChild(encRadio); encLabel.appendChild(encText);
+  var decLabel = document.createElement('label');
+  var decRadio = document.createElement('input');
+  decRadio.type = 'radio'; decRadio.name = 'cryDir'; decRadio.id = 'cryDecrypt';
+  var decText = document.createTextNode(' ' + t('crypto.decrypt'));
+  decLabel.appendChild(decRadio); decLabel.appendChild(decText);
+  dirRow.appendChild(encLabel);
+  dirRow.appendChild(decLabel);
+  body.appendChild(dirRow);
+
+  // Shift row (Caesar only)
+  var shiftRow = document.createElement('div');
+  shiftRow.className = 'cry-shift-row';
+  shiftRow.id = 'cryShiftRow';
+  var shiftLabel = document.createElement('span');
+  shiftLabel.className = 'cry-label';
+  shiftLabel.textContent = t('crypto.shift');
+  shiftLabel.setAttribute('data-i18n', 'crypto.shift');
+  var shiftSlider = document.createElement('input');
+  shiftSlider.type = 'range'; shiftSlider.min = '1'; shiftSlider.max = '25'; shiftSlider.value = '3';
+  shiftSlider.id = 'cryShiftSlider'; shiftSlider.style.flex = '1';
+  var shiftVal = document.createElement('span');
+  shiftVal.id = 'cryShiftVal'; shiftVal.style.fontSize = '12px'; shiftVal.style.fontFamily = 'var(--mono)'; shiftVal.style.minWidth = '20px';
+  shiftVal.textContent = '3';
+  shiftRow.appendChild(shiftLabel);
+  shiftRow.appendChild(shiftSlider);
+  shiftRow.appendChild(shiftVal);
+  body.appendChild(shiftRow);
+
+  // Substitution key row (hidden initially)
+  var keyRow = document.createElement('div');
+  keyRow.id = 'cryKeyRow'; keyRow.style.display = 'none';
+  var keyLabel = document.createElement('div');
+  keyLabel.className = 'cry-row';
+  var keyLabelSpan = document.createElement('span');
+  keyLabelSpan.className = 'cry-label';
+  keyLabelSpan.textContent = t('crypto.key');
+  keyLabelSpan.setAttribute('data-i18n', 'crypto.key');
+  var keyBtn = document.createElement('button');
+  keyBtn.type = 'button'; keyBtn.className = 'cry-btn'; keyBtn.textContent = t('crypto.genKey');
+  keyLabel.appendChild(keyLabelSpan);
+  keyLabel.appendChild(keyBtn);
+  keyRow.appendChild(keyLabel);
+  var keyDisplay = document.createElement('div');
+  keyDisplay.className = 'cry-key-display';
+  keyDisplay.id = 'cryKeyDisplay';
+  keyDisplay.textContent = cryptoSubKey || '\u2014';
+  keyRow.appendChild(keyDisplay);
+  body.appendChild(keyRow);
+
+  // Input
+  var inLabel = document.createElement('div');
+  inLabel.className = 'cry-label'; inLabel.style.marginBottom = '4px';
+  inLabel.textContent = t('crypto.input');
+  inLabel.setAttribute('data-i18n', 'crypto.input');
+  body.appendChild(inLabel);
+  var textarea = document.createElement('textarea');
+  textarea.className = 'cry-textarea'; textarea.id = 'cryInput';
+  textarea.placeholder = t('crypto.inputPlaceholder');
+  body.appendChild(textarea);
+
+  // Button row
+  var btnRow = document.createElement('div');
+  btnRow.className = 'cry-btn-row';
+  var applyBtn = document.createElement('button');
+  applyBtn.type = 'button'; applyBtn.className = 'cry-btn cry-primary'; applyBtn.textContent = t('crypto.run');
+  var swapBtn = document.createElement('button');
+  swapBtn.type = 'button'; swapBtn.className = 'cry-btn'; swapBtn.textContent = t('crypto.swap');
+  var clearBtn = document.createElement('button');
+  clearBtn.type = 'button'; clearBtn.className = 'cry-btn'; clearBtn.textContent = 'Clear';
+  btnRow.appendChild(applyBtn);
+  btnRow.appendChild(swapBtn);
+  btnRow.appendChild(clearBtn);
+  body.appendChild(btnRow);
+
+  // Output
+  var outLabel = document.createElement('div');
+  outLabel.className = 'cry-label'; outLabel.style.marginBottom = '4px';
+  outLabel.textContent = t('crypto.output');
+  outLabel.setAttribute('data-i18n', 'crypto.output');
+  body.appendChild(outLabel);
+  var outputDiv = document.createElement('div');
+  outputDiv.className = 'cry-output'; outputDiv.id = 'cryOutput';
+  body.appendChild(outputDiv);
+
+  // Copy button
+  var copyBtn = document.createElement('button');
+  copyBtn.type = 'button'; copyBtn.className = 'cry-btn'; copyBtn.textContent = t('crypto.copy');
+  body.appendChild(copyBtn);
+
+  // Event handlers
+  cipherSel.onchange = function () {
+    cryptoCipher = cipherSel.value;
+    shiftRow.style.display = cryptoCipher === 'caesar' ? '' : 'none';
+    dirRow.style.display = cryptoCipher === 'rot13' ? 'none' : '';
+    keyRow.style.display = cryptoCipher === 'substitution' ? '' : 'none';
+    if (cryptoCipher === 'substitution' && !cryptoSubKey) {
+      cryptoSubKey = cryptoGenSubKey();
+      keyDisplay.textContent = cryptoSubKey;
+    }
+    cryptoRun();
+  };
+  encRadio.onchange = function () { cryptoDirection = 'encrypt'; cryptoRun(); };
+  decRadio.onchange = function () { cryptoDirection = 'decrypt'; cryptoRun(); };
+  shiftSlider.oninput = function () { cryptoShift = parseInt(shiftSlider.value, 10); shiftVal.textContent = shiftSlider.value; cryptoRun(); };
+  keyBtn.onclick = function () { cryptoSubKey = cryptoGenSubKey(); keyDisplay.textContent = cryptoSubKey; cryptoRun(); };
+  textarea.oninput = function () { cryptoRun(); };
+  applyBtn.onclick = function () { cryptoRun(); };
+  swapBtn.onclick = function () { cryptoSwapIO(); };
+  clearBtn.onclick = function () { textarea.value = ''; outputDiv.textContent = ''; document.getElementById('cryptoStatus').textContent = 'Ready'; };
+  copyBtn.onclick = function () { cryptoCopyOutput(); };
+
+  cryptoBuilt = true;
+}
+
+function openCryptography() {
+  if (!cryptoBuilt) cryptoBuildUI();
+  openWindow('cryptography');
+}
+
 /* ── Action lookup map (replaces new Function for FOLDER_ITEMS actions) ── */
 const ACTION_MAP = {
   openBrowser: openBrowser,
@@ -5191,7 +5595,9 @@ const ACTION_MAP = {
   openStopwatch: openStopwatch,
   openStickyNotes: openStickyNotes,
   openVoiceCommands: openVoiceCommands,
-  openTuningFork: openTuningFork
+  openTuningFork: openTuningFork,
+  openNeoTracker: openNeoTracker,
+  openCryptography: openCryptography
 };
 
 /* ── Run Terminal ── */
@@ -6256,7 +6662,8 @@ const WINDOW_NAMES = {
   'visitormap': 'Visitor Map', 'help': 'Help', 'paint': 'Paint',
   'search': 'Search Results', 'taskmanager': 'Task Manager',
   'noisemixer': 'White Noise Mixer', 'voicecommands': 'Voice Commands',
-  'tuningfork': 'Tuning Fork'
+  'tuningfork': 'Tuning Fork', 'neotracker': 'NEO Tracker',
+  'cryptography': 'Cryptography'
 };
 
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
@@ -6534,7 +6941,8 @@ const COMMANDS = {
   'ipconfig':    { run: cmdIpconfig,    desc: 'Display network configuration' },
   'ifconfig':    { run: cmdIpconfig,    desc: 'Display network configuration' },
   'netstat':     { run: cmdNetstat,     desc: 'Display active connections' },
-  'noisemixer':  { run: openNoiseMixer, desc: 'Open White Noise Mixer' }
+  'noisemixer':  { run: openNoiseMixer, desc: 'Open White Noise Mixer' },
+  'cryptography': { run: openCryptography, desc: 'Open Cryptography' }
 };
 
 function termPrint(text, color) {
@@ -7515,7 +7923,8 @@ function buildLauncher() {
     { name: 'Weather', _key: 'weather', action: openWeather },
     { name: 'Disk Usage', _key: 'diskUsage', action: openDiskUsage },
     { name: 'Visitor Map', _key: 'visitorMap', action: openVisitorMap },
-    { name: 'Stopwatch', _key: 'stopwatch', action: openStopwatch }
+    { name: 'Stopwatch', _key: 'stopwatch', action: openStopwatch },
+    { name: 'Cryptography', _key: 'cryptography', action: openCryptography }
   ];
   var system = [
     { name: 'My Computer', _key: 'myComputer', action: openMyComputer },
@@ -7662,6 +8071,7 @@ window.openStickyNotes = openStickyNotes;
 window.openVoiceCommands = openVoiceCommands;
 window.closeVoiceCommands = closeVoiceCommands;
 window.openTuningFork = openTuningFork;
+window.openCryptography = openCryptography;
 window.closeTuningFork = closeTuningFork;
 window.tfStrike = tfStrike;
 window.tfStop = tfStop;

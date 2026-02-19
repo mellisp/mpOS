@@ -75,6 +75,8 @@ window._mpLangRegister('pt', {
   'title.stickyNotes': 'Notas Adesivas',
   'title.voiceCommands': 'Comandos de Voz',
   'title.tuningFork': 'Diapasão',
+  'title.neoTracker': 'NEO Tracker',
+  'title.cryptography': 'Criptografia',
 
   /* Start menu: Search sub-items */
   'startSearch.files': 'Ficheiros ou Pastas...',
@@ -126,6 +128,10 @@ window._mpLangRegister('pt', {
   'app.voiceCommands.desc': 'Controle o mpOS com a sua voz.',
   'app.tuningFork.name': 'Diapasão',
   'app.tuningFork.desc': 'Gerador de tom puro para afinação musical.',
+  'app.neoTracker.name': 'NEO Tracker',
+  'app.neoTracker.desc': 'Acompanhe objetos próximos da Terra.',
+  'app.cryptography.name': 'Criptografia',
+  'app.cryptography.desc': 'Cifre e decifre mensagens com cifras clássicas.',
   'sticky.deleteConfirm': 'Apagar esta nota?',
   'app.myComputer.name': 'O Meu Computador',
   'app.files.name': 'Ficheiros',
@@ -305,6 +311,19 @@ window._mpLangRegister('pt', {
   'weather.code.99': 'Trovoada severa',
   'weather.unknown': 'Desconhecido',
 
+  /* NEO Tracker */
+  'neo.loading': 'A carregar dados NEO...',
+  'neo.poweredBy': 'Powered by NASA SBDB',
+  'neo.error': 'N\u00e3o foi poss\u00edvel carregar os dados NEO. Tente novamente mais tarde.',
+  'neo.name': 'Nome',
+  'neo.date': 'Data',
+  'neo.distance': 'Dist\u00e2ncia',
+  'neo.velocity': 'Velocidade',
+  'neo.diameter': 'Di\u00e2metro',
+  'neo.hMag': 'H (mag)',
+  'neo.unknown': 'Desconhecido',
+  'neo.objectCount': '{count} aproxima\u00e7\u00f5es mais pr\u00f3ximas (pr\u00f3ximos 60 dias)',
+
   /* Disk Usage */
   'du.scanning': 'A analisar disco...',
   'du.noFiles': 'Nenhum ficheiro encontrado.',
@@ -447,5 +466,22 @@ window._mpLangRegister('pt', {
   'win.taskmanager': 'Gestor de Tarefas',
   'win.noisemixer': 'Ru\u00eddo Branco',
   'win.stopwatch': 'Cron\u00f3metro',
-  'win.voicecommands': 'Comandos de Voz'
+  'win.voicecommands': 'Comandos de Voz',
+  'win.neotracker': 'NEO Tracker',
+  'win.cryptography': 'Criptografia',
+  'crypto.cipher': 'Cifra',
+  'crypto.caesarName': 'Deslocamento César',
+  'crypto.subName': 'Substituição',
+  'crypto.mode': 'Modo',
+  'crypto.encrypt': 'Cifrar',
+  'crypto.decrypt': 'Decifrar',
+  'crypto.shift': 'Desl.',
+  'crypto.key': 'Chave',
+  'crypto.genKey': 'Nova Chave',
+  'crypto.input': 'Entrada',
+  'crypto.inputPlaceholder': 'Escreva ou cole a sua mensagem aqui\u2026',
+  'crypto.run': 'Aplicar',
+  'crypto.swap': 'Trocar \u21C5',
+  'crypto.output': 'Saída',
+  'crypto.copy': 'Copiar Saída'
 });
