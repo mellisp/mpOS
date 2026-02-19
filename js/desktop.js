@@ -342,7 +342,7 @@
     // App name lookup: maps lowercase name -> run function
     const VOICE_APPS = {};
     const allItems = (FOLDER_ITEMS.games || [])
-      .concat(FOLDER_ITEMS.internet || [], FOLDER_ITEMS.accessories || [], FOLDER_ITEMS.utilities || []);
+      .concat(FOLDER_ITEMS.internet || [], FOLDER_ITEMS.accessories || [], FOLDER_ITEMS.audio || [], FOLDER_ITEMS.utilities || []);
     for (let i = 0; i < allItems.length; i++) {
       const item = allItems[i];
       const fn = item.action && ACTION_MAP[item.action];

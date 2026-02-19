@@ -463,6 +463,7 @@
     'search.group.games': 'Games',
     'search.group.internet': 'Internet',
     'search.group.accessories': 'Accessories',
+    'search.group.audio': 'Audio',
     'search.group.utilities': 'Utilities',
     'search.group.files': 'Files',
     'search.group.commands': 'Commands',

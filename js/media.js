@@ -1,3 +1,4 @@
+/* Media — Tuning Fork (multi-instance) + White Noise Mixer */
 (function () {
   'use strict';
 
@@ -5,15 +6,8 @@
   const mpTaskbar = window.mpTaskbar;
 
   /* ══════════════════════════════════════════════════════════
-   *  Tuning Fork
+   *  Tuning Fork — Multi-Instance Factory
    * ══════════════════════════════════════════════════════════ */
-
-  let tfCtx = null;
-  let tfOsc = null;
-  let tfGain = null;
-  let tfEqNode = null;
-  let tfBuilt = false;
-  let tfPlaying = false;
 
   const TF_NOTES = [
     { name: 'C',  freq: 261.63 },
@@ -30,28 +24,8 @@
     { name: 'B',  freq: 493.88 }
   ];
 
-  const tfGetFreq = () => {
-    const sel = document.getElementById('tfNote');
-    const centsEl = document.getElementById('tfCents');
-    const octaveEl = document.getElementById('tfOctave');
-    if (!sel) return 440;
-    const baseFreq = parseFloat(sel.value);
-    const cents = centsEl ? parseInt(centsEl.value, 10) || 0 : 0;
-    const octave = octaveEl ? parseInt(octaveEl.value, 10) : 4;
-    return baseFreq * Math.pow(2, octave - 4) * Math.pow(2, cents / 1200);
-  };
-
-  const tfUpdateDisplay = () => {
-    const freqEl = document.getElementById('tfFreqDisplay');
-    if (freqEl) freqEl.textContent = `${tfGetFreq().toFixed(2)} Hz`;
-    const centsEl = document.getElementById('tfCents');
-    const centsVal = document.getElementById('tfCentsVal');
-    if (centsEl && centsVal) {
-      const v = parseInt(centsEl.value, 10);
-      centsVal.textContent = `${v >= 0 ? '+' : ''}${centsEl.value}\u00A2`;
-    }
-    if (tfPlaying && tfOsc) tfOsc.frequency.setValueAtTime(tfGetFreq(), tfCtx.currentTime);
-  };
+  const tfInstances = new Map();
+  let tfIdCounter = 0;
 
   const tfGetVolume = () => {
     const raw = parseFloat(localStorage.getItem('mp-volume') || '0.1');
@@ -59,80 +33,86 @@
     return muted ? 0 : raw * 0.3;
   };
 
-  const tfStrike = () => {
-    if (tfPlaying) { tfStop(); return; }
-    if (!tfCtx) tfCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const waveEl = document.getElementById('tfWave');
-    const wave = waveEl ? waveEl.value : 'sine';
-    tfOsc = tfCtx.createOscillator();
-    tfOsc.type = wave;
-    tfOsc.frequency.setValueAtTime(tfGetFreq(), tfCtx.currentTime);
-
-    tfEqNode = tfCtx.createBiquadFilter();
-    tfEqNode.type = 'peaking';
-    tfEqNode.frequency.setValueAtTime(1000, tfCtx.currentTime);
-    tfEqNode.Q.setValueAtTime(1.0, tfCtx.currentTime);
-    const eqEl = document.getElementById('tfEq');
-    tfEqNode.gain.setValueAtTime(eqEl ? parseFloat(eqEl.value) : 0, tfCtx.currentTime);
-
-    tfGain = tfCtx.createGain();
-    tfGain.gain.setValueAtTime(0, tfCtx.currentTime);
-    tfGain.gain.linearRampToValueAtTime(tfGetVolume(), tfCtx.currentTime + 0.02);
-
-    tfOsc.connect(tfEqNode);
-    tfEqNode.connect(tfGain);
-    tfGain.connect(tfCtx.destination);
-    tfOsc.start();
-    tfPlaying = true;
-
-    const btn = document.getElementById('tfStrikeBtn');
-    if (btn) { btn.textContent = 'Stop'; btn.classList.add('tf-active'); }
-    const statusEl = document.getElementById('tfStatus');
-    if (statusEl) statusEl.textContent = `Playing ${tfGetFreq().toFixed(2)} Hz`;
+  const tfGetFreq = (inst) => {
+    const sel = inst.elements.noteSelect;
+    const centsEl = inst.elements.centsSlider;
+    const octaveEl = inst.elements.octaveSelect;
+    if (!sel) return 440;
+    const baseFreq = parseFloat(sel.value);
+    const cents = centsEl ? parseInt(centsEl.value, 10) || 0 : 0;
+    const octave = octaveEl ? parseInt(octaveEl.value, 10) : 4;
+    return baseFreq * Math.pow(2, octave - 4) * Math.pow(2, cents / 1200);
   };
 
-  const tfStop = () => {
-    if (tfOsc) {
-      if (tfGain) tfGain.gain.linearRampToValueAtTime(0, tfCtx.currentTime + 0.05);
-      setTimeout(() => {
-        try { tfOsc.stop(); } catch (e) { /* already stopped */ }
-        tfOsc = null;
-        tfGain = null;
-        tfEqNode = null;
-      }, 80);
+  const tfUpdateDisplay = (inst) => {
+    const freqEl = inst.elements.freqDisplay;
+    if (freqEl) freqEl.textContent = `${tfGetFreq(inst).toFixed(2)} Hz`;
+    const centsEl = inst.elements.centsSlider;
+    const centsVal = inst.elements.centsVal;
+    if (centsEl && centsVal) {
+      const v = parseInt(centsEl.value, 10);
+      centsVal.textContent = `${v >= 0 ? '+' : ''}${centsEl.value}\u00A2`;
     }
-    tfPlaying = false;
-    const btn = document.getElementById('tfStrikeBtn');
+    if (inst.playing && inst.osc) {
+      inst.osc.frequency.setValueAtTime(tfGetFreq(inst), inst.ctx.currentTime);
+    }
+  };
+
+  const tfStrike = (inst) => {
+    if (inst.playing) { tfStop(inst); return; }
+    if (!inst.ctx) inst.ctx = window.mpAudioBus.getContext();
+
+    const waveEl = inst.elements.waveSelect;
+    const wave = waveEl ? waveEl.value : 'sine';
+    inst.osc = inst.ctx.createOscillator();
+    inst.osc.type = wave;
+    inst.osc.frequency.setValueAtTime(tfGetFreq(inst), inst.ctx.currentTime);
+
+    inst.eqNode = inst.ctx.createBiquadFilter();
+    inst.eqNode.type = 'peaking';
+    inst.eqNode.frequency.setValueAtTime(1000, inst.ctx.currentTime);
+    inst.eqNode.Q.setValueAtTime(1.0, inst.ctx.currentTime);
+    const eqEl = inst.elements.eqSlider;
+    inst.eqNode.gain.setValueAtTime(eqEl ? parseFloat(eqEl.value) : 0, inst.ctx.currentTime);
+
+    inst.gain = inst.ctx.createGain();
+    inst.gain.gain.setValueAtTime(0, inst.ctx.currentTime);
+    inst.gain.gain.linearRampToValueAtTime(tfGetVolume(), inst.ctx.currentTime + 0.02);
+
+    inst.osc.connect(inst.eqNode);
+    inst.eqNode.connect(inst.gain);
+
+    // Connect to outputNode (for cable routing) AND to destination (direct out)
+    inst.gain.connect(inst.outputNode);
+    inst.osc.start();
+    inst.playing = true;
+
+    const btn = inst.elements.strikeBtn;
+    if (btn) { btn.textContent = 'Stop'; btn.classList.add('tf-active'); }
+    const statusEl = inst.elements.status;
+    if (statusEl) statusEl.textContent = `Playing ${tfGetFreq(inst).toFixed(2)} Hz`;
+  };
+
+  const tfStop = (inst) => {
+    if (inst.osc) {
+      if (inst.gain) inst.gain.gain.linearRampToValueAtTime(0, inst.ctx.currentTime + 0.05);
+      const osc = inst.osc;
+      setTimeout(() => {
+        try { osc.stop(); } catch (e) { /* already stopped */ }
+      }, 80);
+      inst.osc = null;
+      inst.gain = null;
+      inst.eqNode = null;
+    }
+    inst.playing = false;
+    const btn = inst.elements.strikeBtn;
     if (btn) { btn.textContent = 'Strike'; btn.classList.remove('tf-active'); }
-    const statusEl = document.getElementById('tfStatus');
+    const statusEl = inst.elements.status;
     if (statusEl) statusEl.textContent = 'Ready';
   };
 
-  const tfNoteChange = () => { tfUpdateDisplay(); };
-  const tfCentsChange = () => { tfUpdateDisplay(); };
-
-  const tfWaveChange = () => {
-    if (tfPlaying && tfOsc) {
-      const waveEl = document.getElementById('tfWave');
-      if (waveEl) tfOsc.type = waveEl.value;
-    }
-  };
-
-  const tfEqChange = () => {
-    const eqEl = document.getElementById('tfEq');
-    const eqVal = document.getElementById('tfEqVal');
-    if (eqEl && eqVal) {
-      const v = parseInt(eqEl.value, 10);
-      eqVal.textContent = `${v >= 0 ? '+' : ''}${eqEl.value} dB`;
-    }
-    if (tfPlaying && tfEqNode && eqEl) {
-      tfEqNode.gain.setValueAtTime(parseFloat(eqEl.value), tfCtx.currentTime);
-    }
-  };
-
-  const tfBuildUI = () => {
-    const body = document.getElementById('tuningforkBody');
-    if (!body || tfBuilt) return;
+  const tfBuildUI = (inst) => {
+    const body = inst.elements.body;
 
     // Note selector row
     const noteRow = document.createElement('div');
@@ -141,9 +121,8 @@
     noteLbl.textContent = 'Note';
     noteLbl.className = 'tf-label';
     const noteSel = document.createElement('select');
-    noteSel.id = 'tfNote';
     noteSel.className = 'tf-select';
-    noteSel.onchange = tfNoteChange;
+    noteSel.onchange = () => tfUpdateDisplay(inst);
     for (const note of TF_NOTES) {
       const opt = document.createElement('option');
       opt.value = note.freq;
@@ -151,6 +130,7 @@
       if (note.name === 'A') opt.selected = true;
       noteSel.appendChild(opt);
     }
+    inst.elements.noteSelect = noteSel;
     noteRow.appendChild(noteLbl);
     noteRow.appendChild(noteSel);
 
@@ -159,9 +139,8 @@
     octLbl.textContent = 'Oct';
     octLbl.className = 'tf-label tf-label-sm';
     const octSel = document.createElement('select');
-    octSel.id = 'tfOctave';
     octSel.className = 'tf-select tf-select-sm';
-    octSel.onchange = tfNoteChange;
+    octSel.onchange = () => tfUpdateDisplay(inst);
     for (let o = 2; o <= 7; o++) {
       const oopt = document.createElement('option');
       oopt.value = o;
@@ -169,6 +148,7 @@
       if (o === 4) oopt.selected = true;
       octSel.appendChild(oopt);
     }
+    inst.elements.octaveSelect = octSel;
     noteRow.appendChild(octLbl);
     noteRow.appendChild(octSel);
     body.appendChild(noteRow);
@@ -176,8 +156,8 @@
     // Frequency display
     const freqDisp = document.createElement('div');
     freqDisp.className = 'tf-freq-display';
-    freqDisp.id = 'tfFreqDisplay';
     freqDisp.textContent = '440.00 Hz';
+    inst.elements.freqDisplay = freqDisp;
     body.appendChild(freqDisp);
 
     // Fine-tune cents slider
@@ -188,16 +168,16 @@
     centsLbl.className = 'tf-label';
     const centsSlider = document.createElement('input');
     centsSlider.type = 'range';
-    centsSlider.id = 'tfCents';
     centsSlider.className = 'tf-slider';
     centsSlider.min = '-50';
     centsSlider.max = '50';
     centsSlider.value = '0';
-    centsSlider.oninput = tfCentsChange;
+    centsSlider.oninput = () => tfUpdateDisplay(inst);
+    inst.elements.centsSlider = centsSlider;
     const centsValSpan = document.createElement('span');
     centsValSpan.className = 'tf-val';
-    centsValSpan.id = 'tfCentsVal';
     centsValSpan.textContent = '+0\u00A2';
+    inst.elements.centsVal = centsValSpan;
     centsRow.appendChild(centsLbl);
     centsRow.appendChild(centsSlider);
     centsRow.appendChild(centsValSpan);
@@ -210,9 +190,11 @@
     waveLbl.textContent = 'Wave';
     waveLbl.className = 'tf-label';
     const waveSel = document.createElement('select');
-    waveSel.id = 'tfWave';
     waveSel.className = 'tf-select';
-    waveSel.onchange = tfWaveChange;
+    waveSel.onchange = () => {
+      if (inst.playing && inst.osc) inst.osc.type = waveSel.value;
+    };
+    inst.elements.waveSelect = waveSel;
     const waves = [
       { val: 'sine', lbl: 'Sine' },
       { val: 'triangle', lbl: 'Triangle' },
@@ -229,7 +211,7 @@
     waveRow.appendChild(waveSel);
     body.appendChild(waveRow);
 
-    // EQ slider (mid-band boost/cut)
+    // EQ slider
     const eqRow = document.createElement('div');
     eqRow.className = 'tf-row';
     const eqLbl = document.createElement('label');
@@ -237,16 +219,21 @@
     eqLbl.className = 'tf-label';
     const eqSlider = document.createElement('input');
     eqSlider.type = 'range';
-    eqSlider.id = 'tfEq';
     eqSlider.className = 'tf-slider';
     eqSlider.min = '-12';
     eqSlider.max = '12';
     eqSlider.value = '0';
-    eqSlider.oninput = tfEqChange;
+    inst.elements.eqSlider = eqSlider;
     const eqValSpan = document.createElement('span');
     eqValSpan.className = 'tf-val';
-    eqValSpan.id = 'tfEqVal';
     eqValSpan.textContent = '+0 dB';
+    eqSlider.oninput = () => {
+      const v = parseInt(eqSlider.value, 10);
+      eqValSpan.textContent = `${v >= 0 ? '+' : ''}${eqSlider.value} dB`;
+      if (inst.playing && inst.eqNode) {
+        inst.eqNode.gain.setValueAtTime(parseFloat(eqSlider.value), inst.ctx.currentTime);
+      }
+    };
     eqRow.appendChild(eqLbl);
     eqRow.appendChild(eqSlider);
     eqRow.appendChild(eqValSpan);
@@ -255,37 +242,200 @@
     // Strike button
     const strikeBtn = document.createElement('button');
     strikeBtn.type = 'button';
-    strikeBtn.id = 'tfStrikeBtn';
     strikeBtn.className = 'tf-strike-btn';
     strikeBtn.textContent = 'Strike';
-    strikeBtn.onclick = tfStrike;
+    strikeBtn.onclick = () => tfStrike(inst);
+    inst.elements.strikeBtn = strikeBtn;
     body.appendChild(strikeBtn);
 
-    tfBuilt = true;
+    // Output jack row
+    const jackRow = document.createElement('div');
+    jackRow.className = 'tf-jack-row';
+    const jackLabel = document.createElement('span');
+    jackLabel.className = 'audio-jack-label';
+    jackLabel.textContent = 'OUT';
+    const jackEl = document.createElement('div');
+    inst.elements.outputJack = jackEl;
+    jackRow.appendChild(jackLabel);
+    jackRow.appendChild(jackEl);
+    // Append after body, before statusbar
+    const winEl = inst.elements.win;
+    const statusbar = winEl.querySelector('.statusbar');
+    winEl.insertBefore(jackRow, statusbar);
+  };
+
+  const createTuningForkInstance = () => {
+    const id = ++tfIdCounter;
+    const winId = `tuningfork-${id}`;
+    const jackId = `tf-out-${id}`;
+
+    // Create dynamic window div
+    const win = document.createElement('div');
+    win.className = 'window draggable tf-window';
+    win.id = winId;
+    win.style.display = 'none';
+
+    // Offset each new window slightly
+    const offset = ((id - 1) % 5) * 30;
+    win.style.left = `${Math.min(200 + offset, window.innerWidth - 300)}px`;
+    win.style.top = `${80 + offset}px`;
+
+    // Titlebar
+    const titlebar = document.createElement('div');
+    titlebar.className = 'titlebar';
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = `Tuning Fork #${id}`;
+    titlebar.appendChild(titleSpan);
+    const titleBtns = document.createElement('div');
+    titleBtns.className = 'titlebar-buttons';
+    const minBtn = document.createElement('div');
+    minBtn.className = 'titlebar-btn';
+    minBtn.setAttribute('role', 'button');
+    minBtn.setAttribute('tabindex', '0');
+    minBtn.setAttribute('aria-label', 'Minimize');
+    minBtn.textContent = '_';
+    minBtn.onclick = () => mpTaskbar.minimizeWindow(winId);
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'titlebar-btn';
+    closeBtn.setAttribute('role', 'button');
+    closeBtn.setAttribute('tabindex', '0');
+    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.textContent = 'X';
+    closeBtn.onclick = () => closeTuningForkInstance(winId);
+    titleBtns.appendChild(minBtn);
+    titleBtns.appendChild(closeBtn);
+    titlebar.appendChild(titleBtns);
+    win.appendChild(titlebar);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'window-body';
+    body.style.padding = '10px';
+    win.appendChild(body);
+
+    // Statusbar
+    const statusbar = document.createElement('div');
+    statusbar.className = 'statusbar';
+    const statusSection = document.createElement('div');
+    statusSection.className = 'statusbar-section';
+    statusSection.textContent = 'Ready';
+    statusbar.appendChild(statusSection);
+    win.appendChild(statusbar);
+
+    document.body.appendChild(win);
+
+    // Make draggable
+    mpTaskbar.makeDraggable(win);
+
+    // Create instance state
+    const inst = {
+      id,
+      winId,
+      jackId,
+      ctx: null,
+      osc: null,
+      gain: null,
+      eqNode: null,
+      outputNode: null,
+      directNode: null,
+      playing: false,
+      elements: {
+        win,
+        body,
+        status: statusSection,
+        noteSelect: null,
+        octaveSelect: null,
+        freqDisplay: null,
+        centsSlider: null,
+        centsVal: null,
+        waveSelect: null,
+        eqSlider: null,
+        strikeBtn: null,
+        outputJack: null
+      }
+    };
+
+    // Build the UI
+    tfBuildUI(inst);
+
+    // Set up audio output node
+    inst.ctx = window.mpAudioBus.getContext();
+    inst.outputNode = inst.ctx.createGain();
+    inst.outputNode.gain.value = 1;
+    // Direct output to destination (when no cable is connected, sound still plays)
+    inst.directNode = inst.ctx.createGain();
+    inst.directNode.gain.value = 1;
+    inst.outputNode.connect(inst.directNode);
+    inst.directNode.connect(inst.ctx.destination);
+
+    // Register output jack with audio bus
+    window.mpAudioBus.registerOutput(jackId, {
+      node: inst.outputNode,
+      label: `Tuning Fork #${id}`,
+      element: inst.elements.outputJack
+    });
+
+    // Volume listener
+    inst.volumeListener = () => {
+      if (inst.playing && inst.gain && inst.ctx) {
+        inst.gain.gain.setValueAtTime(tfGetVolume(), inst.ctx.currentTime);
+      }
+    };
+    window.mpAudioBus.onVolumeChange(inst.volumeListener);
+
+    // Register with WINDOW_NAMES for taskbar
+    if (window.WINDOW_NAMES) window.WINDOW_NAMES[winId] = `Tuning Fork #${id}`;
+
+    tfInstances.set(winId, inst);
+
+    // Show the window
+    win.style.display = '';
+    mpTaskbar.bringToFront(win);
+    win.classList.add('restoring');
+    win.addEventListener('animationend', function handler() {
+      win.classList.remove('restoring');
+      win.removeEventListener('animationend', handler);
+    });
+
+    return inst;
+  };
+
+  const closeTuningForkInstance = (winId) => {
+    const inst = tfInstances.get(winId);
+    if (!inst) return;
+
+    // Stop audio
+    tfStop(inst);
+
+    // Disconnect direct output
+    if (inst.directNode) {
+      try { inst.directNode.disconnect(); } catch (e) { /* */ }
+    }
+    if (inst.outputNode) {
+      try { inst.outputNode.disconnect(); } catch (e) { /* */ }
+    }
+
+    // Unregister jack
+    window.mpAudioBus.unregisterOutput(inst.jackId);
+
+    // Remove volume listener
+    window.mpAudioBus.offVolumeChange(inst.volumeListener);
+
+    // Remove from taskbar
+    mpTaskbar.closeWindow(winId);
+
+    // Remove DOM element
+    const win = document.getElementById(winId);
+    if (win) win.remove();
+
+    // Clean up WINDOW_NAMES
+    if (window.WINDOW_NAMES) delete window.WINDOW_NAMES[winId];
+
+    tfInstances.delete(winId);
   };
 
   const openTuningFork = () => {
-    if (!tfBuilt) tfBuildUI();
-    openWindow('tuningfork');
-  };
-
-  const closeTuningFork = () => {
-    tfStop();
-    if (tfCtx) {
-      tfCtx.close();
-      tfCtx = null;
-    }
-    tfBuilt = false;
-    mpTaskbar.closeWindow('tuningfork');
-  };
-
-  // Volume integration for tuning fork — chain onto mpAudioUpdateVolume
-  const tfOrigAudioUpdate = window.mpAudioUpdateVolume;
-  window.mpAudioUpdateVolume = () => {
-    if (tfOrigAudioUpdate) tfOrigAudioUpdate();
-    if (tfPlaying && tfGain && tfCtx) {
-      tfGain.gain.setValueAtTime(tfGetVolume(), tfCtx.currentTime);
-    }
+    createTuningForkInstance();
   };
 
   /* ══════════════════════════════════════════════════════════
@@ -296,6 +446,7 @@
   let nmMasterGain = null;
   let nmAnalyser = null;
   let nmLimiter = null;
+  let nmExternalInput = null;
   let nmChannels = [];
   let nmRafId = null;
   let nmScopeEnabled = true;
@@ -304,6 +455,7 @@
   let nmScopeCanvas = null;
   let nmScopeCtx = null;
   let nmTimeDomain = null;
+  const nmInputJackId = 'nm-ext-in';
 
   const NM_CHANNEL_DEFS = [
     { name: 'White',  type: 'white'  },
@@ -417,17 +569,21 @@
   };
 
   const nmInitAudio = () => {
-    nmCtx = new (window.AudioContext || window.webkitAudioContext)();
+    nmCtx = window.mpAudioBus.getContext();
     nmMasterGain = nmCtx.createGain();
     nmAnalyser = nmCtx.createAnalyser();
     nmAnalyser.fftSize = 2048;
-    // Safety limiter -- prevents clipping no matter how many channels are loud
+    // Safety limiter
     nmLimiter = nmCtx.createDynamicsCompressor();
-    nmLimiter.threshold.value = -6;   // start compressing at -6 dB
-    nmLimiter.knee.value = 3;         // soft knee
-    nmLimiter.ratio.value = 20;       // near-brickwall
-    nmLimiter.attack.value = 0.002;   // fast attack catches transients
+    nmLimiter.threshold.value = -6;
+    nmLimiter.knee.value = 3;
+    nmLimiter.ratio.value = 20;
+    nmLimiter.attack.value = 0.002;
     nmLimiter.release.value = 0.1;
+    // External input gain node (for patched audio)
+    nmExternalInput = nmCtx.createGain();
+    nmExternalInput.gain.value = 1;
+    nmExternalInput.connect(nmMasterGain);
     nmMasterGain.connect(nmAnalyser);
     nmAnalyser.connect(nmLimiter);
     nmLimiter.connect(nmCtx.destination);
@@ -516,7 +672,7 @@
     } else {
       if (!nmCtx) nmInitAudio();
       if (nmCtx.state === 'suspended') nmCtx.resume();
-      // Fade in over 0.3s to prevent pop/blast
+      // Fade in
       const targetVol = nmMasterGain.gain.value;
       nmMasterGain.gain.setValueAtTime(0, nmCtx.currentTime);
       nmMasterGain.gain.linearRampToValueAtTime(targetVol, nmCtx.currentTime + 0.3);
@@ -678,6 +834,8 @@
     parent.appendChild(strip);
   };
 
+  let nmInputJackEl = null;
+
   const nmBuildUI = () => {
     const body = document.getElementById('noisemixerBody');
     body.innerHTML = '';
@@ -721,6 +879,21 @@
       if (presetSel.value !== 'custom') nmApplyPreset(presetSel.value);
     };
     toolbar.appendChild(presetSel);
+
+    // Input jack in toolbar
+    const jackSpacer = document.createElement('div');
+    jackSpacer.style.display = 'flex';
+    jackSpacer.style.alignItems = 'center';
+    jackSpacer.style.gap = '3px';
+    jackSpacer.style.marginLeft = '4px';
+    const jackLbl = document.createElement('span');
+    jackLbl.className = 'audio-jack-label';
+    jackLbl.textContent = 'IN';
+    jackLbl.style.fontSize = '8px';
+    nmInputJackEl = document.createElement('div');
+    jackSpacer.appendChild(jackLbl);
+    jackSpacer.appendChild(nmInputJackEl);
+    toolbar.appendChild(jackSpacer);
 
     const spacer = document.createElement('div');
     spacer.style.flex = '1';
@@ -776,27 +949,55 @@
     nmBuilt = true;
   };
 
+  const nmRegisterInputJack = () => {
+    if (!nmCtx) nmInitAudio();
+    if (nmInputJackEl) {
+      window.mpAudioBus.registerInput(nmInputJackId, {
+        node: nmExternalInput,
+        label: 'Noise Mixer Input',
+        element: nmInputJackEl
+      });
+    }
+  };
+
   const openNoiseMixer = () => {
     if (!nmBuilt) nmBuildUI();
     openWindow('noisemixer');
+    // Register input jack (needs audio context)
+    nmRegisterInputJack();
   };
 
   const closeNoiseMixer = () => {
+    // Unregister input jack
+    window.mpAudioBus.unregisterInput(nmInputJackId);
+
     if (nmRunning) {
       nmStopChannels();
       nmRunning = false;
     }
     if (nmRafId) { cancelAnimationFrame(nmRafId); nmRafId = null; }
-    if (nmCtx) {
-      nmCtx.close();
-      nmCtx = null;
-      nmMasterGain = null;
-      nmAnalyser = null;
-      nmLimiter = null;
-      nmTimeDomain = null;
+    // Don't close shared context — just disconnect our nodes
+    if (nmExternalInput) {
+      try { nmExternalInput.disconnect(); } catch (e) { /* */ }
+      nmExternalInput = null;
     }
+    if (nmMasterGain) {
+      try { nmMasterGain.disconnect(); } catch (e) { /* */ }
+      nmMasterGain = null;
+    }
+    if (nmAnalyser) {
+      try { nmAnalyser.disconnect(); } catch (e) { /* */ }
+      nmAnalyser = null;
+    }
+    if (nmLimiter) {
+      try { nmLimiter.disconnect(); } catch (e) { /* */ }
+      nmLimiter = null;
+    }
+    nmCtx = null;
+    nmTimeDomain = null;
     nmScopeCanvas = null;
     nmScopeCtx = null;
+    nmInputJackEl = null;
     nmBuilt = false;
     const powerBtn = document.getElementById('nmPowerBtn');
     if (powerBtn) powerBtn.classList.remove('active');
@@ -804,44 +1005,30 @@
     mpTaskbar.closeWindow('noisemixer');
   };
 
-  // Volume integration for noise mixer -- chain onto mpAudioUpdateVolume
-  const nmOriginalAudioUpdateVolume = window.mpAudioUpdateVolume;
-  window.mpAudioUpdateVolume = () => {
-    if (nmOriginalAudioUpdateVolume) nmOriginalAudioUpdateVolume();
-    nmSyncVolume();
-  };
+  // Volume integration via audio bus listener
+  window.mpAudioBus.onVolumeChange(nmSyncVolume);
 
   /* ══════════════════════════════════════════════════════════
    *  Registrations
    * ══════════════════════════════════════════════════════════ */
 
-  // Register actions
   if (window.ACTION_MAP) {
     window.ACTION_MAP.openNoiseMixer = openNoiseMixer;
     window.ACTION_MAP.openTuningFork = openTuningFork;
   }
 
-  // Register window names
   if (window.WINDOW_NAMES) {
     window.WINDOW_NAMES.noisemixer = 'White Noise Mixer';
-    window.WINDOW_NAMES.tuningfork = 'Tuning Fork';
+    // No static tuningfork window name — dynamic instances register themselves
   }
 
-  // Register close handlers
   if (window.CLOSE_MAP) {
     window.CLOSE_MAP.noisemixer = closeNoiseMixer;
-    window.CLOSE_MAP.tuningfork = closeTuningFork;
+    // No static tuningfork close handler — dynamic instances handle their own close
   }
 
   // Export globals for inline onclick handlers
   window.openNoiseMixer = openNoiseMixer;
   window.closeNoiseMixer = closeNoiseMixer;
   window.openTuningFork = openTuningFork;
-  window.closeTuningFork = closeTuningFork;
-  window.tfStrike = tfStrike;
-  window.tfStop = tfStop;
-  window.tfNoteChange = tfNoteChange;
-  window.tfCentsChange = tfCentsChange;
-  window.tfWaveChange = tfWaveChange;
-  window.tfEqChange = tfEqChange;
 })();

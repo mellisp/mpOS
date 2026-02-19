@@ -29,8 +29,12 @@ const FOLDER_ITEMS = {
   accessories: [
     { name: 'Notepad', _key: 'notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad' },
     { name: 'Paint', _key: 'paint', desc: 'Create and edit images.', tag: 'HTML', action: 'openPaint' },
-    { name: 'Sticky Notes', _key: 'stickyNotes', desc: 'Post-it style notes on the desktop.', tag: 'HTML', action: 'openStickyNotes' },
-    { name: 'White Noise Mixer', _key: 'noiseMixer', desc: 'Mix colored noise for focus, sleep, or relaxation.', tag: 'HTML', action: 'openNoiseMixer' }
+    { name: 'Sticky Notes', _key: 'stickyNotes', desc: 'Post-it style notes on the desktop.', tag: 'HTML', action: 'openStickyNotes' }
+  ],
+  audio: [
+    { name: 'White Noise Mixer', _key: 'noiseMixer', desc: 'Mix colored noise for focus, sleep, or relaxation.', tag: 'HTML', action: 'openNoiseMixer' },
+    { name: 'Tuning Fork', _key: 'tuningFork', desc: 'Pure tone generator for musical tuning.', tag: 'HTML', action: 'openTuningFork' },
+    { name: 'Reverb', _key: 'reverb', desc: 'Audio reverb effect with patch cable routing.', tag: 'HTML', action: 'openReverb' }
   ],
   documents: [],
   utilities: [
@@ -42,17 +46,17 @@ const FOLDER_ITEMS = {
     { name: 'Visitor Map', _key: 'visitorMap', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
     { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' },
     { name: 'Voice Commands', _key: 'voiceCommands', desc: 'Control mpOS with your voice.', tag: 'HTML', action: 'openVoiceCommands' },
-    { name: 'Tuning Fork', _key: 'tuningFork', desc: 'Pure tone generator for musical tuning.', tag: 'HTML', action: 'openTuningFork' },
     { name: 'Cryptography', _key: 'cryptography', desc: 'Encrypt and decrypt messages with classic ciphers.', tag: 'HTML', action: 'openCryptography' }
   ]
 };
 
 const FOLDER_NAMES = {
   all:         { title: 'Files',       address: 'C:\\mpOS',                        _titleKey: 'title.files' },
-  programs:    { title: 'Programs',    address: 'C:\\mpOS\\Programs',              _titleKey: 'ui.programs',    children: ['games', 'internet', 'accessories'] },
+  programs:    { title: 'Programs',    address: 'C:\\mpOS\\Programs',              _titleKey: 'ui.programs',    children: ['games', 'internet', 'accessories', 'audio'] },
   games:       { title: 'Games',       address: 'C:\\mpOS\\Programs\\Games',       _titleKey: 'ui.games' },
   internet:    { title: 'Internet',    address: 'C:\\mpOS\\Programs\\Internet',    _titleKey: 'ui.internet' },
   accessories: { title: 'Accessories', address: 'C:\\mpOS\\Programs\\Accessories', _titleKey: 'ui.accessories' },
+  audio:       { title: 'Audio',       address: 'C:\\mpOS\\Programs\\Audio',       _titleKey: 'ui.audio' },
   documents:   { title: 'Documents',   address: 'C:\\mpOS\\Documents',             _titleKey: 'ui.documents' },
   utilities:   { title: 'Utilities',   address: 'C:\\mpOS\\Utilities',             _titleKey: 'ui.utilities' }
 };
@@ -127,7 +131,7 @@ const renderExplorerContent = () => {
 
   let items;
   if (currentFolder === 'all') {
-    items = FOLDER_ITEMS.games.concat(FOLDER_ITEMS.internet, FOLDER_ITEMS.accessories, FOLDER_ITEMS.documents, FOLDER_ITEMS.utilities);
+    items = FOLDER_ITEMS.games.concat(FOLDER_ITEMS.internet, FOLDER_ITEMS.accessories, FOLDER_ITEMS.audio, FOLDER_ITEMS.documents, FOLDER_ITEMS.utilities);
   } else {
     items = FOLDER_ITEMS[currentFolder];
   }
@@ -214,7 +218,7 @@ const navigateExplorer = (folder) => {
   document.getElementById('explorerAddress').textContent = info.address;
 
   if (!treeItems) treeItems = document.querySelectorAll('#explorer .tree-item');
-  const folderIndex = { all: 0, programs: 1, games: 2, internet: 3, accessories: 4, documents: 5, utilities: 6 };
+  const folderIndex = { all: 0, programs: 1, games: 2, internet: 3, accessories: 4, audio: 5, documents: 6, utilities: 7 };
   treeItems.forEach((el, i) => {
     el.classList.toggle('active', i === folderIndex[folder]);
   });

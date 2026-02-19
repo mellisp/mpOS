@@ -534,9 +534,7 @@
 .sw-lap-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid var(--silver); }
 .sw-lap-row:last-child { border-bottom: none; }
 
-/* Tuning Fork window */
-#tuningfork { width: min(280px, 92vw); left: min(200px, 5vw); top: 80px; }
-#tuningforkBody { padding: 10px; }
+/* Tuning Fork window (dynamic instances use .tf-window) */
 .tf-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
 .tf-label { font-size: 11px; min-width: 30px; font-weight: bold; }
 .tf-label-sm { min-width: 24px; }
@@ -2629,4 +2627,131 @@
   /* Visitor Map mobile */
   #visitormap .window-body { flex-direction: column; }
   .vm-list { width: auto; min-width: 0; border-left: none; border-top: 1px solid var(--shadow); max-height: 200px; }
+}
+
+/* ══════════════════════════════════════════════════
+ *  Audio Jacks & Patch Cables
+ * ══════════════════════════════════════════════════ */
+.audio-jack {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f0e0a0, #c8a840 50%, #8a6a20 100%);
+  border: 2px solid #6a5010;
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.3);
+  pointer-events: auto;
+}
+.audio-jack::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 4px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #4a3a10;
+  border: 1px solid #2a1a00;
+}
+.audio-jack:hover {
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.5), 0 0 6px rgba(200,168,64,0.6);
+}
+.audio-jack.connected {
+  background: radial-gradient(circle at 35% 35%, #ffe080, #e0b040 50%, #a07a20 100%);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.5), 0 0 4px rgba(200,168,64,0.5);
+}
+.audio-jack.pending {
+  animation: jack-pulse 0.6s ease-in-out infinite alternate;
+}
+.audio-jack.pending-target {
+  animation: jack-pulse-target 0.8s ease-in-out infinite alternate;
+}
+@keyframes jack-pulse {
+  from { box-shadow: 0 0 4px rgba(255,220,80,0.4); }
+  to   { box-shadow: 0 0 12px rgba(255,220,80,0.9); }
+}
+@keyframes jack-pulse-target {
+  from { box-shadow: 0 0 2px rgba(100,200,255,0.3); }
+  to   { box-shadow: 0 0 8px rgba(100,200,255,0.7); }
+}
+
+.audio-jack-label {
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.jack-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-top: 1px solid var(--shadow, #808080);
+  background: var(--silver, #d4d0c8);
+}
+
+/* SVG cable paths */
+.cable-path {
+  fill: none;
+  stroke: #e8c840;
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}
+.cable-phantom {
+  fill: none;
+  stroke: #e8c840;
+  stroke-width: 2;
+  stroke-dasharray: 8 6;
+  opacity: 0.6;
+  stroke-linecap: round;
+}
+
+/* ══════════════════════════════════════════════════
+ *  Dynamic Tuning Fork Windows
+ * ══════════════════════════════════════════════════ */
+.tf-window { width: min(280px, 92vw); }
+.tf-window .window-body { padding: 10px; }
+.tf-jack-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--shadow, #808080);
+  background: var(--silver, #d4d0c8);
+}
+
+/* ══════════════════════════════════════════════════
+ *  Reverb Window
+ * ══════════════════════════════════════════════════ */
+#reverb { width: min(300px, 92vw); left: min(320px, 10vw); top: 100px; }
+#reverbBody { padding: 10px; }
+.rv-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.rv-label { font-size: 11px; min-width: 40px; font-weight: bold; }
+.rv-select { flex: 1; font-size: 12px; font-family: var(--font); padding: 2px; }
+.rv-slider { flex: 1; }
+.rv-val { font-size: 11px; min-width: 44px; text-align: right; font-family: var(--mono); }
+.rv-scope-wrap {
+  background: #0a0a0a;
+  border: 1px solid var(--shadow, #808080);
+  margin-bottom: 8px;
+  position: relative;
+}
+.rv-scope-canvas { display: block; width: 100%; height: 50px; }
+.rv-jack-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--shadow, #808080);
+  background: var(--silver, #d4d0c8);
+  justify-content: space-between;
+}
+.rv-jack-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }

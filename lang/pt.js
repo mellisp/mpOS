@@ -454,6 +454,7 @@ window._mpLangRegister('pt', {
   'search.group.games': 'Jogos',
   'search.group.internet': 'Internet',
   'search.group.accessories': 'Acess\u00f3rios',
+  'search.group.audio': '\u00c1udio',
   'search.group.utilities': 'Utilit\u00e1rios',
   'search.group.files': 'Ficheiros',
   'search.group.commands': 'Comandos',

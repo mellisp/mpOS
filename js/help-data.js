@@ -14,10 +14,11 @@
 
 var HELP_TREE = [
   { title: 'Getting Started', title_pt: 'Primeiros Passos',  children: ['welcome', 'desktop', 'startmenu', 'taskbar'] },
-  { title: 'Games',           title_pt: 'Jogos',             children: ['ontarget', 'chickenfingers', 'brickbreaker'] },
-  { title: 'Internet',        title_pt: 'Internet',          children: ['wikibrowser', 'archivebrowser', 'fishofday', 'fishfinder', 'aquarium'] },
-  { title: 'Accessories',     title_pt: 'Acess\u00f3rios',   children: ['notepad', 'paint'] },
-  { title: 'Utilities',       title_pt: 'Utilit\u00e1rios',  children: ['calculator', 'calendar', 'timezone', 'weather', 'diskusage', 'visitormap', 'search'] },
+  { title: 'Games',           title_pt: 'Jogos',             children: ['ontarget', 'chickenfingers', 'brickbreaker', 'fractal', 'slotmachine'] },
+  { title: 'Internet',        title_pt: 'Internet',          children: ['wikibrowser', 'archivebrowser', 'fishofday', 'fishfinder', 'aquarium', 'neotracker'] },
+  { title: 'Accessories',     title_pt: 'Acess\u00f3rios',   children: ['notepad', 'paint', 'stickynotes'] },
+  { title: 'Audio',           title_pt: '\u00c1udio',        children: ['noisemixer', 'tuningfork', 'reverb'] },
+  { title: 'Utilities',       title_pt: 'Utilit\u00e1rios',  children: ['calculator', 'calendar', 'timezone', 'weather', 'stopwatch', 'cryptography', 'diskusage', 'visitormap', 'search'] },
   { title: 'System',          title_pt: 'Sistema',           children: ['mycomputer', 'explorer', 'run', 'taskmanager', 'voicecommands'] }
 ];
 
@@ -983,8 +984,9 @@ var HELP_TOPICS = {
       { h: 'Launching Apps' },
       { p: 'Type an application command name to launch it directly:' },
       { ul: [
-        'Programs \u2014 BROWSER, FISHOFDAY, FISHFINDER, ONTARGET, AQUARIUM, PAINT, BRICKBREAKER',
-        'Utilities \u2014 NOTEPAD, CALCULATOR, CALENDAR, TIMEZONE, WEATHER, DISKUSAGE, VISITORMAP, SEARCH, HH (Help)',
+        'Programs \u2014 BROWSER, FISHOFDAY, FISHFINDER, ONTARGET, AQUARIUM, PAINT, BRICKBREAKER, CHICKENFINGERS, FRACTAL, SLOTMACHINE',
+        'Audio \u2014 NOISEMIXER, TUNINGFORK',
+        'Utilities \u2014 NOTEPAD, CALCULATOR, CALENDAR, TIMEZONE, WEATHER, STOPWATCH, CRYPTOGRAPHY, NEOTRACKER, DISKUSAGE, VISITORMAP, SEARCH, HH (Help)',
         'System \u2014 MYCOMPUTER, EXPLORER, TASKMANAGER'
       ]},
       { h: 'Terminal Commands' },
@@ -1014,8 +1016,9 @@ var HELP_TOPICS = {
       { h: 'Lan\u00e7ar Aplica\u00e7\u00f5es' },
       { p: 'Escreva o nome do comando de uma aplica\u00e7\u00e3o para a lan\u00e7ar diretamente:' },
       { ul: [
-        'Programas \u2014 BROWSER, FISHOFDAY, FISHFINDER, ONTARGET, AQUARIUM, PAINT, BRICKBREAKER',
-        'Utilit\u00e1rios \u2014 NOTEPAD, CALCULATOR, CALENDAR, TIMEZONE, WEATHER, DISKUSAGE, VISITORMAP, SEARCH, HH (Ajuda)',
+        'Programas \u2014 BROWSER, FISHOFDAY, FISHFINDER, ONTARGET, AQUARIUM, PAINT, BRICKBREAKER, CHICKENFINGERS, FRACTAL, SLOTMACHINE',
+        '\u00c1udio \u2014 NOISEMIXER, TUNINGFORK',
+        'Utilit\u00e1rios \u2014 NOTEPAD, CALCULATOR, CALENDAR, TIMEZONE, WEATHER, STOPWATCH, CRYPTOGRAPHY, NEOTRACKER, DISKUSAGE, VISITORMAP, SEARCH, HH (Ajuda)',
         'Sistema \u2014 MYCOMPUTER, EXPLORER, TASKMANAGER'
       ]},
       { h: 'Comandos do Terminal' },
@@ -1128,6 +1131,393 @@ var HELP_TOPICS = {
       { h: 'Indicador Flutuante' },
       { p: 'Quando a voz est\u00e1 ativa sem a janela Comandos de Voz aberta, um pequeno indicador flutuante aparece acima do tabuleiro do sistema mostrando o estado atual (a ouvir, ouvido, a executar). Clique nele para parar de ouvir.' },
       { sa: ['startmenu', 'taskmanager'] }
+    ]
+  },
+
+  /* ── Games (continued) ── */
+
+  fractal: {
+    title: 'Fractal Explorer',
+    title_pt: 'Explorador de Fractais',
+    keywords: ['fractal', 'mandelbrot', 'zoom', 'math', 'explore', 'julia', 'complex'],
+    keywords_pt: ['fractal', 'mandelbrot', 'zoom', 'matem\u00e1tica', 'explorar', 'julia', 'complexo'],
+    body: [
+      { p: 'Fractal Explorer lets you explore the Mandelbrot set and related fractal patterns. Zoom in to discover infinitely complex structures.' },
+      { h: 'How to Use' },
+      { ul: [
+        'The fractal loads in an embedded frame.',
+        'Click or tap to zoom into a region.',
+        'Use on-screen controls to adjust parameters and navigate.',
+        'On mobile, the app opens as a full-screen page.'
+      ]},
+      { h: 'Opening Fractal Explorer' },
+      { ul: [
+        'Start menu \u2192 Programs \u2192 Fractal Explorer.',
+        'Type FRACTAL in the Run terminal.'
+      ]},
+      { sa: ['ontarget', 'brickbreaker'] }
+    ],
+    body_pt: [
+      { p: 'O Explorador de Fractais permite-lhe explorar o conjunto de Mandelbrot e padr\u00f5es fractais relacionados. Aproxime-se para descobrir estruturas infinitamente complexas.' },
+      { h: 'Como Utilizar' },
+      { ul: [
+        'O fractal carrega num quadro integrado.',
+        'Clique ou toque para aproximar uma regi\u00e3o.',
+        'Use os controlos no ecr\u00e3 para ajustar par\u00e2metros e navegar.',
+        'No telem\u00f3vel, a aplica\u00e7\u00e3o abre como p\u00e1gina em ecr\u00e3 inteiro.'
+      ]},
+      { h: 'Abrir o Explorador de Fractais' },
+      { ul: [
+        'Menu Iniciar \u2192 Programas \u2192 Explorador de Fractais.',
+        'Escreva FRACTAL no terminal Executar.'
+      ]},
+      { sa: ['ontarget', 'brickbreaker'] }
+    ]
+  },
+
+  slotmachine: {
+    title: 'Slot Machine',
+    title_pt: 'Slot Machine',
+    keywords: ['slot machine', 'slots', 'game', 'gambling', 'spin', 'credits', 'jackpot', 'payline', 'hold', 'nudge'],
+    keywords_pt: ['slot machine', 'slots', 'jogo', 'apostas', 'girar', 'cr\u00e9ditos', 'jackpot', 'linha de pagamento', 'reter', 'empurrar'],
+    body: [
+      { p: 'Slot Machine is a classic 3-reel slot game with paylines, hold and nudge features, scatter symbols, and free spins.' },
+      { h: 'How to Play' },
+      { ul: [
+        'Choose the number of paylines (1, 3, or 5) and bet per line (1, 2, 5, or 10).',
+        'Click Spin to spin the reels. Match symbols across active paylines to win.',
+        'Three 7s on a payline awards the jackpot (250\u00d7 bet).',
+        'Max Bet sets 5 lines at 10 per line and spins immediately.'
+      ]},
+      { h: 'Special Features' },
+      { ul: [
+        'Hold \u2014 occasionally offered after a spin. Click Hold on reels you want to keep, then spin again.',
+        'Nudge \u2014 occasionally offered. Use the up/down arrows to shift a reel by one position.',
+        'Scatter (\u2731) \u2014 2 scatters anywhere award 5 free spins; 3 scatters award 10 free spins with a 2\u00d7 multiplier.',
+        'Free Spins \u2014 spin without spending credits. Winnings may be multiplied.'
+      ]},
+      { h: 'Pay Table' },
+      { p: 'Click the Pay Table button to see all winning combinations and their payouts. Partial matches (2-of-a-kind for 7, BAR, and Bell) also pay.' },
+      { sa: ['ontarget', 'brickbreaker'] }
+    ],
+    body_pt: [
+      { p: 'A Slot Machine \u00e9 um jogo cl\u00e1ssico de slots com 3 rolos, linhas de pagamento, funcionalidades de reter e empurrar, s\u00edmbolos scatter e rodadas gr\u00e1tis.' },
+      { h: 'Como Jogar' },
+      { ul: [
+        'Escolha o n\u00famero de linhas de pagamento (1, 3 ou 5) e a aposta por linha (1, 2, 5 ou 10).',
+        'Clique em Girar para girar os rolos. Combine s\u00edmbolos nas linhas de pagamento ativas para ganhar.',
+        'Tr\u00eas 7s numa linha de pagamento atribui o jackpot (250\u00d7 aposta).',
+        'Aposta M\u00e1xima define 5 linhas a 10 por linha e gira imediatamente.'
+      ]},
+      { h: 'Funcionalidades Especiais' },
+      { ul: [
+        'Reter \u2014 ocasionalmente oferecido ap\u00f3s uma jogada. Clique em Reter nos rolos que quer manter e gire novamente.',
+        'Empurrar \u2014 ocasionalmente oferecido. Use as setas cima/baixo para deslocar um rolo uma posi\u00e7\u00e3o.',
+        'Scatter (\u2731) \u2014 2 scatters em qualquer lugar atribuem 5 rodadas gr\u00e1tis; 3 scatters atribuem 10 rodadas gr\u00e1tis com multiplicador 2\u00d7.',
+        'Rodadas Gr\u00e1tis \u2014 gire sem gastar cr\u00e9ditos. Os ganhos podem ser multiplicados.'
+      ]},
+      { h: 'Tabela de Pagamento' },
+      { p: 'Clique no bot\u00e3o Tabela de Pagamento para ver todas as combina\u00e7\u00f5es vencedoras e os seus pagamentos. Correspond\u00eancias parciais (2 iguais para 7, BAR e Sino) tamb\u00e9m pagam.' },
+      { sa: ['ontarget', 'brickbreaker'] }
+    ]
+  },
+
+  /* ── Internet (continued) ── */
+
+  neotracker: {
+    title: 'NEO Tracker',
+    title_pt: 'NEO Tracker',
+    keywords: ['neo', 'asteroid', 'near-earth', 'nasa', 'space', 'tracker', 'approach', 'hazardous'],
+    keywords_pt: ['neo', 'aster\u00f3ide', 'pr\u00f3ximo da terra', 'nasa', 'espa\u00e7o', 'rastreador', 'aproxima\u00e7\u00e3o', 'perigoso'],
+    body: [
+      { p: 'NEO Tracker displays upcoming near-Earth object approaches using NASA\u2019s Near-Earth Object Web Service API. It shows asteroids and comets passing close to Earth in the next 7 days.' },
+      { h: 'Features' },
+      { ul: [
+        'Summary stats showing total objects, potentially hazardous asteroids (PHAs), and the closest approach.',
+        'An interactive distance gauge plotting all objects on a logarithmic scale in Lunar Distances (LD).',
+        'A sortable table with name, date, distance, velocity, diameter, and absolute magnitude.',
+        'Click any row or gauge dot to see detailed information including orbital data and a link to NASA\u2019s JPL page.'
+      ]},
+      { h: 'Opening NEO Tracker' },
+      { ul: [
+        'Start menu \u2192 Programs \u2192 NEO Tracker.',
+        'Type NEOTRACKER in the Run terminal.'
+      ]},
+      { sa: ['visitormap', 'weather'] }
+    ],
+    body_pt: [
+      { p: 'O NEO Tracker apresenta as pr\u00f3ximas aproxima\u00e7\u00f5es de objetos pr\u00f3ximos da Terra usando a API do Servi\u00e7o Web de Objetos Pr\u00f3ximos da Terra da NASA. Mostra aster\u00f3ides e cometas que passam perto da Terra nos pr\u00f3ximos 7 dias.' },
+      { h: 'Funcionalidades' },
+      { ul: [
+        'Estat\u00edsticas resumidas mostrando o total de objetos, aster\u00f3ides potencialmente perigosos (PHAs) e a aproxima\u00e7\u00e3o mais pr\u00f3xima.',
+        'Um medidor de dist\u00e2ncia interativo que plota todos os objetos numa escala logar\u00edtmica em Dist\u00e2ncias Lunares (LD).',
+        'Uma tabela orden\u00e1vel com nome, data, dist\u00e2ncia, velocidade, di\u00e2metro e magnitude absoluta.',
+        'Clique em qualquer linha ou ponto do medidor para ver informa\u00e7\u00f5es detalhadas incluindo dados orbitais e uma liga\u00e7\u00e3o para a p\u00e1gina JPL da NASA.'
+      ]},
+      { h: 'Abrir o NEO Tracker' },
+      { ul: [
+        'Menu Iniciar \u2192 Programas \u2192 NEO Tracker.',
+        'Escreva NEOTRACKER no terminal Executar.'
+      ]},
+      { sa: ['visitormap', 'weather'] }
+    ]
+  },
+
+  /* ── Accessories (continued) ── */
+
+  stickynotes: {
+    title: 'Sticky Notes',
+    title_pt: 'Notas Adesivas',
+    keywords: ['sticky notes', 'notes', 'memo', 'reminder', 'desktop', 'post-it', 'quick note'],
+    keywords_pt: ['notas adesivas', 'notas', 'memorando', 'lembrete', 'ambiente de trabalho', 'post-it', 'nota r\u00e1pida'],
+    body: [
+      { p: 'Sticky Notes places colorful note cards directly on the desktop. Use them for quick reminders, to-do lists, or scratch text.' },
+      { h: 'Features' },
+      { ul: [
+        'Notes appear on the desktop, not inside a window.',
+        'Drag notes by their header bar to reposition them.',
+        'Choose from 5 colors (yellow, pink, blue, green, purple) by clicking the dots in the header.',
+        'Resize notes by dragging the bottom-right corner.',
+        'Click + to create a new note next to the current one.',
+        'Click \u00d7 to delete a note (confirms if the note has text).'
+      ]},
+      { h: 'Persistence' },
+      { p: 'Notes and their positions, sizes, colors, and text are automatically saved to your browser and restored on your next visit.' },
+      { sa: ['notepad'] }
+    ],
+    body_pt: [
+      { p: 'As Notas Adesivas colocam cart\u00f5es de notas coloridos diretamente no ambiente de trabalho. Use-as para lembretes r\u00e1pidos, listas de tarefas ou texto provis\u00f3rio.' },
+      { h: 'Funcionalidades' },
+      { ul: [
+        'As notas aparecem no ambiente de trabalho, n\u00e3o dentro de uma janela.',
+        'Arraste as notas pela barra de cabe\u00e7alho para as reposicionar.',
+        'Escolha entre 5 cores (amarelo, rosa, azul, verde, roxo) clicando nos pontos no cabe\u00e7alho.',
+        'Redimensione as notas arrastando o canto inferior direito.',
+        'Clique em + para criar uma nova nota ao lado da atual.',
+        'Clique em \u00d7 para eliminar uma nota (confirma se a nota tiver texto).'
+      ]},
+      { h: 'Persist\u00eancia' },
+      { p: 'As notas e as suas posi\u00e7\u00f5es, tamanhos, cores e texto s\u00e3o guardados automaticamente no seu navegador e restaurados na sua pr\u00f3xima visita.' },
+      { sa: ['notepad'] }
+    ]
+  },
+
+  /* ── Audio ── */
+
+  noisemixer: {
+    title: 'White Noise Mixer',
+    title_pt: 'Misturador de Ru\u00eddo Branco',
+    keywords: ['noise', 'white noise', 'pink noise', 'brown noise', 'mixer', 'sleep', 'focus', 'ambient', 'rain', 'sound'],
+    keywords_pt: ['ru\u00eddo', 'ru\u00eddo branco', 'ru\u00eddo rosa', 'ru\u00eddo castanho', 'misturador', 'dormir', 'foco', 'ambiente', 'chuva', 'som'],
+    body: [
+      { p: 'White Noise Mixer is a 6-channel mixer for generating ambient noise. Blend different noise colors to create the perfect background sound for sleeping, focusing, or relaxing.' },
+      { h: 'Channels' },
+      { ul: [
+        'White \u2014 equal energy across all frequencies.',
+        'Pink \u2014 balanced, natural-sounding noise (popular for sleep).',
+        'Brown \u2014 deep, rumbling low-frequency noise.',
+        'Blue \u2014 high-frequency emphasis.',
+        'Violet \u2014 even stronger high-frequency emphasis.',
+        'Rain \u2014 pink noise with random droplet textures.'
+      ]},
+      { h: 'Controls' },
+      { ul: [
+        'Each channel has a volume fader, a filter selector (LP/HP/BP), a filter frequency slider, and mute (M) and solo (S) buttons.',
+        'A master volume fader controls overall output.',
+        'Choose a preset (Deep Sleep, Focus, Rain, Fan, Bright, Ocean) or create your own mix.',
+        'An oscilloscope shows the waveform in real-time. Toggle it with the SCOPE button.'
+      ]},
+      { h: 'Audio Routing' },
+      { p: 'The mixer has an IN jack that can receive audio from other apps (e.g. Tuning Fork) when connected via an audio cable.' },
+      { sa: ['tuningfork'] }
+    ],
+    body_pt: [
+      { p: 'O Misturador de Ru\u00eddo Branco \u00e9 um misturador de 6 canais para gerar ru\u00eddo ambiente. Misture diferentes cores de ru\u00eddo para criar o som de fundo perfeito para dormir, concentrar-se ou relaxar.' },
+      { h: 'Canais' },
+      { ul: [
+        'Branco \u2014 energia igual em todas as frequ\u00eancias.',
+        'Rosa \u2014 ru\u00eddo equilibrado e de som natural (popular para dormir).',
+        'Castanho \u2014 ru\u00eddo profundo e grave de baixa frequ\u00eancia.',
+        'Azul \u2014 \u00eanfase em altas frequ\u00eancias.',
+        'Violeta \u2014 \u00eanfase ainda mais forte em altas frequ\u00eancias.',
+        'Chuva \u2014 ru\u00eddo rosa com texturas aleat\u00f3rias de gotas.'
+      ]},
+      { h: 'Controlos' },
+      { ul: [
+        'Cada canal tem um fader de volume, um seletor de filtro (LP/HP/BP), um cursor de frequ\u00eancia do filtro e bot\u00f5es de silenciar (M) e solo (S).',
+        'Um fader de volume mestre controla a sa\u00edda global.',
+        'Escolha um preset (Sono Profundo, Foco, Chuva, Ventoinha, Brilhante, Oceano) ou crie a sua pr\u00f3pria mistura.',
+        'Um oscilosc\u00f3pio mostra a forma de onda em tempo real. Alterne-o com o bot\u00e3o SCOPE.'
+      ]},
+      { h: 'Encaminhamento de \u00c1udio' },
+      { p: 'O misturador tem uma entrada IN que pode receber \u00e1udio de outras aplica\u00e7\u00f5es (ex.: Tuning Fork) quando ligado por cabo de \u00e1udio.' },
+      { sa: ['tuningfork'] }
+    ]
+  },
+
+  tuningfork: {
+    title: 'Tuning Fork',
+    title_pt: 'Diapas\u00e3o',
+    keywords: ['tuning fork', 'tone', 'frequency', 'pitch', 'note', 'hz', 'waveform', 'sine', 'music', 'audio'],
+    keywords_pt: ['diapas\u00e3o', 'tom', 'frequ\u00eancia', 'afinador', 'nota', 'hz', 'forma de onda', 'sinusoidal', 'm\u00fasica', '\u00e1udio'],
+    body: [
+      { p: 'Tuning Fork generates a precise tone at a selected musical note and frequency. Multiple instances can run simultaneously for chords or intervals.' },
+      { h: 'Controls' },
+      { ul: [
+        'Note \u2014 select from C through B (defaults to A = 440 Hz).',
+        'Octave \u2014 choose octave 2\u20137 (default 4).',
+        'Fine \u2014 adjust the pitch up or down by up to 50 cents for precise tuning.',
+        'Wave \u2014 select the waveform: Sine, Triangle, Square, or Sawtooth.',
+        'EQ \u2014 adjust a peaking EQ filter from \u221212 to +12 dB.',
+        'Strike \u2014 starts or stops the tone.'
+      ]},
+      { h: 'Multi-Instance' },
+      { p: 'Each time you open Tuning Fork, a new independent instance is created. You can have several running at once, each set to a different note, to hear intervals or chords.' },
+      { h: 'Audio Routing' },
+      { p: 'Each instance has an OUT jack. You can route its output to other apps (like the Noise Mixer) by connecting an audio cable.' },
+      { sa: ['noisemixer'] }
+    ],
+    body_pt: [
+      { p: 'O Diapas\u00e3o gera um tom preciso numa nota musical e frequ\u00eancia selecionadas. V\u00e1rias inst\u00e2ncias podem funcionar simultaneamente para acordes ou intervalos.' },
+      { h: 'Controlos' },
+      { ul: [
+        'Nota \u2014 selecione de D\u00f3 a Si (padr\u00e3o L\u00e1 = 440 Hz).',
+        'Oitava \u2014 escolha a oitava 2\u20137 (padr\u00e3o 4).',
+        'Fino \u2014 ajuste a afina\u00e7\u00e3o at\u00e9 50 cents acima ou abaixo para afina\u00e7\u00e3o precisa.',
+        'Onda \u2014 selecione a forma de onda: Sinusoidal, Tri\u00e2ngulo, Quadrada ou Dente de Serra.',
+        'EQ \u2014 ajuste um filtro EQ de pico de \u221212 a +12 dB.',
+        'Tocar \u2014 inicia ou para o tom.'
+      ]},
+      { h: 'Multi-Inst\u00e2ncia' },
+      { p: 'Cada vez que abre o Diapas\u00e3o, uma nova inst\u00e2ncia independente \u00e9 criada. Pode ter v\u00e1rias a funcionar ao mesmo tempo, cada uma definida para uma nota diferente, para ouvir intervalos ou acordes.' },
+      { h: 'Encaminhamento de \u00c1udio' },
+      { p: 'Cada inst\u00e2ncia tem uma sa\u00edda OUT. Pode encaminhar a sua sa\u00edda para outras aplica\u00e7\u00f5es (como o Misturador de Ru\u00eddo) ligando um cabo de \u00e1udio.' },
+      { sa: ['noisemixer'] }
+    ]
+  },
+
+  reverb: {
+    title: 'Reverb',
+    title_pt: 'Reverb',
+    keywords: ['reverb', 'reverb effect', 'room', 'hall', 'echo', 'impulse response', 'audio', 'effect'],
+    keywords_pt: ['reverb', 'efeito de reverb', 'sala', 'corredor', 'eco', 'resposta ao impulso', '\u00e1udio', 'efeito'],
+    body: [
+      { p: 'Reverb is an audio effect module that simulates acoustic spaces using programmatic impulse responses. Route audio from other apps through it to add room, hall, or plate reverb.' },
+      { h: 'Presets' },
+      { ul: [
+        'Small Room \u2014 short, tight reflections.',
+        'Medium Room \u2014 natural room ambience.',
+        'Large Hall \u2014 spacious concert hall.',
+        'Plate \u2014 smooth metallic reverb.',
+        'Bathroom \u2014 small, bright reflections.',
+        'Cathedral \u2014 long, dramatic tail.'
+      ]},
+      { h: 'Controls' },
+      { ul: [
+        'Preset \u2014 select a reverb space.',
+        'Mix \u2014 blend between dry (original) and wet (reverb) signal.',
+        'Decay \u2014 override the reverb tail length.',
+        'Tone \u2014 override the low-pass filter frequency.',
+        'An oscilloscope shows the output waveform in real-time.'
+      ]},
+      { h: 'Audio Routing' },
+      { p: 'Reverb has an IN jack and an OUT jack. Connect a Tuning Fork\u2019s output to the IN jack to hear it with reverb. The OUT jack can feed into the Noise Mixer or another module.' },
+      { sa: ['tuningfork', 'noisemixer'] }
+    ],
+    body_pt: [
+      { p: 'O Reverb \u00e9 um m\u00f3dulo de efeito de \u00e1udio que simula espa\u00e7os ac\u00fasticos usando respostas ao impulso program\u00e1ticas. Encaminhe \u00e1udio de outras aplica\u00e7\u00f5es atrav\u00e9s dele para adicionar reverb de sala, corredor ou placa.' },
+      { h: 'Presets' },
+      { ul: [
+        'Sala Pequena \u2014 reflex\u00f5es curtas e compactas.',
+        'Sala M\u00e9dia \u2014 ambi\u00eancia natural de sala.',
+        'Grande Sal\u00e3o \u2014 sala de concertos espa\u00e7osa.',
+        'Placa \u2014 reverb met\u00e1lico suave.',
+        'Casa de Banho \u2014 reflex\u00f5es pequenas e brilhantes.',
+        'Catedral \u2014 cauda longa e dram\u00e1tica.'
+      ]},
+      { h: 'Controlos' },
+      { ul: [
+        'Preset \u2014 selecione um espa\u00e7o de reverb.',
+        'Mix \u2014 misture entre sinal seco (original) e h\u00famido (reverb).',
+        'Decay \u2014 substitua o comprimento da cauda do reverb.',
+        'Tone \u2014 substitua a frequ\u00eancia do filtro passa-baixo.',
+        'Um oscilosc\u00f3pio mostra a forma de onda de sa\u00edda em tempo real.'
+      ]},
+      { h: 'Encaminhamento de \u00c1udio' },
+      { p: 'O Reverb tem uma entrada IN e uma sa\u00edda OUT. Ligue a sa\u00edda de um Diapas\u00e3o \u00e0 entrada IN para o ouvir com reverb. A sa\u00edda OUT pode alimentar o Misturador de Ru\u00eddo ou outro m\u00f3dulo.' },
+      { sa: ['tuningfork', 'noisemixer'] }
+    ]
+  },
+
+  /* ── Utilities (continued) ── */
+
+  stopwatch: {
+    title: 'Stopwatch',
+    title_pt: 'Cron\u00f3metro',
+    keywords: ['stopwatch', 'timer', 'lap', 'time', 'start', 'stop', 'reset', 'split'],
+    keywords_pt: ['cron\u00f3metro', 'temporizador', 'volta', 'tempo', 'iniciar', 'parar', 'reiniciar', 'parcial'],
+    body: [
+      { p: 'A simple stopwatch with lap timing. Measures elapsed time in minutes, seconds, and centiseconds.' },
+      { h: 'Controls' },
+      { ul: [
+        'Start / Stop \u2014 begins or pauses the timer.',
+        'Lap \u2014 records a lap split while the timer continues running. Shows both the split time and total elapsed.',
+        'Reset \u2014 stops the timer and clears all laps.'
+      ]},
+      { p: 'Laps are displayed in reverse order (most recent first) with the split time for each lap and the cumulative total.' },
+      { sa: ['calendar', 'timezone'] }
+    ],
+    body_pt: [
+      { p: 'Um cron\u00f3metro simples com tempos de volta. Mede o tempo decorrido em minutos, segundos e cent\u00e9simos de segundo.' },
+      { h: 'Controlos' },
+      { ul: [
+        'Iniciar / Parar \u2014 inicia ou pausa o temporizador.',
+        'Volta \u2014 regista um tempo parcial enquanto o temporizador continua a correr. Mostra tanto o tempo parcial como o total decorrido.',
+        'Reiniciar \u2014 para o temporizador e limpa todas as voltas.'
+      ]},
+      { p: 'As voltas s\u00e3o apresentadas por ordem inversa (mais recente primeiro) com o tempo parcial de cada volta e o total acumulado.' },
+      { sa: ['calendar', 'timezone'] }
+    ]
+  },
+
+  cryptography: {
+    title: 'Cryptography',
+    title_pt: 'Criptografia',
+    keywords: ['cryptography', 'cipher', 'caesar', 'rot13', 'substitution', 'encrypt', 'decrypt', 'code'],
+    keywords_pt: ['criptografia', 'cifra', 'c\u00e9sar', 'rot13', 'substitui\u00e7\u00e3o', 'encriptar', 'desencriptar', 'c\u00f3digo'],
+    body: [
+      { p: 'Cryptography is an interactive tool for encrypting and decrypting text with classical ciphers.' },
+      { h: 'Available Ciphers' },
+      { ul: [
+        'Caesar Cipher \u2014 shifts each letter by a configurable number of positions (1\u201325). The classic cipher used by Julius Caesar.',
+        'ROT13 \u2014 a special case of Caesar with a fixed shift of 13. Applying it twice returns the original text.',
+        'Substitution Cipher \u2014 maps each letter to a different letter using a random 26-letter key. Click Generate to create a new key.'
+      ]},
+      { h: 'Controls' },
+      { ul: [
+        'Select encrypt or decrypt mode (ROT13 is symmetric, so direction doesn\u2019t matter).',
+        'Type or paste text into the input area. The output updates automatically.',
+        'Use the Swap button (\u21c4) to move the output back to the input and toggle the direction.',
+        'Click Copy to copy the output to your clipboard.'
+      ]},
+      { sa: ['notepad', 'calculator'] }
+    ],
+    body_pt: [
+      { p: 'A Criptografia \u00e9 uma ferramenta interativa para encriptar e desencriptar texto com cifras cl\u00e1ssicas.' },
+      { h: 'Cifras Dispon\u00edveis' },
+      { ul: [
+        'Cifra de C\u00e9sar \u2014 desloca cada letra por um n\u00famero configur\u00e1vel de posi\u00e7\u00f5es (1\u201325). A cifra cl\u00e1ssica usada por J\u00falio C\u00e9sar.',
+        'ROT13 \u2014 um caso especial de C\u00e9sar com deslocamento fixo de 13. Aplic\u00e1-lo duas vezes devolve o texto original.',
+        'Cifra de Substitui\u00e7\u00e3o \u2014 mapeia cada letra para uma letra diferente usando uma chave aleat\u00f3ria de 26 letras. Clique em Gerar para criar uma nova chave.'
+      ]},
+      { h: 'Controlos' },
+      { ul: [
+        'Selecione o modo encriptar ou desencriptar (ROT13 \u00e9 sim\u00e9trico, por isso a dire\u00e7\u00e3o n\u00e3o importa).',
+        'Escreva ou cole texto na \u00e1rea de entrada. A sa\u00edda atualiza-se automaticamente.',
+        'Use o bot\u00e3o Trocar (\u21c4) para mover a sa\u00edda de volta para a entrada e alternar a dire\u00e7\u00e3o.',
+        'Clique em Copiar para copiar a sa\u00edda para a \u00e1rea de transfer\u00eancia.'
+      ]},
+      { sa: ['notepad', 'calculator'] }
     ]
   }
 };

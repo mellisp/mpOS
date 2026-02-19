@@ -84,11 +84,12 @@ const FILESYSTEM = {
     ]
   },
   'C:\\mpOS\\Programs': {
-    children: ['Games', 'Internet', 'Accessories']
+    children: ['Games', 'Internet', 'Accessories', 'Audio']
   },
   'C:\\mpOS\\Programs\\Games': { items: window.FOLDER_ITEMS.games },
   'C:\\mpOS\\Programs\\Internet': { items: window.FOLDER_ITEMS.internet },
   'C:\\mpOS\\Programs\\Accessories': { items: window.FOLDER_ITEMS.accessories },
+  'C:\\mpOS\\Programs\\Audio': { items: window.FOLDER_ITEMS.audio },
   'C:\\mpOS\\Documents': {
     items: window.FOLDER_ITEMS.documents
   },
@@ -1109,6 +1110,7 @@ const COMMANDS = {
   'games':       { run: () => { window.openExplorerTo('games'); },       desc: 'Open Games folder' },
   'internet':    { run: () => { window.openExplorerTo('internet'); },    desc: 'Open Internet folder' },
   'accessories': { run: () => { window.openExplorerTo('accessories'); }, desc: 'Open Accessories folder' },
+  'audio':       { run: () => { window.openExplorerTo('audio'); },       desc: 'Open Audio folder' },
   'documents':   { run: () => { window.openExplorerTo('documents'); },   desc: 'Open Documents folder' },
   'utilities':   { run: () => { window.openExplorerTo('utilities'); },   desc: 'Open Utilities folder' },
   'notepad':     { run: () => window.openNotepad(),     desc: 'Open Notepad' },

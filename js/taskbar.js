@@ -200,6 +200,7 @@
     taskmanager: 'Task Manager', noisemixer: 'White Noise Mixer',
     voicecommands: 'Voice Commands',
     tuningfork: 'Tuning Fork',
+    reverb: 'Reverb',
     neotracker: 'NEO Tracker',
     fractal: 'Fractal Explorer'
   };
@@ -212,7 +213,9 @@
       const item = document.createElement('button');
       item.className = 'taskbar-item';
       item.dataset.windowId = id;
-      const iconName = TASKBAR_ICONS[id];
+      // Support dynamic window IDs (e.g. tuningfork-1 → tuningfork)
+      const baseId = id.replace(/-\d+$/, '');
+      const iconName = TASKBAR_ICONS[id] || TASKBAR_ICONS[baseId];
       if (iconName && typeof getItemIcon === 'function') {
         const iconSvg = getItemIcon(iconName);
         if (iconSvg) {
@@ -264,6 +267,7 @@
     const y = Math.max(0, Math.min(clientY - oy, window.innerHeight - win.offsetHeight));
     win.style.left = `${x}px`;
     win.style.top = `${y}px`;
+    win.dispatchEvent(new Event('windowmove', { bubbles: true }));
   };
 
   document.addEventListener('mousemove', (e) => { onDragMove(e.clientX, e.clientY); });

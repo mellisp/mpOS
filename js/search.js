@@ -46,6 +46,7 @@
       { key: 'games',       i18n: 'search.group.games' },
       { key: 'internet',    i18n: 'search.group.internet' },
       { key: 'accessories', i18n: 'search.group.accessories' },
+      { key: 'audio',       i18n: 'search.group.audio' },
       { key: 'utilities',   i18n: 'search.group.utilities' }
     ];
     searchCategories.forEach((cat) => {
