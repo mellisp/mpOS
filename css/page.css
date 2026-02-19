@@ -1102,11 +1102,95 @@
 }
 
 /* NEO Tracker window */
-#neotracker { width: min(680px, 94vw); left: min(80px, 3vw); top: 40px; }
+#neotracker { width: min(780px, 94vw); left: min(60px, 3vw); top: 30px; }
 
 .neo-wrap {
-  padding: 8px;
+  padding: 6px;
   overflow: auto;
+}
+
+/* Toolbar */
+.neo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  background: var(--silver);
+  margin-bottom: 6px;
+}
+
+.neo-toolbar button {
+  font-size: 11px;
+  padding: 2px 10px;
+}
+
+.neo-count-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* Summary stats row */
+.neo-stats-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.neo-stat-box {
+  flex: 1;
+  padding: 6px 8px;
+  text-align: center;
+  background: var(--white);
+}
+
+.neo-stat-val {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.neo-stat-lbl {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Distance gauge */
+.neo-gauge-wrap {
+  position: relative;
+  background: var(--white);
+  margin-bottom: 6px;
+  padding: 4px;
+}
+
+.neo-gauge-title {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 2px 4px 0;
+}
+
+.neo-tooltip {
+  display: none;
+  position: absolute;
+  background: #333;
+  color: #fff;
+  font-size: 10px;
+  padding: 3px 6px;
+  border-radius: 2px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Sortable table */
+.neo-table-wrap {
+  max-height: 280px;
+  overflow: auto;
+  background: var(--white);
+  margin-bottom: 6px;
 }
 
 .neo-table {
@@ -1115,7 +1199,13 @@
   font-size: 11px;
 }
 
-.neo-table thead th {
+.neo-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.neo-th-sortable {
   background: var(--silver);
   border: 1px solid var(--dk-shadow);
   padding: 4px 6px;
@@ -1123,6 +1213,17 @@
   text-align: left;
   white-space: nowrap;
   font-size: 11px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.neo-th-sortable:hover {
+  background: #c8c4bc;
+}
+
+.neo-sort-arrow {
+  font-size: 9px;
+  color: var(--dk-shadow);
 }
 
 .neo-table tbody td {
@@ -1132,7 +1233,27 @@
 }
 
 .neo-table tbody tr:nth-child(even) {
-  background: var(--white);
+  background: #f5f4f0;
+}
+
+.neo-table tbody tr:hover {
+  background: #e8e6df;
+  cursor: pointer;
+}
+
+.neo-row-pha {
+  border-left: 3px solid #c62828;
+}
+
+.neo-row-selected {
+  background: var(--highlight) !important;
+  color: var(--highlight-text);
+}
+
+.neo-row-selected .neo-pha,
+.neo-row-selected .neo-name,
+.neo-row-selected .neo-unknown {
+  color: inherit;
 }
 
 .neo-name {
@@ -1140,6 +1261,11 @@
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.neo-pha-badge {
+  color: #c62828;
+  font-weight: bold;
 }
 
 .neo-unknown {
@@ -1152,10 +1278,55 @@
   font-weight: bold;
 }
 
-.neo-summary {
+/* Detail panel */
+.neo-detail {
+  background: var(--white);
+  padding: 8px 10px;
+}
+
+.neo-detail-title {
+  font-weight: bold;
+  font-size: 13px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--silver);
+  margin-bottom: 6px;
+}
+
+.neo-pha-badge-detail {
+  display: inline-block;
+  background: #c62828;
+  color: #fff;
+  font-size: 9px;
+  padding: 1px 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-weight: bold;
+}
+
+.neo-detail-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 12px;
   font-size: 11px;
+}
+
+.neo-detail-lbl {
+  font-weight: bold;
+  white-space: nowrap;
   color: var(--text-muted);
-  padding: 6px 0 0;
+}
+
+.neo-detail-val {
+  word-break: break-word;
+}
+
+.neo-jpl-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--highlight);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* Disk Usage window */

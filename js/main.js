@@ -5889,15 +5889,15 @@ window.mpAudioUpdateVolume = function () {
 };
 
 /* ── NEO Tracker ── */
-let neoLoaded = false;
+var neoState = { data: null, sortCol: 2, sortAsc: true, selectedIdx: -1 };
 
 function openNeoTracker() {
   openWindow('neotracker');
-  fetchNeoData();
+  if (!neoState.data) fetchNeoData();
 }
 
-function fetchNeoData() {
-  if (neoLoaded) return;
+function fetchNeoData(force) {
+  if (force) { neoState.data = null; neoState.selectedIdx = -1; }
   var body = document.getElementById('neotrackerBody');
   var status = document.getElementById('neotrackerStatus');
   showLoadingMessage(body, t('neo.loading'));
@@ -5911,8 +5911,10 @@ function fetchNeoData() {
   fetch('https://api.nasa.gov/neo/rest/v1/feed?start_date=' + startStr + '&end_date=' + endStr + '&api_key=DEMO_KEY')
     .then(function (r) { if (!r.ok) throw new Error('API error'); return r.json(); })
     .then(function (data) {
-      neoLoaded = true;
-      renderNeoData(body, data);
+      neoState.data = flattenNeoData(data);
+      neoState.selectedIdx = -1;
+      sortNeoData(neoState.data, neoState.sortCol, neoState.sortAsc);
+      renderNeoData(body, neoState.data);
       status.textContent = t('neo.poweredBy');
     })
     .catch(function () {
@@ -5920,15 +5922,9 @@ function fetchNeoData() {
     });
 }
 
-function renderNeoData(body, data) {
-  body.textContent = '';
-  var neosByDate = data.near_earth_objects;
-  if (!neosByDate) {
-    showErrorPanel(body, t('neo.error'), 'al-tri-neo');
-    return;
-  }
-
-  // Flatten all NEOs from all dates
+function flattenNeoData(apiResponse) {
+  var neosByDate = apiResponse.near_earth_objects;
+  if (!neosByDate) return [];
   var allNeos = [];
   for (var date in neosByDate) {
     var dayNeos = neosByDate[date];
@@ -5938,14 +5934,38 @@ function renderNeoData(body, data) {
       if (approach) allNeos.push({ neo: neo, approach: approach });
     }
   }
+  return allNeos;
+}
 
-  // Sort by miss distance (ascending — closest first)
+function sortNeoData(allNeos, colIdx, asc) {
+  var keys = [
+    function (a) { return (a.neo.name || '').toLowerCase(); },
+    function (a) { return a.approach.close_approach_date_full || a.approach.close_approach_date || ''; },
+    function (a) { return parseFloat(a.approach.miss_distance.kilometers) || 0; },
+    function (a) { return parseFloat(a.approach.relative_velocity.kilometers_per_second) || 0; },
+    function (a) {
+      var d = a.neo.estimated_diameter && a.neo.estimated_diameter.meters;
+      return d ? (d.estimated_diameter_min + d.estimated_diameter_max) / 2 : 0;
+    },
+    function (a) { return a.neo.absolute_magnitude_h || 0; }
+  ];
+  var fn = keys[colIdx] || keys[2];
   allNeos.sort(function (a, b) {
-    return parseFloat(a.approach.miss_distance.kilometers) - parseFloat(b.approach.miss_distance.kilometers);
+    var va = fn(a), vb = fn(b);
+    var cmp = typeof va === 'string' ? va.localeCompare(vb) : va - vb;
+    return asc ? cmp : -cmp;
   });
-  allNeos = allNeos.slice(0, 10);
+}
 
-  if (!allNeos.length) {
+function neoFormatDist(d) {
+  if (d >= 1e6) return (d / 1e6).toFixed(2) + 'M';
+  if (d >= 1e3) return (d / 1e3).toFixed(1) + 'K';
+  return d.toFixed(1);
+}
+
+function renderNeoData(body, allNeos) {
+  body.textContent = '';
+  if (!allNeos || !allNeos.length) {
     showErrorPanel(body, t('neo.error'), 'al-tri-neo');
     return;
   }
@@ -5956,62 +5976,270 @@ function renderNeoData(body, data) {
   var wrap = document.createElement('div');
   wrap.className = 'neo-wrap';
 
+  /* ── Toolbar ── */
+  var toolbar = document.createElement('div');
+  toolbar.className = 'neo-toolbar';
+  var refreshBtn = document.createElement('button');
+  refreshBtn.className = 'raised';
+  refreshBtn.textContent = t('neo.refresh');
+  refreshBtn.onclick = function () { fetchNeoData(true); };
+  toolbar.appendChild(refreshBtn);
+  var countLabel = document.createElement('span');
+  countLabel.className = 'neo-count-label';
+  countLabel.textContent = t('neo.objectCount', { count: allNeos.length });
+  toolbar.appendChild(countLabel);
+  wrap.appendChild(toolbar);
+
+  /* ── Summary stats ── */
+  var phaCount = 0;
+  var closestIdx = 0;
+  var closestDist = Infinity;
+  for (var s = 0; s < allNeos.length; s++) {
+    if (allNeos[s].neo.is_potentially_hazardous_asteroid) phaCount++;
+    var dd = parseFloat(allNeos[s].approach.miss_distance.kilometers);
+    if (dd < closestDist) { closestDist = dd; closestIdx = s; }
+  }
+
+  var statsRow = document.createElement('div');
+  statsRow.className = 'neo-stats-row';
+
+  var statTotal = document.createElement('div');
+  statTotal.className = 'neo-stat-box sunken';
+  statTotal.innerHTML = '<div class="neo-stat-val">' + allNeos.length + '</div><div class="neo-stat-lbl">' + t('neo.totalObjects') + '</div>';
+  statsRow.appendChild(statTotal);
+
+  var statPha = document.createElement('div');
+  statPha.className = 'neo-stat-box sunken';
+  statPha.innerHTML = '<div class="neo-stat-val' + (phaCount > 0 ? ' neo-pha' : '') + '">' + phaCount + '</div><div class="neo-stat-lbl">' + t('neo.phaCount') + '</div>';
+  statsRow.appendChild(statPha);
+
+  var closestName = allNeos[closestIdx].neo.name || '—';
+  var closestLunar = parseFloat(allNeos[closestIdx].approach.miss_distance.lunar) || 0;
+  var statClosest = document.createElement('div');
+  statClosest.className = 'neo-stat-box sunken';
+  statClosest.innerHTML = '<div class="neo-stat-val">' + closestLunar.toFixed(1) + ' LD</div><div class="neo-stat-lbl">' + t('neo.closestApproach') + ': ' + closestName + '</div>';
+  statsRow.appendChild(statClosest);
+
+  wrap.appendChild(statsRow);
+
+  /* ── SVG distance gauge ── */
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  var gaugeWrap = document.createElement('div');
+  gaugeWrap.className = 'neo-gauge-wrap sunken';
+  var gaugeTitle = document.createElement('div');
+  gaugeTitle.className = 'neo-gauge-title';
+  gaugeTitle.textContent = t('neo.gaugeTitle');
+  gaugeWrap.appendChild(gaugeTitle);
+
+  var gW = 700, gH = 80;
+  var svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + gW + ' ' + gH);
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', gH);
+  svg.style.display = 'block';
+
+  // Background line
+  var axis = document.createElementNS(SVG_NS, 'line');
+  axis.setAttribute('x1', 40); axis.setAttribute('y1', gH / 2);
+  axis.setAttribute('x2', gW - 10); axis.setAttribute('y2', gH / 2);
+  axis.setAttribute('stroke', '#808080'); axis.setAttribute('stroke-width', '1');
+  svg.appendChild(axis);
+
+  // Earth marker
+  var earth = document.createElementNS(SVG_NS, 'circle');
+  earth.setAttribute('cx', 30); earth.setAttribute('cy', gH / 2);
+  earth.setAttribute('r', 8); earth.setAttribute('fill', '#2196f3');
+  svg.appendChild(earth);
+  var earthLbl = document.createElementNS(SVG_NS, 'text');
+  earthLbl.setAttribute('x', 30); earthLbl.setAttribute('y', gH / 2 + 4);
+  earthLbl.setAttribute('text-anchor', 'middle');
+  earthLbl.setAttribute('font-size', '9'); earthLbl.setAttribute('fill', '#fff');
+  earthLbl.textContent = '\u{1F30D}';
+  svg.appendChild(earthLbl);
+
+  // Log scale ticks: 0.1, 1, 10, 100 LD
+  var tickVals = [0.1, 1, 10, 100];
+  var tickLabels = ['0.1', '1 LD', '10 LD', '100 LD'];
+  var plotLeft = 50, plotRight = gW - 20;
+  var logMin = Math.log10(0.05), logMax = Math.log10(200);
+
+  function ldToX(ld) {
+    if (ld <= 0) ld = 0.01;
+    var logVal = Math.log10(ld);
+    var frac = (logVal - logMin) / (logMax - logMin);
+    return plotLeft + frac * (plotRight - plotLeft);
+  }
+
+  for (var ti = 0; ti < tickVals.length; ti++) {
+    var tx = ldToX(tickVals[ti]);
+    var tick = document.createElementNS(SVG_NS, 'line');
+    tick.setAttribute('x1', tx); tick.setAttribute('y1', gH / 2 - 6);
+    tick.setAttribute('x2', tx); tick.setAttribute('y2', gH / 2 + 6);
+    tick.setAttribute('stroke', '#808080'); tick.setAttribute('stroke-width', '1');
+    svg.appendChild(tick);
+    var tl = document.createElementNS(SVG_NS, 'text');
+    tl.setAttribute('x', tx); tl.setAttribute('y', gH / 2 + 18);
+    tl.setAttribute('text-anchor', 'middle');
+    tl.setAttribute('font-size', '9'); tl.setAttribute('fill', '#606060');
+    tl.textContent = tickLabels[ti];
+    svg.appendChild(tl);
+  }
+
+  // NEO dots
+  var neoTooltip = document.createElement('div');
+  neoTooltip.className = 'neo-tooltip';
+  gaugeWrap.appendChild(neoTooltip);
+
+  // Deterministic jitter based on index
+  for (var di = 0; di < allNeos.length; di++) {
+    var lunarDist = parseFloat(allNeos[di].approach.miss_distance.lunar) || 0;
+    var dx = ldToX(lunarDist);
+    var jitter = ((di * 7 + 3) % 11 - 5) * 2.5;
+    var dy = gH / 2 + jitter;
+    var isPha = allNeos[di].neo.is_potentially_hazardous_asteroid;
+
+    var dot = document.createElementNS(SVG_NS, 'circle');
+    dot.setAttribute('cx', dx);
+    dot.setAttribute('cy', dy);
+    dot.setAttribute('r', isPha ? 5 : 3.5);
+    dot.setAttribute('fill', isPha ? '#c62828' : '#1565c0');
+    dot.setAttribute('fill-opacity', '0.75');
+    dot.setAttribute('stroke', isPha ? '#b71c1c' : '#0d47a1');
+    dot.setAttribute('stroke-width', '0.5');
+    dot.setAttribute('data-idx', di);
+    dot.style.cursor = 'pointer';
+    svg.appendChild(dot);
+  }
+
+  // Gauge interactivity
+  svg.addEventListener('mousemove', function (e) {
+    var target = e.target;
+    if (target.tagName !== 'circle' || !target.hasAttribute('data-idx')) {
+      neoTooltip.style.display = 'none';
+      return;
+    }
+    var idx = parseInt(target.getAttribute('data-idx'));
+    neoTooltip.textContent = allNeos[idx].neo.name;
+    neoTooltip.style.display = 'block';
+    var rect = gaugeWrap.getBoundingClientRect();
+    neoTooltip.style.left = (e.clientX - rect.left + 10) + 'px';
+    neoTooltip.style.top = (e.clientY - rect.top - 28) + 'px';
+  });
+  svg.addEventListener('mouseleave', function () { neoTooltip.style.display = 'none'; });
+  svg.addEventListener('click', function (e) {
+    var target = e.target;
+    if (target.tagName !== 'circle' || !target.hasAttribute('data-idx')) return;
+    var idx = parseInt(target.getAttribute('data-idx'));
+    neoState.selectedIdx = idx;
+    showNeoDetail(wrap, allNeos, idx, useMiles, KM_MI);
+    highlightNeoRow(wrap, idx);
+  });
+
+  gaugeWrap.appendChild(svg);
+  wrap.appendChild(gaugeWrap);
+
+  /* ── Sortable table ── */
+  var tableWrap = document.createElement('div');
+  tableWrap.className = 'neo-table-wrap sunken';
+
   var table = document.createElement('table');
   table.className = 'neo-table';
 
-  // Header
   var thead = document.createElement('thead');
   var hrow = document.createElement('tr');
-  var cols = ['neo.name', 'neo.date', 'neo.distance', 'neo.velocity', 'neo.diameter', 'neo.hMag'];
-  for (var c = 0; c < cols.length; c++) {
+  var colKeys = ['neo.name', 'neo.date', 'neo.distance', 'neo.velocity', 'neo.diameter', 'neo.hMag'];
+  for (var c = 0; c < colKeys.length; c++) {
     var th = document.createElement('th');
-    th.textContent = t(cols[c]);
+    th.className = 'neo-th-sortable';
+    th.setAttribute('data-col', c);
+    var thText = document.createElement('span');
+    thText.textContent = t(colKeys[c]);
+    th.appendChild(thText);
+    if (c === neoState.sortCol) {
+      var arrow = document.createElement('span');
+      arrow.className = 'neo-sort-arrow';
+      arrow.textContent = neoState.sortAsc ? ' \u25B2' : ' \u25BC';
+      th.appendChild(arrow);
+    }
+    th.onclick = (function (ci) {
+      return function () {
+        if (neoState.sortCol === ci) {
+          neoState.sortAsc = !neoState.sortAsc;
+        } else {
+          neoState.sortCol = ci;
+          neoState.sortAsc = true;
+        }
+        neoState.selectedIdx = -1;
+        sortNeoData(allNeos, neoState.sortCol, neoState.sortAsc);
+        var bdy = document.getElementById('neotrackerBody');
+        renderNeoData(bdy, allNeos);
+      };
+    })(c);
     hrow.appendChild(th);
   }
   thead.appendChild(hrow);
   table.appendChild(thead);
 
-  // Body
   var tbody = document.createElement('tbody');
   for (var r = 0; r < allNeos.length; r++) {
     var item = allNeos[r];
     var neo = item.neo;
     var approach = item.approach;
+    var isPhaRow = neo.is_potentially_hazardous_asteroid;
     var tr = document.createElement('tr');
+    tr.className = (isPhaRow ? 'neo-row-pha' : '') + (r === neoState.selectedIdx ? ' neo-row-selected' : '');
+    tr.setAttribute('data-idx', r);
+    tr.onclick = (function (ri) {
+      return function () {
+        if (neoState.selectedIdx === ri) {
+          neoState.selectedIdx = -1;
+          showNeoDetail(wrap, allNeos, -1, useMiles, KM_MI);
+          highlightNeoRow(wrap, -1);
+        } else {
+          neoState.selectedIdx = ri;
+          showNeoDetail(wrap, allNeos, ri, useMiles, KM_MI);
+          highlightNeoRow(wrap, ri);
+        }
+      };
+    })(r);
 
     // Name
     var tdName = document.createElement('td');
     tdName.className = 'neo-name';
-    tdName.textContent = neo.name || '—';
+    if (isPhaRow) {
+      var badge = document.createElement('span');
+      badge.className = 'neo-pha-badge';
+      badge.title = t('neo.phaTooltip');
+      badge.textContent = '\u26A0 ';
+      tdName.appendChild(badge);
+    }
+    tdName.appendChild(document.createTextNode(neo.name || '\u2014'));
     tr.appendChild(tdName);
 
     // Date
     var tdDate = document.createElement('td');
-    tdDate.textContent = approach.close_approach_date_full || approach.close_approach_date || '—';
+    var dateStr = approach.close_approach_date_full || approach.close_approach_date || '\u2014';
+    tdDate.textContent = dateStr.length > 16 ? dateStr.slice(0, 16) : dateStr;
     tr.appendChild(tdDate);
 
-    // Distance (miss_distance is in km from NeoWs)
+    // Distance
     var tdDist = document.createElement('td');
     var distKm = parseFloat(approach.miss_distance.kilometers);
     if (!isNaN(distKm)) {
       var distMi = distKm / KM_MI;
-      if (useMiles) {
-        tdDist.textContent = formatDistance(distMi) + ' mi (' + formatDistance(distKm) + ' km)';
-      } else {
-        tdDist.textContent = formatDistance(distKm) + ' km (' + formatDistance(distMi) + ' mi)';
-      }
+      tdDist.textContent = useMiles ? neoFormatDist(distMi) + ' mi' : neoFormatDist(distKm) + ' km';
     } else {
-      tdDist.textContent = '—';
+      tdDist.textContent = '\u2014';
     }
     tr.appendChild(tdDist);
 
-    // Velocity (km/s)
+    // Velocity
     var tdVel = document.createElement('td');
     var vel = parseFloat(approach.relative_velocity.kilometers_per_second);
-    tdVel.textContent = !isNaN(vel) ? vel.toFixed(2) + ' km/s' : '—';
+    tdVel.textContent = !isNaN(vel) ? vel.toFixed(2) + ' km/s' : '\u2014';
     tr.appendChild(tdVel);
 
-    // Diameter (estimated, average of min/max meters)
+    // Diameter
     var tdDiam = document.createElement('td');
     var diamM = neo.estimated_diameter && neo.estimated_diameter.meters;
     if (diamM && !isNaN(diamM.estimated_diameter_min) && !isNaN(diamM.estimated_diameter_max)) {
@@ -6028,33 +6256,128 @@ function renderNeoData(body, data) {
     var hVal = neo.absolute_magnitude_h;
     if (hVal != null && !isNaN(hVal)) {
       tdH.textContent = hVal.toFixed(1);
-      if (neo.is_potentially_hazardous_asteroid) {
-        tdH.className = 'neo-pha';
-        tdH.title = 'Potentially Hazardous';
-      }
+      if (isPhaRow) { tdH.className = 'neo-pha'; tdH.title = t('neo.phaTooltip'); }
     } else {
-      tdH.textContent = '—';
+      tdH.textContent = '\u2014';
     }
     tr.appendChild(tdH);
 
     tbody.appendChild(tr);
   }
   table.appendChild(tbody);
-  wrap.appendChild(table);
+  tableWrap.appendChild(table);
+  wrap.appendChild(tableWrap);
 
-  // Summary
-  var summary = document.createElement('div');
-  summary.className = 'neo-summary';
-  summary.textContent = t('neo.objectCount', { count: allNeos.length });
-  wrap.appendChild(summary);
+  /* ── Detail panel (hidden by default) ── */
+  var detailPanel = document.createElement('div');
+  detailPanel.className = 'neo-detail sunken';
+  detailPanel.style.display = 'none';
+  wrap.appendChild(detailPanel);
+
+  if (neoState.selectedIdx >= 0) {
+    showNeoDetail(wrap, allNeos, neoState.selectedIdx, useMiles, KM_MI);
+  }
 
   body.appendChild(wrap);
 }
 
-function formatDistance(d) {
-  if (d >= 1e6) return (d / 1e6).toFixed(2) + 'M';
-  if (d >= 1e3) return (d / 1e3).toFixed(1) + 'K';
-  return d.toFixed(1);
+function highlightNeoRow(wrap, idx) {
+  var rows = wrap.querySelectorAll('.neo-table tbody tr');
+  for (var i = 0; i < rows.length; i++) {
+    if (i === idx) {
+      rows[i].classList.add('neo-row-selected');
+    } else {
+      rows[i].classList.remove('neo-row-selected');
+    }
+  }
+}
+
+function showNeoDetail(wrap, allNeos, idx, useMiles, KM_MI) {
+  var panel = wrap.querySelector('.neo-detail');
+  if (!panel) return;
+  if (idx < 0 || idx >= allNeos.length) {
+    panel.style.display = 'none';
+    return;
+  }
+
+  var item = allNeos[idx];
+  var neo = item.neo;
+  var approach = item.approach;
+  var isPha = neo.is_potentially_hazardous_asteroid;
+
+  panel.textContent = '';
+  panel.style.display = '';
+
+  // Title row
+  var titleRow = document.createElement('div');
+  titleRow.className = 'neo-detail-title';
+  var titleText = neo.name || '\u2014';
+  if (isPha) titleText = '\u26A0 ' + titleText;
+  titleRow.textContent = titleText;
+  if (isPha) {
+    var phaBadge = document.createElement('span');
+    phaBadge.className = 'neo-pha-badge-detail';
+    phaBadge.textContent = ' ' + t('neo.phaLabel');
+    titleRow.appendChild(phaBadge);
+  }
+  panel.appendChild(titleRow);
+
+  // Detail grid
+  var grid = document.createElement('div');
+  grid.className = 'neo-detail-grid';
+
+  var distKm = parseFloat(approach.miss_distance.kilometers) || 0;
+  var distMi = distKm / KM_MI;
+  var lunarD = parseFloat(approach.miss_distance.lunar) || 0;
+  var auD = parseFloat(approach.miss_distance.astronomical) || 0;
+  var velKms = parseFloat(approach.relative_velocity.kilometers_per_second) || 0;
+  var diamM = neo.estimated_diameter && neo.estimated_diameter.meters;
+  var diamStr = '\u2014';
+  if (diamM && !isNaN(diamM.estimated_diameter_min) && !isNaN(diamM.estimated_diameter_max)) {
+    diamStr = diamM.estimated_diameter_min.toFixed(0) + ' \u2013 ' + diamM.estimated_diameter_max.toFixed(0) + ' m';
+  }
+
+  var pairs = [
+    [t('neo.detailId'), neo.neo_reference_id || '\u2014'],
+    [t('neo.detailApproach'), approach.close_approach_date_full || approach.close_approach_date || '\u2014'],
+    [t('neo.detailDistKm'), neoFormatDist(distKm) + ' km'],
+    [t('neo.detailDistMi'), neoFormatDist(distMi) + ' mi'],
+    [t('neo.detailLunar'), lunarD.toFixed(2) + ' LD'],
+    [t('neo.detailAu'), auD.toFixed(6) + ' AU'],
+    [t('neo.detailVelocity'), velKms.toFixed(2) + ' km/s'],
+    [t('neo.detailDiameter'), diamStr],
+    [t('neo.detailHmag'), neo.absolute_magnitude_h != null ? neo.absolute_magnitude_h.toFixed(1) : '\u2014'],
+    [t('neo.detailOrbit'), approach.orbiting_body || '\u2014'],
+    [t('neo.detailPha'), isPha ? t('neo.detailYes') : t('neo.detailNo')],
+    [t('neo.detailSentry'), neo.is_sentry_object ? t('neo.detailYes') : t('neo.detailNo')]
+  ];
+
+  for (var p = 0; p < pairs.length; p++) {
+    var lbl = document.createElement('div');
+    lbl.className = 'neo-detail-lbl';
+    lbl.textContent = pairs[p][0];
+    grid.appendChild(lbl);
+    var val = document.createElement('div');
+    val.className = 'neo-detail-val';
+    val.textContent = pairs[p][1];
+    if (pairs[p][0] === t('neo.detailPha') && isPha) val.className += ' neo-pha';
+    grid.appendChild(val);
+  }
+  panel.appendChild(grid);
+
+  // JPL link
+  if (neo.nasa_jpl_url) {
+    var jplLink = document.createElement('a');
+    jplLink.className = 'neo-jpl-link';
+    jplLink.href = neo.nasa_jpl_url;
+    jplLink.target = '_blank';
+    jplLink.rel = 'noopener';
+    jplLink.textContent = t('neo.detailJpl') + ' \u2197';
+    panel.appendChild(jplLink);
+  }
+
+  // Scroll detail into view
+  setTimeout(function () { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
 }
 
 /* ── Cryptography ── */
