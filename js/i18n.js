@@ -77,6 +77,7 @@
     'title.chickenFingers': 'Chicken Fingers',
     'title.stopwatch': 'Stopwatch',
     'title.stickyNotes': 'Sticky Notes',
+    'title.voiceCommands': 'Voice Commands',
 
     /* Start menu: Search sub-items */
     'startSearch.files': 'For Files or Folders...',
@@ -124,6 +125,8 @@
     'app.stopwatch.desc': 'Stopwatch with lap times.',
     'app.stickyNotes.name': 'Sticky Notes',
     'app.stickyNotes.desc': 'Post-it style notes on the desktop.',
+    'app.voiceCommands.name': 'Voice Commands',
+    'app.voiceCommands.desc': 'Control mpOS with your voice.',
     'sticky.deleteConfirm': 'Delete this note?',
     'app.myComputer.name': 'My Computer',
     'app.files.name': 'Files',
@@ -444,7 +447,8 @@
     'win.search': 'Search Results',
     'win.taskmanager': 'Task Manager',
     'win.noisemixer': 'White Noise',
-    'win.stopwatch': 'Stopwatch'
+    'win.stopwatch': 'Stopwatch',
+    'win.voicecommands': 'Voice Commands'
   });
 
   /* Restore saved language */

@@ -1895,6 +1895,80 @@
 .nm-master { background: #e8e0d8; }
 .nm-master .nm-channel-label { color: #805000; font-weight: bold; }
 
+/* ── Voice Commands Window ── */
+#voicecommands { width: min(340px, 92vw); left: min(200px, 5vw); top: 60px; }
+#voicecommands .window-body { padding: var(--ui-pad); }
+
+.vc-body { display: flex; flex-direction: column; gap: 10px; }
+
+.vc-status {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.vc-mic-area {
+  display: flex;
+  justify-content: center;
+}
+
+.vc-mic-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
+  background: var(--silver);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.vc-mic-btn:active {
+  border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
+  box-shadow: inset 1px 1px 0 var(--shadow);
+}
+
+.vc-transcript {
+  min-height: 32px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.vc-help {
+  font-size: 11px;
+}
+
+.vc-help-title {
+  font-weight: bold;
+  font-size: 11px;
+  color: var(--dk-shadow);
+  margin-bottom: 4px;
+}
+
+.vc-help-list {
+  max-height: 140px;
+  overflow-y: auto;
+  font-size: 11px;
+}
+
+.vc-help-list dt {
+  font-weight: bold;
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--text-muted);
+}
+
+.vc-help-list dt:first-child { margin-top: 0; }
+
+.vc-help-list dd {
+  margin: 1px 0 1px 12px;
+  font-size: 11px;
+}
+
 /* ── Tablet touch targets ── */
 @media (max-width: 1024px) and (pointer: coarse) {
   .tree-item, .folder-list-item, .help-tree-folder, .help-tree-topic,

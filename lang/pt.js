@@ -70,6 +70,7 @@ window._mpLangRegister('pt', {
   'title.chickenFingers': 'Chicken Fingers',
   'title.stopwatch': 'Cron\u00f3metro',
   'title.stickyNotes': 'Notas Adesivas',
+  'title.voiceCommands': 'Comandos de Voz',
 
   /* Start menu: Search sub-items */
   'startSearch.files': 'Ficheiros ou Pastas...',
@@ -117,6 +118,8 @@ window._mpLangRegister('pt', {
   'app.stopwatch.desc': 'Cron\u00f3metro com voltas.',
   'app.stickyNotes.name': 'Notas Adesivas',
   'app.stickyNotes.desc': 'Notas tipo post-it no ambiente de trabalho.',
+  'app.voiceCommands.name': 'Comandos de Voz',
+  'app.voiceCommands.desc': 'Controle o mpOS com a sua voz.',
   'sticky.deleteConfirm': 'Apagar esta nota?',
   'app.myComputer.name': 'O Meu Computador',
   'app.files.name': 'Ficheiros',
@@ -437,5 +440,6 @@ window._mpLangRegister('pt', {
   'win.search': 'Resultados da Pesquisa',
   'win.taskmanager': 'Gestor de Tarefas',
   'win.noisemixer': 'Ru\u00eddo Branco',
-  'win.stopwatch': 'Cron\u00f3metro'
+  'win.stopwatch': 'Cron\u00f3metro',
+  'win.voicecommands': 'Comandos de Voz'
 });

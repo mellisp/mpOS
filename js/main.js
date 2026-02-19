@@ -242,7 +242,8 @@ const FOLDER_ITEMS = {
     { name: 'Weather', _key: 'weather', desc: 'Three-day forecast for your location.', tag: 'API', action: 'openWeather' },
     { name: 'Disk Usage', _key: 'diskUsage', desc: 'Source code breakdown by file type.', tag: 'HTML', action: 'openDiskUsage' },
     { name: 'Visitor Map', _key: 'visitorMap', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
-    { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' }
+    { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' },
+    { name: 'Voice Commands', _key: 'voiceCommands', desc: 'Control mpOS with your voice.', tag: 'HTML', action: 'openVoiceCommands' }
   ]
 };
 
@@ -448,6 +449,7 @@ function getItemIcon(name) {
     'Visitor Map': '<defs><radialGradient id="ei-vm" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="ei-vmc"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#ei-vm)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#ei-vmc)" opacity="0.45"><ellipse cx="6" cy="8" rx="4" ry="3" fill="#5aaa80"/><ellipse cx="14" cy="7" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="10" cy="14" rx="5" ry="2" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.6"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.6"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><circle cx="14" cy="6" r="2" fill="#ef5350" opacity="0.8"/><path d="M14 4 L14 6.5" stroke="#c62828" stroke-width="0.8" stroke-linecap="round"/><circle cx="14" cy="4" r="0.6" fill="#c62828"/><circle cx="13.7" cy="3.8" r="0.2" fill="white" opacity="0.7"/>',
     'Stopwatch': '<defs><linearGradient id="ei-sw-rim" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient><linearGradient id="ei-sw-face" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient></defs><rect x="8.5" y="0.5" width="3" height="2.5" rx="0.5" fill="#8aa8c8" stroke="#4a6a8e" stroke-width="0.5"/><circle cx="10" cy="11" r="7.5" fill="url(#ei-sw-rim)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="11" r="6" fill="url(#ei-sw-face)"/><ellipse cx="8.5" cy="8" rx="3.5" ry="2.5" fill="white" opacity="0.3"/><line x1="10" y1="5.5" x2="10" y2="6.5" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="15.5" y1="11" x2="14.5" y2="11" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="10" y1="16.5" x2="10" y2="15.5" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="4.5" y1="11" x2="5.5" y2="11" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="10" y1="11" x2="10" y2="6.8" stroke="#2a4a6e" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="11" x2="13.5" y2="11" stroke="#ef5350" stroke-width="0.6" stroke-linecap="round"/><circle cx="10" cy="11" r="0.7" fill="#2a4a6e"/>',
     'Sticky Notes': '<defs><linearGradient id="ei-sn" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#fff9b1"/><stop offset="50%" stop-color="#f5e87b"/><stop offset="100%" stop-color="#e8d44d"/></linearGradient></defs><rect x="2" y="2" width="14" height="14" fill="url(#ei-sn)" stroke="#c4a82b" stroke-width="0.7"/><path d="M16 2 L16 9 L12 2 Z" fill="#e8d44d" stroke="#c4a82b" stroke-width="0.5"/><path d="M16 9 Q14 10 12 9 L12 2 Z" fill="#d4c43b" stroke="#c4a82b" stroke-width="0.5" opacity="0.6"/><line x1="4" y1="6" x2="11" y2="6" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/><line x1="4" y1="9" x2="11" y2="9" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/><line x1="4" y1="12" x2="9" y2="12" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/>',
+    'Voice Commands': '<rect x="7.5" y="2" width="5" height="9" rx="2.5" fill="#444"/><path d="M5.5 9v1.5a4.5 4.5 0 0 0 9 0V9" stroke="#444" stroke-width="1.2" fill="none"/><line x1="10" y1="15" x2="10" y2="18" stroke="#444" stroke-width="1.2"/><line x1="7.5" y1="18" x2="12.5" y2="18" stroke="#444" stroke-width="1.2"/>',
     'White Noise Mixer': '<defs><linearGradient id="ei-nm" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient><linearGradient id="ei-nmf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#a0a0a0"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#ei-nm)" stroke="#606060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><rect x="3" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="3.2" y="8" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="3" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50"/><rect x="6.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="6.7" y="10" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="6.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.7"/><rect x="10" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="10.2" y="11" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="10" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.5"/><rect x="13.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="13.7" y="9" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="13.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.8"/>'
   };
   return icons[name] || '';
@@ -4878,6 +4880,18 @@ function searchBuildGroup(title, items, type) {
   return frag;
 }
 
+/* ── Voice Commands window ── */
+function openVoiceCommands() {
+  openWindow('voicecommands');
+  if (window._mpVoiceBuildHelp) window._mpVoiceBuildHelp();
+  if (window._mpVoiceStart) window._mpVoiceStart();
+}
+
+function closeVoiceCommands() {
+  if (window.mpVoiceStop) window.mpVoiceStop();
+  mpTaskbar.closeWindow('voicecommands');
+}
+
 /* ── Action lookup map (replaces new Function for FOLDER_ITEMS actions) ── */
 const ACTION_MAP = {
   openBrowser: openBrowser,
@@ -4899,7 +4913,8 @@ const ACTION_MAP = {
   openSearch: openSearch,
   openNoiseMixer: openNoiseMixer,
   openStopwatch: openStopwatch,
-  openStickyNotes: openStickyNotes
+  openStickyNotes: openStickyNotes,
+  openVoiceCommands: openVoiceCommands
 };
 
 /* ── Run Terminal ── */
@@ -5883,7 +5898,7 @@ const WINDOW_NAMES = {
   'timezone': 'Time Zone', 'weather': 'Weather', 'diskusage': 'Disk Usage',
   'visitormap': 'Visitor Map', 'help': 'Help', 'paint': 'Paint',
   'search': 'Search Results', 'taskmanager': 'Task Manager',
-  'noisemixer': 'White Noise Mixer'
+  'noisemixer': 'White Noise Mixer', 'voicecommands': 'Voice Commands'
 };
 
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
@@ -7318,24 +7333,24 @@ if (langBtn) {
   });
 }
 
-/* ── Voice Commands (system tray) ── */
+/* ── Voice Commands (window + system tray) ── */
 (function () {
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) return;
 
   var micIcon = document.getElementById('trayMicIcon');
-  var micPopup = document.getElementById('micPopup');
-  var micStatus = document.getElementById('micStatus');
-  var micTranscript = document.getElementById('micTranscript');
-  var micHelpToggle = document.getElementById('micHelpToggle');
-  var micHelpList = document.getElementById('micHelpList');
-  if (!micIcon || !micPopup) return;
+  var vcStatus = document.getElementById('vcStatus');
+  var vcTranscript = document.getElementById('vcTranscript');
+  var vcMicBtn = document.getElementById('vcMicBtn');
+  var vcHelpList = document.getElementById('vcHelpList');
+  var vcStatusBar = document.getElementById('vcStatusBar');
+  var vcWin = document.getElementById('voicecommands');
+  if (!micIcon) return;
 
   micIcon.style.display = '';
 
   var recognition = null;
   var isListening = false;
-  var autoCloseTimer = null;
   var helpBuilt = false;
   var voiceAudioCtx = null;
 
@@ -7382,21 +7397,9 @@ if (langBtn) {
     osc.stop(voiceAudioCtx.currentTime + duration);
   }
 
-  /* ── Auto-close popup after success ── */
-  function voiceAutoClose() {
-    autoCloseTimer = setTimeout(function () {
-      micPopup.classList.add('fading');
-      micPopup.addEventListener('animationend', function onFade() {
-        micPopup.removeEventListener('animationend', onFade);
-        micPopup.classList.remove('open', 'fading');
-      });
-      autoCloseTimer = null;
-    }, 1500);
-  }
-
-  function cancelAutoClose() {
-    if (autoCloseTimer) { clearTimeout(autoCloseTimer); autoCloseTimer = null; }
-    micPopup.classList.remove('fading');
+  function setStatus(text) {
+    if (vcStatus) vcStatus.textContent = text;
+    if (vcStatusBar) vcStatusBar.textContent = text;
   }
 
   /* ── Window ID from FOLDER_ITEMS action ── */
@@ -7407,7 +7410,6 @@ if (langBtn) {
 
   function voiceStart() {
     if (isListening) { voiceStop(); return; }
-    cancelAutoClose();
     recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = true;
@@ -7415,16 +7417,18 @@ if (langBtn) {
     recognition.lang = getLang() === 'pt' ? 'pt-PT' : 'en-US';
 
     micIcon.classList.add('listening');
+    if (vcMicBtn) vcMicBtn.classList.add('listening');
     isListening = true;
-    micStatus.textContent = t('voice.listening');
-    micTranscript.textContent = '';
-    micTranscript.className = 'mic-popup-transcript';
+    setStatus(t('voice.listening'));
+    if (vcTranscript) { vcTranscript.textContent = ''; vcTranscript.className = 'vc-transcript sunken'; }
     voiceBeep(783.99, 0.12); // G5 — start listening
 
     recognition.onresult = function (ev) {
       var last = ev.results[ev.results.length - 1];
-      micTranscript.textContent = last[0].transcript;
-      micTranscript.className = 'mic-popup-transcript';
+      if (vcTranscript) {
+        vcTranscript.textContent = last[0].transcript;
+        vcTranscript.className = 'vc-transcript sunken';
+      }
       if (last.isFinal) {
         voiceProcessCommand(last[0].transcript, last);
       }
@@ -7432,13 +7436,13 @@ if (langBtn) {
 
     recognition.onerror = function (ev) {
       if (ev.error === 'no-speech') {
-        micStatus.textContent = t('voice.noSpeech');
+        setStatus(t('voice.noSpeech'));
       } else if (ev.error === 'not-allowed') {
-        micStatus.textContent = t('voice.denied');
+        setStatus(t('voice.denied'));
       } else {
-        micStatus.textContent = t('voice.error');
+        setStatus(t('voice.error'));
       }
-      micTranscript.className = 'mic-popup-transcript mic-error';
+      if (vcTranscript) vcTranscript.className = 'vc-transcript sunken vc-error';
       voiceBeep(659.25, 0.12);
       setTimeout(function () { voiceBeep(523.25, 0.12); }, 120);
     };
@@ -7452,6 +7456,7 @@ if (langBtn) {
 
   function voiceStop() {
     micIcon.classList.remove('listening');
+    if (vcMicBtn) vcMicBtn.classList.remove('listening');
     isListening = false;
     if (recognition) {
       try { recognition.abort(); } catch (e) {}
@@ -7468,8 +7473,8 @@ if (langBtn) {
     for (var lp = 0; lp < langPrefixes.length; lp++) {
       if (text === langPrefixes[lp] || text.indexOf(langPrefixes[lp]) === 0) {
         setLanguage(getLang() === 'pt' ? 'en' : 'pt');
-        micStatus.textContent = t('voice.langSwitched');
-        micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + t('voice.langSwitched') + '</span>';
+        setStatus(t('voice.langSwitched'));
+        if (vcTranscript) vcTranscript.innerHTML = '<span class="vc-result vc-action">\u2192 ' + t('voice.langSwitched') + '</span>';
         voiceBeep(523.25, 0.1);
         setTimeout(function () { voiceBeep(659.25, 0.1); }, 100);
         return;
@@ -7539,72 +7544,72 @@ if (langBtn) {
         if (win && win.style.display !== 'none') {
           if (action === 'close') {
             mpTaskbar.closeWindow(winId);
-            micStatus.textContent = t('voice.closed');
-            micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + t('voice.close') + ' ' + match.label + '</span>';
+            setStatus(t('voice.closed'));
+            if (vcTranscript) vcTranscript.innerHTML = '<span class="vc-result vc-action">\u2192 ' + t('voice.close') + ' ' + match.label + '</span>';
           } else {
             mpTaskbar.minimizeWindow(winId);
-            micStatus.textContent = t('voice.minimized');
-            micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + t('voice.minimize') + ' ' + match.label + '</span>';
+            setStatus(t('voice.minimized'));
+            if (vcTranscript) vcTranscript.innerHTML = '<span class="vc-result vc-action">\u2192 ' + t('voice.minimize') + ' ' + match.label + '</span>';
           }
           voiceBeep(523.25, 0.1);
           setTimeout(function () { voiceBeep(659.25, 0.1); }, 100);
         } else {
-          micStatus.textContent = t('voice.noWindow');
-          micTranscript.innerHTML = '<span class="mic-result mic-error">"' + transcript + '"</span>';
+          setStatus(t('voice.noWindow'));
+          if (vcTranscript) vcTranscript.innerHTML = '<span class="vc-result vc-error">"' + transcript + '"</span>';
           voiceBeep(659.25, 0.12);
           setTimeout(function () { voiceBeep(523.25, 0.12); }, 120);
         }
       } else {
         // Open action
-        micStatus.textContent = t('voice.launched');
-        micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + match.label + '</span>';
+        setStatus(t('voice.launched'));
+        if (vcTranscript) vcTranscript.innerHTML = '<span class="vc-result vc-action">\u2192 ' + match.label + '</span>';
         match.fn();
         voiceBeep(523.25, 0.1);
         setTimeout(function () { voiceBeep(659.25, 0.1); }, 100);
-        voiceAutoClose();
       }
     } else {
       // No match — try wider fuzzy for "Did you mean?"
       var suggestion = voiceFuzzyMatch(text, true);
       if (suggestion) {
-        micStatus.textContent = t('voice.didYouMean', { app: suggestion.label });
-        micTranscript.innerHTML = '';
-        var btn = document.createElement('button');
-        btn.className = 'mic-suggestion';
-        btn.textContent = suggestion.label;
-        btn.onclick = function () {
-          if (action === 'close' || action === 'minimize') {
-            var sWinId = suggestion.item ? voiceGetWinId(suggestion.item) : null;
-            var sWin = sWinId && document.getElementById(sWinId);
-            if (sWin && sWin.style.display !== 'none') {
-              if (action === 'close') {
-                mpTaskbar.closeWindow(sWinId);
-                micStatus.textContent = t('voice.closed');
-                micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + t('voice.close') + ' ' + suggestion.label + '</span>';
+        setStatus(t('voice.didYouMean', { app: suggestion.label }));
+        if (vcTranscript) {
+          vcTranscript.innerHTML = '';
+          var btn = document.createElement('button');
+          btn.className = 'vc-suggestion';
+          btn.textContent = suggestion.label;
+          btn.onclick = function () {
+            if (action === 'close' || action === 'minimize') {
+              var sWinId = suggestion.item ? voiceGetWinId(suggestion.item) : null;
+              var sWin = sWinId && document.getElementById(sWinId);
+              if (sWin && sWin.style.display !== 'none') {
+                if (action === 'close') {
+                  mpTaskbar.closeWindow(sWinId);
+                  setStatus(t('voice.closed'));
+                  vcTranscript.innerHTML = '<span class="vc-result vc-action">\u2192 ' + t('voice.close') + ' ' + suggestion.label + '</span>';
+                } else {
+                  mpTaskbar.minimizeWindow(sWinId);
+                  setStatus(t('voice.minimized'));
+                  vcTranscript.innerHTML = '<span class="vc-result vc-action">\u2192 ' + t('voice.minimize') + ' ' + suggestion.label + '</span>';
+                }
               } else {
-                mpTaskbar.minimizeWindow(sWinId);
-                micStatus.textContent = t('voice.minimized');
-                micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + t('voice.minimize') + ' ' + suggestion.label + '</span>';
+                setStatus(t('voice.noWindow'));
+                vcTranscript.innerHTML = '';
               }
             } else {
-              micStatus.textContent = t('voice.noWindow');
-              micTranscript.innerHTML = '';
+              suggestion.fn();
+              setStatus(t('voice.launched'));
+              vcTranscript.innerHTML = '<span class="vc-result vc-action">\u2192 ' + suggestion.label + '</span>';
             }
-          } else {
-            suggestion.fn();
-            micStatus.textContent = t('voice.launched');
-            micTranscript.innerHTML = '<span class="mic-result mic-action">\u2192 ' + suggestion.label + '</span>';
-            voiceAutoClose();
-          }
-          voiceBeep(523.25, 0.1);
-          setTimeout(function () { voiceBeep(659.25, 0.1); }, 100);
-        };
-        micTranscript.appendChild(btn);
+            voiceBeep(523.25, 0.1);
+            setTimeout(function () { voiceBeep(659.25, 0.1); }, 100);
+          };
+          vcTranscript.appendChild(btn);
+        }
         voiceBeep(587.33, 0.1); // D5 — questioning tone
       } else {
-        micStatus.textContent = t('voice.notRecognized');
-        micTranscript.innerHTML = '<span class="mic-result mic-error">"' +
-          transcript + '"</span><br><span class="mic-error">' + t('voice.tryAgain') + '</span>';
+        setStatus(t('voice.notRecognized'));
+        if (vcTranscript) vcTranscript.innerHTML = '<span class="vc-result vc-error">"' +
+          transcript + '"</span><br><span class="vc-error">' + t('voice.tryAgain') + '</span>';
         voiceBeep(659.25, 0.12);
         setTimeout(function () { voiceBeep(523.25, 0.12); }, 120);
       }
@@ -7612,14 +7617,8 @@ if (langBtn) {
   }
 
   function voiceMatchApp(text) {
-    // 1. Exact COMMANDS key
-    var normalized = text.replace(/\s+/g, '');
-    if (APP_COMMANDS[normalized]) {
-      var label = COMMANDS[normalized] ? COMMANDS[normalized].desc.replace(/^(Launch |Open )/, '') : normalized;
-      return { fn: APP_COMMANDS[normalized], label: label };
-    }
-
-    // 2. FOLDER_ITEMS name match (localized) — exact then substring
+    // 1. FOLDER_ITEMS name match (localized) — exact then substring
+    // Checked first so close/minimize can resolve window IDs via item.action
     for (var i = 0; i < allItems.length; i++) {
       var item = allItems[i];
       var fn = item.action && ACTION_MAP[item.action];
@@ -7633,6 +7632,13 @@ if (langBtn) {
       if (!fn2) continue;
       var name2 = itemName(item2).toLowerCase();
       if (name2.indexOf(text) !== -1 && text.length >= 3) return { fn: fn2, label: itemName(item2), item: item2 };
+    }
+
+    // 2. Fallback to COMMANDS key
+    var normalized = text.replace(/\s+/g, '');
+    if (APP_COMMANDS[normalized]) {
+      var label = COMMANDS[normalized] ? COMMANDS[normalized].desc.replace(/^(Launch |Open )/, '') : normalized;
+      return { fn: APP_COMMANDS[normalized], label: label };
     }
 
     return null;
@@ -7688,51 +7694,40 @@ if (langBtn) {
 
   /* ── Help list ("What can I say?") ── */
   function buildHelpList() {
-    if (!micHelpList) return;
-    micHelpList.innerHTML = '';
-    var dl = document.createElement('dl');
+    if (!vcHelpList) return;
+    vcHelpList.innerHTML = '';
 
     // Open apps
     var dtOpen = document.createElement('dt');
     dtOpen.textContent = t('voice.helpOpen').replace(/"/g, '');
-    dl.appendChild(dtOpen);
+    vcHelpList.appendChild(dtOpen);
     for (var i = 0; i < allItems.length; i++) {
       var dd = document.createElement('dd');
       dd.textContent = itemName(allItems[i]);
-      dl.appendChild(dd);
+      vcHelpList.appendChild(dd);
     }
 
     // Actions
     var dtAct = document.createElement('dt');
     dtAct.textContent = (getLang() === 'pt' ? 'A\u00e7\u00f5es:' : 'Actions:');
-    dl.appendChild(dtAct);
+    vcHelpList.appendChild(dtAct);
     var actions = [t('voice.helpClose'), t('voice.helpMinimize'), t('voice.helpLang')];
     for (var j = 0; j < actions.length; j++) {
       var ddA = document.createElement('dd');
       ddA.textContent = actions[j];
-      dl.appendChild(ddA);
+      vcHelpList.appendChild(ddA);
     }
 
-    micHelpList.appendChild(dl);
     helpBuilt = true;
-  }
-
-  if (micHelpToggle) {
-    micHelpToggle.addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (!helpBuilt) buildHelpList();
-      var showing = micHelpList.style.display !== 'none';
-      micHelpList.style.display = showing ? 'none' : '';
-    });
   }
 
   window.addEventListener('languagechange', function () {
     if (helpBuilt) { helpBuilt = false; buildHelpList(); }
   });
 
+  // Tray icon: open window + start listening
   micIcon.addEventListener('click', function (e) {
     e.stopPropagation();
-    cancelAutoClose();
     // Close other popups
     var vp = document.querySelector('.volume-popup');
     if (vp) vp.classList.remove('open');
@@ -7743,14 +7738,26 @@ if (langBtn) {
     if (sm) sm.classList.remove('open');
     if (sb) sb.classList.remove('pressed');
 
-    micPopup.classList.toggle('open');
-    if (micPopup.classList.contains('open')) {
-      voiceStart();
+    if (vcWin && vcWin.style.display !== 'none') {
+      // Window already open — toggle listening
+      if (isListening) voiceStop();
+      else voiceStart();
     } else {
-      voiceStop();
+      openVoiceCommands();
     }
   });
 
+  // Mic button in window: toggle listening
+  if (vcMicBtn) {
+    vcMicBtn.addEventListener('click', function () {
+      if (isListening) voiceStop();
+      else voiceStart();
+    });
+  }
+
+  // Expose for openVoiceCommands / closeVoiceCommands
+  window._mpVoiceStart = voiceStart;
+  window._mpVoiceBuildHelp = function () { if (!helpBuilt) buildHelpList(); };
   window.mpVoiceStop = voiceStop;
 })();
 

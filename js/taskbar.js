@@ -49,8 +49,6 @@
       volumePopup.classList.toggle('open');
       var np = document.querySelector('.net-popup');
       if (np) np.classList.remove('open');
-      var mp = document.getElementById('micPopup');
-      if (mp) mp.classList.remove('open');
       if (window.mpVoiceStop) window.mpVoiceStop();
       if (startMenu) startMenu.classList.remove('open');
       if (startBtn) startBtn.classList.remove('pressed');
@@ -121,8 +119,6 @@
       updateNetStatus();
       netPopup.classList.toggle('open');
       if (volumePopup) volumePopup.classList.remove('open');
-      var mp = document.getElementById('micPopup');
-      if (mp) mp.classList.remove('open');
       if (window.mpVoiceStop) window.mpVoiceStop();
       if (startMenu) startMenu.classList.remove('open');
       if (startBtn) startBtn.classList.remove('pressed');
@@ -153,12 +149,6 @@
     }
     if (netPopup && !netPopup.contains(e.target) && netIcon && !netIcon.contains(e.target)) {
       netPopup.classList.remove('open');
-    }
-    var micPopup = document.getElementById('micPopup');
-    var micIcon = document.getElementById('trayMicIcon');
-    if (micPopup && !micPopup.contains(e.target) && micIcon && !micIcon.contains(e.target)) {
-      micPopup.classList.remove('open');
-      if (window.mpVoiceStop) window.mpVoiceStop();
     }
   });
 
@@ -209,7 +199,8 @@
     timezone: 'Time Zone', weather: 'Weather', diskusage: 'Disk Usage',
     visitormap: 'Visitor Map', search: 'Search', help: 'Help',
     mycomputer: 'My Computer', explorer: 'Files', run: 'Run',
-    taskmanager: 'Task Manager', noisemixer: 'White Noise Mixer'
+    taskmanager: 'Task Manager', noisemixer: 'White Noise Mixer',
+    voicecommands: 'Voice Commands'
   };
 
   function minimizeWindow(id) {

@@ -54,8 +54,7 @@ body {
 .start-menu,
 .start-submenu,
 .volume-popup,
-.net-popup,
-.mic-popup {
+.net-popup {
   background: var(--silver);
   border: 2px solid;
   border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
@@ -722,72 +721,14 @@ button.start-menu-item {
   50% { opacity: .5; }
 }
 
-.mic-popup {
-  display: none;
-  position: absolute;
-  bottom: 36px;
-  right: 4px;
-  padding: 12px;
-  z-index: 50;
-  min-width: 180px;
-}
-.mic-popup.open { display: block; }
-
-.mic-popup-title {
-  font-size: 12px;
-  font-weight: bold;
-  margin-bottom: 6px;
-}
-.mic-popup-status {
-  font-size: 11px;
-  color: var(--text-muted, #555);
-  margin-bottom: 4px;
-}
-.mic-popup-transcript {
-  font-size: 11px;
-  min-height: 16px;
-}
-.mic-result { font-weight: bold; }
-.mic-action { color: #2e7d32; }
-.mic-error { color: #c62828; }
-
-/* Help toggle */
-.mic-help-toggle {
-  display: block;
-  margin-top: 8px;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--link, #00c);
-  font-size: 11px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.mic-help-toggle:hover { color: var(--link-hover, #00f); }
-
-/* Help list */
-.mic-help-list {
-  margin-top: 6px;
-  max-height: 160px;
-  overflow-y: auto;
-  font-size: 10px;
-  border-top: 1px solid var(--border, #ccc);
-  padding-top: 6px;
-}
-.mic-help-list dt {
-  font-weight: bold;
-  font-size: 10px;
-  margin-top: 4px;
-  color: var(--text-muted, #555);
-}
-.mic-help-list dt:first-child { margin-top: 0; }
-.mic-help-list dd {
-  margin: 1px 0 1px 8px;
-  font-size: 10px;
-}
+/* Voice Commands window mic button */
+.vc-mic-btn.listening svg rect[fill] { fill: #c62828; }
+.vc-mic-btn.listening svg path,
+.vc-mic-btn.listening svg line { stroke: #c62828; }
+.vc-mic-btn.listening { animation: mic-pulse 1s ease-in-out infinite; }
 
 /* "Did you mean?" clickable suggestion */
-.mic-suggestion {
+.vc-suggestion {
   display: inline-block;
   margin-top: 4px;
   padding: 2px 6px;
@@ -797,20 +738,17 @@ button.start-menu-item {
   font-size: 11px;
   color: var(--link, #00c);
 }
-.mic-suggestion:hover {
+.vc-suggestion:hover {
   background: var(--highlight, #316ac5);
   color: #fff;
 }
 
-/* Auto-close fade */
-.mic-popup.fading { animation: mic-fade-out 300ms ease-out forwards; }
-@keyframes mic-fade-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
+.vc-result { font-weight: bold; }
+.vc-action { color: #2e7d32; }
+.vc-error { color: #c62828; }
 
 @media (prefers-reduced-motion) {
-  .tray-mic.listening { animation: none; }
+  .tray-mic.listening, .vc-mic-btn.listening { animation: none; }
 }
 
 /* ── Tablet breakpoint — touch-enhanced desktop ── */

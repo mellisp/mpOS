@@ -727,6 +727,38 @@
       </div>
     </div>
 
+    <!-- Voice Commands Window (hidden initially) -->
+    <div class="window draggable" id="voicecommands" style="display:none;">
+      <div class="titlebar">
+        <span data-i18n="title.voiceCommands">Voice Commands</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('voicecommands')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeVoiceCommands()">X</div>
+        </div>
+      </div>
+      <div class="window-body vc-body">
+        <div class="vc-status" id="vcStatus" data-i18n="voice.clickToSpeak">Click mic to speak</div>
+        <div class="vc-mic-area">
+          <button class="vc-mic-btn" id="vcMicBtn" type="button">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <rect x="19" y="6" width="10" height="22" rx="5" fill="#444"/>
+              <path d="M13 22v4a11 11 0 0 0 22 0v-4" stroke="#444" stroke-width="2.5" fill="none"/>
+              <line x1="24" y1="37" x2="24" y2="42" stroke="#444" stroke-width="2.5"/>
+              <line x1="18" y1="42" x2="30" y2="42" stroke="#444" stroke-width="2.5"/>
+            </svg>
+          </button>
+        </div>
+        <div class="vc-transcript sunken" id="vcTranscript"></div>
+        <div class="vc-help" id="vcHelp">
+          <div class="vc-help-title" data-i18n="voice.helpTitle">What can I say?</div>
+          <dl class="vc-help-list" id="vcHelpList"></dl>
+        </div>
+      </div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="vcStatusBar" data-i18n="voice.clickToSpeak">Click mic to speak</div>
+      </div>
+    </div>
+
     <!-- Taskbar -->
     <div class="taskbar">
       <!-- Start Button -->
@@ -891,6 +923,10 @@
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sw-rim" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient><linearGradient id="sw-face" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient></defs><rect x="8.5" y="0.5" width="3" height="2.5" rx="0.5" fill="#8aa8c8" stroke="#4a6a8e" stroke-width="0.5"/><circle cx="10" cy="11" r="7.5" fill="url(#sw-rim)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="11" r="6" fill="url(#sw-face)"/><ellipse cx="8.5" cy="8" rx="3.5" ry="2.5" fill="white" opacity="0.3"/><line x1="10" y1="5.5" x2="10" y2="6.5" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="15.5" y1="11" x2="14.5" y2="11" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="10" y1="16.5" x2="10" y2="15.5" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="4.5" y1="11" x2="5.5" y2="11" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="10" y1="11" x2="10" y2="6.8" stroke="#2a4a6e" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="11" x2="13.5" y2="11" stroke="#ef5350" stroke-width="0.6" stroke-linecap="round"/><circle cx="10" cy="11" r="0.7" fill="#2a4a6e"/></svg>
               <span data-i18n="app.stopwatch.name">Stopwatch</span>
             </button>
+            <button class="start-menu-item" type="button" onclick="openVoiceCommands(); closeStartMenu();">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7.5" y="2" width="5" height="9" rx="2.5" fill="#444"/><path d="M5.5 9v1.5a4.5 4.5 0 0 0 9 0V9" stroke="#444" stroke-width="1.2" fill="none"/><line x1="10" y1="15" x2="10" y2="18" stroke="#444" stroke-width="1.2"/><line x1="7.5" y1="18" x2="12.5" y2="18" stroke="#444" stroke-width="1.2"/></svg>
+              <span data-i18n="app.voiceCommands.name">Voice Commands</span>
+            </button>
           </div>
         </div>
 
@@ -1008,13 +1044,6 @@
             <line x1="8" y1="11.5" x2="8" y2="14" stroke="#444" stroke-width="1.2"/>
             <line x1="6" y1="14" x2="10" y2="14" stroke="#444" stroke-width="1.2"/>
           </svg>
-        </div>
-        <div class="mic-popup" id="micPopup">
-          <div class="mic-popup-title" data-i18n="voice.title">Voice Commands</div>
-          <div class="mic-popup-status" id="micStatus" data-i18n="voice.clickToSpeak">Click mic to speak</div>
-          <div class="mic-popup-transcript" id="micTranscript"></div>
-          <button class="mic-help-toggle" id="micHelpToggle" data-i18n="voice.helpTitle">What can I say?</button>
-          <div class="mic-help-list" id="micHelpList" style="display:none"></div>
         </div>
 
         <!-- Language Toggle -->
