@@ -127,6 +127,7 @@ function renderNeoData(body, allNeos) {
 
   const statPha = document.createElement('div');
   statPha.className = 'neo-stat-box sunken';
+  statPha.title = t('neo.tip.pha');
   statPha.innerHTML = `<div class="neo-stat-val${phaCount > 0 ? ' neo-pha' : ''}">${phaCount}</div><div class="neo-stat-lbl">${t('neo.phaCount')}</div>`;
   statsRow.appendChild(statPha);
 
@@ -134,6 +135,7 @@ function renderNeoData(body, allNeos) {
   const closestLunar = parseFloat(allNeos[closestIdx].approach.miss_distance.lunar) || 0;
   const statClosest = document.createElement('div');
   statClosest.className = 'neo-stat-box sunken';
+  statClosest.title = t('neo.tip.lunar');
   statClosest.innerHTML = `<div class="neo-stat-val">${closestLunar.toFixed(1)} LD</div><div class="neo-stat-lbl">${t('neo.closestApproach')}: ${closestName}</div>`;
   statsRow.appendChild(statClosest);
 
@@ -146,6 +148,7 @@ function renderNeoData(body, allNeos) {
   const gaugeTitle = document.createElement('div');
   gaugeTitle.className = 'neo-gauge-title';
   gaugeTitle.textContent = t('neo.gaugeTitle');
+  gaugeTitle.title = t('neo.tip.gauge');
   gaugeWrap.appendChild(gaugeTitle);
 
   const gW = 700, gH = 80;
@@ -265,10 +268,12 @@ function renderNeoData(body, allNeos) {
   const thead = document.createElement('thead');
   const hrow = document.createElement('tr');
   const colKeys = ['neo.name', 'neo.date', 'neo.distance', 'neo.velocity', 'neo.diameter', 'neo.hMag'];
+  const colTips = [null, null, 'neo.tip.distance', 'neo.tip.velocity', 'neo.tip.diameter', 'neo.tip.hMag'];
   for (let c = 0; c < colKeys.length; c++) {
     const th = document.createElement('th');
     th.className = 'neo-th-sortable';
     th.setAttribute('data-col', c);
+    if (colTips[c]) th.title = t(colTips[c]);
     const thText = document.createElement('span');
     thText.textContent = t(colKeys[c]);
     th.appendChild(thText);
@@ -451,28 +456,30 @@ function showNeoDetail(wrap, allNeos, idx, useMiles, KM_MI) {
   }
 
   const pairs = [
-    [t('neo.detailId'), neo.neo_reference_id || '\u2014'],
-    [t('neo.detailApproach'), approach.close_approach_date_full || approach.close_approach_date || '\u2014'],
-    [t('neo.detailDistKm'), neoFormatDist(distKm) + ' km'],
-    [t('neo.detailDistMi'), neoFormatDist(distMi) + ' mi'],
-    [t('neo.detailLunar'), lunarD.toFixed(2) + ' LD'],
-    [t('neo.detailAu'), auD.toFixed(6) + ' AU'],
-    [t('neo.detailVelocity'), velKms.toFixed(2) + ' km/s'],
-    [t('neo.detailDiameter'), diamStr],
-    [t('neo.detailHmag'), neo.absolute_magnitude_h != null ? neo.absolute_magnitude_h.toFixed(1) : '\u2014'],
-    [t('neo.detailOrbit'), approach.orbiting_body || '\u2014'],
-    [t('neo.detailPha'), isPha ? t('neo.detailYes') : t('neo.detailNo')],
-    [t('neo.detailSentry'), neo.is_sentry_object ? t('neo.detailYes') : t('neo.detailNo')]
+    [t('neo.detailId'), neo.neo_reference_id || '\u2014', null],
+    [t('neo.detailApproach'), approach.close_approach_date_full || approach.close_approach_date || '\u2014', null],
+    [t('neo.detailDistKm'), neoFormatDist(distKm) + ' km', 'neo.tip.distance'],
+    [t('neo.detailDistMi'), neoFormatDist(distMi) + ' mi', 'neo.tip.distance'],
+    [t('neo.detailLunar'), lunarD.toFixed(2) + ' LD', 'neo.tip.lunar'],
+    [t('neo.detailAu'), auD.toFixed(6) + ' AU', 'neo.tip.au'],
+    [t('neo.detailVelocity'), velKms.toFixed(2) + ' km/s', 'neo.tip.velocity'],
+    [t('neo.detailDiameter'), diamStr, 'neo.tip.diameter'],
+    [t('neo.detailHmag'), neo.absolute_magnitude_h != null ? neo.absolute_magnitude_h.toFixed(1) : '\u2014', 'neo.tip.hMag'],
+    [t('neo.detailOrbit'), approach.orbiting_body || '\u2014', null],
+    [t('neo.detailPha'), isPha ? t('neo.detailYes') : t('neo.detailNo'), 'neo.tip.pha'],
+    [t('neo.detailSentry'), neo.is_sentry_object ? t('neo.detailYes') : t('neo.detailNo'), 'neo.tip.sentry']
   ];
 
   for (let p = 0; p < pairs.length; p++) {
     const lbl = document.createElement('div');
     lbl.className = 'neo-detail-lbl';
     lbl.textContent = pairs[p][0];
+    if (pairs[p][2]) lbl.title = t(pairs[p][2]);
     grid.appendChild(lbl);
     const val = document.createElement('div');
     val.className = 'neo-detail-val';
     val.textContent = pairs[p][1];
+    if (pairs[p][2]) val.title = t(pairs[p][2]);
     if (pairs[p][0] === t('neo.detailPha') && isPha) val.className += ' neo-pha';
     grid.appendChild(val);
   }

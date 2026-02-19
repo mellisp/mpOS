@@ -369,6 +369,15 @@
     'neo.detailNo': 'No',
     'neo.detailJpl': 'View on NASA JPL',
     'neo.gaugeTitle': 'Miss Distance (Lunar Distances)',
+    'neo.tip.distance': 'How close the object will pass to Earth',
+    'neo.tip.velocity': 'Speed relative to Earth at closest approach',
+    'neo.tip.diameter': 'Estimated average size based on brightness',
+    'neo.tip.hMag': 'Absolute magnitude \u2014 lower = larger/brighter object',
+    'neo.tip.lunar': '1 LD \u2248 384,400 km (Earth-to-Moon distance)',
+    'neo.tip.au': '1 AU \u2248 150 million km (Earth-to-Sun distance)',
+    'neo.tip.pha': 'Orbit within 7.5M km of Earth and diameter > 140 m',
+    'neo.tip.sentry': 'Tracked by NASA\'s impact monitoring system',
+    'neo.tip.gauge': 'Log-scale plot \u2014 each tick is 10\u00d7 farther from Earth',
 
     /* Disk Usage */
     'du.scanning': 'Scanning disk...',

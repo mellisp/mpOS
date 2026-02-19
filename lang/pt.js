@@ -360,6 +360,15 @@ window._mpLangRegister('pt', {
   'neo.detailNo': 'Não',
   'neo.detailJpl': 'Ver no NASA JPL',
   'neo.gaugeTitle': 'Distância (Distâncias Lunares)',
+  'neo.tip.distance': 'Dist\u00e2ncia m\u00ednima do objeto \u00e0 Terra',
+  'neo.tip.velocity': 'Velocidade relativa \u00e0 Terra na aproxima\u00e7\u00e3o',
+  'neo.tip.diameter': 'Tamanho m\u00e9dio estimado com base no brilho',
+  'neo.tip.hMag': 'Magnitude absoluta \u2014 menor = maior/mais brilhante',
+  'neo.tip.lunar': '1 LD \u2248 384.400 km (dist\u00e2ncia Terra-Lua)',
+  'neo.tip.au': '1 AU \u2248 150 milh\u00f5es km (dist\u00e2ncia Terra-Sol)',
+  'neo.tip.pha': '\u00d3rbita a menos de 7,5M km da Terra e di\u00e2metro > 140 m',
+  'neo.tip.sentry': 'Monitorizado pelo sistema de impacto da NASA',
+  'neo.tip.gauge': 'Escala logar\u00edtmica \u2014 cada marca \u00e9 10\u00d7 mais longe',
 
   /* Disk Usage */
   'du.scanning': 'A analisar disco...',

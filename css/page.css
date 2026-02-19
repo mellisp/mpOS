@@ -1106,7 +1106,7 @@
 }
 
 /* NEO Tracker window */
-#neotracker { width: min(780px, 94vw); left: min(60px, 3vw); top: 30px; }
+#neotracker { width: min(640px, 94vw); left: min(60px, 3vw); top: 30px; }
 
 .neo-wrap {
   padding: 6px;
@@ -1201,6 +1201,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 11px;
+  table-layout: fixed;
 }
 
 .neo-table thead {
@@ -1224,6 +1225,8 @@
 .neo-th-sortable:hover {
   background: #c8c4bc;
 }
+.neo-th-sortable[title] { cursor: help; }
+.neo-stat-box[title] { cursor: help; }
 
 .neo-sort-arrow {
   font-size: 9px;
@@ -1234,6 +1237,8 @@
   border: 1px solid var(--silver);
   padding: 3px 6px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .neo-table tbody tr:nth-child(even) {
@@ -1319,6 +1324,7 @@
   white-space: nowrap;
   color: var(--text-muted);
 }
+.neo-detail-lbl[title] { cursor: help; text-decoration: underline dotted var(--text-muted); text-underline-offset: 2px; }
 
 .neo-detail-val {
   word-break: break-word;
