@@ -459,6 +459,7 @@ function getItemIcon(name) {
     'NEO Tracker': '<defs><radialGradient id="ei-neo" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#d0c8b8"/><stop offset="50%" stop-color="#a09080"/><stop offset="100%" stop-color="#706050"/></radialGradient></defs><circle cx="10" cy="10" r="4.5" fill="url(#ei-neo)" stroke="#504030" stroke-width="0.8"/><ellipse cx="8.5" cy="8" rx="2.5" ry="1.5" fill="white" opacity="0.3"/><circle cx="12" cy="8.5" r="0.8" fill="#504030" opacity="0.5"/><circle cx="8" cy="11" r="0.6" fill="#504030" opacity="0.4"/><line x1="5" y1="5" x2="3" y2="3" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="15" y1="5" x2="17" y2="3" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="5" y1="15" x2="3" y2="17" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="15" y1="15" x2="17" y2="17" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><circle cx="3" cy="3" r="0.5" fill="#c0a080"/><circle cx="17" cy="3" r="0.4" fill="#c0a080"/><circle cx="3" cy="17" r="0.3" fill="#c0a080"/><circle cx="17" cy="17" r="0.4" fill="#c0a080"/>',
     'Fractal Explorer': '<defs><radialGradient id="ei-fr" cx="0.4" cy="0.4" r="0.65"><stop offset="0%" stop-color="#a0d0ff"/><stop offset="40%" stop-color="#4a8abe"/><stop offset="70%" stop-color="#2a5a8e"/><stop offset="100%" stop-color="#1a2a4e"/></radialGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#ei-fr)" stroke="#1a2a4e" stroke-width="0.8"/><ellipse cx="8" cy="7.5" rx="4" ry="3" fill="white" opacity="0.2"/><path d="M10 10 Q12 6 10 4 Q8 6 10 10 Q14 8 16 10 Q14 12 10 10 Q8 14 10 16 Q12 14 10 10 Q6 12 4 10 Q6 8 10 10Z" fill="none" stroke="#c0e0ff" stroke-width="0.7" opacity="0.8"/><circle cx="10" cy="10" r="2.5" fill="none" stroke="#80b0e0" stroke-width="0.5"/><circle cx="10" cy="10" r="5" fill="none" stroke="#6090c0" stroke-width="0.4" opacity="0.6"/><circle cx="10" cy="10" r="1" fill="#e0f0ff"/>',
     'Slot Machine': '<defs><linearGradient id="ei-sm" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e8d060"/><stop offset="30%" stop-color="#c8a030"/><stop offset="70%" stop-color="#a08020"/><stop offset="100%" stop-color="#806010"/></linearGradient><linearGradient id="ei-smf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="100%" stop-color="#d8e8f8"/></linearGradient></defs><rect x="2" y="1" width="16" height="18" rx="2" fill="url(#ei-sm)" stroke="#604800" stroke-width="0.8"/><line x1="3" y1="2" x2="17" y2="2" stroke="white" stroke-width="0.5" opacity="0.4"/><rect x="4" y="4" width="4" height="6" rx="0.5" fill="url(#ei-smf)" stroke="#604800" stroke-width="0.5"/><rect x="8.5" y="4" width="4" height="6" rx="0.5" fill="url(#ei-smf)" stroke="#604800" stroke-width="0.5"/><rect x="13" y="4" width="4" height="6" rx="0.5" fill="url(#ei-smf)" stroke="#604800" stroke-width="0.5"/><text x="6" y="8.5" font-size="4" font-weight="bold" fill="#ef5350" text-anchor="middle" font-family="sans-serif">7</text><text x="10.5" y="8.5" font-size="4" font-weight="bold" fill="#ef5350" text-anchor="middle" font-family="sans-serif">7</text><text x="15" y="8.5" font-size="4" font-weight="bold" fill="#ef5350" text-anchor="middle" font-family="sans-serif">7</text><rect x="7" y="13" width="6" height="3" rx="1" fill="#ef5350" stroke="#b71c1c" stroke-width="0.5"/><ellipse cx="10" cy="14.5" rx="2" ry="0.8" fill="white" opacity="0.3"/>',
+    'Cryptography': '<defs><linearGradient id="ei-cr" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="30%" stop-color="#d8d4cc"/><stop offset="70%" stop-color="#b0ac9c"/><stop offset="100%" stop-color="#908878"/></linearGradient></defs><rect x="3" y="5" width="14" height="12" rx="1.5" fill="url(#ei-cr)" stroke="#6a6050" stroke-width="0.8"/><rect x="5" y="8" width="10" height="7" rx="1" fill="#f8f4e8" stroke="#8a8070" stroke-width="0.5"/><line x1="6" y1="10" x2="14" y2="10" stroke="#c0b8a0" stroke-width="0.5"/><line x1="6" y1="12" x2="12" y2="12" stroke="#c0b8a0" stroke-width="0.5"/><circle cx="10" cy="4" r="3" fill="none" stroke="#8a8070" stroke-width="1.5"/><rect x="9" y="4" width="2" height="4" rx="0.5" fill="#b0a890" stroke="#8a8070" stroke-width="0.5"/><circle cx="10" cy="6.5" r="0.8" fill="#6a6050"/>',
     'White Noise Mixer': '<defs><linearGradient id="ei-nm" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient><linearGradient id="ei-nmf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#a0a0a0"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#ei-nm)" stroke="#606060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><rect x="3" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="3.2" y="8" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="3" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50"/><rect x="6.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="6.7" y="10" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="6.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.7"/><rect x="10" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="10.2" y="11" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="10" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.5"/><rect x="13.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="13.7" y="9" width="1.1" height="1.2" rx="0.2" fill="url(#ei-nmf)"/><rect x="13.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.8"/>'
   };
   return icons[name] || '';
@@ -5901,7 +5902,13 @@ function fetchNeoData() {
   var status = document.getElementById('neotrackerStatus');
   showLoadingMessage(body, t('neo.loading'));
 
-  fetch('https://ssd-api.jpl.nasa.gov/cad.api?sort=dist&limit=10&fullname=true&diameter=true')
+  var today = new Date();
+  var end = new Date(today);
+  end.setDate(end.getDate() + 7);
+  var startStr = today.toISOString().slice(0, 10);
+  var endStr = end.toISOString().slice(0, 10);
+
+  fetch('https://api.nasa.gov/neo/rest/v1/feed?start_date=' + startStr + '&end_date=' + endStr + '&api_key=DEMO_KEY')
     .then(function (r) { if (!r.ok) throw new Error('API error'); return r.json(); })
     .then(function (data) {
       neoLoaded = true;
@@ -5915,19 +5922,35 @@ function fetchNeoData() {
 
 function renderNeoData(body, data) {
   body.textContent = '';
-  var fields = data.fields;
-  var rows = data.data;
-  if (!rows || !rows.length) {
+  var neosByDate = data.near_earth_objects;
+  if (!neosByDate) {
     showErrorPanel(body, t('neo.error'), 'al-tri-neo');
     return;
   }
 
-  // Field index lookup
-  var idx = {};
-  for (var i = 0; i < fields.length; i++) idx[fields[i]] = i;
+  // Flatten all NEOs from all dates
+  var allNeos = [];
+  for (var date in neosByDate) {
+    var dayNeos = neosByDate[date];
+    for (var i = 0; i < dayNeos.length; i++) {
+      var neo = dayNeos[i];
+      var approach = neo.close_approach_data && neo.close_approach_data[0];
+      if (approach) allNeos.push({ neo: neo, approach: approach });
+    }
+  }
+
+  // Sort by miss distance (ascending — closest first)
+  allNeos.sort(function (a, b) {
+    return parseFloat(a.approach.miss_distance.kilometers) - parseFloat(b.approach.miss_distance.kilometers);
+  });
+  allNeos = allNeos.slice(0, 10);
+
+  if (!allNeos.length) {
+    showErrorPanel(body, t('neo.error'), 'al-tri-neo');
+    return;
+  }
 
   var useMiles = localStorage.getItem('mp-tempunit') === 'F';
-  var AU_KM = 149597870.7;
   var KM_MI = 1.60934;
 
   var wrap = document.createElement('div');
@@ -5950,27 +5973,27 @@ function renderNeoData(body, data) {
 
   // Body
   var tbody = document.createElement('tbody');
-  for (var r = 0; r < rows.length; r++) {
-    var row = rows[r];
+  for (var r = 0; r < allNeos.length; r++) {
+    var item = allNeos[r];
+    var neo = item.neo;
+    var approach = item.approach;
     var tr = document.createElement('tr');
 
-    // Name (fullname field — trim leading whitespace from API)
+    // Name
     var tdName = document.createElement('td');
     tdName.className = 'neo-name';
-    var nameStr = (row[idx.fullname] || row[idx.des] || '—').trim();
-    tdName.textContent = nameStr;
+    tdName.textContent = neo.name || '—';
     tr.appendChild(tdName);
 
-    // Date (cd field — "YYYY-Mon-DD HH:MM")
+    // Date
     var tdDate = document.createElement('td');
-    tdDate.textContent = row[idx.cd] || '—';
+    tdDate.textContent = approach.close_approach_date_full || approach.close_approach_date || '—';
     tr.appendChild(tdDate);
 
-    // Distance (dist field is in AU)
+    // Distance (miss_distance is in km from NeoWs)
     var tdDist = document.createElement('td');
-    var distAU = parseFloat(row[idx.dist]);
-    if (!isNaN(distAU)) {
-      var distKm = distAU * AU_KM;
+    var distKm = parseFloat(approach.miss_distance.kilometers);
+    if (!isNaN(distKm)) {
       var distMi = distKm / KM_MI;
       if (useMiles) {
         tdDist.textContent = formatDistance(distMi) + ' mi (' + formatDistance(distKm) + ' km)';
@@ -5982,17 +6005,18 @@ function renderNeoData(body, data) {
     }
     tr.appendChild(tdDist);
 
-    // Velocity (v_rel field is in km/s)
+    // Velocity (km/s)
     var tdVel = document.createElement('td');
-    var vel = parseFloat(row[idx.v_rel]);
+    var vel = parseFloat(approach.relative_velocity.kilometers_per_second);
     tdVel.textContent = !isNaN(vel) ? vel.toFixed(2) + ' km/s' : '—';
     tr.appendChild(tdVel);
 
-    // Diameter (in km from API, convert to meters)
+    // Diameter (estimated, average of min/max meters)
     var tdDiam = document.createElement('td');
-    var dKm = row[idx.diameter] ? parseFloat(row[idx.diameter]) : NaN;
-    if (!isNaN(dKm)) {
-      tdDiam.textContent = (dKm * 1000).toFixed(0) + ' m';
+    var diamM = neo.estimated_diameter && neo.estimated_diameter.meters;
+    if (diamM && !isNaN(diamM.estimated_diameter_min) && !isNaN(diamM.estimated_diameter_max)) {
+      var avgDiam = (diamM.estimated_diameter_min + diamM.estimated_diameter_max) / 2;
+      tdDiam.textContent = avgDiam.toFixed(0) + ' m';
     } else {
       tdDiam.textContent = t('neo.unknown');
       tdDiam.className = 'neo-unknown';
@@ -6001,12 +6025,12 @@ function renderNeoData(body, data) {
 
     // H magnitude
     var tdH = document.createElement('td');
-    var hVal = parseFloat(row[idx.h]);
-    if (!isNaN(hVal)) {
+    var hVal = neo.absolute_magnitude_h;
+    if (hVal != null && !isNaN(hVal)) {
       tdH.textContent = hVal.toFixed(1);
-      if (hVal <= 22) {
+      if (neo.is_potentially_hazardous_asteroid) {
         tdH.className = 'neo-pha';
-        tdH.title = 'Potentially Hazardous (H \u2264 22)';
+        tdH.title = 'Potentially Hazardous';
       }
     } else {
       tdH.textContent = '—';
@@ -6021,7 +6045,7 @@ function renderNeoData(body, data) {
   // Summary
   var summary = document.createElement('div');
   summary.className = 'neo-summary';
-  summary.textContent = t('neo.objectCount', { count: rows.length });
+  summary.textContent = t('neo.objectCount', { count: allNeos.length });
   wrap.appendChild(summary);
 
   body.appendChild(wrap);
@@ -7663,6 +7687,8 @@ const COMMANDS = {
   'netstat':     { run: cmdNetstat,     desc: 'Display active connections' },
   'noisemixer':  { run: openNoiseMixer, desc: 'Open White Noise Mixer' },
   'cryptography': { run: openCryptography, desc: 'Open Cryptography' },
+  'neotracker':   { run: openNeoTracker,   desc: 'Launch NEO Tracker' },
+  'tuningfork':   { run: openTuningFork,   desc: 'Launch Tuning Fork' },
   'fractal':      { run: openFractal,      desc: 'Launch Fractal Explorer' },
   'slotmachine':  { run: openSlotMachine,  desc: 'Launch Slot Machine' }
 };
@@ -8632,7 +8658,8 @@ function buildLauncher() {
     { name: 'WikiBrowser', _key: 'wikiBrowser', action: openBrowser },
     { name: 'Fish of the Day', _key: 'fishOfDay', action: openFishOfDay },
     { name: 'Fish Finder', _key: 'fishFinder', action: openFishFinder },
-    { name: 'Virtual Aquarium', _key: 'aquarium', action: openAquarium }
+    { name: 'Virtual Aquarium', _key: 'aquarium', action: openAquarium },
+    { name: 'NEO Tracker', _key: 'neoTracker', action: openNeoTracker }
   ];
   var accessories = [
     { name: 'Notepad', _key: 'notepad', action: openNotepad },
@@ -8648,7 +8675,8 @@ function buildLauncher() {
     { name: 'Disk Usage', _key: 'diskUsage', action: openDiskUsage },
     { name: 'Visitor Map', _key: 'visitorMap', action: openVisitorMap },
     { name: 'Stopwatch', _key: 'stopwatch', action: openStopwatch },
-    { name: 'Cryptography', _key: 'cryptography', action: openCryptography }
+    { name: 'Cryptography', _key: 'cryptography', action: openCryptography },
+    { name: 'Tuning Fork', _key: 'tuningFork', action: openTuningFork }
   ];
   var system = [
     { name: 'My Computer', _key: 'myComputer', action: openMyComputer },

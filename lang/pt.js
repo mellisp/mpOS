@@ -319,7 +319,7 @@ window._mpLangRegister('pt', {
 
   /* NEO Tracker */
   'neo.loading': 'A carregar dados NEO...',
-  'neo.poweredBy': 'Powered by NASA SBDB',
+  'neo.poweredBy': 'Powered by NASA NeoWs',
   'neo.error': 'N\u00e3o foi poss\u00edvel carregar os dados NEO. Tente novamente mais tarde.',
   'neo.name': 'Nome',
   'neo.date': 'Data',
@@ -328,7 +328,7 @@ window._mpLangRegister('pt', {
   'neo.diameter': 'Di\u00e2metro',
   'neo.hMag': 'H (mag)',
   'neo.unknown': 'Desconhecido',
-  'neo.objectCount': '{count} aproxima\u00e7\u00f5es mais pr\u00f3ximas (pr\u00f3ximos 60 dias)',
+  'neo.objectCount': '{count} aproximações mais próximas (próximos 7 dias)',
 
   /* Disk Usage */
   'du.scanning': 'A analisar disco...',

@@ -326,7 +326,7 @@
 
     /* NEO Tracker */
     'neo.loading': 'Loading NEO data...',
-    'neo.poweredBy': 'Powered by NASA SBDB',
+    'neo.poweredBy': 'Powered by NASA NeoWs',
     'neo.error': 'Failed to load NEO data. Please try again later.',
     'neo.name': 'Name',
     'neo.date': 'Date',
@@ -335,7 +335,7 @@
     'neo.diameter': 'Diameter',
     'neo.hMag': 'H (mag)',
     'neo.unknown': 'Unknown',
-    'neo.objectCount': '{count} closest approaches (next 60 days)',
+    'neo.objectCount': '{count} closest approaches (next 7 days)',
 
     /* Disk Usage */
     'du.scanning': 'Scanning disk...',
