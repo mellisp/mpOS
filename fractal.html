@@ -22,6 +22,7 @@
       display: block; flex: 1;
       width: 100%; cursor: crosshair;
     }
+    canvas.pick-mode { cursor: cell; }
     .controls {
       display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
       padding: 4px 6px;
@@ -59,13 +60,111 @@
       border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
       box-shadow: inset 1px 1px 0 var(--shadow);
     }
+    .btn-sm.pressed {
+      border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
+      box-shadow: inset 1px 1px 0 var(--shadow);
+      background: #c0bcb4;
+    }
     .julia-params { display: none; align-items: center; gap: 4px; }
     .julia-params.visible { display: flex; }
+
+    /* Welcome dialog */
+    .welcome-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    .welcome-dialog {
+      background: var(--silver);
+      border: 2px solid;
+      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+      width: 380px; max-width: 90vw;
+      padding: 0;
+    }
+    .welcome-titlebar {
+      background: linear-gradient(90deg, var(--title-dark), var(--title-light));
+      color: #fff; font-weight: bold;
+      padding: 3px 6px; font-size: 12px;
+    }
+    .welcome-body {
+      padding: 16px 20px;
+    }
+    .welcome-body h2 {
+      margin: 0 0 8px; font-size: 16px; color: var(--title-dark);
+    }
+    .welcome-body p {
+      margin: 0 0 10px; line-height: 1.5; font-size: 12px;
+    }
+    .welcome-body .controls-ref {
+      background: #fff;
+      border: 1px solid var(--shadow);
+      padding: 8px 10px;
+      margin: 0 0 14px;
+      font-size: 11px; line-height: 1.6;
+    }
+    .welcome-body .controls-ref b { color: var(--dk-shadow); }
+    .welcome-footer {
+      text-align: center; padding: 0 20px 16px;
+    }
+    .welcome-footer button {
+      font-family: var(--font); font-size: 12px;
+      padding: 4px 24px; cursor: default;
+      background: var(--silver);
+      border: 2px solid;
+      border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+      box-shadow: 1px 1px 0 var(--shadow);
+    }
+    .welcome-footer button:active {
+      border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
+      box-shadow: inset 1px 1px 0 var(--shadow);
+    }
+    .welcome-footer button:focus {
+      outline: 1px dotted #000; outline-offset: -4px;
+    }
+
+    /* Pick mode banner */
+    .pick-banner {
+      display: none;
+      background: var(--title-dark);
+      color: #fff;
+      text-align: center;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    .pick-banner.visible { display: block; }
   </style>
 </head>
 <body>
+  <!-- Welcome dialog -->
+  <div class="welcome-overlay" id="welcomeOverlay">
+    <div class="welcome-dialog">
+      <div class="welcome-titlebar">Fractal Explorer</div>
+      <div class="welcome-body">
+        <h2>Welcome</h2>
+        <p>Explore the Mandelbrot set and Julia sets in real time using your GPU.</p>
+        <div class="controls-ref">
+          <b>Drag</b> &mdash; Pan the view<br>
+          <b>Scroll</b> &mdash; Zoom in / out<br>
+          <b>Pick Seed</b> &mdash; Click a point on the Mandelbrot set to generate its Julia set<br>
+          <b>Random</b> &mdash; Cycle through curated Julia seeds<br>
+          <b>AA</b> &mdash; Toggle anti-aliasing (2&times; supersampling)<br>
+          <b>Reset</b> &mdash; Return to the default view
+        </div>
+      </div>
+      <div class="welcome-footer">
+        <button id="welcomeBtn" autofocus>Start Exploring</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pick-banner" id="pickBanner">Click a point to set Julia seed &mdash; Escape to cancel</div>
   <canvas id="canvas"></canvas>
   <div class="controls">
+    <button class="btn-sm" id="pickSeedBtn">Pick Seed</button>
+    <button class="btn-sm" id="randomBtn">Random</button>
+    <div class="ctrl-sep"></div>
     <label><input type="checkbox" id="juliaToggle"> Julia</label>
     <div class="julia-params" id="juliaParams">
       <label>c: <input type="number" id="juliaCr" step="0.01" value="-0.7"></label>
@@ -74,6 +173,8 @@
     <div class="ctrl-sep"></div>
     <label>Iter: <input type="range" id="iterSlider" min="50" max="2000" value="200"></label>
     <span id="iterLabel">200</span>
+    <div class="ctrl-sep"></div>
+    <label><input type="checkbox" id="aaToggle" checked> AA</label>
     <div class="ctrl-sep"></div>
     <label>Palette:
       <select id="paletteSelect">
@@ -89,121 +190,153 @@
   </div>
 
   <script>
-  (function () {
-    var canvas = document.getElementById('canvas');
-    var gl = canvas.getContext('webgl', { antialias: false, preserveDrawingBuffer: false });
+  (() => {
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl', { antialias: false, preserveDrawingBuffer: false });
     if (!gl) {
       document.body.innerHTML = '<div style="padding:20px;text-align:center;color:#666">WebGL is not supported in this browser.</div>';
       return;
     }
 
     /* --- State --- */
-    var centerX = -0.5, centerY = 0.0;
-    var zoom = 0.003;
-    var maxIter = 200;
-    var isJulia = false;
-    var juliaCr = -0.7, juliaCi = 0.27015;
-    var palette = 0;
-    var needsRender = true;
+    let centerX = -0.5, centerY = 0.0;
+    let zoom = 0.003;
+    let maxIter = 200;
+    let isJulia = false;
+    let juliaCr = -0.7, juliaCi = 0.27015;
+    let palette = 0;
+    let needsRender = true;
+    let rafPending = false;
+    let aaEnabled = true;
+    let pickMode = false;
+
+    /* --- Curated Julia seeds --- */
+    const JULIA_SEEDS = [
+      { name: 'Dendrite',       cr: -0.8,     ci:  0.156   },
+      { name: 'Rabbit',         cr: -0.4,     ci:  0.6     },
+      { name: 'Siegel Disk',    cr:  0.285,   ci:  0.01    },
+      { name: 'Spiral',         cr: -0.70176, ci: -0.3842  },
+      { name: 'Douady Rabbit',  cr: -0.835,   ci: -0.2321  },
+      { name: 'San Marco',      cr:  0.0,     ci: -0.8     },
+      { name: 'Lightning',      cr: -0.194,   ci:  0.6557  },
+      { name: 'Basilica',       cr: -1.25,    ci:  0       },
+      { name: 'Flowers',        cr:  0.355,   ci:  0.355   },
+      { name: 'Seahorse',       cr:  0.3,     ci: -0.01    },
+      { name: 'Galaxy',         cr: -0.1,     ci:  0.651   },
+      { name: 'Parabolic',      cr: -0.75,    ci:  0       },
+    ];
+    let seedIndex = -1;
 
     /* --- Shader sources --- */
-    var vsSource = [
-      'attribute vec2 a_pos;',
-      'void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }'
-    ].join('\n');
+    const vsSource = `attribute vec2 a_pos;
+void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }`;
 
-    var fsSource = [
-      'precision highp float;',
-      'uniform vec2 u_resolution;',
-      'uniform vec2 u_center;',
-      'uniform float u_zoom;',
-      'uniform int u_maxIter;',
-      'uniform int u_julia;',
-      'uniform vec2 u_juliaC;',
-      'uniform int u_palette;',
-      '',
-      'vec3 cospal(float t, vec3 a, vec3 b, vec3 c, vec3 d) {',
-      '  return a + b * cos(6.28318 * (c * t + d));',
-      '}',
-      '',
-      'vec3 getColor(float t) {',
-      '  if (u_palette == 1) return cospal(t, vec3(0.5,0.1,0.0), vec3(0.5,0.4,0.3), vec3(1.0,1.0,1.0), vec3(0.0,0.15,0.2));',
-      '  if (u_palette == 2) return cospal(t, vec3(0.0,0.2,0.4), vec3(0.3,0.3,0.5), vec3(1.0,1.0,1.0), vec3(0.0,0.1,0.2));',
-      '  if (u_palette == 3) return cospal(t, vec3(0.5,0.5,0.5), vec3(0.5,0.5,0.5), vec3(1.0,1.0,0.5), vec3(0.8,0.9,0.3));',
-      '  return cospal(t, vec3(0.5,0.5,0.5), vec3(0.5,0.5,0.5), vec3(1.0,1.0,1.0), vec3(0.0,0.1,0.2));',
-      '}',
-      '',
-      'void main() {',
-      '  vec2 uv = (gl_FragCoord.xy - u_resolution * 0.5) * u_zoom;',
-      '  vec2 c, z;',
-      '  if (u_julia == 1) { z = uv + u_center; c = u_juliaC; }',
-      '  else { c = uv + u_center; z = vec2(0.0); }',
-      '',
-      '  int iter = 0;',
-      '  for (int i = 0; i < 2000; i++) {',
-      '    if (i >= u_maxIter) break;',
-      '    float x2 = z.x * z.x;',
-      '    float y2 = z.y * z.y;',
-      '    if (x2 + y2 > 4.0) break;',
-      '    z = vec2(x2 - y2 + c.x, 2.0 * z.x * z.y + c.y);',
-      '    iter++;',
-      '  }',
-      '',
-      '  if (iter >= u_maxIter) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }',
-      '',
-      '  float fiter = float(iter) + 1.0 - log(log(length(z))) / log(2.0);',
-      '  float t = fiter / 80.0;',
-      '  vec3 col = getColor(t);',
-      '  gl_FragColor = vec4(col, 1.0);',
-      '}'
-    ].join('\n');
+    const fsSource = `precision highp float;
+uniform vec2 u_resolution;
+uniform vec2 u_center;
+uniform float u_zoom;
+uniform int u_maxIter;
+uniform int u_julia;
+uniform vec2 u_juliaC;
+uniform int u_palette;
+uniform int u_aa;
+
+vec3 cospal(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
+  return a + b * cos(6.28318 * (c * t + d));
+}
+
+vec3 getColor(float t) {
+  if (u_palette == 1) return cospal(t, vec3(0.5,0.1,0.0), vec3(0.5,0.4,0.3), vec3(1.0,1.0,1.0), vec3(0.0,0.15,0.2));
+  if (u_palette == 2) return cospal(t, vec3(0.0,0.2,0.4), vec3(0.3,0.3,0.5), vec3(1.0,1.0,1.0), vec3(0.0,0.1,0.2));
+  if (u_palette == 3) return cospal(t, vec3(0.5,0.5,0.5), vec3(0.5,0.5,0.5), vec3(1.0,1.0,0.5), vec3(0.8,0.9,0.3));
+  return cospal(t, vec3(0.5,0.5,0.5), vec3(0.5,0.5,0.5), vec3(1.0,1.0,1.0), vec3(0.0,0.1,0.2));
+}
+
+vec3 fractalColor(vec2 coord) {
+  vec2 c, z;
+  if (u_julia == 1) { z = coord; c = u_juliaC; }
+  else { c = coord; z = vec2(0.0); }
+
+  int iter = 0;
+  for (int i = 0; i < 2000; i++) {
+    if (i >= u_maxIter) break;
+    float x2 = z.x * z.x;
+    float y2 = z.y * z.y;
+    if (x2 + y2 > 4.0) break;
+    z = vec2(x2 - y2 + c.x, 2.0 * z.x * z.y + c.y);
+    iter++;
+  }
+
+  if (iter >= u_maxIter) return vec3(0.0);
+
+  float fiter = float(iter) + 1.0 - log(log(length(z))) / log(2.0);
+  float t = fiter / 80.0;
+  return getColor(t);
+}
+
+void main() {
+  vec2 base = (gl_FragCoord.xy - u_resolution * 0.5) * u_zoom + u_center;
+
+  if (u_aa == 1) {
+    vec2 px = vec2(u_zoom * 0.25);
+    vec3 col = fractalColor(base + vec2(-px.x, -px.y))
+             + fractalColor(base + vec2( px.x, -px.y))
+             + fractalColor(base + vec2(-px.x,  px.y))
+             + fractalColor(base + vec2( px.x,  px.y));
+    gl_FragColor = vec4(col * 0.25, 1.0);
+  } else {
+    gl_FragColor = vec4(fractalColor(base), 1.0);
+  }
+}`;
 
     /* --- Compile shaders --- */
-    function compileShader(src, type) {
-      var s = gl.createShader(type);
+    const compileShader = (src, type) => {
+      const s = gl.createShader(type);
       gl.shaderSource(s, src);
       gl.compileShader(s);
       return s;
-    }
-    var vs = compileShader(vsSource, gl.VERTEX_SHADER);
-    var fs = compileShader(fsSource, gl.FRAGMENT_SHADER);
-    var prog = gl.createProgram();
+    };
+    const vs = compileShader(vsSource, gl.VERTEX_SHADER);
+    const fs = compileShader(fsSource, gl.FRAGMENT_SHADER);
+    const prog = gl.createProgram();
     gl.attachShader(prog, vs);
     gl.attachShader(prog, fs);
     gl.linkProgram(prog);
     gl.useProgram(prog);
 
     /* --- Full-screen quad --- */
-    var buf = gl.createBuffer();
+    const buf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-    var aPos = gl.getAttribLocation(prog, 'a_pos');
+    const aPos = gl.getAttribLocation(prog, 'a_pos');
     gl.enableVertexAttribArray(aPos);
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
     /* --- Uniform locations --- */
-    var uRes = gl.getUniformLocation(prog, 'u_resolution');
-    var uCenter = gl.getUniformLocation(prog, 'u_center');
-    var uZoom = gl.getUniformLocation(prog, 'u_zoom');
-    var uMaxIter = gl.getUniformLocation(prog, 'u_maxIter');
-    var uJulia = gl.getUniformLocation(prog, 'u_julia');
-    var uJuliaC = gl.getUniformLocation(prog, 'u_juliaC');
-    var uPalette = gl.getUniformLocation(prog, 'u_palette');
+    const uRes = gl.getUniformLocation(prog, 'u_resolution');
+    const uCenter = gl.getUniformLocation(prog, 'u_center');
+    const uZoom = gl.getUniformLocation(prog, 'u_zoom');
+    const uMaxIter = gl.getUniformLocation(prog, 'u_maxIter');
+    const uJulia = gl.getUniformLocation(prog, 'u_julia');
+    const uJuliaC = gl.getUniformLocation(prog, 'u_juliaC');
+    const uPalette = gl.getUniformLocation(prog, 'u_palette');
+    const uAA = gl.getUniformLocation(prog, 'u_aa');
 
     /* --- Resize --- */
-    function resize() {
-      var dpr = window.devicePixelRatio || 1;
-      var w = canvas.clientWidth;
-      var h = canvas.clientHeight;
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       gl.viewport(0, 0, canvas.width, canvas.height);
       needsRender = true;
-    }
+    };
     window.addEventListener('resize', resize);
 
     /* --- Render --- */
-    function render() {
+    const render = () => {
+      rafPending = false;
       if (!needsRender) return;
       needsRender = false;
       gl.uniform2f(uRes, canvas.width, canvas.height);
@@ -213,193 +346,244 @@
       gl.uniform1i(uJulia, isJulia ? 1 : 0);
       gl.uniform2f(uJuliaC, juliaCr, juliaCi);
       gl.uniform1i(uPalette, palette);
+      gl.uniform1i(uAA, aaEnabled ? 1 : 0);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       updateCoordDisplay();
-    }
+    };
 
-    function scheduleRender() {
+    const scheduleRender = () => {
       needsRender = true;
-      requestAnimationFrame(render);
-    }
+      if (!rafPending) {
+        rafPending = true;
+        requestAnimationFrame(render);
+      }
+    };
 
     /* --- Coordinate display --- */
-    var coordEl = document.getElementById('coordDisplay');
-    function updateCoordDisplay() {
-      var zoomLevel = (0.003 / zoom).toFixed(1);
-      coordEl.textContent = 'x:' + centerX.toFixed(8) + ' y:' + centerY.toFixed(8) + ' z:' + zoomLevel + 'x';
-    }
+    const coordEl = document.getElementById('coordDisplay');
+    const updateCoordDisplay = () => {
+      const zoomLevel = (0.003 / zoom).toFixed(1);
+      coordEl.textContent = `x:${centerX.toFixed(8)} y:${centerY.toFixed(8)} z:${zoomLevel}x`;
+    };
 
     /* --- Mouse interaction --- */
-    var dragging = false, dragX, dragY;
+    let dragging = false;
+    let dragX = 0, dragY = 0;
+    let dragDist = 0;
 
-    canvas.addEventListener('mousedown', function (e) {
+    canvas.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return;
       dragging = true;
       dragX = e.clientX;
       dragY = e.clientY;
+      dragDist = 0;
     });
 
-    window.addEventListener('mousemove', function (e) {
+    window.addEventListener('mousemove', (e) => {
       if (!dragging) return;
-      var dx = e.clientX - dragX;
-      var dy = e.clientY - dragY;
+      const dx = e.clientX - dragX;
+      const dy = e.clientY - dragY;
+      dragDist += Math.abs(dx) + Math.abs(dy);
       dragX = e.clientX;
       dragY = e.clientY;
-      var dpr = window.devicePixelRatio || 1;
+      const dpr = window.devicePixelRatio || 1;
       centerX -= dx * dpr * zoom;
       centerY += dy * dpr * zoom;
       scheduleRender();
     });
 
-    window.addEventListener('mouseup', function () { dragging = false; });
+    window.addEventListener('mouseup', () => { dragging = false; });
 
-    canvas.addEventListener('wheel', function (e) {
+    canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
-      var rect = canvas.getBoundingClientRect();
-      var dpr = window.devicePixelRatio || 1;
-      var mx = (e.clientX - rect.left) * dpr;
-      var my = (e.clientY - rect.top) * dpr;
-      var wx = (mx - canvas.width * 0.5) * zoom + centerX;
-      var wy = (canvas.height * 0.5 - my) * zoom + centerY;
-      var factor = e.deltaY > 0 ? 1.15 : 1 / 1.15;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const mx = (e.clientX - rect.left) * dpr;
+      const my = (e.clientY - rect.top) * dpr;
+      const wx = (mx - canvas.width * 0.5) * zoom + centerX;
+      const wy = (canvas.height * 0.5 - my) * zoom + centerY;
+      const factor = e.deltaY > 0 ? 1.15 : 1 / 1.15;
       zoom *= factor;
       centerX = wx - (mx - canvas.width * 0.5) * zoom;
       centerY = wy - (canvas.height * 0.5 - my) * zoom;
       scheduleRender();
     }, { passive: false });
 
-    /* Click in Mandelbrot mode sets Julia c */
-    canvas.addEventListener('click', function (e) {
-      if (isJulia) return;
-      var rect = canvas.getBoundingClientRect();
-      var dpr = window.devicePixelRatio || 1;
-      var mx = (e.clientX - rect.left) * dpr;
-      var my = (e.clientY - rect.top) * dpr;
+    /* --- Pick mode: click to set Julia seed --- */
+    canvas.addEventListener('click', (e) => {
+      if (dragDist > 5) return;
+      if (!pickMode) return;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const mx = (e.clientX - rect.left) * dpr;
+      const my = (e.clientY - rect.top) * dpr;
       juliaCr = (mx - canvas.width * 0.5) * zoom + centerX;
       juliaCi = (canvas.height * 0.5 - my) * zoom + centerY;
-      document.getElementById('juliaCr').value = juliaCr.toFixed(4);
-      document.getElementById('juliaCi').value = juliaCi.toFixed(4);
+      crInput.value = juliaCr.toFixed(4);
+      ciInput.value = juliaCi.toFixed(4);
       isJulia = true;
-      document.getElementById('juliaToggle').checked = true;
-      document.getElementById('juliaParams').classList.add('visible');
+      juliaToggle.checked = true;
+      juliaParams.classList.add('visible');
       centerX = 0; centerY = 0; zoom = 0.005;
+      exitPickMode();
       scheduleRender();
     });
 
-    /* --- Touch interaction --- */
-    var touchIds = [];
-    var lastTouchDist = 0;
-    var lastTouchCX = 0, lastTouchCY = 0;
+    /* --- Touch interaction (unified) --- */
+    const touches = new Map();
+    let lastPinchDist = 0;
+    let lastPinchCX = 0, lastPinchCY = 0;
 
-    canvas.addEventListener('touchstart', function (e) {
+    const getTwoTouches = () => {
+      if (touches.size < 2) return null;
+      const iter = touches.values();
+      return [iter.next().value, iter.next().value];
+    };
+
+    canvas.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      for (var i = 0; i < e.changedTouches.length; i++) {
-        touchIds.push({ id: e.changedTouches[i].identifier, x: e.changedTouches[i].clientX, y: e.changedTouches[i].clientY });
+      for (const t of e.changedTouches) {
+        touches.set(t.identifier, { x: t.clientX, y: t.clientY, startX: t.clientX, startY: t.clientY });
       }
-      if (touchIds.length === 2) {
-        var dx = touchIds[1].x - touchIds[0].x;
-        var dy = touchIds[1].y - touchIds[0].y;
-        lastTouchDist = Math.sqrt(dx * dx + dy * dy);
-        lastTouchCX = (touchIds[0].x + touchIds[1].x) / 2;
-        lastTouchCY = (touchIds[0].y + touchIds[1].y) / 2;
+      const pair = getTwoTouches();
+      if (pair) {
+        const dx = pair[1].x - pair[0].x;
+        const dy = pair[1].y - pair[0].y;
+        lastPinchDist = Math.sqrt(dx * dx + dy * dy);
+        lastPinchCX = (pair[0].x + pair[1].x) / 2;
+        lastPinchCY = (pair[0].y + pair[1].y) / 2;
       }
     }, { passive: false });
 
-    canvas.addEventListener('touchmove', function (e) {
+    canvas.addEventListener('touchmove', (e) => {
       e.preventDefault();
-      for (var i = 0; i < e.changedTouches.length; i++) {
-        for (var j = 0; j < touchIds.length; j++) {
-          if (touchIds[j].id === e.changedTouches[i].identifier) {
-            touchIds[j].x = e.changedTouches[i].clientX;
-            touchIds[j].y = e.changedTouches[i].clientY;
-          }
+      const dpr = window.devicePixelRatio || 1;
+
+      if (touches.size === 1) {
+        const t = e.changedTouches[0];
+        const entry = touches.get(t.identifier);
+        if (!entry) return;
+        const prevX = entry.x, prevY = entry.y;
+        entry.x = t.clientX;
+        entry.y = t.clientY;
+        centerX -= (t.clientX - prevX) * dpr * zoom;
+        centerY += (t.clientY - prevY) * dpr * zoom;
+        scheduleRender();
+      } else if (touches.size >= 2) {
+        for (const t of e.changedTouches) {
+          const entry = touches.get(t.identifier);
+          if (entry) { entry.x = t.clientX; entry.y = t.clientY; }
         }
-      }
-      if (touchIds.length === 1) {
-        var t = e.changedTouches[0];
-        var found = null;
-        for (var k = 0; k < touchIds.length; k++) {
-          if (touchIds[k].id === t.identifier) found = touchIds[k];
-        }
-        if (!found) return;
-        var dpr = window.devicePixelRatio || 1;
-        var prevX = found.x, prevY = found.y;
-        /* Use the already-updated x/y from above loop */
-        /* We need prior values, so track separately */
-      } else if (touchIds.length === 2) {
-        var dx = touchIds[1].x - touchIds[0].x;
-        var dy = touchIds[1].y - touchIds[0].y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        var cx = (touchIds[0].x + touchIds[1].x) / 2;
-        var cy = (touchIds[0].y + touchIds[1].y) / 2;
-        if (lastTouchDist > 0) {
-          var factor = lastTouchDist / dist;
-          var dpr2 = window.devicePixelRatio || 1;
-          var rect = canvas.getBoundingClientRect();
-          var mx = (cx - rect.left) * dpr2;
-          var my = (cy - rect.top) * dpr2;
-          var wx = (mx - canvas.width * 0.5) * zoom + centerX;
-          var wy = (canvas.height * 0.5 - my) * zoom + centerY;
+        const pair = getTwoTouches();
+        if (!pair) return;
+        const dx = pair[1].x - pair[0].x;
+        const dy = pair[1].y - pair[0].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const cx = (pair[0].x + pair[1].x) / 2;
+        const cy = (pair[0].y + pair[1].y) / 2;
+        if (lastPinchDist > 0) {
+          const factor = lastPinchDist / dist;
+          const rect = canvas.getBoundingClientRect();
+          const mx = (cx - rect.left) * dpr;
+          const my = (cy - rect.top) * dpr;
+          const wx = (mx - canvas.width * 0.5) * zoom + centerX;
+          const wy = (canvas.height * 0.5 - my) * zoom + centerY;
           zoom *= factor;
           centerX = wx - (mx - canvas.width * 0.5) * zoom;
           centerY = wy - (canvas.height * 0.5 - my) * zoom;
-          /* Pan */
-          centerX -= (cx - lastTouchCX) * dpr2 * zoom;
-          centerY += (cy - lastTouchCY) * dpr2 * zoom;
+          centerX -= (cx - lastPinchCX) * dpr * zoom;
+          centerY += (cy - lastPinchCY) * dpr * zoom;
           scheduleRender();
         }
-        lastTouchDist = dist;
-        lastTouchCX = cx;
-        lastTouchCY = cy;
+        lastPinchDist = dist;
+        lastPinchCX = cx;
+        lastPinchCY = cy;
       }
     }, { passive: false });
 
-    function touchEnd(e) {
-      for (var i = 0; i < e.changedTouches.length; i++) {
-        for (var j = touchIds.length - 1; j >= 0; j--) {
-          if (touchIds[j].id === e.changedTouches[i].identifier) {
-            touchIds.splice(j, 1);
-          }
-        }
+    const touchEnd = (e) => {
+      for (const t of e.changedTouches) {
+        touches.delete(t.identifier);
       }
-      lastTouchDist = 0;
-    }
+      if (touches.size < 2) lastPinchDist = 0;
+    };
     canvas.addEventListener('touchend', touchEnd);
     canvas.addEventListener('touchcancel', touchEnd);
 
-    /* Single-finger pan via tracking previous positions */
-    var prevTouchX = null, prevTouchY = null;
-    canvas.addEventListener('touchstart', function (e) {
-      if (e.touches.length === 1) {
-        prevTouchX = e.touches[0].clientX;
-        prevTouchY = e.touches[0].clientY;
-      }
-    });
-    canvas.addEventListener('touchmove', function (e) {
-      if (e.touches.length === 1 && prevTouchX !== null) {
-        var dpr = window.devicePixelRatio || 1;
-        var dx = e.touches[0].clientX - prevTouchX;
-        var dy = e.touches[0].clientY - prevTouchY;
-        prevTouchX = e.touches[0].clientX;
-        prevTouchY = e.touches[0].clientY;
-        centerX -= dx * dpr * zoom;
-        centerY += dy * dpr * zoom;
-        scheduleRender();
-      }
-    });
-    canvas.addEventListener('touchend', function () { prevTouchX = null; prevTouchY = null; });
+    /* --- Pick mode helpers --- */
+    const pickSeedBtn = document.getElementById('pickSeedBtn');
+    const pickBanner = document.getElementById('pickBanner');
+
+    const enterPickMode = () => {
+      pickMode = true;
+      pickSeedBtn.classList.add('pressed');
+      pickBanner.classList.add('visible');
+      canvas.classList.add('pick-mode');
+    };
+
+    const exitPickMode = () => {
+      pickMode = false;
+      pickSeedBtn.classList.remove('pressed');
+      pickBanner.classList.remove('visible');
+      canvas.classList.remove('pick-mode');
+    };
 
     /* --- Controls --- */
-    var juliaToggle = document.getElementById('juliaToggle');
-    var juliaParams = document.getElementById('juliaParams');
-    var iterSlider = document.getElementById('iterSlider');
-    var iterLabel = document.getElementById('iterLabel');
-    var paletteSelect = document.getElementById('paletteSelect');
-    var resetBtn = document.getElementById('resetBtn');
-    var crInput = document.getElementById('juliaCr');
-    var ciInput = document.getElementById('juliaCi');
+    const juliaToggle = document.getElementById('juliaToggle');
+    const juliaParams = document.getElementById('juliaParams');
+    const iterSlider = document.getElementById('iterSlider');
+    const iterLabel = document.getElementById('iterLabel');
+    const paletteSelect = document.getElementById('paletteSelect');
+    const resetBtn = document.getElementById('resetBtn');
+    const crInput = document.getElementById('juliaCr');
+    const ciInput = document.getElementById('juliaCi');
+    const randomBtn = document.getElementById('randomBtn');
+    const aaToggle = document.getElementById('aaToggle');
 
-    juliaToggle.addEventListener('change', function () {
+    /* Welcome dialog */
+    const welcomeOverlay = document.getElementById('welcomeOverlay');
+    const welcomeBtn = document.getElementById('welcomeBtn');
+
+    const dismissWelcome = () => {
+      welcomeOverlay.style.display = 'none';
+    };
+    welcomeBtn.addEventListener('click', dismissWelcome);
+    welcomeOverlay.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        dismissWelcome();
+      }
+    });
+
+    /* Pick Seed button */
+    pickSeedBtn.addEventListener('click', () => {
+      if (pickMode) exitPickMode();
+      else enterPickMode();
+    });
+
+    /* Escape cancels pick mode */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && pickMode) exitPickMode();
+    });
+
+    /* Random seed button */
+    randomBtn.addEventListener('click', () => {
+      seedIndex = (seedIndex + 1) % JULIA_SEEDS.length;
+      const seed = JULIA_SEEDS[seedIndex];
+      juliaCr = seed.cr;
+      juliaCi = seed.ci;
+      crInput.value = juliaCr;
+      ciInput.value = juliaCi;
+      isJulia = true;
+      juliaToggle.checked = true;
+      juliaParams.classList.add('visible');
+      centerX = 0; centerY = 0; zoom = 0.005;
+      if (pickMode) exitPickMode();
+      scheduleRender();
+    });
+
+    /* Julia toggle */
+    juliaToggle.addEventListener('change', () => {
       isJulia = juliaToggle.checked;
       juliaParams.classList.toggle('visible', isJulia);
       if (!isJulia) { centerX = -0.5; centerY = 0; zoom = 0.003; }
@@ -407,31 +591,41 @@
       scheduleRender();
     });
 
-    var iterDebounce = null;
-    iterSlider.addEventListener('input', function () {
+    /* AA toggle */
+    aaToggle.addEventListener('change', () => {
+      aaEnabled = aaToggle.checked;
+      scheduleRender();
+    });
+
+    /* Iteration slider */
+    let iterDebounce = null;
+    iterSlider.addEventListener('input', () => {
       iterLabel.textContent = iterSlider.value;
       clearTimeout(iterDebounce);
-      iterDebounce = setTimeout(function () {
+      iterDebounce = setTimeout(() => {
         maxIter = parseInt(iterSlider.value, 10);
         scheduleRender();
       }, 100);
     });
 
-    paletteSelect.addEventListener('change', function () {
+    /* Palette select */
+    paletteSelect.addEventListener('change', () => {
       palette = parseInt(paletteSelect.value, 10);
       scheduleRender();
     });
 
-    crInput.addEventListener('change', function () {
+    /* Julia c inputs */
+    crInput.addEventListener('change', () => {
       juliaCr = parseFloat(crInput.value) || 0;
       scheduleRender();
     });
-    ciInput.addEventListener('change', function () {
+    ciInput.addEventListener('change', () => {
       juliaCi = parseFloat(ciInput.value) || 0;
       scheduleRender();
     });
 
-    resetBtn.addEventListener('click', function () {
+    /* Reset button */
+    resetBtn.addEventListener('click', () => {
       isJulia = false;
       juliaToggle.checked = false;
       juliaParams.classList.remove('visible');
@@ -440,12 +634,16 @@
       centerX = -0.5; centerY = 0; zoom = 0.003;
       maxIter = 200; iterSlider.value = '200'; iterLabel.textContent = '200';
       palette = 0; paletteSelect.value = '0';
+      aaEnabled = true; aaToggle.checked = true;
+      seedIndex = -1;
+      if (pickMode) exitPickMode();
       scheduleRender();
     });
 
     /* --- Init --- */
     resize();
     render();
+    welcomeBtn.focus();
   })();
   </script>
 </body>
