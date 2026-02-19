@@ -895,6 +895,17 @@
   let smAnimTimers = [];
   let smAudioCtx = null;
   let smInsertCoinCooldown = 0;
+  let smWinStreak = 0;
+  let smBestStreak = 0;
+  let smTotalSpins = 0;
+  let smTotalWon = 0;
+  let smBiggestWin = 0;
+  let smAutoPlay = false;
+  let smAutoTimer = null;
+  let smIntroShown = false;
+  let smLastPlayDate = '';
+  let smDailyBonusClaimed = false;
+  let smLastSpinNearMiss = false;
 
   const SM_SYMBOLS = [
     { ch: '7',    cls: 'sm-sym-seven',   tier: 'jackpot' },
@@ -1068,7 +1079,14 @@
     try {
       localStorage.setItem('mpOS-slotmachine', JSON.stringify({
         credits: smCredits,
-        freeSpins: smFreeSpins
+        freeSpins: smFreeSpins,
+        winStreak: smWinStreak,
+        bestStreak: smBestStreak,
+        totalSpins: smTotalSpins,
+        totalWon: smTotalWon,
+        biggestWin: smBiggestWin,
+        lastPlayDate: smLastPlayDate,
+        dailyBonusClaimed: smDailyBonusClaimed
       }));
     } catch (e) { /* ignore */ }
   };
@@ -1080,6 +1098,13 @@
       const state = JSON.parse(raw);
       if (typeof state.credits === 'number') smCredits = state.credits;
       if (typeof state.freeSpins === 'number') smFreeSpins = state.freeSpins;
+      if (typeof state.winStreak === 'number') smWinStreak = state.winStreak;
+      if (typeof state.bestStreak === 'number') smBestStreak = state.bestStreak;
+      if (typeof state.totalSpins === 'number') smTotalSpins = state.totalSpins;
+      if (typeof state.totalWon === 'number') smTotalWon = state.totalWon;
+      if (typeof state.biggestWin === 'number') smBiggestWin = state.biggestWin;
+      if (typeof state.lastPlayDate === 'string') smLastPlayDate = state.lastPlayDate;
+      if (typeof state.dailyBonusClaimed === 'boolean') smDailyBonusClaimed = state.dailyBonusClaimed;
     } catch (e) { /* ignore */ }
   };
 
@@ -1116,6 +1141,90 @@
       smUpdateDisplays();
       smSaveState();
     }
+  };
+
+  const smCheckDailyBonus = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    if (smLastPlayDate !== today) {
+      smLastPlayDate = today;
+      smDailyBonusClaimed = false;
+    }
+    if (!smDailyBonusClaimed && smTotalSpins > 0) {
+      smDailyBonusClaimed = true;
+      const bonus = smTotalSpins >= 500 ? 100 : smTotalSpins >= 100 ? 75 : 50;
+      smCredits += bonus;
+      smSaveState();
+      return bonus;
+    }
+    return 0;
+  };
+
+  const smDismissIntro = () => {
+    smIntroShown = true;
+    const intro = document.getElementById('smIntro');
+    if (intro) intro.style.display = 'none';
+    document.getElementById('slotmachine')?.focus();
+  };
+
+  const smAutoPlayNext = () => {
+    if (!smAutoPlay) return;
+    if (smCredits <= 0 && smFreeSpins <= 0) {
+      smAutoPlay = false;
+      const btn = document.getElementById('smAutoBtn');
+      if (btn) { btn.classList.remove('sm-auto-active'); btn.textContent = t('sm.auto'); }
+      return;
+    }
+    smAutoTimer = setTimeout(() => {
+      if (smAutoPlay && !smSpinning) smSpin();
+    }, 1500);
+  };
+
+  const smToggleAutoPlay = () => {
+    smAutoPlay = !smAutoPlay;
+    const btn = document.getElementById('smAutoBtn');
+    if (btn) {
+      btn.classList.toggle('sm-auto-active', smAutoPlay);
+      btn.textContent = smAutoPlay ? t('sm.autoStop') : t('sm.auto');
+    }
+    if (smAutoPlay && !smSpinning) {
+      smAutoPlayNext();
+    } else if (!smAutoPlay && smAutoTimer) {
+      clearTimeout(smAutoTimer);
+      smAutoTimer = null;
+    }
+  };
+
+  const smAddTooltips = () => {
+    const body = document.getElementById('slotmachineBody');
+    if (!body) return;
+    const tips = [
+      ['#smCreditDisplay', 'sm.tipCredit'],
+      ['#smBetDisplay', 'sm.tipBet'],
+      ['#smWinDisplay', 'sm.tipWin'],
+      ['#smSpinBtn', 'sm.tipSpin'],
+      ['#smAutoBtn', 'sm.tipAuto'],
+    ];
+    tips.forEach(([sel, key]) => {
+      const el = body.querySelector(sel);
+      if (el) el.title = t(key);
+    });
+    body.querySelectorAll('.sm-max-btn').forEach((b) => { b.title = t('sm.tipMaxBet'); });
+    body.querySelectorAll('.sm-pay-btn').forEach((b) => { b.title = t('sm.tipPayTable'); });
+    body.querySelectorAll('.sm-opt-btn[data-lines]').forEach((b) => {
+      b.title = `${b.dataset.lines} ${t('sm.lines').replace(':', '')}`;
+    });
+    body.querySelectorAll('.sm-opt-btn[data-bet]').forEach((b) => {
+      b.title = `${t('sm.betPerLine').replace(':', '')} ${b.dataset.bet}`;
+    });
+    body.querySelectorAll('.sm-hold-btn').forEach((b) => { b.title = t('sm.tipHold'); });
+    body.querySelectorAll('.sm-nudge-btn').forEach((b) => {
+      b.title = b.textContent === '\u25B2' ? t('sm.tipNudgeUp') : t('sm.tipNudgeDown');
+    });
+  };
+
+  const smSoundTension = () => {
+    const notes = [220, 233, 247, 262, 277, 294, 311, 330];
+    notes.forEach((n, i) => { setTimeout(() => { smPlayTone(n, 0.08, 'sine'); }, i * 100); });
   };
 
   // Forward-declared; assigned below after smEvaluateWins is defined
@@ -1217,6 +1326,26 @@
 
     smCredits += smWin;
 
+    // Streak tracking
+    smTotalSpins++;
+    if (smWin > 0) {
+      smWinStreak++;
+      smTotalWon += smWin;
+      if (smWin > smBiggestWin) smBiggestWin = smWin;
+      if (smWinStreak > smBestStreak) smBestStreak = smWinStreak;
+    } else {
+      smWinStreak = 0;
+    }
+    const streakBadge = document.getElementById('smStreakBadge');
+    if (streakBadge) {
+      if (smWinStreak >= 2) {
+        streakBadge.textContent = `${t('sm.hot')} x${smWinStreak}`;
+        streakBadge.style.display = '';
+      } else {
+        streakBadge.style.display = 'none';
+      }
+    }
+
     // Animate wins
     if (winCells.length > 0) {
       smAnimateWin(winCells);
@@ -1231,8 +1360,32 @@
       smAnimateWinCounter();
     }
 
+    // Big win: shake the window
+    if (smWin >= 50 * smBetPerLine) {
+      document.getElementById('slotmachine')?.classList.add('sm-big-win-shake');
+      setTimeout(() => { document.getElementById('slotmachine')?.classList.remove('sm-big-win-shake'); }, 600);
+    }
+
     smUpdateDisplays();
     smSaveState();
+
+    // Override status with special messages (auto-revert after 2s)
+    const totalBetAmt = smBetPerLine * smLines;
+    if (smWin >= 250 * smBetPerLine) {
+      // Jackpot already handled above
+    } else if (smWin > 0 && smWin < totalBetAmt) {
+      const st = document.getElementById('smStatus');
+      if (st) st.textContent = t('sm.bonusWin');
+      setTimeout(() => smUpdateDisplays(), 2000);
+    } else if (smWinStreak >= 3 && smWin > 0) {
+      const st = document.getElementById('smStatus');
+      if (st) st.textContent = `${t('sm.hot')} x${smWinStreak}!`;
+      setTimeout(() => smUpdateDisplays(), 2000);
+    } else if (smWin === 0 && smLastSpinNearMiss) {
+      const st = document.getElementById('smStatus');
+      if (st) st.textContent = t('sm.nearMiss');
+      setTimeout(() => smUpdateDisplays(), 2000);
+    }
 
     // Offer hold or nudge (only if not in free spins and not already offered)
     if (smFreeSpins <= 0 && smWin === 0) {
@@ -1264,6 +1417,10 @@
     const spinBtn = document.getElementById('smSpinBtn');
     if (spinBtn) spinBtn.disabled = false;
     smEvaluateWins();
+    // Auto-play next spin (skip if hold/nudge offered — let player interact)
+    if (smAutoPlay && !smHoldOffered && !smNudgeOffered) {
+      smAutoPlayNext();
+    }
   };
 
   const smSpinReels = (isRespin) => {
@@ -1290,9 +1447,46 @@
       }
     }
 
-    // Animate each reel
-    const reelDelays = [800, 1200, 1600];
+    // Near-miss detection: first 2 reels match high-value symbol on center payline
+    let isNearMiss = false;
+    if (!isRespin) {
+      const c0 = smReelResults[0][1];
+      const c1 = smReelResults[1][1];
+      isNearMiss = c0 === c1 && c0 <= 2 && smReelResults[2][1] !== c0;
+      // Near-miss bias: 30% chance to place matching symbol just off center on reel 3
+      if (isNearMiss && Math.random() < 0.3) {
+        const strip = SM_REELS[2];
+        for (let si = 0; si < strip.length; si++) {
+          if (strip[si] === c0) {
+            const targetRow = Math.random() < 0.5 ? 0 : 2;
+            const newPos = (si - targetRow + strip.length) % strip.length;
+            smReelPositions[2] = newPos;
+            for (let row = 0; row < 3; row++) {
+              smReelResults[2][row] = strip[(newPos + row) % strip.length];
+            }
+            break;
+          }
+        }
+      }
+    }
+    smLastSpinNearMiss = isNearMiss;
+
+    // Animate each reel (slower 3rd reel on near-miss for tension)
+    const reelDelays = isNearMiss ? [800, 1200, 2600] : [800, 1200, 1600];
     const startTime = Date.now();
+
+    // Near-miss: flash matching symbols on reels 0-1 while reel 2 is still spinning
+    if (isNearMiss) {
+      setTimeout(() => {
+        smCells[0][1].classList.add('sm-near-miss');
+        smCells[1][1].classList.add('sm-near-miss');
+        smSoundTension();
+      }, 1300);
+      setTimeout(() => {
+        smCells[0][1].classList.remove('sm-near-miss');
+        smCells[1][1].classList.remove('sm-near-miss');
+      }, 2600);
+    }
 
     for (let ai = 0; ai < 3; ai++) {
       if (isRespin && smHeldReels[ai]) continue;
@@ -1389,9 +1583,13 @@
     const lcdWin = document.createElement('div');
     lcdWin.className = 'sm-lcd';
     lcdWin.innerHTML = '<span class="sm-lcd-label" data-i18n="sm.win">WIN</span><span class="sm-lcd-val" id="smWinDisplay">--</span>';
+    const lcdStreak = document.createElement('span');
+    lcdStreak.className = 'sm-streak-badge';
+    lcdStreak.id = 'smStreakBadge';
     lcdRow.appendChild(lcdCredit);
     lcdRow.appendChild(lcdBet);
     lcdRow.appendChild(lcdWin);
+    lcdRow.appendChild(lcdStreak);
     body.appendChild(lcdRow);
 
     // Hold buttons row (hidden by default)
@@ -1517,6 +1715,14 @@
     payBtn.textContent = t('sm.payTable');
     payBtn.addEventListener('click', smTogglePayTable);
     btnRow.appendChild(payBtn);
+
+    const autoBtn = document.createElement('button');
+    autoBtn.type = 'button';
+    autoBtn.className = 'sm-auto-btn';
+    autoBtn.id = 'smAutoBtn';
+    autoBtn.textContent = t('sm.auto');
+    autoBtn.addEventListener('click', smToggleAutoPlay);
+    btnRow.appendChild(autoBtn);
     body.appendChild(btnRow);
 
     // Pay table panel (hidden)
@@ -1557,14 +1763,66 @@
     payPanel.appendChild(scRow2);
     body.appendChild(payPanel);
 
+    // Intro screen overlay
+    const intro = document.createElement('div');
+    intro.className = 'sm-intro';
+    intro.id = 'smIntro';
+    intro.innerHTML = `<div class="sm-intro-title">LUCKY SEVENS</div>
+      <div class="sm-intro-reels">
+        <span class="sm-intro-sym">7</span>
+        <span class="sm-intro-sym">7</span>
+        <span class="sm-intro-sym">7</span>
+      </div>
+      <div class="sm-intro-prize">${t('sm.topPrize')}: 2,500</div>
+      <div class="sm-intro-stats" id="smIntroStats"></div>
+      <div class="sm-intro-bonus" id="smIntroBonus" style="display:none"></div>
+      <button type="button" class="sm-intro-play" id="smIntroPlayBtn">${t('sm.play')}</button>`;
+    body.appendChild(intro);
+    document.getElementById('smIntroPlayBtn').addEventListener('click', smDismissIntro);
+
+    // Keyboard: Space to spin (or dismiss intro)
+    const smEl = document.getElementById('slotmachine');
+    smEl.setAttribute('tabindex', '-1');
+    smEl.addEventListener('keydown', (e) => {
+      if (e.code !== 'Space') return;
+      e.preventDefault();
+      const introEl = document.getElementById('smIntro');
+      if (introEl && introEl.style.display !== 'none') { smDismissIntro(); return; }
+      if (!smSpinning) smSpin();
+    });
+
     smBuilt = true;
     smLoadState();
     smUpdateDisplays();
+    smAddTooltips();
   };
 
   const openSlotMachine = () => {
     if (!smBuilt) smBuildUI();
     openWindow('slotmachine');
+
+    // Show intro on first open per session
+    if (!smIntroShown) {
+      const intro = document.getElementById('smIntro');
+      if (intro) intro.style.display = '';
+
+      // Populate returning-player stats
+      const stats = document.getElementById('smIntroStats');
+      if (stats && smTotalSpins > 0) {
+        stats.textContent = `${t('sm.totalSpins')}: ${smTotalSpins} | ${t('sm.bestWin')}: ${smBiggestWin}`;
+      }
+
+      // Daily bonus
+      const bonus = smCheckDailyBonus();
+      const bonusEl = document.getElementById('smIntroBonus');
+      if (bonusEl && bonus > 0) {
+        bonusEl.textContent = t('sm.dailyBonus', { count: bonus });
+        bonusEl.style.display = '';
+      }
+      smUpdateDisplays();
+    }
+
+    document.getElementById('slotmachine')?.focus();
   };
 
   const closeSlotMachine = () => {
@@ -1574,6 +1832,11 @@
     smSpinning = false;
     smHoldOffered = false;
     smNudgeOffered = false;
+    // Stop autoplay
+    smAutoPlay = false;
+    if (smAutoTimer) { clearTimeout(smAutoTimer); smAutoTimer = null; }
+    const autoBtn = document.getElementById('smAutoBtn');
+    if (autoBtn) { autoBtn.classList.remove('sm-auto-active'); autoBtn.textContent = t('sm.auto'); }
     smSaveState();
     mpTaskbar.closeWindow('slotmachine');
   };
