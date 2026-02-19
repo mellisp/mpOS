@@ -196,6 +196,7 @@ const COUNTRY_NAMES = {
   "AL": "Albania",
   "AM": "Armenia",
   "AO": "Angola",
+  "AQ": "Antarctica",
   "AR": "Argentina",
   "AT": "Austria",
   "AU": "Australia",
