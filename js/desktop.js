@@ -1062,8 +1062,21 @@
         icons.forEach((ic) => { ic.classList.remove('selected'); });
         icon.classList.add('selected');
         initIconDrag(icon, e.clientX, e.clientY);
-        e.preventDefault();
+        /* No e.preventDefault() — CSS user-select:none handles text selection,
+           and preventDefault on mousedown can suppress dblclick in some browsers */
       });
+
+      /* Programmatic dblclick with late binding (backup for ondblclick attr) */
+      const attr = icon.getAttribute('ondblclick');
+      if (attr) {
+        const match = attr.match(/^(\w+)\(\)$/);
+        if (match) {
+          const fnName = match[1];
+          icon.addEventListener('dblclick', () => {
+            if (window[fnName]) window[fnName]();
+          });
+        }
+      }
     });
 
     area.addEventListener('mousedown', (e) => {
@@ -1193,8 +1206,8 @@
 
     /* Properties */
     addItem('desktop.properties', () => {
-      openMyComputer();
-      mcSwitchTab('display');
+      window.openMyComputer?.();
+      window.mcSwitchTab?.('display');
     });
 
     area.appendChild(menu);
@@ -1255,17 +1268,12 @@
    * Touch: single-tap desktop icons (instead of double-click)
    * ==================================================================== */
   if (window.matchMedia('(pointer: coarse)').matches) {
-    const iconActions = {
-      openMyComputer,
-      openExplorer,
-      openBrowser,
-      openArchiveBrowser
-    };
     document.querySelectorAll('.desktop-icon[ondblclick]').forEach((icon) => {
       const attr = icon.getAttribute('ondblclick');
       const match = attr.match(/^(\w+)\(\)$/);
-      if (match && iconActions[match[1]]) {
-        icon.addEventListener('click', () => { iconActions[match[1]](); });
+      if (match && window[match[1]]) {
+        const fnName = match[1];
+        icon.addEventListener('click', () => { if (window[fnName]) window[fnName](); });
         icon.removeAttribute('ondblclick');
       }
     });

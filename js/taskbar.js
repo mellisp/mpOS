@@ -181,12 +181,21 @@
   });
 
   const onAnimEnd = (el, cls, cb) => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      el.classList.remove(cls);
+      cb();
+    };
     el.classList.add(cls);
     el.addEventListener('animationend', function handler() {
       el.removeEventListener('animationend', handler);
-      el.classList.remove(cls);
-      cb();
+      finish();
     });
+    /* Fallback: animationend may not fire with contain: layout style,
+       prefers-reduced-motion, or if element is hidden during animation */
+    setTimeout(finish, 200);
   };
 
   const TASKBAR_ICONS = {

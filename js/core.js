@@ -183,6 +183,10 @@ function mpConfirm(message) {
 function openWindow(id) {
   const win = document.getElementById(id);
   if (!win) return;
+  /* Clear stale animation classes from interrupted close/minimize
+     (animationend may not fire with contain: layout style or reduced-motion) */
+  win.classList.remove('closing', 'minimizing', 'restoring');
+  win.style.opacity = '';
   if (win.style.display !== 'none') {
     if (window.mpTaskbar) window.mpTaskbar.bringToFront(win);
     return;
