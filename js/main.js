@@ -3284,21 +3284,8 @@ function renderWeather(body, data) {
 }
 
 /* ── Disk Usage ── */
-const DU_FILES = [
-  'index.html', '404.html', 'target-game.html', 'brick-breaker.html',
-  'chicken-fingers.html', 'error-pages/400.html', 'error-pages/403.html',
-  'error-pages/500.html', 'css/theme.css', 'css/page.css', 'js/main.js',
-  'js/taskbar.js', 'js/audio.js', 'js/fish-data.js', 'js/aquarium-data.js',
-  'js/help-data.js', 'js/world-map-data.js', 'favicon.svg', 'version.json'
-];
-
 const DU_TYPE_LABELS = { js: 'JavaScript', html: 'HTML', css: 'CSS', svg: 'SVG', json: 'JSON' };
 const DU_TYPE_COLORS = ['#4a8abe', '#5aaa80', '#e8a010', '#c06090', '#8a6abe', '#be6a4a', '#4abe8a'];
-
-function duFileType(path) {
-  var ext = path.split('.').pop().toLowerCase();
-  return ext;
-}
 
 function darkenHex(hex, factor) {
   var r = parseInt(hex.slice(1, 3), 16);
@@ -3321,9 +3308,8 @@ function openDiskUsage() {
 function populateDiskUsage() {
   var body = document.getElementById('diskUsageBody');
   var status = document.getElementById('diskUsageStatus');
-  if (body.dataset.populated) return;
-  body.dataset.populated = '1';
 
+  body.textContent = '';
   showLoadingMessage(body, t('du.scanning'));
 
   var SVG_NS = 'http://www.w3.org/2000/svg';
@@ -3334,21 +3320,21 @@ function populateDiskUsage() {
     return el;
   }
 
-  var fetches = DU_FILES.map(function (p) {
-    return fetch(p)
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
-      .then(function (b) { return { path: p, type: duFileType(p), size: b.size }; })
-      .catch(function () { return null; });
-  });
+  fetch('version.json?_=' + Date.now())
+    .then(function (r) { return r.json(); })
+    .then(function (manifest) {
+    var du = manifest.diskUsage;
+    if (!du || !du.types) {
+      showLoadingMessage(body, t('du.noFiles'));
+      return;
+    }
 
-  Promise.all(fetches).then(function (results) {
-    var files = results.filter(function (r) { return r !== null; });
     var totals = {};
     var totalSize = 0;
-
-    files.forEach(function (f) {
-      totals[f.type] = (totals[f.type] || 0) + f.size;
-      totalSize += f.size;
+    var fileCount = du.fileCount || 0;
+    Object.keys(du.types).forEach(function (ext) {
+      totals[ext] = du.types[ext].size;
+      totalSize += du.types[ext].size;
     });
 
     if (totalSize === 0) {
@@ -3508,10 +3494,10 @@ function populateDiskUsage() {
     // ── Total line ──
     var totalEl = document.createElement('div');
     totalEl.className = 'du-total';
-    totalEl.textContent = t('du.total', { size: formatDuSize(totalSize), count: files.length });
+    totalEl.textContent = t('du.total', { size: formatDuSize(totalSize), count: fileCount });
     body.appendChild(totalEl);
 
-    status.textContent = t('du.scanned', { count: files.length });
+    status.textContent = t('du.scanned', { count: fileCount });
   });
 }
 
