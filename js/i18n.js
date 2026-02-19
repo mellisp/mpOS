@@ -50,7 +50,10 @@
     'desktop.files': 'Files',
     'desktop.wikiBrowser': 'WikiBrowser',
     'desktop.arrangeIcons': 'Arrange Icons',
-    'desktop.alignToGrid': 'Align to Grid',
+    'desktop.new': 'New',
+    'desktop.newTextDoc': 'Text Document',
+    'desktop.newBitmap': 'Bitmap Image',
+    'desktop.wallpaper': 'Wallpaper',
     'desktop.properties': 'Properties',
 
     /* Window titles */

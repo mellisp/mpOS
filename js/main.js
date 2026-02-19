@@ -8048,30 +8048,99 @@ function showDesktopContextMenu(x, y) {
       handler();
     });
     menu.appendChild(item);
+    return item;
   }
 
+  function addSep() {
+    var s = document.createElement('div');
+    s.className = 'desktop-context-sep';
+    menu.appendChild(s);
+  }
+
+  function addSubmenu(labelKey, items) {
+    var parent = document.createElement('div');
+    parent.className = 'desktop-context-item has-submenu';
+    parent.textContent = t(labelKey);
+    var sub = document.createElement('div');
+    sub.className = 'desktop-context-submenu';
+    items.forEach(function (entry) {
+      var si = document.createElement('div');
+      si.className = 'desktop-context-item';
+      if (entry.checked) {
+        var chk = document.createElement('span');
+        chk.className = 'check';
+        chk.textContent = '\u2713';
+        si.appendChild(chk);
+      }
+      si.appendChild(document.createTextNode(entry.label));
+      si.addEventListener('mousedown', function (e) {
+        e.stopPropagation();
+        dismissContextMenu();
+        entry.handler();
+      });
+      sub.appendChild(si);
+    });
+    parent.appendChild(sub);
+    menu.appendChild(parent);
+  }
+
+  /* Arrange Icons */
   addItem('desktop.arrangeIcons', function () {
     const defaults = getDefaultIconPositions();
     applyIconPositions(defaults);
     saveIconPositions();
   });
 
-  addItem('desktop.alignToGrid', function () {
-    const icons = area.querySelectorAll('.desktop-icon[data-icon]');
-    icons.forEach(function (icon) {
-      const l = parseInt(icon.style.left, 10) || 0;
-      const tp = parseInt(icon.style.top, 10) || 0;
-      const snapped = snapToGrid(l, tp);
-      icon.style.left = snapped.left + 'px';
-      icon.style.top = snapped.top + 'px';
-    });
-    saveIconPositions();
+  addSep();
+
+  /* New submenu */
+  addSubmenu('desktop.new', [
+    {
+      label: t('desktop.newTextDoc'),
+      handler: function () {
+        var win = document.getElementById('notepad');
+        if (win && win.style.display !== 'none') {
+          mpTaskbar.bringToFront(win);
+        } else {
+          openNotepad();
+          notepadNew();
+        }
+      }
+    },
+    {
+      label: t('desktop.newBitmap'),
+      handler: function () {
+        var win = document.getElementById('paint');
+        if (win && win.style.display !== 'none') {
+          mpTaskbar.bringToFront(win);
+        } else {
+          openPaint();
+          paintNew();
+        }
+      }
+    }
+  ]);
+
+  addSep();
+
+  /* Wallpaper submenu */
+  var wallpapers = ['none', 'sunset', 'dots', 'grid', 'diagonal', 'waves'];
+  var wpItems = wallpapers.map(function (id) {
+    return {
+      label: t('mc.display.wp.' + id),
+      checked: displaySettings.wallpaper === id,
+      handler: function () {
+        displaySettings.wallpaper = id;
+        applyDisplaySettings();
+        mcSaveSettings();
+      }
+    };
   });
+  addSubmenu('desktop.wallpaper', wpItems);
 
-  const sep = document.createElement('div');
-  sep.className = 'desktop-context-sep';
-  menu.appendChild(sep);
+  addSep();
 
+  /* Properties */
   addItem('desktop.properties', function () {
     openMyComputer();
     mcSwitchTab('display');
@@ -8091,6 +8160,16 @@ function showDesktopContextMenu(x, y) {
   if (menuTop < 0) menuTop = 0;
   menu.style.left = menuLeft + 'px';
   menu.style.top = menuTop + 'px';
+
+  /* Flip submenus left if they would overflow the right edge */
+  var subs = menu.querySelectorAll('.desktop-context-submenu');
+  var menuRight = areaRect.left + menuLeft + menuW;
+  subs.forEach(function (sub) {
+    sub.style.display = 'block';
+    var overflows = menuRight + sub.offsetWidth > areaRect.right;
+    sub.style.display = '';
+    if (overflows) sub.classList.add('flip-left');
+  });
 }
 
 (function () {

@@ -43,7 +43,10 @@ window._mpLangRegister('pt', {
   'desktop.files': 'Ficheiros',
   'desktop.wikiBrowser': 'WikiBrowser',
   'desktop.arrangeIcons': 'Organizar Ícones',
-  'desktop.alignToGrid': 'Alinhar à Grelha',
+  'desktop.new': 'Novo',
+  'desktop.newTextDoc': 'Documento de Texto',
+  'desktop.newBitmap': 'Imagem Bitmap',
+  'desktop.wallpaper': 'Papel de Parede',
   'desktop.properties': 'Propriedades',
 
   /* Window titles */
