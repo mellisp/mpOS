@@ -693,6 +693,7 @@ button.start-menu-item {
 .window.draggable {
   position: absolute;
   z-index: 10;
+  contain: layout style;
 }
 
 .window.draggable .titlebar {

@@ -636,6 +636,7 @@
       if (d.code === curDate) radio.checked = true;
       radio.addEventListener('change', () => {
         localStorage.setItem('mp-datefmt', d.code);
+        window.mpRefreshFormatCache?.();
       });
       opt.appendChild(radio);
       opt.appendChild(document.createTextNode(d.label));
@@ -664,6 +665,7 @@
       if (u.code === curTemp) radio.checked = true;
       radio.addEventListener('change', () => {
         localStorage.setItem('mp-tempunit', u.code);
+        window.mpRefreshFormatCache?.();
       });
       opt.appendChild(radio);
       opt.appendChild(document.createTextNode(u.label));
@@ -675,6 +677,14 @@
    *  Screensaver rendering
    * ════════════════════════════════════════════════════════════════════════ */
 
+  const SS_START_FNS = {
+    starfield: ssStartStarfield,
+    pipes: ssStartPipes,
+    bouncing: ssStartBouncing,
+    colorcycle: ssStartColorCycle,
+    mystify: ssStartMystify
+  };
+
   const ssUpdatePreview = (canvas) => {
     ssStopPreview();
     const ctx = canvas.getContext('2d');
@@ -683,16 +693,27 @@
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, w, h);
 
-    const type = ssSettings.type;
-    if (type === 'starfield')       ssPreviewInterval = ssStartStarfield(ctx, w, h);
-    else if (type === 'pipes')      ssPreviewInterval = ssStartPipes(ctx, w, h);
-    else if (type === 'bouncing')   ssPreviewInterval = ssStartBouncing(ctx, w, h);
-    else if (type === 'colorcycle') ssPreviewInterval = ssStartColorCycle(ctx, w, h);
-    else if (type === 'mystify')    ssPreviewInterval = ssStartMystify(ctx, w, h);
+    const fn = SS_START_FNS[ssSettings.type];
+    if (fn) ssPreviewInterval = fn(ctx, w, h);
   };
 
   const ssStopPreview = () => {
-    if (ssPreviewInterval) { clearInterval(ssPreviewInterval); ssPreviewInterval = null; }
+    if (ssPreviewInterval) { ssPreviewInterval.cancel(); ssPreviewInterval = null; }
+  };
+
+  /* rAF helper — returns { cancel } */
+  const ssRafLoop = (targetMs, drawFn) => {
+    let running = true;
+    let last = 0;
+    const loop = (time) => {
+      if (!running) return;
+      requestAnimationFrame(loop);
+      if (time - last < targetMs) return;
+      last = time;
+      drawFn();
+    };
+    requestAnimationFrame(loop);
+    return { cancel: () => { running = false; } };
   };
 
   /* Starfield */
@@ -701,7 +722,7 @@
     for (let i = 0; i < 100; i++) {
       stars.push({ x: (Math.random() - 0.5) * w * 2, y: (Math.random() - 0.5) * h * 2, z: Math.random() * w });
     }
-    return setInterval(() => {
+    return ssRafLoop(40, () => {
       ctx.fillStyle = 'rgba(0,0,0,0.2)';
       ctx.fillRect(0, 0, w, h);
       for (let j = 0; j < stars.length; j++) {
@@ -716,7 +737,7 @@
         ctx.arc(sx, sy, r, 0, Math.PI * 2);
         ctx.fill();
       }
-    }, 40);
+    });
   };
 
   /* Pipes */
@@ -729,7 +750,7 @@
     let segments = 0;
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, w, h);
-    return setInterval(() => {
+    return ssRafLoop(60, () => {
       const dx = [gridSize, 0, -gridSize, 0];
       const dy = [0, gridSize, 0, -gridSize];
       // Occasionally change direction
@@ -764,7 +785,7 @@
         px = Math.floor(Math.random() * (w / gridSize)) * gridSize;
         py = Math.floor(Math.random() * (h / gridSize)) * gridSize;
       }
-    }, 60);
+    });
   };
 
   /* Bouncing Logo — smiley face */
@@ -805,7 +826,7 @@
       ctx.stroke();
     };
 
-    return setInterval(() => {
+    return ssRafLoop(30, () => {
       ctx.fillStyle = 'rgba(0,0,0,0.15)';
       ctx.fillRect(0, 0, w, h);
       bx += vx;
@@ -813,13 +834,13 @@
       if (bx <= 0 || bx + size >= w) vx = -vx;
       if (by <= 0 || by + size >= h) vy = -vy;
       drawSmiley(bx + size / 2, by + size / 2, size / 2);
-    }, 30);
+    });
   };
 
   /* Color Cycling */
   const ssStartColorCycle = (ctx, w, h) => {
     let tick = 0;
-    return setInterval(() => {
+    return ssRafLoop(40, () => {
       tick += 2;
       const grad = ctx.createLinearGradient(0, 0, w, h);
       grad.addColorStop(0, `hsl(${tick % 360},70%,50%)`);
@@ -827,7 +848,7 @@
       grad.addColorStop(1, `hsl(${(tick + 240) % 360},70%,50%)`);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
-    }, 40);
+    });
   };
 
   /* Mystify — bouncing connected lines */
@@ -843,7 +864,7 @@
       }
       shapes.push({ pts, hue: s * 180, trail: [] });
     }
-    return setInterval(() => {
+    return ssRafLoop(40, () => {
       ctx.fillStyle = 'rgba(0,0,0,0.08)';
       ctx.fillRect(0, 0, w, h);
       for (let i = 0; i < shapes.length; i++) {
@@ -911,12 +932,8 @@
     document.body.appendChild(overlay);
 
     const ctx = canvas.getContext('2d');
-    const type = ssSettings.type;
-    if (type === 'starfield')       ssFullscreenInterval = ssStartStarfield(ctx, canvas.width, canvas.height);
-    else if (type === 'pipes')      ssFullscreenInterval = ssStartPipes(ctx, canvas.width, canvas.height);
-    else if (type === 'bouncing')   ssFullscreenInterval = ssStartBouncing(ctx, canvas.width, canvas.height);
-    else if (type === 'colorcycle') ssFullscreenInterval = ssStartColorCycle(ctx, canvas.width, canvas.height);
-    else if (type === 'mystify')    ssFullscreenInterval = ssStartMystify(ctx, canvas.width, canvas.height);
+    const fn = SS_START_FNS[ssSettings.type];
+    if (fn) ssFullscreenInterval = fn(ctx, canvas.width, canvas.height);
 
     const dismiss = (e) => {
       // Ignore the very first mousemove to prevent instant dismiss
@@ -929,13 +946,13 @@
     overlay.addEventListener('mousemove', dismiss);
     overlay.addEventListener('click', dismiss);
     overlay.addEventListener('keydown', dismiss);
-    overlay.addEventListener('touchstart', dismiss);
+    overlay.addEventListener('touchstart', dismiss, { passive: true });
   };
 
   const ssDeactivate = () => {
     if (!ssActive) return;
     ssActive = false;
-    if (ssFullscreenInterval) { clearInterval(ssFullscreenInterval); ssFullscreenInterval = null; }
+    if (ssFullscreenInterval) { ssFullscreenInterval.cancel(); ssFullscreenInterval = null; }
     const overlay = document.getElementById('ssOverlay');
     if (overlay) overlay.remove();
     ssResetIdleTimer();

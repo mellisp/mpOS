@@ -14,6 +14,11 @@ let paintPreview = null;
 let paintCtx = null;
 let paintPrevCtx = null;
 let paintCoordsEl = null;
+let paintUndoBtn = null;
+let paintRedoBtn = null;
+let paintStatusEl = null;
+let paintSizeValEl = null;
+let paintTitleEl = null;
 let paintBuilt = false;
 let paintTool = 'pencil';
 let paintFg = '#000000';
@@ -50,6 +55,11 @@ const paintSetup = () => {
   paintCtx = paintCanvas.getContext('2d');
   paintPrevCtx = paintPreview.getContext('2d');
   paintCoordsEl = document.getElementById('paintCoords');
+  paintUndoBtn = document.getElementById('paintUndoBtn');
+  paintRedoBtn = document.getElementById('paintRedoBtn');
+  paintStatusEl = document.getElementById('paintStatus');
+  paintSizeValEl = document.getElementById('paintSizeVal');
+  paintTitleEl = document.getElementById('paintTitle');
 
   const dpr = window.devicePixelRatio || 1;
   paintCanvas.width = paintW * dpr;
@@ -144,27 +154,22 @@ const paintGetPos = (e) => {
 };
 
 const paintSaveState = () => {
-  paintUndoStack.push(paintCanvas.toDataURL());
+  paintUndoStack.push(paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height));
   if (paintUndoStack.length > 20) paintUndoStack.shift();
   paintRedoStack = [];
   paintUpdateUndoButtons();
 };
 
 const paintUpdateUndoButtons = () => {
-  document.getElementById('paintUndoBtn').disabled = paintUndoStack.length <= 1;
-  document.getElementById('paintRedoBtn').disabled = paintRedoStack.length === 0;
+  paintUndoBtn.disabled = paintUndoStack.length <= 1;
+  paintRedoBtn.disabled = paintRedoStack.length === 0;
 };
 
-const paintRestoreState = (dataUrl) => {
-  const img = new Image();
-  img.onload = () => {
-    const dpr = window.devicePixelRatio || 1;
-    paintCtx.setTransform(1, 0, 0, 1, 0, 0);
-    paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-    paintCtx.drawImage(img, 0, 0);
-    paintCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  };
-  img.src = dataUrl;
+const paintRestoreState = (imageData) => {
+  const dpr = window.devicePixelRatio || 1;
+  paintCtx.setTransform(1, 0, 0, 1, 0, 0);
+  paintCtx.putImageData(imageData, 0, 0);
+  paintCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 };
 
 const paintUndo = () => {
@@ -349,14 +354,9 @@ const paintFloodFill = (startX, startY, fillColor) => {
   const imageData = paintCtx.getImageData(0, 0, cw, ch);
   const data = imageData.data;
 
-  // Parse fill color
-  const tmp = document.createElement('canvas');
-  tmp.width = 1; tmp.height = 1;
-  const tmpCtx = tmp.getContext('2d');
-  tmpCtx.fillStyle = fillColor;
-  tmpCtx.fillRect(0, 0, 1, 1);
-  const fc = tmpCtx.getImageData(0, 0, 1, 1).data;
-  const fr = fc[0], fg = fc[1], fb = fc[2], fa = fc[3];
+  // Parse hex fill color directly (paintFg is always #rrggbb)
+  const v = parseInt(fillColor.slice(1), 16);
+  const fr = (v >> 16) & 255, fg = (v >> 8) & 255, fb = v & 255, fa = 255;
 
   // Get target color
   const idx = (py * cw + px) * 4;
@@ -429,19 +429,19 @@ const paintSetTool = (tool) => {
 
 const paintSizeChange = (val) => {
   paintSize = parseInt(val, 10);
-  document.getElementById('paintSizeVal').textContent = val;
+  paintSizeValEl.textContent = val;
   paintUpdateStatus();
 };
 
 const paintUpdateStatus = () => {
   const name = t(`paint.tool.${paintTool}`);
   const size = paintTool === 'pencil' ? '1' : (paintTool === 'fill' ? '' : paintSize);
-  document.getElementById('paintStatus').textContent = name + (size ? `: ${size}px` : '');
+  paintStatusEl.textContent = name + (size ? `: ${size}px` : '');
 };
 
 const paintSetTitle = () => {
   const name = paintCurrentFile || t('paint.untitled');
-  document.getElementById('paintTitle').textContent = `${name}${paintDirty ? '* ' : ' '}${t('paint.titleSuffix')}`;
+  paintTitleEl.textContent = `${name}${paintDirty ? '* ' : ' '}${t('paint.titleSuffix')}`;
 };
 
 const paintClear = () => {
@@ -484,7 +484,7 @@ const paintSave = () => {
     paintPersist(files);
     paintDirty = false;
     paintSetTitle();
-    document.getElementById('paintStatus').textContent = t('paint.saved');
+    paintStatusEl.textContent = t('paint.saved');
     setTimeout(paintUpdateStatus, 1500);
   } else {
     paintShowSaveAs();

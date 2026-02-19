@@ -292,7 +292,7 @@
   // This relies on taskbar.js dispatching 'windowmove' events
   // We listen on document for the custom event
   document.addEventListener('windowmove', redrawCables);
-  window.addEventListener('resize', redrawCables);
+  window.addEventListener('resize', scheduleRedraw);
   // Also redraw periodically during any drag since windowmove fires on dragEnd
   let redrawRafId = null;
   const scheduleRedraw = () => {

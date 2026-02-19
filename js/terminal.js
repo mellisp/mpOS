@@ -200,6 +200,8 @@ const termPrint = (text, color) => {
   span.textContent = `${text}\n`;
   if (color) span.style.color = color;
   termOutput.appendChild(span);
+  // Cap output at 500 lines to prevent unbounded DOM growth
+  while (termOutput.childNodes.length > 500) termOutput.removeChild(termOutput.firstChild);
   termOutput.scrollTop = termOutput.scrollHeight;
 };
 
@@ -877,7 +879,13 @@ const cmdMatrix = () => {
   const cols = Math.floor(canvas.width / fontSize);
   const drops = [];
   for (let i = 0; i < cols; i++) drops[i] = Math.random() * -20 | 0;
-  matrixInterval = setInterval(() => {
+  let matrixRunning = true;
+  let matrixLast = 0;
+  const matrixLoop = (time) => {
+    if (!matrixRunning) return;
+    matrixInterval = requestAnimationFrame(matrixLoop);
+    if (time - matrixLast < 50) return;
+    matrixLast = time;
     ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#0f0';
@@ -888,12 +896,13 @@ const cmdMatrix = () => {
       if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
       drops[i]++;
     }
-  }, 50);
+  };
+  matrixInterval = requestAnimationFrame(matrixLoop);
   canvas.addEventListener('click', stopMatrix);
 };
 
 const stopMatrix = () => {
-  if (matrixInterval) { clearInterval(matrixInterval); matrixInterval = null; }
+  if (matrixInterval) { cancelAnimationFrame(matrixInterval); matrixInterval = null; }
   const c = document.querySelector('#run .matrix-canvas');
   if (c) c.remove();
 };

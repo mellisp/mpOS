@@ -266,25 +266,33 @@ function getItemIcon(name) {
 /* ── Formatting helpers ── */
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
 
+/* Cached format settings — refreshed via mpRefreshFormatCache() */
+let cachedDateFmt = localStorage.getItem('mp-datefmt') || 'mdy';
+let cachedTempUnit = localStorage.getItem('mp-tempunit') || 'C';
+function mpRefreshFormatCache() {
+  cachedDateFmt = localStorage.getItem('mp-datefmt') || 'mdy';
+  cachedTempUnit = localStorage.getItem('mp-tempunit') || 'C';
+}
+window.mpRefreshFormatCache = mpRefreshFormatCache;
+
 function mpFormatDate(date) {
-  const fmt = localStorage.getItem('mp-datefmt') || 'mdy';
   const mm = padTwo(date.getMonth() + 1);
   const dd = padTwo(date.getDate());
   const yyyy = date.getFullYear();
-  if (fmt === 'dmy') return `${dd}/${mm}/${yyyy}`;
-  if (fmt === 'ymd') return `${yyyy}-${mm}-${dd}`;
+  if (cachedDateFmt === 'dmy') return `${dd}/${mm}/${yyyy}`;
+  if (cachedDateFmt === 'ymd') return `${yyyy}-${mm}-${dd}`;
   return `${mm}/${dd}/${yyyy}`;
 }
 
 function mpFormatTemp(celsius) {
-  if (localStorage.getItem('mp-tempunit') === 'F') {
+  if (cachedTempUnit === 'F') {
     return Math.round(celsius * 9 / 5 + 32) + '\u00b0F';
   }
   return Math.round(celsius) + '\u00b0C';
 }
 
 function mpFormatTempShort(celsius) {
-  if (localStorage.getItem('mp-tempunit') === 'F') {
+  if (cachedTempUnit === 'F') {
     return Math.round(celsius * 9 / 5 + 32) + '\u00b0';
   }
   return Math.round(celsius) + '\u00b0';

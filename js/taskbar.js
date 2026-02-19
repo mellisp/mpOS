@@ -262,9 +262,9 @@
 
   const onDragMove = (clientX, clientY) => {
     if (!dragState) return;
-    const { win, ox, oy } = dragState;
-    const x = Math.max(0, Math.min(clientX - ox, window.innerWidth - win.offsetWidth));
-    const y = Math.max(0, Math.min(clientY - oy, window.innerHeight - win.offsetHeight));
+    const { win, ox, oy, winW, winH } = dragState;
+    const x = Math.max(0, Math.min(clientX - ox, window.innerWidth - winW));
+    const y = Math.max(0, Math.min(clientY - oy, window.innerHeight - winH));
     win.style.left = `${x}px`;
     win.style.top = `${y}px`;
     win.dispatchEvent(new Event('windowmove', { bubbles: true }));
@@ -288,13 +288,13 @@
     if (!titlebar) return;
     titlebar.addEventListener('mousedown', (e) => {
       if (e.target.classList.contains('titlebar-btn') || e.target.closest('.titlebar-buttons')) return;
-      dragState = { win, ox: e.clientX - win.offsetLeft, oy: e.clientY - win.offsetTop };
+      dragState = { win, ox: e.clientX - win.offsetLeft, oy: e.clientY - win.offsetTop, winW: win.offsetWidth, winH: win.offsetHeight };
       e.preventDefault();
     });
     titlebar.addEventListener('touchstart', (e) => {
       if (e.target.classList.contains('titlebar-btn') || e.target.closest('.titlebar-buttons')) return;
       const touch = e.touches[0];
-      dragState = { win, ox: touch.clientX - win.offsetLeft, oy: touch.clientY - win.offsetTop };
+      dragState = { win, ox: touch.clientX - win.offsetLeft, oy: touch.clientY - win.offsetTop, winW: win.offsetWidth, winH: win.offsetHeight };
     }, { passive: true });
   };
 

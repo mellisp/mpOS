@@ -717,7 +717,19 @@ let tmCurrentFps = 0;
 let tmRafId = null;
 let tmBuilt = false;
 let tmLastFrameTime = 0;
+let tmActiveTab = 'apps';
 const tmMonoFont = getComputedStyle(document.documentElement).getPropertyValue('--mono').trim();
+
+/* Cached TM DOM elements (set after tmBuildUI) */
+let tmCpuCanvasEl = null;
+let tmMemCanvasEl = null;
+let tmCpuStatusEl = null;
+let tmMemStatusEl = null;
+let tmPerfStatsEl = null;
+let tmCpuCachedW = 0;
+let tmCpuCachedH = 0;
+let tmMemCachedW = 0;
+let tmMemCachedH = 0;
 
 function tmFpsLoop(now) {
   tmFrameCount++;
@@ -862,9 +874,21 @@ function tmBuildUI() {
   body._tmTabPerf = tabPerf;
   body._tmAppsContent = appsContent;
   body._tmPerfContent = perfContent;
+
+  // Cache perf DOM elements
+  tmCpuCanvasEl = cpuCanvas;
+  tmMemCanvasEl = memCanvas;
+  tmPerfStatsEl = statsRow;
+  tmCpuStatusEl = null;
+  tmMemStatusEl = null;
+  tmCpuCachedW = 0;
+  tmCpuCachedH = 0;
+  tmMemCachedW = 0;
+  tmMemCachedH = 0;
 }
 
 function tmSwitchTab(tab) {
+  tmActiveTab = tab;
   const body = document.getElementById('taskmanagerBody');
   const tabApps = body._tmTabApps;
   const tabPerf = body._tmTabPerf;
@@ -968,37 +992,37 @@ function tmRefreshPerf() {
     if (tmMemHistory.length > 60) tmMemHistory.shift();
   }
 
-  // Draw graphs
-  const cpuCanvas = document.getElementById('tmCpuCanvas');
-  const memCanvas = document.getElementById('tmMemCanvas');
-  if (cpuCanvas) tmDrawGraph(cpuCanvas, tmFpsHistory, 80, 'FPS');
-  if (memCanvas) {
+  // Skip drawing when Performance tab is hidden
+  if (tmActiveTab !== 'perf') return;
+
+  // Draw graphs (use cached elements)
+  if (tmCpuCanvasEl) tmDrawGraph(tmCpuCanvasEl, tmFpsHistory, 80, 'FPS');
+  if (tmMemCanvasEl) {
     if (performance.memory) {
-      tmDrawGraph(memCanvas, tmMemHistory, performance.memory.jsHeapSizeLimit / 1048576, 'MB');
+      tmDrawGraph(tmMemCanvasEl, tmMemHistory, performance.memory.jsHeapSizeLimit / 1048576, 'MB');
     } else {
-      tmDrawUnavailable(memCanvas);
+      tmDrawUnavailable(tmMemCanvasEl);
     }
   }
 
   // Update statusbar
   const cpuPct = Math.min(100, Math.round(tmCurrentFps / 60 * 100));
-  const cpuStatus = document.getElementById('tmCpuStatus');
-  if (cpuStatus) cpuStatus.textContent = t('tm.cpuStatus', { pct: cpuPct });
+  if (!tmCpuStatusEl) tmCpuStatusEl = document.getElementById('tmCpuStatus');
+  if (tmCpuStatusEl) tmCpuStatusEl.textContent = t('tm.cpuStatus', { pct: cpuPct });
 
-  const memStatus = document.getElementById('tmMemStatus');
-  if (memStatus) memStatus.textContent = t('tm.memStatus', { value: mem !== null ? Math.round(mem) + ' MB' : '\u2014' });
+  if (!tmMemStatusEl) tmMemStatusEl = document.getElementById('tmMemStatus');
+  if (tmMemStatusEl) tmMemStatusEl.textContent = t('tm.memStatus', { value: mem !== null ? Math.round(mem) + ' MB' : '\u2014' });
 
-  // Update stats row
-  const statsRow = document.getElementById('tmPerfStats');
-  if (statsRow) {
-    statsRow.textContent = '';
+  // Update stats row (use cached element)
+  if (tmPerfStatsEl) {
+    tmPerfStatsEl.textContent = '';
     const fpsStat = document.createElement('span');
     fpsStat.textContent = 'FPS: ' + tmCurrentFps;
-    statsRow.appendChild(fpsStat);
+    tmPerfStatsEl.appendChild(fpsStat);
     if (mem !== null) {
       const memStat = document.createElement('span');
       memStat.textContent = 'Heap: ' + Math.round(mem) + ' MB';
-      statsRow.appendChild(memStat);
+      tmPerfStatsEl.appendChild(memStat);
     }
   }
 }
@@ -1007,8 +1031,16 @@ function tmDrawGraph(canvas, data, maxVal, unit) {
   const w = canvas.clientWidth;
   const h = canvas.clientHeight;
   if (w === 0 || h === 0) return;
-  canvas.width = w;
-  canvas.height = h;
+  // Only resize (which clears) when dimensions actually change
+  const isCpu = canvas === tmCpuCanvasEl;
+  const cachedW = isCpu ? tmCpuCachedW : tmMemCachedW;
+  const cachedH = isCpu ? tmCpuCachedH : tmMemCachedH;
+  if (w !== cachedW || h !== cachedH) {
+    canvas.width = w;
+    canvas.height = h;
+    if (isCpu) { tmCpuCachedW = w; tmCpuCachedH = h; }
+    else { tmMemCachedW = w; tmMemCachedH = h; }
+  }
   const ctx = canvas.getContext('2d');
 
   // Background

@@ -842,10 +842,16 @@
   document.addEventListener('click', ssRecordActivity);
   document.addEventListener('touchstart', ssRecordActivity);
 
+  let resizeRafId = null;
   window.addEventListener('resize', () => {
-    if (displaySettings.wallpaper !== 'none') applyDisplaySettings();
-    reclampDesktopIcons();
-    reclampStickyNotes();
+    cachedGrid = null;
+    if (resizeRafId) cancelAnimationFrame(resizeRafId);
+    resizeRafId = requestAnimationFrame(() => {
+      resizeRafId = null;
+      if (displaySettings.wallpaper !== 'none') applyDisplaySettings();
+      reclampDesktopIcons();
+      reclampStickyNotes();
+    });
   });
 
   /* ====================================================================
@@ -856,17 +862,21 @@
   const ICON_POSITION_KEY = 'mpOS-icon-positions';
   let iconDragState = null;
   let contextMenuEl = null;
+  const desktopArea = document.querySelector('.desktop-area');
 
+  let cachedGrid = null;
   const getGridDimensions = () => {
+    if (cachedGrid) return cachedGrid;
     const style = getComputedStyle(document.documentElement);
-    return {
+    cachedGrid = {
       colW: parseInt(style.getPropertyValue('--grid-col-w'), 10) || 84,
       rowH: parseInt(style.getPropertyValue('--grid-row-h'), 10) || 88
     };
+    return cachedGrid;
   };
 
   const getDefaultIconPositions = () => {
-    const area = document.querySelector('.desktop-area');
+    const area = desktopArea;
     if (!area) return {};
     const grid = getGridDimensions();
     const areaH = area.clientHeight - GRID_PADDING_TOP;
@@ -954,7 +964,7 @@
 
   const reclampDesktopIcons = () => {
     if (mobileQuery.matches) return;
-    const area = document.querySelector('.desktop-area');
+    const area = desktopArea;
     if (!area) return;
     const grid = getGridDimensions();
     const maxLeft = area.clientWidth - grid.colW;
@@ -1041,7 +1051,7 @@
 
   /* Icon selection + mousedown for drag */
   ;(() => {
-    const area = document.querySelector('.desktop-area');
+    const area = desktopArea;
     if (!area) return;
     const icons = area.querySelectorAll('.desktop-icon[data-icon]');
 
@@ -1074,7 +1084,7 @@
 
   const showDesktopContextMenu = (x, y) => {
     dismissContextMenu();
-    const area = document.querySelector('.desktop-area');
+    const area = desktopArea;
     if (!area) return;
     const areaRect = area.getBoundingClientRect();
 
@@ -1214,14 +1224,13 @@
   };
 
   ;(() => {
-    const area = document.querySelector('.desktop-area');
-    if (!area) return;
+    if (!desktopArea) return;
 
-    area.addEventListener('contextmenu', (e) => {
+    desktopArea.addEventListener('contextmenu', (e) => {
       if (mobileQuery.matches) return;
       /* Only on background, not on icons */
       let el = e.target;
-      while (el && el !== area) {
+      while (el && el !== desktopArea) {
         if (el.classList && el.classList.contains('desktop-icon')) return;
         el = el.parentElement;
       }
