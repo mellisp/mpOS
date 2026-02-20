@@ -16,7 +16,7 @@
   .chrome-bg { background: #d4d0c8; padding: 14px 24px; border: 2px outset #fff; margin-bottom: 4px; }
   .chrome-bg .cell span { color: #555; }
   .divider { border-top: 1px solid #ccc; margin: 28px 0; }
-  .palette { display: flex; gap: 4px; margin: 8px 0 16px; }
+  .palette { display: flex; gap: 4px; margin: 8px 0 16px; flex-wrap: wrap; }
   .swatch { width: 48px; height: 24px; border: 1px solid #999; font-size: 8px; display: flex;
             align-items: center; justify-content: center; color: #fff; text-shadow: 0 0 2px #000; }
 </style>
@@ -25,9 +25,10 @@
 
 <h1>mpOS Icon System</h1>
 <p class="note">
-  Bas Milius technique: 512 canvas, centered compositions, flat-middle linear gradients, ~60&deg; lighting.
-  All icons centered at (256,256) within ~384&times;384 live area (64px min margins).
-  Cool palette (steel blues, silver, slate) with per-category warm accents.
+  Bas Milius technique: 512 canvas, flat-middle gradients, 60&deg; lighting.
+  Instrument icons use exact compass/barometer treatment: gray face (#6b7280&rarr;#374151),
+  #e5e7eb silver bezel, stroke-width 12. Objects use stroke-width 6.
+  Abstract icons use stroke-width 24. Interior accents use stroke-width 12.
 </p>
 
 <div id="icons"></div>
@@ -36,65 +37,69 @@
 let _n = 0;
 
 // ── Color Palette ───────────────────────────────────────────────────
-// Each: [top/mid, bottom, stroke]
+// [top/mid, bottom, stroke] — Bas Milius exact where possible
 const C = {
-  steel:  ['#7a9ec8','#4a7aae','#5a8ab8'],
-  silver: ['#b0bcc8','#8a96a6','#9ca8b4'],
-  teal:   ['#5eafcf','#3a8aae','#4a9abd'],
-  gold:   ['#f0b824','#d49408','#e2a616'],
-  sage:   ['#6aae7a','#3a8a5a','#4a9a68'],
-  rose:   ['#d47a7a','#b04a4a','#c45a5a'],
-  amber:  ['#d4a460','#b07830','#c48e48'],
+  // Bas Milius exact
+  sun:    ['#fbbf24','#f59e0b','#f8af18'],
   ice:    ['#86c3db','#5eafcf','#72b9d5'],
-  plum:   ['#9a8ab0','#7a6a96','#8a7aa4'],
-  fog:    ['#d0d8e2','#bac4ce','#c4ced8'],
-  slate:  ['#6b7a8a','#4a5868','#5a6a7a'],
-  white:  ['#f0f4f8','#d8e0ea','#e4eaf0'],
-  red:    ['#e06050','#b83830','#cc4840'],
-  green:  ['#50b868','#308848','#409858'],
-  cloud:  ['#dce4ee','#b8c8da','#cad5e4'],
+  blue:   ['#3392d6','#2477b2','#2885c7'],
+  red:    ['#f87171','#dc2626','#ef4444'],
+  green:  ['#51cf66','#37b24d','#40c057'],
+  gray:   ['#d4d7dd','#bec1c6','#cdd0d5'],
+  dark:   ['#6b7280','#374151','#515a68'],
+  // Cool palette
+  steel:  ['#7a9ec8','#5680a8','#6890b8'],
+  teal:   ['#5eafcf','#3e8faf','#4ea0c0'],
+  amber:  ['#d4a460','#b48040','#c49250'],
+  sage:   ['#6aae7a','#4a8e5a','#5a9e6a'],
+  rose:   ['#d47a7a','#b45a5a','#c46a6a'],
+  plum:   ['#9a8ab0','#7a6a90','#8a7aa0'],
+  gold:   ['#f0b824','#d49408','#e2a616'],
+  // Surfaces
+  white:  ['#f0f4f8','#e2eaf0','#e8f0f4'],
+  fog:    ['#d0d8e2','#c0cad6','#c8d0dc'],
+  slate:  ['#5a6878','#384858','#4a5868'],
+  // Weather
+  cloud:  ['#dce4ee','#c8d4e4','#d0dae8'],
   dkcloud:['#9ca3af','#6b7280','#848b98'],
-  sun:    ['#f0b824','#d49408','#e2a616'],
-  rain:   ['#6aabe0','#3a7cb8','#4a90cc'],
-  snow:   ['#86c3db','#5eafcf','#72b9d5'],
+  wsun:   ['#f0b824','#d49408','#e2a616'],
+  rain:   ['#6aabe0','#4a90cc','#5a9dd8'],
+  snow:   ['#86c3db','#6eb0ca','#78b9d3'],
   bolt:   ['#f7b23b','#f59e0b','#f6a823'],
-  mist:   ['#d0d8e2','#bac4ce','#c4ced8'],
+  mist:   ['#d0d8e2','#c2ccd8','#c8d0da'],
 };
 
 // ── Helpers ─────────────────────────────────────────────────────────
-// Flat-middle gradient: 0→50% = c[0], 50→100% = c[1], ~60° diagonal
 const gr = (p, id, x1, y1, x2, y2, c) =>
   `<linearGradient id="${p}${id}" x1="${x1}" x2="${x2}" y1="${y1}" y2="${y2}" gradientUnits="userSpaceOnUse">` +
   `<stop offset="0" stop-color="${c[0]}"/><stop offset=".5" stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient>`;
 
-// Gradient coords for a shape bbox: ~60° diagonal from upper-left to lower-right
-const gc = (x, y, w, h) => [x + w*0.25, y + h*0.05, x + w*0.75, y + h*0.95];
+// 60° gradient coords (width-based angle, matches Bas Milius compass)
+const gc = (x, y, w, h) => [x + w*0.25, y + h/2 - w*0.433, x + w*0.75, y + h/2 + w*0.433];
 
-const R = (x, y, w, h, f, s, sw=6, rx=0) =>
-  `<rect x="${x}" y="${y}" width="${w}" height="${h}"${rx?` rx="${rx}"`:''} fill="${f}" stroke="${s}" stroke-width="${sw}" stroke-miterlimit="10"/>`;
-
-const Ci = (cx, cy, r, f, s, sw=6) =>
-  `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}" stroke="${s}" stroke-width="${sw}" stroke-miterlimit="10"/>`;
-
-const P = (d, f, s, sw=6) =>
-  `<path d="${d}" fill="${f}" stroke="${s}" stroke-width="${sw}" stroke-miterlimit="10"/>`;
-
-const SL = (x1, y1, x2, y2, s, sw=24) =>
-  `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${s}" stroke-width="${sw}" stroke-linecap="round" stroke-miterlimit="10"/>`;
+// Instrument face: exact Bas Milius compass gradient coords for r=144 at (256,256)
+const INST = [184, 131.3, 328, 380.7];
+const instGrad = (p, id='a') => gr(p, id, ...INST, C.dark);
+const instCircle = (p, id='a') =>
+  `<circle cx="256" cy="256" r="144" fill="url(#${p}${id})" stroke="#e5e7eb" stroke-miterlimit="10" stroke-width="12"/>`;
+// Colored instrument: same bezel, custom fill
+const cInstGrad = (p, id, c) => gr(p, id, ...INST, c);
+const cInstCircle = (p, id='a') =>
+  `<circle cx="256" cy="256" r="144" fill="url(#${p}${id})" stroke="#e5e7eb" stroke-miterlimit="10" stroke-width="12"/>`;
 
 function mkSvg(p, defs, body, size) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${body}</svg>`;
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// PART 1: WEATHER ICONS (Bas Milius elements + cool palette)
+// WEATHER ICONS (Bas Milius elements + cool palette)
 // ══════════════════════════════════════════════════════════════════════
 
 const WG = {
   sun: (p) =>
     `<linearGradient id="${p}sg" x1="73.5" x2="122.5" y1="55.6" y2="140.5" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f0b824"/><stop offset=".5" stop-color="#f0b824"/><stop offset="1" stop-color="#d49408"/></linearGradient>`,
   cloud: (p) =>
-    `<linearGradient id="${p}cg" x1="99.5" x2="232.6" y1="30.7" y2="261.4" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#dce4ee"/><stop offset=".5" stop-color="#dce4ee"/><stop offset="1" stop-color="#b8c8da"/></linearGradient>`,
+    `<linearGradient id="${p}cg" x1="99.5" x2="232.6" y1="30.7" y2="261.4" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#dce4ee"/><stop offset=".5" stop-color="#dce4ee"/><stop offset="1" stop-color="#c8d4e4"/></linearGradient>`,
   dkcloud: (p) =>
     `<linearGradient id="${p}dg" x1="99.5" x2="232.6" y1="30.7" y2="261.4" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#9ca3af"/><stop offset=".5" stop-color="#9ca3af"/><stop offset="1" stop-color="#6b7280"/></linearGradient>`,
   rain: (p) =>
@@ -104,24 +109,24 @@ const WG = {
   bolt: (p) =>
     `<linearGradient id="${p}bg" x1="8.7" x2="80.9" y1="17.1" y2="142.1" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f7b23b"/><stop offset=".5" stop-color="#f7b23b"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>`,
   fog: (p) =>
-    `<linearGradient id="${p}g1" x1="96" x2="168" y1="-2.4" y2="122.3" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d0d8e2"/><stop offset=".5" stop-color="#d0d8e2"/><stop offset="1" stop-color="#bac4ce"/></linearGradient>` +
-    `<linearGradient id="${p}g2" x1="96" x2="168" y1="-50.4" y2="74.3" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d0d8e2"/><stop offset=".5" stop-color="#d0d8e2"/><stop offset="1" stop-color="#bac4ce"/></linearGradient>`
+    `<linearGradient id="${p}g1" x1="96" x2="168" y1="-2.4" y2="122.3" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d0d8e2"/><stop offset=".5" stop-color="#d0d8e2"/><stop offset="1" stop-color="#c2ccd8"/></linearGradient>` +
+    `<linearGradient id="${p}g2" x1="96" x2="168" y1="-50.4" y2="74.3" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d0d8e2"/><stop offset=".5" stop-color="#d0d8e2"/><stop offset="1" stop-color="#c2ccd8"/></linearGradient>`
 };
 
 const WS = {
   sun: (p) =>
     `<symbol id="${p}s" viewBox="0 0 196 196"><circle cx="98" cy="98" r="49" fill="url(#${p}sg)" stroke="#e2a616" stroke-miterlimit="10" stroke-width="5"/><path fill="none" stroke="#f0b824" stroke-linecap="round" stroke-miterlimit="10" stroke-width="12" d="M98 24.3V6m0 184v-18.3M150.1 45.9l13-13M45.9 150.1l-13 13M45.9 45.9 33 33m130.1 130.1-13-13M6 98h18.3M190 98h-18.3"/></symbol>`,
   cloud: (p) =>
-    `<symbol id="${p}c" viewBox="0 0 350 222"><path fill="url(#${p}cg)" stroke="#cad5e4" stroke-miterlimit="10" stroke-width="6" d="m291 107-2.5.1A83.9 83.9 0 00135.6 43 56 56 0 0051 91a56.6 56.6 0 00.8 9A60 60 0 0063 219l4-.2v.2h224a56 56 0 000-112Z"/></symbol>`,
+    `<symbol id="${p}c" viewBox="0 0 350 222"><path fill="url(#${p}cg)" stroke="#d0dae8" stroke-miterlimit="10" stroke-width="6" d="m291 107-2.5.1A83.9 83.9 0 00135.6 43 56 56 0 0051 91a56.6 56.6 0 00.8 9A60 60 0 0063 219l4-.2v.2h224a56 56 0 000-112Z"/></symbol>`,
   dkcloud: (p) =>
     `<symbol id="${p}dc" viewBox="0 0 350 222"><path fill="url(#${p}dg)" stroke="#848b98" stroke-miterlimit="10" stroke-width="6" d="m291 107-2.5.1A83.9 83.9 0 00135.6 43 56 56 0 0051 91a56.6 56.6 0 00.8 9A60 60 0 0063 219l4-.2v.2h224a56 56 0 000-112Z"/></symbol>`,
   rain: (p) =>
-    `<symbol id="${p}r" viewBox="0 0 129 110"><path fill="url(#${p}r1)" stroke="#4a90cc" stroke-miterlimit="10" d="M8.5 56.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z"/><path fill="url(#${p}r2)" stroke="#4a90cc" stroke-miterlimit="10" d="M64.5 109.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z"/><path fill="url(#${p}r3)" stroke="#4a90cc" stroke-miterlimit="10" d="M120.5 74.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z"/></symbol>`,
+    `<symbol id="${p}r" viewBox="0 0 129 110"><path fill="url(#${p}r1)" stroke="#5a9dd8" stroke-miterlimit="10" d="M8.5 56.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z"/><path fill="url(#${p}r2)" stroke="#5a9dd8" stroke-miterlimit="10" d="M64.5 109.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z"/><path fill="url(#${p}r3)" stroke="#5a9dd8" stroke-miterlimit="10" d="M120.5 74.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z"/></symbol>`,
   flake: (p) =>
     `<symbol id="${p}f" viewBox="0 0 156.2 139">` +
-    `<path fill="url(#${p}f1)" stroke="#72b9d5" stroke-miterlimit="10" d="m41.7 31-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V4.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L6.6 11A4 4 0 001 12.5 4 4 0 002.5 18l5.8 3.3a13.7 13.7 0 000 6.5L2.5 31A4 4 0 001 36.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM19 29.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z"/>` +
-    `<path fill="url(#${p}f2)" stroke="#72b9d5" stroke-miterlimit="10" d="m97.7 121-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V94.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L62.6 101A4 4 0 0057 102.5 4 4 0 0058.5 108l5.8 3.3a13.7 13.7 0 000 6.5L58.5 121A4 4 0 0057 126.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM75 119.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z"/>` +
-    `<path fill="url(#${p}f3)" stroke="#72b9d5" stroke-miterlimit="10" d="m153.7 71-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V44.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L118.6 51A4 4 0 00113 52.5 4 4 0 00114.5 58l5.8 3.3a13.7 13.7 0 000 6.5L114.5 71A4 4 0 00113 76.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM131 69.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z"/>` +
+    `<path fill="url(#${p}f1)" stroke="#78b9d3" stroke-miterlimit="10" d="m41.7 31-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V4.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L6.6 11A4 4 0 001 12.5 4 4 0 002.5 18l5.8 3.3a13.7 13.7 0 000 6.5L2.5 31A4 4 0 001 36.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM19 29.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z"/>` +
+    `<path fill="url(#${p}f2)" stroke="#78b9d3" stroke-miterlimit="10" d="m97.7 121-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V94.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L62.6 101A4 4 0 0057 102.5 4 4 0 0058.5 108l5.8 3.3a13.7 13.7 0 000 6.5L58.5 121A4 4 0 0057 126.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM75 119.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z"/>` +
+    `<path fill="url(#${p}f3)" stroke="#78b9d3" stroke-miterlimit="10" d="m153.7 71-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V44.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L118.6 51A4 4 0 00113 52.5 4 4 0 00114.5 58l5.8 3.3a13.7 13.7 0 000 6.5L114.5 71A4 4 0 00113 76.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM131 69.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z"/>` +
     `</symbol>`,
   bolt: (p) =>
     `<symbol id="${p}b" viewBox="0 0 102.7 186.8"><path fill="url(#${p}bg)" stroke="#f6a823" stroke-miterlimit="10" stroke-width="4" d="m34.8 2-32 96h32l-16 80 80-112h-48l32-64h-48z"/></symbol>`,
@@ -147,370 +152,353 @@ function weatherIcon(key, size) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// PART 2: APP ICONS — Bas Milius style
-// All centered at (256,256), within ~384×384 live area
-// Natural proportions, no text elements, thick structural strokes
+// APP ICONS — Bas Milius treatment applied
+//
+// Instrument: exact compass/barometer (gray face, #e5e7eb bezel, sw 12)
+//   Interior accents: stroke-width 12, bright color
+//   Interior structure: stroke-width 6, #9ca3af
+//
+// Object: filled body + 1-2 details (like thermometer/windsock)
+//   Body outline: stroke-width 6
+//   Interior details: stroke-width 4-6
+//
+// Abstract: thick stroked paths (like wind/tornado)
+//   Main strokes: stroke-width 24
 // ══════════════════════════════════════════════════════════════════════
 
 const APPS = {
+
   // ── System ──────────────────────────────────────────────────────
 
-  // Monitor 280×188 + stand 40×32 + base 140×20 = 280×240 centered
+  // OBJECT: Monitor — Bas Milius gray (#d4d7dd) body + teal screen
   computer: { label:'My Computer', cat:'System', icon:(p) => {
-    const d = gr(p,'m',...gc(116,136,280,188),C.silver) + gr(p,'s',...gc(146,156,220,148),C.steel);
+    const d = gr(p,'m',...gc(108,128,296,200),C.gray) + gr(p,'s',...gc(128,148,256,164),C.teal);
     return { defs:d, body:
-      R(116,136,280,188,`url(#${p}m)`,C.silver[2],6,12) +
-      R(146,156,220,148,`url(#${p}s)`,C.steel[2],0) +
-      R(236,324,40,32,C.silver[0],C.silver[2],4) +
-      R(186,356,140,20,C.silver[0],C.silver[2],4,6) +
-      Ci(256,314,5,'#50b868','none',0)
+      `<rect x="108" y="128" width="296" height="200" rx="16" fill="url(#${p}m)" stroke="${C.gray[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<rect x="128" y="148" width="256" height="164" rx="6" fill="url(#${p}s)"/>` +
+      `<line x1="256" y1="328" x2="256" y2="368" stroke="${C.gray[2]}" stroke-width="12" stroke-linecap="round"/>` +
+      `<line x1="192" y1="380" x2="320" y2="380" stroke="${C.gray[2]}" stroke-width="12" stroke-linecap="round"/>`
     };
   }},
 
-  // Folder: back body + tab + front flap, ~310×210 centered
+  // OBJECT: Folder — amber back + gold front (like windsock structural strokes)
   files: { label:'Files', cat:'System', icon:(p) => {
-    const d = gr(p,'a',...gc(101,166,310,190),C.amber) + gr(p,'f',...gc(96,226,320,140),C.gold);
+    const d = gr(p,'b',...gc(96,172,320,200),C.amber) + gr(p,'f',...gc(86,232,340,148),C.sun);
     return { defs:d, body:
-      P('M111 181h280c8 0 14 6 14 14v160c0 8-6 14-14 14H111c-8 0-14-6-14-14V195c0-8 6-14 14-14Z',`url(#${p}a)`,C.amber[2],5) +
-      P('M111 181v-20c0-6 5-10 11-10h80c5 0 9 3 10 8l14 22','none',C.amber[2],5) +
-      P('M101 236h310c8 0 14 6 14 14v110c0 8-6 14-14 14H101c-8 0-14-6-14-14V250c0-8 6-14 14-14Z',`url(#${p}f)`,C.gold[2],5)
+      `<path d="M110 184h292a12 12 0 0112 12v160a12 12 0 01-12 12H110a12 12 0 01-12-12V196a12 12 0 0112-12Z" fill="url(#${p}b)" stroke="${C.amber[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<path d="M110 184v-22a10 10 0 0110-10h82l18 24" fill="none" stroke="${C.amber[2]}" stroke-width="6" stroke-linejoin="round" stroke-miterlimit="10"/>` +
+      `<path d="M98 240h316a12 12 0 0112 12v108a12 12 0 01-12 12H98a12 12 0 01-12-12V252a12 12 0 0112-12Z" fill="url(#${p}f)" stroke="${C.sun[2]}" stroke-width="6" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Bar chart: 4 vertical stroked bars like tornado style, ~220×220 centered
+  // ABSTRACT: 4 chart bars — stroke-width 36
   taskmanager: { label:'Task Manager', cat:'System', icon:(p) => {
-    const d =
-      gr(p,'b1',156,136,176,378,C.sage) +
-      gr(p,'b2',216,196,236,378,C.sage) +
-      gr(p,'b3',276,166,296,378,C.sage) +
-      gr(p,'b4',336,226,356,378,C.sage);
+    const d = gr(p,'1',148,144,188,378,C.sage) + gr(p,'2',218,204,258,378,C.sage) +
+      gr(p,'3',288,164,328,378,C.sage) + gr(p,'4',358,244,398,378,C.sage);
     return { defs:d, body:
-      SL(166,146,166,368,`url(#${p}b1)`,36) +
-      SL(226,206,226,368,`url(#${p}b2)`,36) +
-      SL(286,176,286,368,`url(#${p}b3)`,36) +
-      SL(346,236,346,368,`url(#${p}b4)`,36)
+      `<line x1="168" y1="156" x2="168" y2="370" stroke="url(#${p}1)" stroke-width="36" stroke-linecap="round" stroke-miterlimit="10"/>` +
+      `<line x1="238" y1="216" x2="238" y2="370" stroke="url(#${p}2)" stroke-width="36" stroke-linecap="round" stroke-miterlimit="10"/>` +
+      `<line x1="308" y1="176" x2="308" y2="370" stroke="url(#${p}3)" stroke-width="36" stroke-linecap="round" stroke-miterlimit="10"/>` +
+      `<line x1="378" y1="248" x2="378" y2="370" stroke="url(#${p}4)" stroke-width="36" stroke-linecap="round" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Terminal prompt: bracket + cursor, stroked paths like wind, ~280×180 centered
+  // ABSTRACT: prompt > + cursor _ — stroke-width 24
   run: { label:'Run', cat:'System', icon:(p) => {
-    const d = gr(p,'a',...gc(116,166,280,180),C.sage);
+    const d = gr(p,'a',136,166,336,366,C.sage);
     return { defs:d, body:
-      P('M160 202l60 54-60 54','none',`url(#${p}a)`,24) +
-      SL(260,310,360,310,`url(#${p}a)`,24)
+      `<path d="M152 192l88 64-88 64" fill="none" stroke="url(#${p}a)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<line x1="272" y1="320" x2="376" y2="320" stroke="url(#${p}a)" stroke-width="24" stroke-linecap="round"/>`
     };
   }},
 
   // ── Productivity ────────────────────────────────────────────────
 
-  // Paper sheet with corner fold + red margin + text lines, ~220×280 centered
+  // OBJECT: Page — white body, red margin, blue text lines (sw 6)
   notepad: { label:'Notepad', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',...gc(146,116,220,280),C.white);
+    const d = gr(p,'a',...gc(136,104,240,304),C.white);
     return { defs:d, body:
-      P('M146 120h160l60 60v212c0 4-3 8-8 8H154c-4 0-8-4-8-8V128c0-4 4-8 8-8Z',`url(#${p}a)`,C.fog[2],5) +
-      P('M306 120v60h60',C.fog[1],C.fog[2],5) +
-      SL(190,120,190,400,C.red[0],4) +
-      SL(210,200,346,200,C.steel[1],3) + SL(210,240,336,240,C.steel[1],3) +
-      SL(210,280,346,280,C.steel[1],3) + SL(210,320,326,320,C.steel[1],3)
+      `<path d="M144 104h164l68 68v228a12 12 0 01-12 12H144a12 12 0 01-12-12V116a12 12 0 0112-12Z" fill="url(#${p}a)" stroke="${C.gray[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<path d="M308 104v68h68" fill="${C.fog[1]}" stroke="${C.gray[2]}" stroke-width="6" stroke-linejoin="round" stroke-miterlimit="10"/>` +
+      `<line x1="184" y1="104" x2="184" y2="412" stroke="${C.red[2]}" stroke-width="4"/>` +
+      `<path d="M208 220h148m-148 56h124m-124 56h148" fill="none" stroke="#bec1c6" stroke-width="6" stroke-linecap="round"/>`
     };
   }},
 
-  // Calculator: body + display + 3×3 button grid dots, ~200×280 centered
+  // OBJECT: Calculator — gray body + teal display + 3 buttons
   calculator: { label:'Calculator', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',...gc(156,116,200,280),C.silver) + gr(p,'d',...gc(176,136,160,80),C.teal);
+    const d = gr(p,'a',...gc(144,104,224,304),C.gray) + gr(p,'d',...gc(172,132,168,80),C.teal);
     return { defs:d, body:
-      R(156,116,200,280,`url(#${p}a)`,C.silver[2],6,14) +
-      R(176,136,160,80,`url(#${p}d)`,C.teal[2],4,8) +
-      R(186,246,40,30,C.fog[0],C.fog[2],2,4) + R(236,246,40,30,C.fog[0],C.fog[2],2,4) + R(286,246,40,30,C.gold[0],C.gold[2],2,4) +
-      R(186,288,40,30,C.fog[0],C.fog[2],2,4) + R(236,288,40,30,C.fog[0],C.fog[2],2,4) + R(286,288,40,30,C.steel[0],C.steel[2],2,4) +
-      R(186,330,40,30,C.fog[0],C.fog[2],2,4) + R(236,330,40,30,C.fog[0],C.fog[2],2,4) + R(286,330,40,30,C.steel[0],C.steel[2],2,4) +
-      R(186,372,40,30,C.sage[0],C.sage[2],2,4)
+      `<rect x="144" y="104" width="224" height="304" rx="20" fill="url(#${p}a)" stroke="${C.gray[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<rect x="172" y="132" width="168" height="80" rx="10" fill="url(#${p}d)" stroke="${C.teal[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="208" cy="272" r="20" fill="${C.white[0]}" stroke="${C.fog[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="272" cy="272" r="20" fill="${C.white[0]}" stroke="${C.fog[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="336" cy="272" r="20" fill="${C.sun[0]}" stroke="${C.sun[2]}" stroke-width="4" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Calendar page: red header + ring clips + dot grid, ~280×260 centered
+  // OBJECT: Calendar — red header + white body + 2 clips
   calendar: { label:'Calendar', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'h',...gc(116,146,280,40),C.red) + gr(p,'b',...gc(116,186,280,200),C.white);
+    const d = gr(p,'h',...gc(112,152,288,52),C.red) + gr(p,'b',...gc(112,204,288,188),C.white);
     return { defs:d, body:
-      R(116,146,280,40,`url(#${p}h)`,C.red[2],5,10) +
-      R(116,186,280,200,`url(#${p}b)`,C.fog[2],4,0) +
-      R(176,122,24,48,C.silver[0],C.silver[2],4,4) + R(316,122,24,48,C.silver[0],C.silver[2],4,4) +
-      [0,1,2,3,4].flatMap(r => [0,1,2,3,4,5,6].map(c =>
-        Ci(152+c*36, 216+r*32, 6, r===0?C.slate[0]:C.steel[0],'none',0)
-      )).join('')
+      `<rect x="112" y="152" width="288" height="52" rx="12" fill="url(#${p}h)" stroke="${C.red[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<rect x="112" y="204" width="288" height="188" fill="url(#${p}b)" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<rect x="180" y="128" width="24" height="48" rx="8" fill="${C.gray[0]}" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<rect x="308" y="128" width="24" height="48" rx="8" fill="${C.gray[0]}" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<path d="M148 244h216m-216 44h216m-216 44h216M228 216v144m80-144v144" fill="none" stroke="${C.fog[2]}" stroke-width="3"/>`
     };
   }},
 
-  // Sticky note: square with corner fold, ~260×260 centered
+  // OBJECT: Sticky note — gold body + fold + text lines
   stickynotes: { label:'Sticky Notes', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',...gc(126,126,260,260),C.gold);
+    const d = gr(p,'a',...gc(124,124,264,264),C.sun);
     return { defs:d, body:
-      P('M136 126h240v210l-50 50H136V126Z',`url(#${p}a)`,C.gold[2],5) +
-      P('M326 336v50h50',C.amber[1],C.amber[2],4) +
-      SL(176,196,336,196,C.amber[2],3) + SL(176,240,316,240,C.amber[2],3) +
-      SL(176,284,336,284,C.amber[2],3)
+      `<path d="M132 124h248v216l-56 56H132V124Z" fill="url(#${p}a)" stroke="${C.sun[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<path d="M324 340v56h56" fill="${C.amber[1]}" stroke="${C.amber[2]}" stroke-width="4" stroke-miterlimit="10" stroke-linejoin="round"/>` +
+      `<path d="M172 204h168m-168 56h140m-140 56h168" fill="none" stroke="${C.amber[2]}" stroke-width="6" stroke-linecap="round"/>`
     };
   }},
 
-  // Magnifying glass: circle + handle (offset center like Bas Milius compass), ~300×300
+  // OBJECT: Magnifying glass — ice ring sw 12 + white lens + gray handle sw 40
   search: { label:'Search', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',...gc(96,96,220,220),C.ice) + gr(p,'h',300,300,420,420,C.silver);
+    const d = gr(p,'a',...gc(80,80,228,228),C.ice);
     return { defs:d, body:
-      Ci(206,206,110,`url(#${p}a)`,C.ice[2],12) +
-      Ci(206,206,70,C.white[0],'none',0) +
-      `<line x1="286" y1="286" x2="400" y2="400" stroke="url(#${p}h)" stroke-width="40" stroke-linecap="round" stroke-miterlimit="10"/>`
+      `<circle cx="194" cy="194" r="114" fill="url(#${p}a)" stroke="${C.ice[2]}" stroke-width="12" stroke-miterlimit="10"/>` +
+      `<circle cx="194" cy="194" r="72" fill="${C.white[0]}"/>` +
+      `<line x1="278" y1="278" x2="400" y2="400" stroke="${C.gray[2]}" stroke-width="40" stroke-linecap="round"/>`
     };
   }},
 
-  // Question mark on circle (like compass), r=140 centered
+  // INSTRUMENT: Help — gray compass face + white ? (sw 16) + dot
   help: { label:'Help', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',...gc(116,116,280,280),C.amber);
+    const d = instGrad(p);
     return { defs:d, body:
-      Ci(256,256,140,`url(#${p}a)`,C.amber[2],6) +
-      P('M220 210c0-28 16-50 36-50s36 22 36 50c0 20-14 36-28 42v16','none',C.white[0],12) +
-      Ci(256,340,10,C.white[0],'none',0)
+      instCircle(p) +
+      `<path d="M212 196a52 52 0 0188 20c0 28-18 40-36 48v16" fill="none" stroke="#e5e7eb" stroke-width="16" stroke-linecap="round"/>` +
+      `<circle cx="256" cy="340" r="12" fill="#e5e7eb"/>`
     };
   }},
 
   // ── Internet ────────────────────────────────────────────────────
 
-  // Globe with meridians, r=150 centered
+  // INSTRUMENT: Globe — teal face + #e5e7eb bezel sw 12 + white meridians
   wikibrowser: { label:'WikiBrowser', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',...gc(106,106,300,300),C.teal);
+    const d = cInstGrad(p, 'a', C.teal);
     return { defs:d, body:
-      Ci(256,256,150,`url(#${p}a)`,C.teal[2],6) +
-      `<ellipse cx="256" cy="256" rx="55" ry="144" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
-      `<ellipse cx="256" cy="256" rx="108" ry="144" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
-      SL(110,220,402,220,C.teal[2],3) + SL(106,256,406,256,C.teal[2],3) + SL(110,292,402,292,C.teal[2],3)
+      cInstCircle(p, 'a') +
+      `<ellipse cx="256" cy="256" rx="52" ry="132" fill="none" stroke="#e5e7eb" stroke-width="4"/>` +
+      `<ellipse cx="256" cy="256" rx="104" ry="132" fill="none" stroke="#e5e7eb" stroke-width="4"/>` +
+      `<path d="M118 216h276m-276 40h276m-276 40h276" fill="none" stroke="#e5e7eb" stroke-width="4"/>`
     };
   }},
 
-  // Book/document: pages + spine, ~240×260 centered
+  // SCENE: Back page (fog) + front page (slate) + white text lines
   archivebrowser: { label:'Archive Browser', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',...gc(146,126,220,260),C.slate) + gr(p,'p',...gc(156,136,200,240),C.fog);
+    const d = gr(p,'b',...gc(152,120,208,272),C.fog) + gr(p,'f',...gc(132,148,208,272),C.slate);
     return { defs:d, body:
-      R(156,136,200,240,`url(#${p}p)`,C.fog[2],4,6) +
-      R(146,126,200,260,`url(#${p}a)`,C.slate[2],5,6) +
-      SL(176,200,316,200,C.fog[0],3) + SL(176,236,296,236,C.fog[0],3) +
-      SL(176,272,306,272,C.fog[0],3) + SL(176,308,286,308,C.fog[0],3)
+      `<rect x="152" y="120" width="208" height="272" rx="12" fill="url(#${p}b)" stroke="${C.gray[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<rect x="132" y="148" width="208" height="272" rx="12" fill="url(#${p}f)" stroke="${C.slate[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<path d="M168 220h136m-136 44h112m-112 44h136m-136 44h100" fill="none" stroke="${C.fog[0]}" stroke-width="6" stroke-linecap="round"/>`
     };
   }},
 
-  // Fish: elliptical body + tail, ~300×160 centered
+  // OBJECT: Fish — sage body + tail + eye
   fishoftheday: { label:'Fish of the Day', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',...gc(146,176,240,160),C.sage);
+    const d = gr(p,'a',...gc(148,180,232,152),C.sage);
     return { defs:d, body:
-      `<ellipse cx="280" cy="256" rx="110" ry="70" fill="url(#${p}a)" stroke="${C.sage[2]}" stroke-width="5" stroke-miterlimit="10"/>` +
-      P('M170 256l-60-46v92Z',C.sage[0],C.sage[2],4) +
-      Ci(336,238,12,C.white[0],C.slate[0],3) + Ci(340,234,5,C.slate[0],'none',0) +
-      P('M220 226c26-14 64-14 90 0','none',C.sage[2],3)
+      `<ellipse cx="280" cy="256" rx="112" ry="72" fill="url(#${p}a)" stroke="${C.sage[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<path d="M168 256l-60-48v96Z" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="4" stroke-linejoin="round"/>` +
+      `<circle cx="340" cy="240" r="14" fill="${C.white[0]}" stroke="${C.dark[0]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="344" cy="236" r="6" fill="${C.dark[0]}"/>`
     };
   }},
 
-  // Magnifying glass + fish inside, ~300×300
+  // OBJECT: Magnifying glass (teal, sw 12) + fish inside + gray handle
   fishfinder: { label:'Fish Finder', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',...gc(86,86,220,220),C.teal) + gr(p,'h',290,290,410,410,C.silver);
+    const d = gr(p,'a',...gc(72,72,228,228),C.teal);
     return { defs:d, body:
-      Ci(196,196,110,`url(#${p}a)`,C.teal[2],12) +
-      `<ellipse cx="206" cy="196" rx="40" ry="26" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="3" stroke-miterlimit="10"/>` +
-      P('M166 196l-18-14v28Z',C.sage[0],C.sage[2],2) +
-      Ci(222,190,4,C.white[0],'none',0) +
-      `<line x1="280" y1="280" x2="400" y2="400" stroke="url(#${p}h)" stroke-width="36" stroke-linecap="round" stroke-miterlimit="10"/>`
+      `<circle cx="186" cy="186" r="114" fill="url(#${p}a)" stroke="${C.teal[2]}" stroke-width="12" stroke-miterlimit="10"/>` +
+      `<ellipse cx="196" cy="186" rx="40" ry="24" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<path d="M156 186l-20-16v32Z" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="3" stroke-linejoin="round"/>` +
+      `<line x1="272" y1="272" x2="400" y2="400" stroke="${C.gray[2]}" stroke-width="40" stroke-linecap="round"/>`
     };
   }},
 
-  // Fish tank: rounded rect + water + 2 fish, ~300×260 centered
+  // SCENE: Tank (ice, sw 6) + teal water + 2 fish
   aquarium: { label:'Virtual Aquarium', cat:'Internet', icon:(p) => {
-    const d = gr(p,'t',...gc(106,126,300,260),C.ice) + gr(p,'w',...gc(106,206,300,180),C.teal);
+    const d = gr(p,'t',...gc(104,132,304,248),C.ice) + gr(p,'w',...gc(104,220,304,154),C.teal);
     return { defs:d, body:
-      R(106,126,300,260,`url(#${p}t)`,C.ice[2],6,12) +
-      R(112,206,288,174,`url(#${p}w)`,'none',0,8) +
-      `<ellipse cx="190" cy="280" rx="28" ry="18" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="2" stroke-miterlimit="10"/>` +
-      P('M162 280l-14-10v20Z',C.sage[0],C.sage[2],2) +
-      `<ellipse cx="320" cy="320" rx="34" ry="22" fill="${C.gold[0]}" stroke="${C.gold[2]}" stroke-width="2" stroke-miterlimit="10"/>` +
-      P('M286 320l-16-12v24Z',C.gold[0],C.gold[2],2) +
-      R(160,356,60,14,C.amber[0],'none',0,4) + R(280,350,40,20,C.sage[1],'none',0,6)
+      `<rect x="104" y="132" width="304" height="248" rx="16" fill="url(#${p}t)" stroke="${C.ice[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<rect x="110" y="220" width="292" height="154" rx="10" fill="url(#${p}w)"/>` +
+      `<ellipse cx="196" cy="284" rx="28" ry="18" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="3" stroke-miterlimit="10"/>` +
+      `<ellipse cx="336" cy="324" rx="32" ry="20" fill="${C.sun[0]}" stroke="${C.sun[2]}" stroke-width="3" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Radar: circle + crosshairs + dots, r=140 centered (like barometer)
+  // INSTRUMENT: Radar — gray face + crosshairs (sw 6) + green blips
   neotracker: { label:'NEO Tracker', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',...gc(116,116,280,280),C.slate);
+    const d = instGrad(p);
     return { defs:d, body:
-      Ci(256,256,140,`url(#${p}a)`,C.slate[2],6) +
-      Ci(256,256,90,'none',C.fog[2],2) + Ci(256,256,45,'none',C.fog[2],2) +
-      SL(256,116,256,396,C.fog[2],3) + SL(116,256,396,256,C.fog[2],3) +
-      Ci(290,220,10,C.sage[0],C.sage[2],2) + Ci(230,290,7,C.sage[0],C.sage[2],2)
+      instCircle(p) +
+      `<circle cx="256" cy="256" r="92" fill="none" stroke="#9ca3af" stroke-width="4"/>` +
+      `<path d="M256 112v288M112 256h288" fill="none" stroke="#9ca3af" stroke-width="6"/>` +
+      `<circle cx="300" cy="216" r="14" fill="${C.green[0]}" stroke="${C.green[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="224" cy="300" r="10" fill="${C.green[0]}" stroke="${C.green[2]}" stroke-width="3" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Globe + location pin, r=150 centered
+  // INSTRUMENT: Globe (teal, sw 12 bezel) + white lines + red pin
   visitormap: { label:'Visitor Map', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',...gc(106,106,300,300),C.teal) + gr(p,'p',...gc(220,170,72,100),C.rose);
+    const d = cInstGrad(p, 'a', C.teal) + gr(p,'p',...gc(220,168,72,104),C.red);
     return { defs:d, body:
-      Ci(256,256,150,`url(#${p}a)`,C.teal[2],6) +
-      `<ellipse cx="256" cy="256" rx="55" ry="144" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
-      SL(110,220,402,220,C.teal[2],3) + SL(106,256,406,256,C.teal[2],3) + SL(110,292,402,292,C.teal[2],3) +
-      P('M290 230c0-20-15-36-34-36s-34 16-34 36c0 36 34 56 34 56s34-36 34-56Z',`url(#${p}p)`,C.rose[2],3) +
-      Ci(256,228,11,C.white[0],'none',0)
+      cInstCircle(p, 'a') +
+      `<ellipse cx="256" cy="256" rx="52" ry="132" fill="none" stroke="#e5e7eb" stroke-width="4"/>` +
+      `<path d="M118 216h276m-276 80h276" fill="none" stroke="#e5e7eb" stroke-width="4"/>` +
+      `<path d="M292 224c0-20-16-36-36-36s-36 16-36 36c0 36 36 56 36 56s36-36 36-56Z" fill="url(#${p}p)" stroke="${C.red[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="256" cy="222" r="10" fill="#fff"/>`
     };
   }},
 
-  // Speech bubble: rounded shape + tail, ~280×220 centered
+  // OBJECT: Speech bubble — steel body (sw 6) + white text lines (sw 8)
   chat: { label:'Chat', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',...gc(116,126,280,220),C.steel);
+    const d = gr(p,'a',...gc(108,124,296,244),C.steel);
     return { defs:d, body:
-      P('M156 136h200c22 0 40 18 40 40v100c0 22-18 40-40 40H236l-56 48v-48h-24c-22 0-40-18-40-40V176c0-22 18-40 40-40Z',`url(#${p}a)`,C.steel[2],5) +
-      SL(196,206,320,206,C.white[0],4) + SL(196,246,300,246,C.white[0],4) + SL(196,286,280,286,C.white[0],4)
+      `<path d="M156 132h200a44 44 0 0144 44v108a44 44 0 01-44 44H232l-56 48v-48h-20a44 44 0 01-44-44V176a44 44 0 0144-44Z" fill="url(#${p}a)" stroke="${C.steel[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<path d="M196 204h120m-120 44h96" fill="none" stroke="${C.white[0]}" stroke-width="8" stroke-linecap="round"/>`
     };
   }},
 
   // ── Games ───────────────────────────────────────────────────────
 
-  // Bullseye: concentric rings r=144 centered (like compass)
+  // INSTRUMENT: Target — rose face + white ring + rose center + crosshairs (sw 6)
   ontarget: { label:'On Target', cat:'Games', icon:(p) => {
-    const d = gr(p,'a',...gc(112,112,288,288),C.rose) + gr(p,'b',...gc(146,146,220,220),C.white);
+    const d = cInstGrad(p, 'a', C.rose) + gr(p,'b',...gc(160,160,192,192),C.white);
     return { defs:d, body:
-      Ci(256,256,144,`url(#${p}a)`,C.rose[2],5) +
-      Ci(256,256,100,`url(#${p}b)`,C.fog[2],3) +
-      Ci(256,256,56,C.rose[0],C.rose[2],3) +
-      Ci(256,256,18,C.white[0],C.fog[2],2) +
-      SL(256,96,256,416,C.slate[0],3) + SL(96,256,416,256,C.slate[0],3)
+      cInstCircle(p, 'a') +
+      `<circle cx="256" cy="256" r="96" fill="url(#${p}b)" stroke="${C.gray[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<circle cx="256" cy="256" r="48" fill="${C.rose[0]}" stroke="${C.rose[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<path d="M256 100v312M100 256h312" fill="none" stroke="${C.dark[0]}" stroke-width="6"/>`
     };
   }},
 
-  // Chicken: round body + comb + eye + beak + feet, ~260×260 centered
+  // OBJECT: Chicken — gold round body + red comb + eye + beak
   chickenfingers: { label:'Chicken Fingers', cat:'Games', icon:(p) => {
-    const d = gr(p,'a',...gc(136,146,240,220),C.gold);
+    const d = gr(p,'a',...gc(136,140,240,232),C.sun);
     return { defs:d, body:
-      Ci(256,256,110,`url(#${p}a)`,C.gold[2],5) +
-      P('M234 146c0-18 10-32 22-32s22 14 22 32',C.rose[0],C.rose[2],3) +
-      Ci(228,230,10,C.slate[0],'none',0) + Ci(231,227,3,C.white[0],'none',0) +
-      P('M200 266h-36l-8 14 44-4Z',C.gold[1],C.gold[2],3) +
-      SL(230,366,230,396,C.gold[1],6) + SL(280,366,280,396,C.gold[1],6)
+      `<circle cx="256" cy="256" r="112" fill="url(#${p}a)" stroke="${C.sun[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<path d="M232 144c0-20 10-32 24-32s24 12 24 32" fill="${C.red[0]}" stroke="${C.red[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="220" cy="232" r="12" fill="${C.dark[0]}"/>` +
+      `<path d="M188 272h-40l-8 16 48-4Z" fill="${C.amber[1]}" stroke="${C.amber[2]}" stroke-width="4" stroke-linejoin="round"/>`
     };
   }},
 
-  // Bricks: 3×3 grid of bricks + paddle + ball, ~280×240 centered
+  // SCENE: Dark field (slate, sw 6) + 3 colored bricks + ball
   brickbreaker: { label:'Brick Breaker', cat:'Games', icon:(p) => {
-    const br = (x,y,c) => R(x,y,80,24,c[0],c[2],2,4);
-    const d = gr(p,'bg',...gc(116,136,280,240),C.slate);
+    const d = gr(p,'bg',...gc(112,132,288,248),C.slate);
     return { defs:d, body:
-      R(116,136,280,240,`url(#${p}bg)`,C.slate[2],5,10) +
-      br(136,156,C.rose) + br(226,156,C.gold) + br(316,156,C.sage) +
-      br(136,188,C.gold) + br(226,188,C.sage) + br(316,188,C.rose) +
-      br(136,220,C.sage) + br(226,220,C.rose) + br(316,220,C.gold) +
-      R(206,340,100,16,C.silver[0],C.silver[2],3,6) +
-      Ci(256,316,7,C.white[0],C.fog[2],2)
+      `<rect x="112" y="132" width="288" height="248" rx="16" fill="url(#${p}bg)" stroke="${C.slate[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<rect x="132" y="164" width="92" height="36" rx="8" fill="${C.rose[0]}" stroke="${C.rose[2]}" stroke-width="3" stroke-miterlimit="10"/>` +
+      `<rect x="236" y="164" width="92" height="36" rx="8" fill="${C.sun[0]}" stroke="${C.sun[2]}" stroke-width="3" stroke-miterlimit="10"/>` +
+      `<rect x="132" y="212" width="92" height="36" rx="8" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="3" stroke-miterlimit="10"/>` +
+      `<circle cx="256" cy="320" r="12" fill="${C.white[0]}" stroke="${C.gray[2]}" stroke-width="3" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Fractal: concentric circles like the compass/barometer, r=144 centered
+  // INSTRUMENT: Fractal — plum face + #e5e7eb bezel + concentric rings
   fractalexplorer: { label:'Fractal Explorer', cat:'Games', icon:(p) => {
-    const d = gr(p,'a',...gc(112,112,288,288),C.plum);
+    const d = cInstGrad(p, 'a', C.plum);
     return { defs:d, body:
-      Ci(256,256,144,`url(#${p}a)`,C.plum[2],5) +
-      Ci(256,256,108,'none',C.ice[2],3) +
-      Ci(256,256,72,'none',C.teal[2],3) +
-      Ci(256,256,36,C.ice[0],C.ice[2],3) +
-      Ci(200,200,24,'none',C.plum[2],3) + Ci(312,200,24,'none',C.plum[2],3) +
-      Ci(200,312,24,'none',C.plum[2],3) + Ci(312,312,24,'none',C.plum[2],3)
+      cInstCircle(p, 'a') +
+      `<circle cx="256" cy="256" r="100" fill="none" stroke="#e5e7eb" stroke-width="4"/>` +
+      `<circle cx="256" cy="256" r="60" fill="none" stroke="${C.ice[2]}" stroke-width="4"/>` +
+      `<circle cx="256" cy="256" r="24" fill="${C.ice[0]}" stroke="${C.ice[2]}" stroke-width="4" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Slot machine: 3 windows in a row + lever, ~280×220 centered
+  // OBJECT: Slot machine — amber body (sw 6) + 3 white windows
   slotmachine: { label:'Slot Machine', cat:'Games', icon:(p) => {
-    const d = gr(p,'a',...gc(116,146,280,220),C.amber) + gr(p,'w',...gc(140,176,60,120),C.white);
+    const d = gr(p,'a',...gc(120,148,272,216),C.amber);
     return { defs:d, body:
-      R(116,146,280,220,`url(#${p}a)`,C.amber[2],5,12) +
-      R(140,176,60,120,`url(#${p}w)`,C.fog[2],3,6) +
-      R(226,176,60,120,`url(#${p}w)`,C.fog[2],3,6) +
-      R(312,176,60,120,`url(#${p}w)`,C.fog[2],3,6) +
-      Ci(170,236,14,C.rose[0],C.rose[2],2) +
-      Ci(256,236,14,C.sage[0],C.sage[2],2) +
-      Ci(342,236,14,C.gold[0],C.gold[2],2) +
-      R(186,332,140,20,C.rose[0],C.rose[2],3,6)
+      `<rect x="120" y="148" width="272" height="216" rx="16" fill="url(#${p}a)" stroke="${C.amber[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<rect x="148" y="180" width="60" height="108" rx="8" fill="${C.white[0]}" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<rect x="226" y="180" width="60" height="108" rx="8" fill="${C.white[0]}" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<rect x="304" y="180" width="60" height="108" rx="8" fill="${C.white[0]}" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>`
     };
   }},
 
   // ── Audio ───────────────────────────────────────────────────────
 
-  // 4 fader lines: tornado-style vertical stroked bars, ~240×240 centered
+  // ABSTRACT: 4 fader tracks (sw 6) + 2 slider knobs
   noisemixer: { label:'Noise Mixer', cat:'Audio', icon:(p) => {
-    const d =
-      gr(p,'t1',148,136,188,376,C.fog) + gr(p,'k1',148,196,188,236,C.silver) +
-      gr(p,'t2',218,136,258,376,C.fog) + gr(p,'k2',218,256,258,296,C.silver) +
-      gr(p,'t3',288,136,328,376,C.fog) + gr(p,'k3',288,176,328,216,C.silver) +
-      gr(p,'t4',358,136,398,376,C.fog) + gr(p,'k4',358,296,398,336,C.silver);
+    const d = gr(p,'1',148,136,188,378,C.gray) + gr(p,'2',218,136,258,378,C.gray) +
+      gr(p,'3',288,136,328,378,C.gray) + gr(p,'4',358,136,398,378,C.gray);
     return { defs:d, body:
-      SL(168,148,168,364,`url(#${p}t1)`,6) + R(156,206,24,18,`url(#${p}k1)`,C.silver[2],2,4) +
-      SL(238,148,238,364,`url(#${p}t2)`,6) + R(226,266,24,18,`url(#${p}k2)`,C.silver[2],2,4) +
-      SL(308,148,308,364,`url(#${p}t3)`,6) + R(296,186,24,18,`url(#${p}k3)`,C.silver[2],2,4) +
-      SL(378,148,378,364,`url(#${p}t4)`,6) + R(366,306,24,18,`url(#${p}k4)`,C.silver[2],2,4) +
-      Ci(168,382,6,C.green[0],'none',0) + Ci(238,382,6,C.green[0],'none',0) +
-      Ci(308,382,6,C.green[0],'none',0) + Ci(378,382,6,C.green[0],'none',0)
+      `<line x1="168" y1="148" x2="168" y2="364" stroke="url(#${p}1)" stroke-width="6" stroke-linecap="round"/>` +
+      `<line x1="238" y1="148" x2="238" y2="364" stroke="url(#${p}2)" stroke-width="6" stroke-linecap="round"/>` +
+      `<line x1="308" y1="148" x2="308" y2="364" stroke="url(#${p}3)" stroke-width="6" stroke-linecap="round"/>` +
+      `<line x1="378" y1="148" x2="378" y2="364" stroke="url(#${p}4)" stroke-width="6" stroke-linecap="round"/>` +
+      `<rect x="152" y="212" width="32" height="24" rx="6" fill="${C.gray[0]}" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<rect x="222" y="272" width="32" height="24" rx="6" fill="${C.gray[0]}" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Tuning fork: prongs + handle, ~120×260 centered (like thermometer proportions)
+  // ABSTRACT: Tuning fork — U-shape + stem (stroke-width 24, like wind)
   tuningfork: { label:'Tuning Fork', cat:'Audio', icon:(p) => {
-    const d = gr(p,'a',...gc(196,126,120,260),C.silver);
+    const d = gr(p,'a',...gc(192,122,128,270),C.gray);
     return { defs:d, body:
-      P('M216 130v160c0 18 14 32 30 32h20c16 0 30-14 30-32V130',`url(#${p}a)`,C.silver[2],12) +
-      R(243,310,26,80,`url(#${p}a)`,C.silver[2],6,6)
+      `<path d="M212 128v160a34 34 0 0034 34h20a34 34 0 0034-34V128" fill="none" stroke="url(#${p}a)" stroke-width="24" stroke-linecap="round"/>` +
+      `<line x1="256" y1="322" x2="256" y2="396" stroke="url(#${p}a)" stroke-width="24" stroke-linecap="round"/>`
     };
   }},
 
-  // Waveform: curved stroked paths like wind icon, ~300×180 centered
+  // ABSTRACT: 2 wave paths (stroke-width 24, like wind curves)
   reverb: { label:'Reverb', cat:'Audio', icon:(p) => {
-    const d = gr(p,'w1',106,126,406,306,C.ice) + gr(p,'w2',106,206,406,386,C.teal);
+    const d = gr(p,'1',104,136,408,296,C.ice) + gr(p,'2',104,216,408,376,C.teal);
     return { defs:d, body:
-      `<path d="M106 216q50-80 100 0t100 0 100 0" fill="none" stroke="url(#${p}w1)" stroke-width="12" stroke-linecap="round"/>` +
-      `<path d="M106 296q50-60 100 0t100 0 100 0" fill="none" stroke="url(#${p}w2)" stroke-width="12" stroke-linecap="round"/>`
+      `<path d="M104 220q52-84 104 0t104 0 104 0" fill="none" stroke="url(#${p}1)" stroke-width="24" stroke-linecap="round"/>` +
+      `<path d="M104 296q52-64 104 0t104 0 104 0" fill="none" stroke="url(#${p}2)" stroke-width="24" stroke-linecap="round"/>`
     };
   }},
 
-  // Wave + knobs: waveform + 3 control dots, ~300×200 centered
+  // ABSTRACT: wave (sw 24) + 3 knobs
   soundproducer: { label:'Sound Producer', cat:'Audio', icon:(p) => {
-    const d = gr(p,'w',106,176,406,296,C.teal);
+    const d = gr(p,'w',104,172,408,296,C.teal);
     return { defs:d, body:
-      `<path d="M106 236q40-80 80 0t80 0 80 0 80 0" fill="none" stroke="url(#${p}w)" stroke-width="12" stroke-linecap="round"/>` +
-      Ci(166,326,14,C.rose[0],C.rose[2],3) + Ci(256,326,14,C.sage[0],C.sage[2],3) + Ci(346,326,14,C.gold[0],C.gold[2],3)
+      `<path d="M104 236q44-84 88 0t88 0 88 0 88 0" fill="none" stroke="url(#${p}w)" stroke-width="24" stroke-linecap="round"/>` +
+      `<circle cx="166" cy="336" r="20" fill="${C.rose[0]}" stroke="${C.rose[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="256" cy="336" r="20" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="346" cy="336" r="20" fill="${C.sun[0]}" stroke="${C.sun[2]}" stroke-width="4" stroke-miterlimit="10"/>`
     };
   }},
 
   // ── Accessories ─────────────────────────────────────────────────
 
-  // Paint palette: ellipse + color dots, ~300×240 centered
+  // OBJECT: Palette ellipse (sw 6) + 3 color dots + thumb hole
   paint: { label:'Paint', cat:'Accessories', icon:(p) => {
-    const d = gr(p,'a',...gc(106,136,300,240),C.amber);
+    const d = gr(p,'a',...gc(100,132,312,248),C.amber);
     return { defs:d, body:
-      `<ellipse cx="256" cy="256" rx="150" ry="120" fill="url(#${p}a)" stroke="${C.amber[2]}" stroke-width="5" stroke-miterlimit="10"/>` +
-      Ci(200,200,16,C.rose[0],C.rose[2],2) +
-      Ci(270,186,16,C.steel[0],C.steel[2],2) +
-      Ci(330,216,16,C.sage[0],C.sage[2],2) +
-      Ci(310,296,16,C.gold[0],C.gold[2],2) +
-      Ci(196,306,16,C.plum[0],C.plum[2],2) +
-      Ci(160,256,22,C.white[0],C.fog[2],3)
+      `<ellipse cx="256" cy="256" rx="156" ry="120" fill="url(#${p}a)" stroke="${C.amber[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<circle cx="196" cy="200" r="20" fill="${C.rose[0]}" stroke="${C.rose[2]}" stroke-width="3" stroke-miterlimit="10"/>` +
+      `<circle cx="272" cy="188" r="20" fill="${C.steel[0]}" stroke="${C.steel[2]}" stroke-width="3" stroke-miterlimit="10"/>` +
+      `<circle cx="340" cy="216" r="20" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="3" stroke-miterlimit="10"/>` +
+      `<circle cx="160" cy="268" r="28" fill="${C.white[0]}" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Camera: body + flash + lens rings, ~280×200 centered
+  // OBJECT: Camera — gray body (sw 6) + slate lens + ice inner
   photobooth: { label:'Photo Booth', cat:'Accessories', icon:(p) => {
-    const d = gr(p,'a',...gc(116,156,280,200),C.silver) + gr(p,'l',...gc(196,206,120,120),C.slate);
+    const d = gr(p,'a',...gc(108,164,296,196),C.gray) + gr(p,'l',...gc(192,200,128,128),C.slate);
     return { defs:d, body:
-      R(116,166,280,190,`url(#${p}a)`,C.silver[2],6,12) +
-      R(206,136,100,40,C.silver[0],C.silver[2],4,6) +
-      Ci(256,266,60,`url(#${p}l)`,C.slate[2],6) +
-      Ci(256,266,40,C.ice[0],C.ice[2],4) +
-      Ci(256,266,16,C.slate[0],C.slate[2],3) +
-      Ci(346,196,12,C.gold[0],C.gold[2],2)
+      `<rect x="108" y="168" width="296" height="192" rx="16" fill="url(#${p}a)" stroke="${C.gray[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<rect x="204" y="136" width="104" height="40" rx="10" fill="${C.gray[0]}" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="256" cy="268" r="60" fill="url(#${p}l)" stroke="${C.slate[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<circle cx="256" cy="268" r="32" fill="${C.ice[0]}" stroke="${C.ice[2]}" stroke-width="4" stroke-miterlimit="10"/>`
     };
   }},
 
   // ── Utilities ───────────────────────────────────────────────────
 
-  // Weather: reuse weather icon system (partly cloudy)
+  // SCENE: Sun behind cloud (reuse weather — already Bas Milius)
   weather: { label:'Weather', cat:'Utilities', icon:(p) => {
     const d = WG.sun(p) + WG.cloud(p) + WS.sun(p) + WS.cloud(p);
     return { defs:d, body:
@@ -519,60 +507,60 @@ const APPS = {
     };
   }},
 
-  // Globe-clock: globe with clock hands, r=150 centered
+  // INSTRUMENT: Clock/globe — teal face + #e5e7eb bezel + white hands (sw 12)
   timezone: { label:'Time Zone', cat:'Utilities', icon:(p) => {
-    const d = gr(p,'a',...gc(106,106,300,300),C.teal);
+    const d = cInstGrad(p, 'a', C.teal);
     return { defs:d, body:
-      Ci(256,256,150,`url(#${p}a)`,C.teal[2],6) +
-      `<ellipse cx="256" cy="256" rx="55" ry="144" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
-      SL(106,256,406,256,C.teal[2],3) +
-      SL(256,146,256,256,C.white[0],6) + SL(256,256,316,296,C.white[0],5) +
-      Ci(256,256,8,C.white[0],C.teal[2],3)
+      cInstCircle(p, 'a') +
+      `<ellipse cx="256" cy="256" rx="52" ry="132" fill="none" stroke="#e5e7eb" stroke-width="4"/>` +
+      `<line x1="112" y1="256" x2="400" y2="256" stroke="#e5e7eb" stroke-width="4"/>` +
+      `<path d="M256 148v108l64 44" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<circle cx="256" cy="256" r="12" fill="#fff" stroke="${C.teal[2]}" stroke-width="4" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Disk platter: ellipse + spindle + arm, ~300×200 centered
+  // OBJECT: Disk platter — gray ellipse (sw 6) + dark hub + arm (sw 8)
   diskusage: { label:'Disk Usage', cat:'Utilities', icon:(p) => {
-    const d = gr(p,'a',...gc(106,156,300,200),C.silver);
+    const d = gr(p,'a',...gc(104,160,304,192),C.gray);
     return { defs:d, body:
-      `<ellipse cx="256" cy="256" rx="150" ry="96" fill="url(#${p}a)" stroke="${C.silver[2]}" stroke-width="5" stroke-miterlimit="10"/>` +
-      `<ellipse cx="256" cy="256" rx="94" ry="60" fill="none" stroke="${C.fog[2]}" stroke-width="2"/>` +
-      Ci(256,256,36,C.slate[0],C.slate[2],3) + Ci(256,256,10,C.silver[0],C.silver[2],2) +
-      SL(256,256,370,196,C.slate[0],6)
+      `<ellipse cx="256" cy="256" rx="152" ry="96" fill="url(#${p}a)" stroke="${C.gray[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<circle cx="256" cy="256" r="36" fill="${C.dark[0]}" stroke="${C.dark[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<circle cx="256" cy="256" r="12" fill="${C.gray[0]}"/>` +
+      `<line x1="256" y1="256" x2="372" y2="196" stroke="${C.dark[0]}" stroke-width="8" stroke-linecap="round"/>`
     };
   }},
 
-  // Stopwatch: circle + crown, centered (like barometer)
+  // INSTRUMENT: Stopwatch — gray face (sw 12 bezel) + white inner + dark hands (sw 12) + red hub
   stopwatch: { label:'Stopwatch', cat:'Utilities', icon:(p) => {
-    const d = gr(p,'a',...gc(116,126,280,280),C.silver) + gr(p,'f',...gc(136,146,240,240),C.white);
+    const d = gr(p,'a',184,143,328,393,C.dark) + gr(p,'f',...gc(128,140,256,256),C.white);
     return { defs:d, body:
-      Ci(256,266,140,`url(#${p}a)`,C.silver[2],5) +
-      Ci(256,266,118,`url(#${p}f)`,C.fog[2],3) +
-      R(242,100,28,30,C.silver[0],C.silver[2],4,4) +
-      SL(256,266,256,176,C.slate[0],5) + SL(256,266,316,300,C.rose[0],3) +
-      Ci(256,266,8,C.slate[0],C.silver[2],3)
+      `<circle cx="256" cy="268" r="140" fill="url(#${p}a)" stroke="#e5e7eb" stroke-miterlimit="10" stroke-width="12"/>` +
+      `<circle cx="256" cy="268" r="116" fill="url(#${p}f)" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<rect x="240" y="100" width="32" height="36" rx="8" fill="${C.gray[0]}" stroke="${C.gray[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<path d="M256 268v-88M256 268l60 36" fill="none" stroke="${C.dark[0]}" stroke-width="12" stroke-linecap="round"/>` +
+      `<circle cx="256" cy="268" r="12" fill="${C.red[0]}" stroke="${C.red[2]}" stroke-width="4" stroke-miterlimit="10"/>`
     };
   }},
 
-  // Microphone: capsule + arc + stand, ~160×260 centered (like thermometer)
+  // OBJECT: Microphone — gray capsule (sw 6) + arc (sw 12) + stand (sw 12)
   voicecommands: { label:'Voice Commands', cat:'Utilities', icon:(p) => {
-    const d = gr(p,'a',...gc(206,126,100,160),C.silver);
+    const d = gr(p,'a',...gc(200,120,112,168),C.gray);
     return { defs:d, body:
-      R(206,126,100,160,`url(#${p}a)`,C.silver[2],6,50) +
-      P('M176,286c0,44,36,80,80,80s80-36,80-80','none',C.silver[2],6) +
-      SL(256,366,256,400,C.silver[2],6) + SL(206,400,306,400,C.silver[2],6) +
-      P('M326 196a12 12 0 110 0 12 12 0 110 0','none',C.steel[0],4) +
-      P('M346 196a12 12 0 110 0','none',C.steel[0],3)
+      `<rect x="200" y="120" width="112" height="168" rx="56" fill="url(#${p}a)" stroke="${C.gray[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<path d="M168 288a88 88 0 00176 0" fill="none" stroke="${C.gray[2]}" stroke-width="12" stroke-linecap="round"/>` +
+      `<line x1="256" y1="376" x2="256" y2="408" stroke="${C.gray[2]}" stroke-width="12" stroke-linecap="round"/>` +
+      `<line x1="208" y1="408" x2="304" y2="408" stroke="${C.gray[2]}" stroke-width="12" stroke-linecap="round"/>`
     };
   }},
 
-  // Padlock: shackle arc + body rect + keyhole, ~200×260 centered
+  // OBJECT: Lock — silver shackle (sw 24) + gold body (sw 6) + keyhole
   cryptography: { label:'Cryptography', cat:'Utilities', icon:(p) => {
-    const d = gr(p,'a',...gc(156,206,200,180),C.gold);
+    const d = gr(p,'a',...gc(148,228,216,160),C.sun);
     return { defs:d, body:
-      P('M190,226c0-36,30-66,66-66s66,30,66,66','none',C.silver[2],16) +
-      R(156,226,200,160,`url(#${p}a)`,C.gold[2],5,12) +
-      Ci(256,290,16,C.amber[1],C.amber[2],3) + SL(256,306,256,356,C.amber[1],6)
+      `<path d="M184 240a72 72 0 01144 0" fill="none" stroke="${C.gray[2]}" stroke-width="24" stroke-linecap="round"/>` +
+      `<rect x="148" y="240" width="216" height="156" rx="16" fill="url(#${p}a)" stroke="${C.sun[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
+      `<circle cx="256" cy="300" r="18" fill="${C.amber[1]}" stroke="${C.amber[2]}" stroke-width="4" stroke-miterlimit="10"/>` +
+      `<line x1="256" y1="318" x2="256" y2="360" stroke="${C.amber[1]}" stroke-width="8" stroke-linecap="round"/>`
     };
   }},
 };
@@ -599,19 +587,18 @@ function appRow(keys, size) {
   ).join('');
 }
 
-// Group apps by category
 const cats = {};
 for (const [k,v] of Object.entries(APPS)) {
   if (!cats[v.cat]) cats[v.cat] = [];
   cats[v.cat].push(k);
 }
 
-// Color palette display
-const paletteHtml = Object.entries(C).slice(0,14).map(([name,c]) =>
-  `<div class="swatch" style="background:linear-gradient(135deg,${c[0]} 50%,${c[1]} 100%)">${name}</div>`
-).join('');
+const paletteColors = ['sun','ice','red','green','gray','dark','steel','teal','amber','sage','rose','plum','white','fog','slate'];
+const paletteHtml = paletteColors.map(name => {
+  const c = C[name];
+  return `<div class="swatch" style="background:linear-gradient(135deg,${c[0]} 50%,${c[1]} 100%)">${name}</div>`;
+}).join('');
 
-// Build page
 let html = `
   <h2>Color Palette</h2>
   <div class="palette">${paletteHtml}</div>
