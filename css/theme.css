@@ -780,14 +780,12 @@ button.start-menu-item {
   font-family: var(--font);
   cursor: pointer;
   user-select: none;
-  white-space: nowrap;
   max-width: 260px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   align-items: center;
   gap: 6px;
 }
 .voice-indicator.visible { display: flex; }
+.voice-indicator-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .voice-indicator-dot {
   width: 8px;
@@ -829,7 +827,7 @@ button.start-menu-item {
 .vc-action { color: #2e7d32; }
 .vc-error { color: #c62828; }
 
-@media (prefers-reduced-motion) {
+@media (prefers-reduced-motion: reduce) {
   .tray-mic.listening, .vc-mic-btn.listening,
   .voice-indicator.state-listening .voice-indicator-dot { animation: none; }
 }
@@ -867,11 +865,10 @@ button.start-menu-item {
   font-family: var(--font);
   padding: 2px 6px;
   border: 1px solid #000;
-  white-space: nowrap;
   pointer-events: none;
   max-width: 280px;
   white-space: normal;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   line-height: 1.3;
 }
 

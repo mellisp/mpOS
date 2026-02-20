@@ -1,30 +1,5 @@
 /* Page-specific styles for index.html — extracted for browser caching */
 
-.project-list { list-style: none; }
-
-.project-list li {
-  padding: 4px 6px;
-  cursor: default;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.project-list li:hover { background: var(--highlight); color: var(--highlight-text); }
-.project-list li:hover a { color: var(--highlight-text); }
-.project-list li:hover .desc { color: var(--silver); }
-.project-list li:hover .tag { background: var(--title-light); color: var(--highlight); }
-
-.project-list a {
-  text-decoration: none;
-  color: var(--link);
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.project-list a:hover { text-decoration: underline; }
-.project-list .desc { color: var(--text-muted); font-size: 12px; }
-
 .tag {
   display: inline-block;
   background: var(--silver);
@@ -37,8 +12,6 @@
   white-space: nowrap;
   margin-left: auto;
 }
-
-.about { line-height: 1.5; padding: 4px; }
 
 /* Sunken border — shared inset border + shadow */
 .calc-display,
@@ -546,7 +519,7 @@
   text-align: center;
   font-family: var(--mono);
   background: var(--white);
-  border: 1px solid var(--dark-border);
+  border: 1px solid var(--dk-shadow);
   padding: 8px 0;
   margin-bottom: 10px;
 }
@@ -560,11 +533,13 @@
   font-weight: bold;
   cursor: pointer;
   background: var(--silver);
-  border: 2px outset var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
+  box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
   margin-top: 4px;
 }
-.tf-strike-btn:active { border-style: inset; }
-.tf-strike-btn.tf-active { background: #d4e4d0; border-style: inset; }
+.tf-strike-btn:active { border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow); box-shadow: inset 1px 1px 0 var(--shadow); }
+.tf-strike-btn.tf-active { background: #d4e4d0; border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow); box-shadow: inset 1px 1px 0 var(--shadow); }
 
 /* Cryptography window */
 #cryptography { width: min(380px, 92vw); left: min(160px, 5vw); top: 70px; }

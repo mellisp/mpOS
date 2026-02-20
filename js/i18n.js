@@ -92,6 +92,7 @@
     'title.fractal': 'Fractal Explorer',
     'title.slotMachine': 'Slot Machine',
     'title.reverb': 'Reverb',
+    'title.noiseMixer': 'White Noise Mixer',
 
     /* Start menu: Search sub-items */
     'startSearch.files': 'For Files or Folders...',

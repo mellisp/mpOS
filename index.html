@@ -203,7 +203,7 @@
       </div>
       <div class="folder-toolbar">
         <div class="folder-address">
-          <span class="folder-address-label">Address</span>
+          <span class="folder-address-label" data-i18n="ui.address">Address</span>
           <div class="folder-address-bar" id="explorerAddress">C:\mpOS</div>
         </div>
         <div class="folder-view-btns">
@@ -285,7 +285,7 @@
         <div class="aquarium-embed" id="aquariumEmbed"><div class="aquarium-shield" id="aquariumShield" data-i18n="aquarium.connecting">Connecting to live feed...</div></div>
       </div>
       <div class="statusbar">
-        <div class="statusbar-section">Powered by explore.org</div>
+        <div class="statusbar-section" data-i18n="aquarium.poweredBy">Powered by explore.org</div>
       </div>
     </div>
 
@@ -585,7 +585,7 @@
         <div class="loading-msg" data-i18n="weather.loading">Loading weather data...</div>
       </div>
       <div class="statusbar">
-        <div class="statusbar-section" id="weatherStatus">Powered by Open-Meteo</div>
+        <div class="statusbar-section" id="weatherStatus" data-i18n="weather.poweredBy">Powered by Open-Meteo</div>
       </div>
     </div>
 
@@ -765,7 +765,7 @@
     <!-- White Noise Mixer Window (hidden initially) -->
     <div class="window draggable resizable" id="noisemixer" tabindex="-1" style="display:none;">
       <div class="titlebar">
-        <span>White Noise Mixer</span>
+        <span data-i18n="title.noiseMixer">White Noise Mixer</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('noisemixer')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeNoiseMixer()">X</div>
@@ -809,7 +809,7 @@
           </div>
         </div>
         <div class="button-row">
-          <button type="button" class="btn" onclick="mpTaskbar.closeWindow('chickenError')">OK</button>
+          <button type="button" class="btn" data-i18n="ui.ok" onclick="mpTaskbar.closeWindow('chickenError')">OK</button>
         </div>
       </div>
     </div>
@@ -990,7 +990,7 @@
               <div class="start-submenu">
                 <button class="start-menu-item" type="button" onclick="openNoiseMixer(); closeStartMenu();">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="nm-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient><linearGradient id="nm-fdr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#a0a0a0"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#nm-body)" stroke="#606060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><rect x="3" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="3.2" y="8" width="1.1" height="1.2" rx="0.2" fill="url(#nm-fdr)"/><rect x="3" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50"/><rect x="6.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="6.7" y="10" width="1.1" height="1.2" rx="0.2" fill="url(#nm-fdr)"/><rect x="6.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.7"/><rect x="10" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="10.2" y="11" width="1.1" height="1.2" rx="0.2" fill="url(#nm-fdr)"/><rect x="10" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.5"/><rect x="13.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="13.7" y="9" width="1.1" height="1.2" rx="0.2" fill="url(#nm-fdr)"/><rect x="13.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.8"/></svg>
-                  <span data-i18n="app.noiseMixer.name">White Noise Mixer</span>
+                  <span data-i18n="app.noiseMixer.name">White Noise</span>
                 </button>
                 <button class="start-menu-item" type="button" onclick="openTuningFork(); closeStartMenu();">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tf-fork" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d0d0d0"/><stop offset="50%" stop-color="#a0a0a0"/><stop offset="100%" stop-color="#707070"/></linearGradient></defs><path d="M7 2 L7 11 Q7 14 10 14 Q13 14 13 11 L13 2" fill="none" stroke="url(#tf-fork)" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="14" x2="10" y2="19" stroke="url(#tf-fork)" stroke-width="2" stroke-linecap="round"/><ellipse cx="7" cy="3" rx="1" ry="0.5" fill="white" opacity="0.4"/><ellipse cx="13" cy="3" rx="1" ry="0.5" fill="white" opacity="0.4"/></svg>

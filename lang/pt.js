@@ -83,6 +83,7 @@ window._mpLangRegister('pt', {
   'title.fractal': 'Explorador Fractal',
   'title.slotMachine': 'Ca\u00e7a-N\u00edqueis',
   'title.reverb': 'Reverb',
+  'title.noiseMixer': 'Misturador de Ru\u00eddo Branco',
 
   /* Start menu: Search sub-items */
   'startSearch.files': 'Ficheiros ou Pastas...',
