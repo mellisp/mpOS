@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>mpOS Icon System — Full Library</title>
+<style>
+  body { font-family: Tahoma, sans-serif; color: #222; padding: 40px; background: #f0f0f0; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 24px 0 6px; }
+  h3 { font-size: 13px; margin: 20px 0 4px; color: #555; }
+  .note { font-size: 12px; color: #666; max-width: 750px; line-height: 1.5; margin: 0 0 16px; }
+  .grid { display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap; }
+  .cell { text-align: center; }
+  .cell span { display: block; font-size: 10px; margin-top: 4px; color: #888; white-space: nowrap; }
+  .desktop-bg { background: #3a6ea5; padding: 20px 28px; margin-bottom: 4px; }
+  .desktop-bg .cell span { color: rgba(255,255,255,0.6); }
+  .chrome-bg { background: #d4d0c8; padding: 14px 24px; border: 2px outset #fff; margin-bottom: 4px; }
+  .chrome-bg .cell span { color: #555; }
+  .divider { border-top: 1px solid #ccc; margin: 28px 0; }
+  .palette { display: flex; gap: 4px; margin: 8px 0 16px; }
+  .swatch { width: 48px; height: 24px; border: 1px solid #999; font-size: 8px; display: flex;
+            align-items: center; justify-content: center; color: #fff; text-shadow: 0 0 2px #000; }
+</style>
+</head>
+<body>
+
+<h1>mpOS Icon System</h1>
+<p class="note">
+  Bas Milius technique: 512 canvas, symbol/use, flat-middle linear gradients, ~60&deg; lighting.
+  Cool palette (steel blues, silver, slate) with per-category warm accents.
+</p>
+
+<div id="icons"></div>
+
+<script>
+let _n = 0;
+
+// ── Color Palette ───────────────────────────────────────────────────
+// Each: [top/mid, bottom, stroke]
+const C = {
+  steel:  ['#7a9ec8','#4a7aae','#5a8ab8'],
+  silver: ['#b0bcc8','#8a96a6','#9ca8b4'],
+  teal:   ['#5eafcf','#3a8aae','#4a9abd'],
+  gold:   ['#f0b824','#d49408','#e2a616'],
+  sage:   ['#6aae7a','#3a8a5a','#4a9a68'],
+  rose:   ['#d47a7a','#b04a4a','#c45a5a'],
+  amber:  ['#d4a460','#b07830','#c48e48'],
+  ice:    ['#86c3db','#5eafcf','#72b9d5'],
+  plum:   ['#9a8ab0','#7a6a96','#8a7aa4'],
+  fog:    ['#d0d8e2','#bac4ce','#c4ced8'],
+  slate:  ['#6b7a8a','#4a5868','#5a6a7a'],
+  white:  ['#f0f4f8','#d8e0ea','#e4eaf0'],
+  red:    ['#e06050','#b83830','#cc4840'],
+  green:  ['#50b868','#308848','#409858'],
+  cloud:  ['#dce4ee','#b8c8da','#cad5e4'],
+  dkcloud:['#9ca3af','#6b7280','#848b98'],
+  sun:    ['#f0b824','#d49408','#e2a616'],
+  rain:   ['#6aabe0','#3a7cb8','#4a90cc'],
+  snow:   ['#86c3db','#5eafcf','#72b9d5'],
+  bolt:   ['#f7b23b','#f59e0b','#f6a823'],
+  mist:   ['#d0d8e2','#bac4ce','#c4ced8'],
+};
+
+// ── Helpers ─────────────────────────────────────────────────────────
+const gr = (p, id, x1, y1, x2, y2, c) =>
+  `<linearGradient id="${p}${id}" x1="${x1}" x2="${x2}" y1="${y1}" y2="${y2}" gradientUnits="userSpaceOnUse">` +
+  `<stop offset="0" stop-color="${c[0]}"/><stop offset=".5" stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient>`;
+
+const R = (x, y, w, h, f, s, sw=4, rx=0) =>
+  `<rect x="${x}" y="${y}" width="${w}" height="${h}"${rx?` rx="${rx}"`:''} fill="${f}" stroke="${s}" stroke-width="${sw}" stroke-miterlimit="10"/>`;
+
+const Ci = (cx, cy, r, f, s, sw=4) =>
+  `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}" stroke="${s}" stroke-width="${sw}" stroke-miterlimit="10"/>`;
+
+const P = (d, f, s, sw=4) =>
+  `<path d="${d}" fill="${f}" stroke="${s}" stroke-width="${sw}" stroke-miterlimit="10"/>`;
+
+const L = (x1, y1, x2, y2, s, sw=3) =>
+  `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${s}" stroke-width="${sw}" stroke-linecap="round"/>`;
+
+function mkSvg(p, defs, body, size) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${body}</svg>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PART 1: WEATHER ICONS (Bas Milius elements + cool palette)
+// ══════════════════════════════════════════════════════════════════════
+
+const WG = {
+  sun: (p) =>
+    `<linearGradient id="${p}sg" x1="73.5" x2="122.5" y1="55.6" y2="140.5" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f0b824"/><stop offset=".5" stop-color="#f0b824"/><stop offset="1" stop-color="#d49408"/></linearGradient>`,
+  cloud: (p) =>
+    `<linearGradient id="${p}cg" x1="99.5" x2="232.6" y1="30.7" y2="261.4" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#dce4ee"/><stop offset=".5" stop-color="#dce4ee"/><stop offset="1" stop-color="#b8c8da"/></linearGradient>`,
+  dkcloud: (p) =>
+    `<linearGradient id="${p}dg" x1="99.5" x2="232.6" y1="30.7" y2="261.4" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#9ca3af"/><stop offset=".5" stop-color="#9ca3af"/><stop offset="1" stop-color="#6b7280"/></linearGradient>`,
+  rain: (p) =>
+    gr(p,'r1',0.5,8.5,16.5,56.5,C.rain) + gr(p,'r2',56.5,61.5,72.5,109.5,C.rain) + gr(p,'r3',112.5,26.5,128.5,74.5,C.rain),
+  flake: (p) =>
+    gr(p,'f1',11.4,5.9,32.8,43.1,C.snow) + gr(p,'f2',67.4,95.9,88.8,133.1,C.snow) + gr(p,'f3',123.4,45.9,144.8,83.1,C.snow),
+  bolt: (p) =>
+    `<linearGradient id="${p}bg" x1="8.7" x2="80.9" y1="17.1" y2="142.1" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f7b23b"/><stop offset=".5" stop-color="#f7b23b"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>`,
+  fog: (p) =>
+    `<linearGradient id="${p}g1" x1="96" x2="168" y1="-2.4" y2="122.3" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d0d8e2"/><stop offset=".5" stop-color="#d0d8e2"/><stop offset="1" stop-color="#bac4ce"/></linearGradient>` +
+    `<linearGradient id="${p}g2" x1="96" x2="168" y1="-50.4" y2="74.3" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d0d8e2"/><stop offset=".5" stop-color="#d0d8e2"/><stop offset="1" stop-color="#bac4ce"/></linearGradient>`
+};
+
+const WS = {
+  sun: (p) =>
+    `<symbol id="${p}s" viewBox="0 0 196 196"><circle cx="98" cy="98" r="49" fill="url(#${p}sg)" stroke="#e2a616" stroke-miterlimit="10" stroke-width="5"/><path fill="none" stroke="#f0b824" stroke-linecap="round" stroke-miterlimit="10" stroke-width="12" d="M98 24.3V6m0 184v-18.3M150.1 45.9l13-13M45.9 150.1l-13 13M45.9 45.9 33 33m130.1 130.1-13-13M6 98h18.3M190 98h-18.3"/></symbol>`,
+  cloud: (p) =>
+    `<symbol id="${p}c" viewBox="0 0 350 222"><path fill="url(#${p}cg)" stroke="#cad5e4" stroke-miterlimit="10" stroke-width="6" d="m291 107-2.5.1A83.9 83.9 0 00135.6 43 56 56 0 0051 91a56.6 56.6 0 00.8 9A60 60 0 0063 219l4-.2v.2h224a56 56 0 000-112Z"/></symbol>`,
+  dkcloud: (p) =>
+    `<symbol id="${p}dc" viewBox="0 0 350 222"><path fill="url(#${p}dg)" stroke="#848b98" stroke-miterlimit="10" stroke-width="6" d="m291 107-2.5.1A83.9 83.9 0 00135.6 43 56 56 0 0051 91a56.6 56.6 0 00.8 9A60 60 0 0063 219l4-.2v.2h224a56 56 0 000-112Z"/></symbol>`,
+  rain: (p) =>
+    `<symbol id="${p}r" viewBox="0 0 129 110"><path fill="url(#${p}r1)" stroke="#4a90cc" stroke-miterlimit="10" d="M8.5 56.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z"/><path fill="url(#${p}r2)" stroke="#4a90cc" stroke-miterlimit="10" d="M64.5 109.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z"/><path fill="url(#${p}r3)" stroke="#4a90cc" stroke-miterlimit="10" d="M120.5 74.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z"/></symbol>`,
+  flake: (p) =>
+    `<symbol id="${p}f" viewBox="0 0 156.2 139">` +
+    `<path fill="url(#${p}f1)" stroke="#72b9d5" stroke-miterlimit="10" d="m41.7 31-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V4.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L6.6 11A4 4 0 001 12.5 4 4 0 002.5 18l5.8 3.3a13.7 13.7 0 000 6.5L2.5 31A4 4 0 001 36.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM19 29.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z"/>` +
+    `<path fill="url(#${p}f2)" stroke="#72b9d5" stroke-miterlimit="10" d="m97.7 121-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V94.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L62.6 101A4 4 0 0057 102.5 4 4 0 0058.5 108l5.8 3.3a13.7 13.7 0 000 6.5L58.5 121A4 4 0 0057 126.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM75 119.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z"/>` +
+    `<path fill="url(#${p}f3)" stroke="#72b9d5" stroke-miterlimit="10" d="m153.7 71-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V44.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L118.6 51A4 4 0 00113 52.5 4 4 0 00114.5 58l5.8 3.3a13.7 13.7 0 000 6.5L114.5 71A4 4 0 00113 76.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM131 69.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z"/>` +
+    `</symbol>`,
+  bolt: (p) =>
+    `<symbol id="${p}b" viewBox="0 0 102.7 186.8"><path fill="url(#${p}bg)" stroke="#f6a823" stroke-miterlimit="10" stroke-width="4" d="m34.8 2-32 96h32l-16 80 80-112h-48l32-64h-48z"/></symbol>`,
+  fog: (p) =>
+    `<symbol id="${p}fg" viewBox="0 0 264 72"><path fill="none" stroke="url(#${p}g1)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="24" d="M12 60h240"/><path fill="none" stroke="url(#${p}g2)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="24" d="M12 12h240"/></symbol>`
+};
+
+const WEATHER = {
+  sun:       { label:'Clear', defs:['sun'], syms:['sun'], body:(p)=>`<use href="#${p}s" width="340" height="340" transform="translate(86 86)"/>` },
+  partcloud: { label:'Partly Cloudy', defs:['sun','cloud'], syms:['sun','cloud'], body:(p)=>`<use href="#${p}s" width="196" height="196" transform="translate(68 109)"/><use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` },
+  cloud:     { label:'Overcast', defs:['cloud'], syms:['cloud'], body:(p)=>`<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` },
+  fog:       { label:'Fog', defs:['cloud','fog'], syms:['cloud','fog'], body:(p)=>`<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/><use href="#${p}fg" width="264" height="72" transform="translate(124 402)"/>` },
+  rain:      { label:'Rain', defs:['cloud','rain'], syms:['cloud','rain'], body:(p)=>`<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/><use href="#${p}r" width="129" height="110" transform="translate(191.5 343.5)"/>` },
+  snow:      { label:'Snow', defs:['cloud','flake'], syms:['cloud','flake'], body:(p)=>`<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/><use href="#${p}f" width="156.2" height="139" transform="translate(177.9 337.5)"/>` },
+  thunder:   { label:'Thunder', defs:['dkcloud','bolt'], syms:['dkcloud','bolt'], body:(p)=>`<use href="#${p}dc" width="350" height="222" transform="translate(81 145)"/><use href="#${p}b" width="102.7" height="186.8" transform="translate(205.2 291)"/>` }
+};
+
+function weatherIcon(key, size) {
+  const p = 'w' + (_n++) + '-';
+  const w = WEATHER[key];
+  const defs = w.defs.map(k=>WG[k](p)).join('') + w.syms.map(k=>WS[k](p)).join('');
+  return mkSvg(p, defs, w.body(p), size);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PART 2: APP ICONS
+// ══════════════════════════════════════════════════════════════════════
+
+const APPS = {
+  // ── System ──────────────────────────────────────────────────────
+  computer: { label:'My Computer', cat:'System', icon:(p) => {
+    const d = gr(p,'a',106,76,356,300,C.silver) + gr(p,'b',126,96,356,270,C.steel);
+    return { defs:d, body:
+      R(106,76,300,224,`url(#${p}a)`,C.silver[2],6,12) +
+      R(126,96,260,174,`url(#${p}b)`,C.steel[2],0) +
+      R(236,300,40,40,C.silver[0],C.silver[2],4) +
+      R(186,340,140,20,C.silver[0],C.silver[2],4,6) +
+      Ci(256,286,5,'#50b868','none',0)
+    };
+  }},
+  files: { label:'Files', cat:'System', icon:(p) => {
+    const d = gr(p,'a',82,136,400,415,C.amber) + gr(p,'b',72,220,420,415,C.gold);
+    return { defs:d, body:
+      P('M82 184h348c8 0 15 7 15 15v201c0 8-7 15-15 15H82c-8 0-15-7-15-15V199c0-8 7-15 15-15Z',`url(#${p}a)`,C.amber[2],5) +
+      P('M82 184v-26c0-7 6-13 13-13h90c6 0 11 4 13 10l16 29','none',C.amber[2],5) +
+      P('M72 230h368c8 0 15 7 15 15v155c0 8-7 15-15 15H72c-8 0-15-7-15-15V245c0-8 7-15 15-15Z',`url(#${p}b)`,C.gold[2],5)
+    };
+  }},
+  taskmanager: { label:'Task Manager', cat:'System', icon:(p) => {
+    const d = gr(p,'a',92,62,420,450,C.silver) + gr(p,'b',120,200,400,420,C.steel);
+    return { defs:d, body:
+      R(92,62,328,388,`url(#${p}a)`,C.silver[2],5,10) +
+      R(112,82,288,80,C.slate[0],C.slate[2],3,4) +
+      R(132,106,60,36,C.steel[0],C.steel[2],0) +
+      R(202,96,60,46,C.steel[0],C.steel[2],0) +
+      R(272,116,60,26,C.steel[0],C.steel[2],0) +
+      R(342,90,40,52,C.steel[0],C.steel[2],0) +
+      R(112,190,288,240,`url(#${p}b)`,C.steel[2],3,4) +
+      R(140,220,40,180,C.sage[0],C.sage[2],0) +
+      R(200,260,40,140,C.sage[0],C.sage[2],0) +
+      R(260,240,40,160,C.sage[0],C.sage[2],0) +
+      R(320,280,40,120,C.sage[0],C.sage[2],0)
+    };
+  }},
+  run: { label:'Run', cat:'System', icon:(p) => {
+    const d = gr(p,'a',92,72,420,440,C.slate);
+    return { defs:d, body:
+      R(92,72,328,368,`url(#${p}a)`,C.slate[2],5,8) +
+      R(92,72,328,32,C.silver[0],C.silver[2],4,8) +
+      L(108,88,130,88,'#cc4840',3) + L(134,88,156,88,'#e2a616',3) + L(160,88,182,88,'#409858',3) +
+      `<text x="120" y="200" fill="#50b868" font-family="monospace" font-size="48" font-weight="bold">&gt;_</text>` +
+      `<text x="120" y="260" fill="#4a7aae" font-family="monospace" font-size="32">mpOS v2.0</text>`
+    };
+  }},
+
+  // ── Productivity ────────────────────────────────────────────────
+  notepad: { label:'Notepad', cat:'Productivity', icon:(p) => {
+    const d = gr(p,'a',146,52,386,460,C.white);
+    return { defs:d, body:
+      P('M146 56h180l60 60v340c0 4-3 7-7 7H146c-4 0-7-3-7-7V63c0-4 3-7 7-7Z',`url(#${p}a)`,C.fog[2],4) +
+      P('M326 56v60h60',C.fog[1],C.fog[2],4) +
+      L(196,56,196,463,'#cc4840',3) +
+      L(216,140,360,140,C.steel[1],2) + L(216,180,350,180,C.steel[1],2) +
+      L(216,220,340,220,C.steel[1],2) + L(216,260,360,260,C.steel[1],2) +
+      L(216,300,330,300,C.steel[1],2) + L(216,340,350,340,C.steel[1],2)
+    };
+  }},
+  calculator: { label:'Calculator', cat:'Productivity', icon:(p) => {
+    const d = gr(p,'a',146,46,366,466,C.silver) + gr(p,'b',166,76,346,176,C.teal);
+    const btn = (x,y,c) => R(x,y,52,36,c||C.fog[0],C.fog[2],2,4);
+    return { defs:d, body:
+      R(146,46,220,420,`url(#${p}a)`,C.silver[2],5,10) +
+      R(166,76,180,100,`url(#${p}b)`,C.teal[2],3,6) +
+      `<text x="316" y="156" fill="#1a3a4a" font-family="monospace" font-size="56" text-anchor="end">0.</text>` +
+      btn(166,210) + btn(232,210) + btn(298,210) + R(298,210,52,36,C.gold[0],C.gold[2],2,4) +
+      btn(166,260) + btn(232,260) + btn(298,260) + R(298,260,52,36,C.steel[0],C.steel[2],2,4) +
+      btn(166,310) + btn(232,310) + btn(298,310) + R(298,310,52,36,C.steel[0],C.steel[2],2,4) +
+      btn(166,360) + btn(232,360) + btn(298,360) + R(298,360,52,36,C.steel[0],C.steel[2],2,4) +
+      btn(166,410,C.sage[0]) + R(166,410,52,36,C.sage[0],C.sage[2],2,4)
+    };
+  }},
+  calendar: { label:'Calendar', cat:'Productivity', icon:(p) => {
+    const d = gr(p,'a',96,96,416,170,C.red) + gr(p,'b',96,170,416,420,C.white);
+    let dots = '';
+    for(let r=0;r<5;r++) for(let c=0;c<7;c++) dots += Ci(136+c*40, 210+r*40, 8, r===0?C.slate[0]:C.steel[0],'none',0);
+    return { defs:d, body:
+      R(96,96,320,50,`url(#${p}a)`,C.red[2],5,10) +
+      R(96,146,320,274,`url(#${p}b)`,C.fog[2],4,0) +
+      R(166,72,24,48,C.silver[0],C.silver[2],3,4) + R(326,72,24,48,C.silver[0],C.silver[2],3,4) +
+      dots
+    };
+  }},
+  stickynotes: { label:'Sticky Notes', cat:'Productivity', icon:(p) => {
+    const d = gr(p,'a',102,92,402,422,C.gold);
+    return { defs:d, body:
+      P('M112 92h290v280l-60 50H112V92Z',`url(#${p}a)`,C.gold[2],5) +
+      P('M342 372v50h60',C.amber[1],C.amber[2],4) +
+      L(152,160,362,160,C.amber[2],2) + L(152,210,342,210,C.amber[2],2) +
+      L(152,260,362,260,C.amber[2],2) + L(152,310,322,310,C.amber[2],2)
+    };
+  }},
+  search: { label:'Search', cat:'Productivity', icon:(p) => {
+    const d = gr(p,'a',116,76,316,316,C.ice) + gr(p,'b',290,290,420,420,C.silver);
+    return { defs:d, body:
+      Ci(216,216,110,`url(#${p}a)`,C.ice[2],16) +
+      Ci(216,216,70,C.white[0],'none',0) +
+      `<line x1="296" y1="296" x2="416" y2="416" stroke="url(#${p}b)" stroke-width="40" stroke-linecap="round" stroke-miterlimit="10"/>`
+    };
+  }},
+  help: { label:'Help', cat:'Productivity', icon:(p) => {
+    const d = gr(p,'a',136,62,376,450,C.amber);
+    return { defs:d, body:
+      R(156,62,220,388,C.white[0],C.fog[2],3,4) +
+      R(136,72,220,388,`url(#${p}a)`,C.amber[2],5,6) +
+      `<text x="246" y="330" fill="${C.white[0]}" font-family="serif" font-size="200" font-weight="bold" text-anchor="middle">?</text>`
+    };
+  }},
+
+  // ── Internet ────────────────────────────────────────────────────
+  wikibrowser: { label:'WikiBrowser', cat:'Internet', icon:(p) => {
+    const d = gr(p,'a',96,96,416,416,C.teal);
+    return { defs:d, body:
+      Ci(256,256,160,`url(#${p}a)`,C.teal[2],6) +
+      `<ellipse cx="256" cy="256" rx="60" ry="155" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
+      `<ellipse cx="256" cy="256" rx="115" ry="155" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
+      L(100,216,412,216,C.teal[2],3) + L(96,256,416,256,C.teal[2],3) + L(100,296,412,296,C.teal[2],3)
+    };
+  }},
+  archivebrowser: { label:'Archive Browser', cat:'Internet', icon:(p) => {
+    const d = gr(p,'a',136,62,376,450,C.slate);
+    return { defs:d, body:
+      R(156,62,220,388,C.fog[0],C.fog[2],3,4) +
+      R(136,72,220,388,`url(#${p}a)`,C.slate[2],5,6) +
+      L(160,140,330,140,C.fog[0],2) + L(160,180,310,180,C.fog[0],2) +
+      L(160,220,320,220,C.fog[0],2) + L(160,260,300,260,C.fog[0],2) +
+      L(160,300,330,300,C.fog[0],2)
+    };
+  }},
+  fishoftheday: { label:'Fish of the Day', cat:'Internet', icon:(p) => {
+    const d = gr(p,'a',96,156,416,356,C.sage);
+    return { defs:d, body:
+      P('M376 256c0 60-54 110-120 110s-120-50-120-110 54-110 120-110 120 50 120 110Z',`url(#${p}a)`,C.sage[2],5) +
+      P('M136 256l-60-50v100Z',C.sage[0],C.sage[2],4) +
+      Ci(316,236,14,C.white[0],C.slate[0],3) + Ci(320,232,6,C.slate[0],'none',0) +
+      P('M200 216c30-16 70-16 100 0',C.sage[1]+'44',C.sage[2],3)
+    };
+  }},
+  fishfinder: { label:'Fish Finder', cat:'Internet', icon:(p) => {
+    const d = gr(p,'a',116,76,316,316,C.teal) + gr(p,'b',290,290,420,420,C.silver);
+    return { defs:d, body:
+      Ci(216,216,110,`url(#${p}a)`,C.teal[2],14) +
+      P('M256 206c0 20-18 36-40 36s-40-16-40-36 18-36 40-36 40 16 40 36Z',C.sage[0],C.sage[2],3) +
+      P('M176 206l-20-16v32Z',C.sage[0],C.sage[2],2) +
+      Ci(236,200,4,C.white[0],'none',0) +
+      `<line x1="296" y1="296" x2="416" y2="416" stroke="url(#${p}b)" stroke-width="36" stroke-linecap="round" stroke-miterlimit="10"/>`
+    };
+  }},
+  aquarium: { label:'Virtual Aquarium', cat:'Internet', icon:(p) => {
+    const d = gr(p,'a',82,82,430,430,C.ice) + gr(p,'b',82,200,430,420,C.teal);
+    return { defs:d, body:
+      R(82,82,348,348,`url(#${p}a)`,C.ice[2],6,10) +
+      R(88,200,336,224,`url(#${p}b)`,'none',0,6) +
+      P('M160 300c0 14-10 24-22 24s-22-10-22-24 10-24 22-24 22 10 22 24Z',C.sage[0],C.sage[2],2) +
+      P('M116 300l-14-10v20Z',C.sage[0],C.sage[2],2) +
+      P('M340 340c0 18-14 32-30 32s-30-14-30-32 14-32 30-32 30 14 30 32Z',C.gold[0],C.gold[2],2) +
+      P('M280 340l-18-14v28Z',C.gold[0],C.gold[2],2) +
+      R(120,390,80,16,C.amber[0],'none',0,4) + R(260,380,60,24,C.sage[1],'none',0,6)
+    };
+  }},
+  neotracker: { label:'NEO Tracker', cat:'Internet', icon:(p) => {
+    const d = gr(p,'a',156,156,356,356,C.silver);
+    return { defs:d, body:
+      Ci(256,256,120,`url(#${p}a)`,C.silver[2],5) +
+      Ci(280,236,30,C.slate[0],C.slate[2],2) + Ci(220,280,18,C.slate[0],C.slate[2],2) +
+      L(256,96,256,416,C.rose[2],3) + L(96,256,416,256,C.rose[2],3) +
+      Ci(256,256,60,'none',C.rose[2],2) + Ci(256,256,100,'none',C.rose[2],2)
+    };
+  }},
+  visitormap: { label:'Visitor Map', cat:'Internet', icon:(p) => {
+    const d = gr(p,'a',96,96,416,416,C.teal) + gr(p,'b',270,130,330,240,C.rose);
+    return { defs:d, body:
+      Ci(256,256,160,`url(#${p}a)`,C.teal[2],6) +
+      `<ellipse cx="256" cy="256" rx="60" ry="155" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
+      L(100,216,412,216,C.teal[2],3) + L(96,256,416,256,C.teal[2],3) + L(100,296,412,296,C.teal[2],3) +
+      P('M300 240c0-24-20-44-44-44s-44 20-44 44c0 44 44 70 44 70s44-46 44-70Z',`url(#${p}b)`,C.rose[2],3) +
+      Ci(256,238,14,C.white[0],'none',0)
+    };
+  }},
+  chat: { label:'Chat', cat:'Internet', icon:(p) => {
+    const d = gr(p,'a',92,82,420,370,C.steel);
+    return { defs:d, body:
+      P('M132 82h248c22 0 40 18 40 40v168c0 22-18 40-40 40H240l-68 60v-60h-40c-22 0-40-18-40-40V122c0-22 18-40 40-40Z',`url(#${p}a)`,C.steel[2],5) +
+      L(180,170,332,170,C.white[0],4) + L(180,210,312,210,C.white[0],4) + L(180,250,292,250,C.white[0],4)
+    };
+  }},
+
+  // ── Games ───────────────────────────────────────────────────────
+  ontarget: { label:'On Target', cat:'Games', icon:(p) => {
+    const d = gr(p,'a',96,96,416,416,C.rose) + gr(p,'b',156,156,356,356,C.white);
+    return { defs:d, body:
+      Ci(256,256,160,`url(#${p}a)`,C.rose[2],5) +
+      Ci(256,256,110,`url(#${p}b)`,C.fog[2],3) +
+      Ci(256,256,60,`url(#${p}a)`,C.rose[2],3) +
+      Ci(256,256,20,C.white[0],C.fog[2],2) +
+      L(256,80,256,432,C.slate[0],3) + L(80,256,432,256,C.slate[0],3)
+    };
+  }},
+  chickenfingers: { label:'Chicken Fingers', cat:'Games', icon:(p) => {
+    const d = gr(p,'a',156,106,356,406,C.gold);
+    return { defs:d, body:
+      Ci(256,270,120,`url(#${p}a)`,C.gold[2],5) +
+      P('M230 150c0-20 12-36 26-36s26 16 26 36',C.rose[0],C.rose[2],3) +
+      Ci(226,240,12,C.slate[0],'none',0) + Ci(230,236,4,C.white[0],'none',0) +
+      P('M200 276h-40l-10 16 50-4Z',C.gold[1],C.gold[2],3) +
+      R(220,390,30,36,C.gold[1],C.gold[2],3) + R(264,390,30,36,C.gold[1],C.gold[2],3)
+    };
+  }},
+  brickbreaker: { label:'Brick Breaker', cat:'Games', icon:(p) => {
+    const d = gr(p,'a',96,76,416,220,C.slate);
+    const br = (x,y,c) => R(x,y,90,28,c[0],c[2],2,4);
+    return { defs:d, body:
+      R(96,76,320,370,`url(#${p}a)`,C.slate[2],5,8) +
+      br(116,100,C.rose) + br(216,100,C.gold) + br(316,100,C.sage) +
+      br(116,136,C.gold) + br(216,136,C.sage) + br(316,136,C.rose) +
+      br(116,172,C.sage) + br(216,172,C.rose) + br(316,172,C.gold) +
+      R(196,400,120,20,C.silver[0],C.silver[2],3,6) +
+      Ci(256,370,8,C.white[0],C.fog[2],2)
+    };
+  }},
+  fractalexplorer: { label:'Fractal Explorer', cat:'Games', icon:(p) => {
+    const d = gr(p,'a',96,96,416,416,C.plum);
+    return { defs:d, body:
+      Ci(256,256,160,`url(#${p}a)`,C.plum[2],5) +
+      Ci(256,256,120,'none',C.ice[2],3) +
+      Ci(256,256,80,'none',C.teal[2],3) +
+      Ci(256,256,40,C.ice[0],C.ice[2],3) +
+      Ci(200,200,30,'none',C.plum[2],3) + Ci(312,200,30,'none',C.plum[2],3) +
+      Ci(200,312,30,'none',C.plum[2],3) + Ci(312,312,30,'none',C.plum[2],3)
+    };
+  }},
+  slotmachine: { label:'Slot Machine', cat:'Games', icon:(p) => {
+    const d = gr(p,'a',112,62,400,450,C.amber) + gr(p,'b',136,130,376,310,C.white);
+    return { defs:d, body:
+      R(112,62,288,388,`url(#${p}a)`,C.amber[2],5,12) +
+      R(136,130,80,180,`url(#${p}b)`,C.fog[2],3,4) +
+      R(224,130,80,180,`url(#${p}b)`,C.fog[2],3,4) +
+      R(312,130,80,180,`url(#${p}b)`,C.fog[2],3,4) +
+      `<text x="176" y="248" fill="${C.rose[1]}" font-family="serif" font-size="80" font-weight="bold" text-anchor="middle">7</text>` +
+      `<text x="264" y="248" fill="${C.sage[1]}" font-family="serif" font-size="80" font-weight="bold" text-anchor="middle">7</text>` +
+      `<text x="352" y="248" fill="${C.gold[1]}" font-family="serif" font-size="80" font-weight="bold" text-anchor="middle">7</text>` +
+      R(196,370,120,40,C.rose[0],C.rose[2],3,8)
+    };
+  }},
+
+  // ── Audio ───────────────────────────────────────────────────────
+  noisemixer: { label:'Noise Mixer', cat:'Audio', icon:(p) => {
+    const d = gr(p,'a',92,62,420,450,C.slate);
+    const fader = (x,ky) => R(x,120,20,280,C.fog[1],'none',0,4) + R(x-4,ky,28,20,C.silver[0],C.silver[2],2,4);
+    return { defs:d, body:
+      R(92,62,328,388,`url(#${p}a)`,C.slate[2],5,10) +
+      fader(160,200) + fader(220,260) + fader(280,180) + fader(340,300) +
+      Ci(160,420,6,C.green[0],'none',0) + Ci(220,420,6,C.green[0],'none',0) +
+      Ci(280,420,6,C.green[0],'none',0) + Ci(340,420,6,C.green[0],'none',0)
+    };
+  }},
+  tuningfork: { label:'Tuning Fork', cat:'Audio', icon:(p) => {
+    const d = gr(p,'a',186,56,326,460,C.silver);
+    return { defs:d, body:
+      P('M206 56v200c0 22 16 40 36 40h0c20 0 36-18 36-40V56',`url(#${p}a)`,C.silver[2],12) +
+      R(238,280,36,180,`url(#${p}a)`,C.silver[2],6,8)
+    };
+  }},
+  reverb: { label:'Reverb', cat:'Audio', icon:(p) => {
+    const d = gr(p,'a',92,82,420,430,C.slate) + gr(p,'b',130,200,382,300,C.ice);
+    return { defs:d, body:
+      R(92,82,328,348,`url(#${p}a)`,C.slate[2],5,10) +
+      `<path d="M130 256q32-80 64 0t64 0 64 0 64 0" fill="none" stroke="url(#${p}b)" stroke-width="6" stroke-linecap="round"/>` +
+      Ci(150,380,14,C.gold[0],C.gold[2],2) + Ci(256,380,14,C.gold[0],C.gold[2],2) + Ci(362,380,14,C.gold[0],C.gold[2],2)
+    };
+  }},
+  soundproducer: { label:'Sound Producer', cat:'Audio', icon:(p) => {
+    const d = gr(p,'a',92,82,420,430,C.slate) + gr(p,'b',130,180,382,280,C.teal);
+    return { defs:d, body:
+      R(92,82,328,348,`url(#${p}a)`,C.slate[2],5,10) +
+      `<path d="M130 240q40-60 80 0t80 0 80 0" fill="none" stroke="url(#${p}b)" stroke-width="6" stroke-linecap="round"/>` +
+      Ci(140,370,8,C.rose[0],'none',0) + Ci(170,370,8,C.green[0],'none',0) + Ci(200,370,8,C.steel[0],'none',0) +
+      R(300,340,80,50,C.silver[0],C.silver[2],2,4)
+    };
+  }},
+
+  // ── Accessories ─────────────────────────────────────────────────
+  paint: { label:'Paint', cat:'Accessories', icon:(p) => {
+    const d = gr(p,'a',76,106,436,406,C.amber);
+    return { defs:d, body:
+      `<ellipse cx="256" cy="270" rx="180" ry="140" fill="url(#${p}a)" stroke="${C.amber[2]}" stroke-width="5" stroke-miterlimit="10"/>` +
+      Ci(200,200,20,C.rose[0],C.rose[2],2) +
+      Ci(280,180,20,C.steel[0],C.steel[2],2) +
+      Ci(340,220,20,C.sage[0],C.sage[2],2) +
+      Ci(320,300,20,C.gold[0],C.gold[2],2) +
+      Ci(200,320,20,C.plum[0],C.plum[2],2) +
+      Ci(160,260,28,C.white[0],C.fog[2],3)
+    };
+  }},
+  photobooth: { label:'Photo Booth', cat:'Accessories', icon:(p) => {
+    const d = gr(p,'a',92,102,420,390,C.silver) + gr(p,'b',196,186,316,326,C.slate);
+    return { defs:d, body:
+      R(92,102,328,288,`url(#${p}a)`,C.silver[2],5,12) +
+      R(192,72,128,44,C.silver[0],C.silver[2],4,6) +
+      Ci(256,256,70,`url(#${p}b)`,C.slate[2],6) +
+      Ci(256,256,50,C.ice[0],C.ice[2],4) +
+      Ci(256,256,20,C.slate[0],C.slate[2],3) +
+      Ci(350,150,14,C.gold[0],C.gold[2],2)
+    };
+  }},
+
+  // ── Utilities ───────────────────────────────────────────────────
+  weather: { label:'Weather', cat:'Utilities', icon:(p) => {
+    // Reuse weather system
+    const d = WG.sun(p) + WG.cloud(p) + WS.sun(p) + WS.cloud(p);
+    return { defs:d, body:
+      `<use href="#${p}s" width="196" height="196" transform="translate(68 109)"/>` +
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>`
+    };
+  }},
+  timezone: { label:'Time Zone', cat:'Utilities', icon:(p) => {
+    const d = gr(p,'a',96,96,416,416,C.teal);
+    return { defs:d, body:
+      Ci(256,256,160,`url(#${p}a)`,C.teal[2],6) +
+      `<ellipse cx="256" cy="256" rx="60" ry="155" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
+      L(100,256,412,256,C.teal[2],3) +
+      L(256,140,256,256,C.white[0],6) + L(256,256,320,296,C.white[0],5) +
+      Ci(256,256,8,C.white[0],C.teal[2],3)
+    };
+  }},
+  diskusage: { label:'Disk Usage', cat:'Utilities', icon:(p) => {
+    const d = gr(p,'a',96,136,416,376,C.silver);
+    return { defs:d, body:
+      `<ellipse cx="256" cy="256" rx="160" ry="100" fill="url(#${p}a)" stroke="${C.silver[2]}" stroke-width="5" stroke-miterlimit="10"/>` +
+      Ci(256,256,40,C.slate[0],C.slate[2],3) + Ci(256,256,12,C.silver[0],C.silver[2],2) +
+      `<ellipse cx="256" cy="256" rx="100" ry="62" fill="none" stroke="${C.fog[2]}" stroke-width="2"/>` +
+      L(256,256,380,200,C.slate[0],6)
+    };
+  }},
+  stopwatch: { label:'Stopwatch', cat:'Utilities', icon:(p) => {
+    const d = gr(p,'a',96,106,416,426,C.silver) + gr(p,'b',126,136,386,396,C.white);
+    return { defs:d, body:
+      Ci(256,270,160,`url(#${p}a)`,C.silver[2],5) +
+      Ci(256,270,135,`url(#${p}b)`,C.fog[2],3) +
+      R(240,80,32,36,C.silver[0],C.silver[2],4,4) +
+      L(256,270,256,170,C.slate[0],5) + L(256,270,320,310,C.rose[0],3) +
+      Ci(256,270,8,C.slate[0],C.silver[2],3)
+    };
+  }},
+  voicecommands: { label:'Voice Commands', cat:'Utilities', icon:(p) => {
+    const d = gr(p,'a',206,66,306,266,C.silver);
+    return { defs:d, body:
+      R(206,66,100,200,`url(#${p}a)`,C.silver[2],5,50) +
+      Ci(256,166,50,`url(#${p}a)`,C.silver[2],5) +
+      P('M166 226c0 50 40 90 90 90s90-40 90-90','none',C.silver[2],6) +
+      L(256,316,256,396,C.silver[2],6) + L(196,396,316,396,C.silver[2],6) +
+      P('M340 166a14 14 0 010 0 14 14 0 010 0','none',C.steel[0],4) +
+      P('M360 166a14 14 0 010 0','none',C.steel[0],3)
+    };
+  }},
+  cryptography: { label:'Cryptography', cat:'Utilities', icon:(p) => {
+    const d = gr(p,'a',156,200,356,440,C.gold) + gr(p,'b',186,80,326,220,C.silver);
+    return { defs:d, body:
+      P('M186 200c0-38 31-70 70-70s70 32 70 70','none',C.silver[2],16) +
+      R(146,230,220,200,`url(#${p}a)`,C.gold[2],5,12) +
+      Ci(256,310,20,C.amber[1],C.amber[2],3) + L(256,330,256,390,C.amber[1],6)
+    };
+  }},
+};
+
+function appIcon(key, size) {
+  const p = 'a' + (_n++) + '-';
+  const r = APPS[key].icon(p);
+  return mkSvg(p, r.defs, r.body, size);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RENDERING
+// ══════════════════════════════════════════════════════════════════════
+
+function weatherRow(size) {
+  return Object.keys(WEATHER).map(k =>
+    `<div class="cell">${weatherIcon(k, size)}<span>${WEATHER[k].label}</span></div>`
+  ).join('');
+}
+
+function appRow(keys, size) {
+  return keys.map(k =>
+    `<div class="cell">${appIcon(k, size)}<span>${APPS[k].label}</span></div>`
+  ).join('');
+}
+
+// Group apps by category
+const cats = {};
+for (const [k,v] of Object.entries(APPS)) {
+  if (!cats[v.cat]) cats[v.cat] = [];
+  cats[v.cat].push(k);
+}
+
+// Color palette display
+const paletteHtml = Object.entries(C).slice(0,14).map(([name,c]) =>
+  `<div class="swatch" style="background:linear-gradient(135deg,${c[0]} 50%,${c[1]} 100%)">${name}</div>`
+).join('');
+
+// Build page
+let html = `
+  <h2>Color Palette</h2>
+  <div class="palette">${paletteHtml}</div>
+
+  <div class="divider"></div>
+  <h2>Weather Conditions</h2>
+  <h3>48px — desktop</h3>
+  <div class="desktop-bg"><div class="grid">${weatherRow(48)}</div></div>
+  <h3>20px — start menu</h3>
+  <div class="chrome-bg"><div class="grid">${weatherRow(20)}</div></div>
+  <h3>16px — taskbar</h3>
+  <div class="chrome-bg"><div class="grid">${weatherRow(16)}</div></div>
+`;
+
+for (const [cat, keys] of Object.entries(cats)) {
+  html += `
+  <div class="divider"></div>
+  <h2>${cat}</h2>
+  <h3>48px — desktop</h3>
+  <div class="desktop-bg"><div class="grid">${appRow(keys, 48)}</div></div>
+  <h3>20px — start menu</h3>
+  <div class="chrome-bg"><div class="grid">${appRow(keys, 20)}</div></div>
+  <h3>16px — taskbar</h3>
+  <div class="chrome-bg"><div class="grid">${appRow(keys, 16)}</div></div>
+  `;
+}
+
+document.getElementById('icons').innerHTML = html;
+</script>
+
+</body>
+</html>
