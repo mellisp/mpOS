@@ -1774,6 +1774,13 @@
         <span class="sm-intro-sym">7</span>
       </div>
       <div class="sm-intro-prize">${t('sm.topPrize')}: 2,500</div>
+      <div class="sm-intro-rules">
+        <div class="sm-intro-rules-title">${t('sm.howToPlay')}</div>
+        <div class="sm-intro-rule">${t('sm.introRules1')}</div>
+        <div class="sm-intro-rule">${t('sm.introRules2')}</div>
+        <div class="sm-intro-rule">${t('sm.introRules3')}</div>
+        <div class="sm-intro-rule">${t('sm.introRules4')}</div>
+      </div>
       <div class="sm-intro-stats" id="smIntroStats"></div>
       <div class="sm-intro-bonus" id="smIntroBonus" style="display:none"></div>
       <button type="button" class="sm-intro-play" id="smIntroPlayBtn">${t('sm.play')}</button>`;

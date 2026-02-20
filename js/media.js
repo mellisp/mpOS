@@ -1006,7 +1006,7 @@
   };
 
   // Volume integration via audio bus listener
-  window.mpAudioBus.onVolumeChange(nmSyncVolume);
+  window.mpAudioBus?.onVolumeChange(nmSyncVolume);
 
   /* ══════════════════════════════════════════════════════════
    *  Registrations

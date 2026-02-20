@@ -580,6 +580,11 @@ window._mpLangRegister('pt', {
   'sm.tipHold': 'Segurar este rolo para a pr\u00f3xima jogada',
   'sm.tipNudgeUp': 'Empurrar rolo uma posi\u00e7\u00e3o para cima',
   'sm.tipNudgeDown': 'Empurrar rolo uma posi\u00e7\u00e3o para baixo',
+  'sm.howToPlay': 'COMO JOGAR',
+  'sm.introRules1': 'Combine s\u00edmbolos nas linhas de pagamento para ganhar.',
+  'sm.introRules2': 'Escolha 1, 3 ou 5 linhas e a aposta por linha.',
+  'sm.introRules3': 'Tr\u00eas 7s = JACKPOT (250\u00d7 aposta).',
+  'sm.introRules4': 'Procure b\u00f3nus de Reter, Empurrar e Giros Gr\u00e1tis!',
 
   'crypto.cipher': 'Cifra',
   'crypto.caesarName': 'Deslocamento César',

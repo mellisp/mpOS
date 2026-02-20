@@ -792,6 +792,36 @@
   margin-bottom: 10px;
   letter-spacing: 1px;
 }
+.sm-intro-rules {
+  width: 100%;
+  max-width: 260px;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.sm-intro-rules-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: bold;
+  color: #ffc107;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.sm-intro-rule {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #c0c0e0;
+  line-height: 1.5;
+  padding-left: 8px;
+  text-indent: -8px;
+}
+.sm-intro-rule::before {
+  content: '\25B8 ';
+  color: #ffc107;
+}
 .sm-intro-stats {
   font-family: var(--mono);
   font-size: 11px;

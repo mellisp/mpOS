@@ -589,6 +589,11 @@
     'sm.tipHold': 'Hold this reel in place for the next spin',
     'sm.tipNudgeUp': 'Nudge this reel up one position',
     'sm.tipNudgeDown': 'Nudge this reel down one position',
+    'sm.howToPlay': 'HOW TO PLAY',
+    'sm.introRules1': 'Match symbols across paylines to win.',
+    'sm.introRules2': 'Choose 1, 3, or 5 lines and your bet per line.',
+    'sm.introRules3': 'Three 7s = JACKPOT (250\u00d7 bet).',
+    'sm.introRules4': 'Look for Hold, Nudge, and Free Spin bonuses!',
 
     'crypto.cipher': 'Cipher',
     'crypto.caesarName': 'Caesar Shift',
