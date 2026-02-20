@@ -25,7 +25,8 @@
 
 <h1>mpOS Icon System</h1>
 <p class="note">
-  Bas Milius technique: 512 canvas, symbol/use, flat-middle linear gradients, ~60&deg; lighting.
+  Bas Milius technique: 512 canvas, centered compositions, flat-middle linear gradients, ~60&deg; lighting.
+  All icons centered at (256,256) within ~384&times;384 live area (64px min margins).
   Cool palette (steel blues, silver, slate) with per-category warm accents.
 </p>
 
@@ -61,21 +62,25 @@ const C = {
 };
 
 // ── Helpers ─────────────────────────────────────────────────────────
+// Flat-middle gradient: 0→50% = c[0], 50→100% = c[1], ~60° diagonal
 const gr = (p, id, x1, y1, x2, y2, c) =>
   `<linearGradient id="${p}${id}" x1="${x1}" x2="${x2}" y1="${y1}" y2="${y2}" gradientUnits="userSpaceOnUse">` +
   `<stop offset="0" stop-color="${c[0]}"/><stop offset=".5" stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient>`;
 
-const R = (x, y, w, h, f, s, sw=4, rx=0) =>
+// Gradient coords for a shape bbox: ~60° diagonal from upper-left to lower-right
+const gc = (x, y, w, h) => [x + w*0.25, y + h*0.05, x + w*0.75, y + h*0.95];
+
+const R = (x, y, w, h, f, s, sw=6, rx=0) =>
   `<rect x="${x}" y="${y}" width="${w}" height="${h}"${rx?` rx="${rx}"`:''} fill="${f}" stroke="${s}" stroke-width="${sw}" stroke-miterlimit="10"/>`;
 
-const Ci = (cx, cy, r, f, s, sw=4) =>
+const Ci = (cx, cy, r, f, s, sw=6) =>
   `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}" stroke="${s}" stroke-width="${sw}" stroke-miterlimit="10"/>`;
 
-const P = (d, f, s, sw=4) =>
+const P = (d, f, s, sw=6) =>
   `<path d="${d}" fill="${f}" stroke="${s}" stroke-width="${sw}" stroke-miterlimit="10"/>`;
 
-const L = (x1, y1, x2, y2, s, sw=3) =>
-  `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${s}" stroke-width="${sw}" stroke-linecap="round"/>`;
+const SL = (x1, y1, x2, y2, s, sw=24) =>
+  `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${s}" stroke-width="${sw}" stroke-linecap="round" stroke-miterlimit="10"/>`;
 
 function mkSvg(p, defs, body, size) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${body}</svg>`;
@@ -142,371 +147,432 @@ function weatherIcon(key, size) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// PART 2: APP ICONS
+// PART 2: APP ICONS — Bas Milius style
+// All centered at (256,256), within ~384×384 live area
+// Natural proportions, no text elements, thick structural strokes
 // ══════════════════════════════════════════════════════════════════════
 
 const APPS = {
   // ── System ──────────────────────────────────────────────────────
+
+  // Monitor 280×188 + stand 40×32 + base 140×20 = 280×240 centered
   computer: { label:'My Computer', cat:'System', icon:(p) => {
-    const d = gr(p,'a',106,76,356,300,C.silver) + gr(p,'b',126,96,356,270,C.steel);
+    const d = gr(p,'m',...gc(116,136,280,188),C.silver) + gr(p,'s',...gc(146,156,220,148),C.steel);
     return { defs:d, body:
-      R(106,76,300,224,`url(#${p}a)`,C.silver[2],6,12) +
-      R(126,96,260,174,`url(#${p}b)`,C.steel[2],0) +
-      R(236,300,40,40,C.silver[0],C.silver[2],4) +
-      R(186,340,140,20,C.silver[0],C.silver[2],4,6) +
-      Ci(256,286,5,'#50b868','none',0)
+      R(116,136,280,188,`url(#${p}m)`,C.silver[2],6,12) +
+      R(146,156,220,148,`url(#${p}s)`,C.steel[2],0) +
+      R(236,324,40,32,C.silver[0],C.silver[2],4) +
+      R(186,356,140,20,C.silver[0],C.silver[2],4,6) +
+      Ci(256,314,5,'#50b868','none',0)
     };
   }},
+
+  // Folder: back body + tab + front flap, ~310×210 centered
   files: { label:'Files', cat:'System', icon:(p) => {
-    const d = gr(p,'a',82,136,400,415,C.amber) + gr(p,'b',72,220,420,415,C.gold);
+    const d = gr(p,'a',...gc(101,166,310,190),C.amber) + gr(p,'f',...gc(96,226,320,140),C.gold);
     return { defs:d, body:
-      P('M82 184h348c8 0 15 7 15 15v201c0 8-7 15-15 15H82c-8 0-15-7-15-15V199c0-8 7-15 15-15Z',`url(#${p}a)`,C.amber[2],5) +
-      P('M82 184v-26c0-7 6-13 13-13h90c6 0 11 4 13 10l16 29','none',C.amber[2],5) +
-      P('M72 230h368c8 0 15 7 15 15v155c0 8-7 15-15 15H72c-8 0-15-7-15-15V245c0-8 7-15 15-15Z',`url(#${p}b)`,C.gold[2],5)
+      P('M111 181h280c8 0 14 6 14 14v160c0 8-6 14-14 14H111c-8 0-14-6-14-14V195c0-8 6-14 14-14Z',`url(#${p}a)`,C.amber[2],5) +
+      P('M111 181v-20c0-6 5-10 11-10h80c5 0 9 3 10 8l14 22','none',C.amber[2],5) +
+      P('M101 236h310c8 0 14 6 14 14v110c0 8-6 14-14 14H101c-8 0-14-6-14-14V250c0-8 6-14 14-14Z',`url(#${p}f)`,C.gold[2],5)
     };
   }},
+
+  // Bar chart: 4 vertical stroked bars like tornado style, ~220×220 centered
   taskmanager: { label:'Task Manager', cat:'System', icon:(p) => {
-    const d = gr(p,'a',92,62,420,450,C.silver) + gr(p,'b',120,200,400,420,C.steel);
+    const d =
+      gr(p,'b1',156,136,176,378,C.sage) +
+      gr(p,'b2',216,196,236,378,C.sage) +
+      gr(p,'b3',276,166,296,378,C.sage) +
+      gr(p,'b4',336,226,356,378,C.sage);
     return { defs:d, body:
-      R(92,62,328,388,`url(#${p}a)`,C.silver[2],5,10) +
-      R(112,82,288,80,C.slate[0],C.slate[2],3,4) +
-      R(132,106,60,36,C.steel[0],C.steel[2],0) +
-      R(202,96,60,46,C.steel[0],C.steel[2],0) +
-      R(272,116,60,26,C.steel[0],C.steel[2],0) +
-      R(342,90,40,52,C.steel[0],C.steel[2],0) +
-      R(112,190,288,240,`url(#${p}b)`,C.steel[2],3,4) +
-      R(140,220,40,180,C.sage[0],C.sage[2],0) +
-      R(200,260,40,140,C.sage[0],C.sage[2],0) +
-      R(260,240,40,160,C.sage[0],C.sage[2],0) +
-      R(320,280,40,120,C.sage[0],C.sage[2],0)
+      SL(166,146,166,368,`url(#${p}b1)`,36) +
+      SL(226,206,226,368,`url(#${p}b2)`,36) +
+      SL(286,176,286,368,`url(#${p}b3)`,36) +
+      SL(346,236,346,368,`url(#${p}b4)`,36)
     };
   }},
+
+  // Terminal prompt: bracket + cursor, stroked paths like wind, ~280×180 centered
   run: { label:'Run', cat:'System', icon:(p) => {
-    const d = gr(p,'a',92,72,420,440,C.slate);
+    const d = gr(p,'a',...gc(116,166,280,180),C.sage);
     return { defs:d, body:
-      R(92,72,328,368,`url(#${p}a)`,C.slate[2],5,8) +
-      R(92,72,328,32,C.silver[0],C.silver[2],4,8) +
-      L(108,88,130,88,'#cc4840',3) + L(134,88,156,88,'#e2a616',3) + L(160,88,182,88,'#409858',3) +
-      `<text x="120" y="200" fill="#50b868" font-family="monospace" font-size="48" font-weight="bold">&gt;_</text>` +
-      `<text x="120" y="260" fill="#4a7aae" font-family="monospace" font-size="32">mpOS v2.0</text>`
+      P('M160 202l60 54-60 54','none',`url(#${p}a)`,24) +
+      SL(260,310,360,310,`url(#${p}a)`,24)
     };
   }},
 
   // ── Productivity ────────────────────────────────────────────────
+
+  // Paper sheet with corner fold + red margin + text lines, ~220×280 centered
   notepad: { label:'Notepad', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',146,52,386,460,C.white);
+    const d = gr(p,'a',...gc(146,116,220,280),C.white);
     return { defs:d, body:
-      P('M146 56h180l60 60v340c0 4-3 7-7 7H146c-4 0-7-3-7-7V63c0-4 3-7 7-7Z',`url(#${p}a)`,C.fog[2],4) +
-      P('M326 56v60h60',C.fog[1],C.fog[2],4) +
-      L(196,56,196,463,'#cc4840',3) +
-      L(216,140,360,140,C.steel[1],2) + L(216,180,350,180,C.steel[1],2) +
-      L(216,220,340,220,C.steel[1],2) + L(216,260,360,260,C.steel[1],2) +
-      L(216,300,330,300,C.steel[1],2) + L(216,340,350,340,C.steel[1],2)
+      P('M146 120h160l60 60v212c0 4-3 8-8 8H154c-4 0-8-4-8-8V128c0-4 4-8 8-8Z',`url(#${p}a)`,C.fog[2],5) +
+      P('M306 120v60h60',C.fog[1],C.fog[2],5) +
+      SL(190,120,190,400,C.red[0],4) +
+      SL(210,200,346,200,C.steel[1],3) + SL(210,240,336,240,C.steel[1],3) +
+      SL(210,280,346,280,C.steel[1],3) + SL(210,320,326,320,C.steel[1],3)
     };
   }},
+
+  // Calculator: body + display + 3×3 button grid dots, ~200×280 centered
   calculator: { label:'Calculator', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',146,46,366,466,C.silver) + gr(p,'b',166,76,346,176,C.teal);
-    const btn = (x,y,c) => R(x,y,52,36,c||C.fog[0],C.fog[2],2,4);
+    const d = gr(p,'a',...gc(156,116,200,280),C.silver) + gr(p,'d',...gc(176,136,160,80),C.teal);
     return { defs:d, body:
-      R(146,46,220,420,`url(#${p}a)`,C.silver[2],5,10) +
-      R(166,76,180,100,`url(#${p}b)`,C.teal[2],3,6) +
-      `<text x="316" y="156" fill="#1a3a4a" font-family="monospace" font-size="56" text-anchor="end">0.</text>` +
-      btn(166,210) + btn(232,210) + btn(298,210) + R(298,210,52,36,C.gold[0],C.gold[2],2,4) +
-      btn(166,260) + btn(232,260) + btn(298,260) + R(298,260,52,36,C.steel[0],C.steel[2],2,4) +
-      btn(166,310) + btn(232,310) + btn(298,310) + R(298,310,52,36,C.steel[0],C.steel[2],2,4) +
-      btn(166,360) + btn(232,360) + btn(298,360) + R(298,360,52,36,C.steel[0],C.steel[2],2,4) +
-      btn(166,410,C.sage[0]) + R(166,410,52,36,C.sage[0],C.sage[2],2,4)
+      R(156,116,200,280,`url(#${p}a)`,C.silver[2],6,14) +
+      R(176,136,160,80,`url(#${p}d)`,C.teal[2],4,8) +
+      R(186,246,40,30,C.fog[0],C.fog[2],2,4) + R(236,246,40,30,C.fog[0],C.fog[2],2,4) + R(286,246,40,30,C.gold[0],C.gold[2],2,4) +
+      R(186,288,40,30,C.fog[0],C.fog[2],2,4) + R(236,288,40,30,C.fog[0],C.fog[2],2,4) + R(286,288,40,30,C.steel[0],C.steel[2],2,4) +
+      R(186,330,40,30,C.fog[0],C.fog[2],2,4) + R(236,330,40,30,C.fog[0],C.fog[2],2,4) + R(286,330,40,30,C.steel[0],C.steel[2],2,4) +
+      R(186,372,40,30,C.sage[0],C.sage[2],2,4)
     };
   }},
+
+  // Calendar page: red header + ring clips + dot grid, ~280×260 centered
   calendar: { label:'Calendar', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',96,96,416,170,C.red) + gr(p,'b',96,170,416,420,C.white);
-    let dots = '';
-    for(let r=0;r<5;r++) for(let c=0;c<7;c++) dots += Ci(136+c*40, 210+r*40, 8, r===0?C.slate[0]:C.steel[0],'none',0);
+    const d = gr(p,'h',...gc(116,146,280,40),C.red) + gr(p,'b',...gc(116,186,280,200),C.white);
     return { defs:d, body:
-      R(96,96,320,50,`url(#${p}a)`,C.red[2],5,10) +
-      R(96,146,320,274,`url(#${p}b)`,C.fog[2],4,0) +
-      R(166,72,24,48,C.silver[0],C.silver[2],3,4) + R(326,72,24,48,C.silver[0],C.silver[2],3,4) +
-      dots
+      R(116,146,280,40,`url(#${p}h)`,C.red[2],5,10) +
+      R(116,186,280,200,`url(#${p}b)`,C.fog[2],4,0) +
+      R(176,122,24,48,C.silver[0],C.silver[2],4,4) + R(316,122,24,48,C.silver[0],C.silver[2],4,4) +
+      [0,1,2,3,4].flatMap(r => [0,1,2,3,4,5,6].map(c =>
+        Ci(152+c*36, 216+r*32, 6, r===0?C.slate[0]:C.steel[0],'none',0)
+      )).join('')
     };
   }},
+
+  // Sticky note: square with corner fold, ~260×260 centered
   stickynotes: { label:'Sticky Notes', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',102,92,402,422,C.gold);
+    const d = gr(p,'a',...gc(126,126,260,260),C.gold);
     return { defs:d, body:
-      P('M112 92h290v280l-60 50H112V92Z',`url(#${p}a)`,C.gold[2],5) +
-      P('M342 372v50h60',C.amber[1],C.amber[2],4) +
-      L(152,160,362,160,C.amber[2],2) + L(152,210,342,210,C.amber[2],2) +
-      L(152,260,362,260,C.amber[2],2) + L(152,310,322,310,C.amber[2],2)
+      P('M136 126h240v210l-50 50H136V126Z',`url(#${p}a)`,C.gold[2],5) +
+      P('M326 336v50h50',C.amber[1],C.amber[2],4) +
+      SL(176,196,336,196,C.amber[2],3) + SL(176,240,316,240,C.amber[2],3) +
+      SL(176,284,336,284,C.amber[2],3)
     };
   }},
+
+  // Magnifying glass: circle + handle (offset center like Bas Milius compass), ~300×300
   search: { label:'Search', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',116,76,316,316,C.ice) + gr(p,'b',290,290,420,420,C.silver);
+    const d = gr(p,'a',...gc(96,96,220,220),C.ice) + gr(p,'h',300,300,420,420,C.silver);
     return { defs:d, body:
-      Ci(216,216,110,`url(#${p}a)`,C.ice[2],16) +
-      Ci(216,216,70,C.white[0],'none',0) +
-      `<line x1="296" y1="296" x2="416" y2="416" stroke="url(#${p}b)" stroke-width="40" stroke-linecap="round" stroke-miterlimit="10"/>`
+      Ci(206,206,110,`url(#${p}a)`,C.ice[2],12) +
+      Ci(206,206,70,C.white[0],'none',0) +
+      `<line x1="286" y1="286" x2="400" y2="400" stroke="url(#${p}h)" stroke-width="40" stroke-linecap="round" stroke-miterlimit="10"/>`
     };
   }},
+
+  // Question mark on circle (like compass), r=140 centered
   help: { label:'Help', cat:'Productivity', icon:(p) => {
-    const d = gr(p,'a',136,62,376,450,C.amber);
+    const d = gr(p,'a',...gc(116,116,280,280),C.amber);
     return { defs:d, body:
-      R(156,62,220,388,C.white[0],C.fog[2],3,4) +
-      R(136,72,220,388,`url(#${p}a)`,C.amber[2],5,6) +
-      `<text x="246" y="330" fill="${C.white[0]}" font-family="serif" font-size="200" font-weight="bold" text-anchor="middle">?</text>`
+      Ci(256,256,140,`url(#${p}a)`,C.amber[2],6) +
+      P('M220 210c0-28 16-50 36-50s36 22 36 50c0 20-14 36-28 42v16','none',C.white[0],12) +
+      Ci(256,340,10,C.white[0],'none',0)
     };
   }},
 
   // ── Internet ────────────────────────────────────────────────────
+
+  // Globe with meridians, r=150 centered
   wikibrowser: { label:'WikiBrowser', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',96,96,416,416,C.teal);
+    const d = gr(p,'a',...gc(106,106,300,300),C.teal);
     return { defs:d, body:
-      Ci(256,256,160,`url(#${p}a)`,C.teal[2],6) +
-      `<ellipse cx="256" cy="256" rx="60" ry="155" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
-      `<ellipse cx="256" cy="256" rx="115" ry="155" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
-      L(100,216,412,216,C.teal[2],3) + L(96,256,416,256,C.teal[2],3) + L(100,296,412,296,C.teal[2],3)
+      Ci(256,256,150,`url(#${p}a)`,C.teal[2],6) +
+      `<ellipse cx="256" cy="256" rx="55" ry="144" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
+      `<ellipse cx="256" cy="256" rx="108" ry="144" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
+      SL(110,220,402,220,C.teal[2],3) + SL(106,256,406,256,C.teal[2],3) + SL(110,292,402,292,C.teal[2],3)
     };
   }},
+
+  // Book/document: pages + spine, ~240×260 centered
   archivebrowser: { label:'Archive Browser', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',136,62,376,450,C.slate);
+    const d = gr(p,'a',...gc(146,126,220,260),C.slate) + gr(p,'p',...gc(156,136,200,240),C.fog);
     return { defs:d, body:
-      R(156,62,220,388,C.fog[0],C.fog[2],3,4) +
-      R(136,72,220,388,`url(#${p}a)`,C.slate[2],5,6) +
-      L(160,140,330,140,C.fog[0],2) + L(160,180,310,180,C.fog[0],2) +
-      L(160,220,320,220,C.fog[0],2) + L(160,260,300,260,C.fog[0],2) +
-      L(160,300,330,300,C.fog[0],2)
+      R(156,136,200,240,`url(#${p}p)`,C.fog[2],4,6) +
+      R(146,126,200,260,`url(#${p}a)`,C.slate[2],5,6) +
+      SL(176,200,316,200,C.fog[0],3) + SL(176,236,296,236,C.fog[0],3) +
+      SL(176,272,306,272,C.fog[0],3) + SL(176,308,286,308,C.fog[0],3)
     };
   }},
+
+  // Fish: elliptical body + tail, ~300×160 centered
   fishoftheday: { label:'Fish of the Day', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',96,156,416,356,C.sage);
+    const d = gr(p,'a',...gc(146,176,240,160),C.sage);
     return { defs:d, body:
-      P('M376 256c0 60-54 110-120 110s-120-50-120-110 54-110 120-110 120 50 120 110Z',`url(#${p}a)`,C.sage[2],5) +
-      P('M136 256l-60-50v100Z',C.sage[0],C.sage[2],4) +
-      Ci(316,236,14,C.white[0],C.slate[0],3) + Ci(320,232,6,C.slate[0],'none',0) +
-      P('M200 216c30-16 70-16 100 0',C.sage[1]+'44',C.sage[2],3)
+      `<ellipse cx="280" cy="256" rx="110" ry="70" fill="url(#${p}a)" stroke="${C.sage[2]}" stroke-width="5" stroke-miterlimit="10"/>` +
+      P('M170 256l-60-46v92Z',C.sage[0],C.sage[2],4) +
+      Ci(336,238,12,C.white[0],C.slate[0],3) + Ci(340,234,5,C.slate[0],'none',0) +
+      P('M220 226c26-14 64-14 90 0','none',C.sage[2],3)
     };
   }},
+
+  // Magnifying glass + fish inside, ~300×300
   fishfinder: { label:'Fish Finder', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',116,76,316,316,C.teal) + gr(p,'b',290,290,420,420,C.silver);
+    const d = gr(p,'a',...gc(86,86,220,220),C.teal) + gr(p,'h',290,290,410,410,C.silver);
     return { defs:d, body:
-      Ci(216,216,110,`url(#${p}a)`,C.teal[2],14) +
-      P('M256 206c0 20-18 36-40 36s-40-16-40-36 18-36 40-36 40 16 40 36Z',C.sage[0],C.sage[2],3) +
-      P('M176 206l-20-16v32Z',C.sage[0],C.sage[2],2) +
-      Ci(236,200,4,C.white[0],'none',0) +
-      `<line x1="296" y1="296" x2="416" y2="416" stroke="url(#${p}b)" stroke-width="36" stroke-linecap="round" stroke-miterlimit="10"/>`
+      Ci(196,196,110,`url(#${p}a)`,C.teal[2],12) +
+      `<ellipse cx="206" cy="196" rx="40" ry="26" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="3" stroke-miterlimit="10"/>` +
+      P('M166 196l-18-14v28Z',C.sage[0],C.sage[2],2) +
+      Ci(222,190,4,C.white[0],'none',0) +
+      `<line x1="280" y1="280" x2="400" y2="400" stroke="url(#${p}h)" stroke-width="36" stroke-linecap="round" stroke-miterlimit="10"/>`
     };
   }},
+
+  // Fish tank: rounded rect + water + 2 fish, ~300×260 centered
   aquarium: { label:'Virtual Aquarium', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',82,82,430,430,C.ice) + gr(p,'b',82,200,430,420,C.teal);
+    const d = gr(p,'t',...gc(106,126,300,260),C.ice) + gr(p,'w',...gc(106,206,300,180),C.teal);
     return { defs:d, body:
-      R(82,82,348,348,`url(#${p}a)`,C.ice[2],6,10) +
-      R(88,200,336,224,`url(#${p}b)`,'none',0,6) +
-      P('M160 300c0 14-10 24-22 24s-22-10-22-24 10-24 22-24 22 10 22 24Z',C.sage[0],C.sage[2],2) +
-      P('M116 300l-14-10v20Z',C.sage[0],C.sage[2],2) +
-      P('M340 340c0 18-14 32-30 32s-30-14-30-32 14-32 30-32 30 14 30 32Z',C.gold[0],C.gold[2],2) +
-      P('M280 340l-18-14v28Z',C.gold[0],C.gold[2],2) +
-      R(120,390,80,16,C.amber[0],'none',0,4) + R(260,380,60,24,C.sage[1],'none',0,6)
+      R(106,126,300,260,`url(#${p}t)`,C.ice[2],6,12) +
+      R(112,206,288,174,`url(#${p}w)`,'none',0,8) +
+      `<ellipse cx="190" cy="280" rx="28" ry="18" fill="${C.sage[0]}" stroke="${C.sage[2]}" stroke-width="2" stroke-miterlimit="10"/>` +
+      P('M162 280l-14-10v20Z',C.sage[0],C.sage[2],2) +
+      `<ellipse cx="320" cy="320" rx="34" ry="22" fill="${C.gold[0]}" stroke="${C.gold[2]}" stroke-width="2" stroke-miterlimit="10"/>` +
+      P('M286 320l-16-12v24Z',C.gold[0],C.gold[2],2) +
+      R(160,356,60,14,C.amber[0],'none',0,4) + R(280,350,40,20,C.sage[1],'none',0,6)
     };
   }},
+
+  // Radar: circle + crosshairs + dots, r=140 centered (like barometer)
   neotracker: { label:'NEO Tracker', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',156,156,356,356,C.silver);
+    const d = gr(p,'a',...gc(116,116,280,280),C.slate);
     return { defs:d, body:
-      Ci(256,256,120,`url(#${p}a)`,C.silver[2],5) +
-      Ci(280,236,30,C.slate[0],C.slate[2],2) + Ci(220,280,18,C.slate[0],C.slate[2],2) +
-      L(256,96,256,416,C.rose[2],3) + L(96,256,416,256,C.rose[2],3) +
-      Ci(256,256,60,'none',C.rose[2],2) + Ci(256,256,100,'none',C.rose[2],2)
+      Ci(256,256,140,`url(#${p}a)`,C.slate[2],6) +
+      Ci(256,256,90,'none',C.fog[2],2) + Ci(256,256,45,'none',C.fog[2],2) +
+      SL(256,116,256,396,C.fog[2],3) + SL(116,256,396,256,C.fog[2],3) +
+      Ci(290,220,10,C.sage[0],C.sage[2],2) + Ci(230,290,7,C.sage[0],C.sage[2],2)
     };
   }},
+
+  // Globe + location pin, r=150 centered
   visitormap: { label:'Visitor Map', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',96,96,416,416,C.teal) + gr(p,'b',270,130,330,240,C.rose);
+    const d = gr(p,'a',...gc(106,106,300,300),C.teal) + gr(p,'p',...gc(220,170,72,100),C.rose);
     return { defs:d, body:
-      Ci(256,256,160,`url(#${p}a)`,C.teal[2],6) +
-      `<ellipse cx="256" cy="256" rx="60" ry="155" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
-      L(100,216,412,216,C.teal[2],3) + L(96,256,416,256,C.teal[2],3) + L(100,296,412,296,C.teal[2],3) +
-      P('M300 240c0-24-20-44-44-44s-44 20-44 44c0 44 44 70 44 70s44-46 44-70Z',`url(#${p}b)`,C.rose[2],3) +
-      Ci(256,238,14,C.white[0],'none',0)
+      Ci(256,256,150,`url(#${p}a)`,C.teal[2],6) +
+      `<ellipse cx="256" cy="256" rx="55" ry="144" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
+      SL(110,220,402,220,C.teal[2],3) + SL(106,256,406,256,C.teal[2],3) + SL(110,292,402,292,C.teal[2],3) +
+      P('M290 230c0-20-15-36-34-36s-34 16-34 36c0 36 34 56 34 56s34-36 34-56Z',`url(#${p}p)`,C.rose[2],3) +
+      Ci(256,228,11,C.white[0],'none',0)
     };
   }},
+
+  // Speech bubble: rounded shape + tail, ~280×220 centered
   chat: { label:'Chat', cat:'Internet', icon:(p) => {
-    const d = gr(p,'a',92,82,420,370,C.steel);
+    const d = gr(p,'a',...gc(116,126,280,220),C.steel);
     return { defs:d, body:
-      P('M132 82h248c22 0 40 18 40 40v168c0 22-18 40-40 40H240l-68 60v-60h-40c-22 0-40-18-40-40V122c0-22 18-40 40-40Z',`url(#${p}a)`,C.steel[2],5) +
-      L(180,170,332,170,C.white[0],4) + L(180,210,312,210,C.white[0],4) + L(180,250,292,250,C.white[0],4)
+      P('M156 136h200c22 0 40 18 40 40v100c0 22-18 40-40 40H236l-56 48v-48h-24c-22 0-40-18-40-40V176c0-22 18-40 40-40Z',`url(#${p}a)`,C.steel[2],5) +
+      SL(196,206,320,206,C.white[0],4) + SL(196,246,300,246,C.white[0],4) + SL(196,286,280,286,C.white[0],4)
     };
   }},
 
   // ── Games ───────────────────────────────────────────────────────
+
+  // Bullseye: concentric rings r=144 centered (like compass)
   ontarget: { label:'On Target', cat:'Games', icon:(p) => {
-    const d = gr(p,'a',96,96,416,416,C.rose) + gr(p,'b',156,156,356,356,C.white);
+    const d = gr(p,'a',...gc(112,112,288,288),C.rose) + gr(p,'b',...gc(146,146,220,220),C.white);
     return { defs:d, body:
-      Ci(256,256,160,`url(#${p}a)`,C.rose[2],5) +
-      Ci(256,256,110,`url(#${p}b)`,C.fog[2],3) +
-      Ci(256,256,60,`url(#${p}a)`,C.rose[2],3) +
-      Ci(256,256,20,C.white[0],C.fog[2],2) +
-      L(256,80,256,432,C.slate[0],3) + L(80,256,432,256,C.slate[0],3)
+      Ci(256,256,144,`url(#${p}a)`,C.rose[2],5) +
+      Ci(256,256,100,`url(#${p}b)`,C.fog[2],3) +
+      Ci(256,256,56,C.rose[0],C.rose[2],3) +
+      Ci(256,256,18,C.white[0],C.fog[2],2) +
+      SL(256,96,256,416,C.slate[0],3) + SL(96,256,416,256,C.slate[0],3)
     };
   }},
+
+  // Chicken: round body + comb + eye + beak + feet, ~260×260 centered
   chickenfingers: { label:'Chicken Fingers', cat:'Games', icon:(p) => {
-    const d = gr(p,'a',156,106,356,406,C.gold);
+    const d = gr(p,'a',...gc(136,146,240,220),C.gold);
     return { defs:d, body:
-      Ci(256,270,120,`url(#${p}a)`,C.gold[2],5) +
-      P('M230 150c0-20 12-36 26-36s26 16 26 36',C.rose[0],C.rose[2],3) +
-      Ci(226,240,12,C.slate[0],'none',0) + Ci(230,236,4,C.white[0],'none',0) +
-      P('M200 276h-40l-10 16 50-4Z',C.gold[1],C.gold[2],3) +
-      R(220,390,30,36,C.gold[1],C.gold[2],3) + R(264,390,30,36,C.gold[1],C.gold[2],3)
+      Ci(256,256,110,`url(#${p}a)`,C.gold[2],5) +
+      P('M234 146c0-18 10-32 22-32s22 14 22 32',C.rose[0],C.rose[2],3) +
+      Ci(228,230,10,C.slate[0],'none',0) + Ci(231,227,3,C.white[0],'none',0) +
+      P('M200 266h-36l-8 14 44-4Z',C.gold[1],C.gold[2],3) +
+      SL(230,366,230,396,C.gold[1],6) + SL(280,366,280,396,C.gold[1],6)
     };
   }},
+
+  // Bricks: 3×3 grid of bricks + paddle + ball, ~280×240 centered
   brickbreaker: { label:'Brick Breaker', cat:'Games', icon:(p) => {
-    const d = gr(p,'a',96,76,416,220,C.slate);
-    const br = (x,y,c) => R(x,y,90,28,c[0],c[2],2,4);
+    const br = (x,y,c) => R(x,y,80,24,c[0],c[2],2,4);
+    const d = gr(p,'bg',...gc(116,136,280,240),C.slate);
     return { defs:d, body:
-      R(96,76,320,370,`url(#${p}a)`,C.slate[2],5,8) +
-      br(116,100,C.rose) + br(216,100,C.gold) + br(316,100,C.sage) +
-      br(116,136,C.gold) + br(216,136,C.sage) + br(316,136,C.rose) +
-      br(116,172,C.sage) + br(216,172,C.rose) + br(316,172,C.gold) +
-      R(196,400,120,20,C.silver[0],C.silver[2],3,6) +
-      Ci(256,370,8,C.white[0],C.fog[2],2)
+      R(116,136,280,240,`url(#${p}bg)`,C.slate[2],5,10) +
+      br(136,156,C.rose) + br(226,156,C.gold) + br(316,156,C.sage) +
+      br(136,188,C.gold) + br(226,188,C.sage) + br(316,188,C.rose) +
+      br(136,220,C.sage) + br(226,220,C.rose) + br(316,220,C.gold) +
+      R(206,340,100,16,C.silver[0],C.silver[2],3,6) +
+      Ci(256,316,7,C.white[0],C.fog[2],2)
     };
   }},
+
+  // Fractal: concentric circles like the compass/barometer, r=144 centered
   fractalexplorer: { label:'Fractal Explorer', cat:'Games', icon:(p) => {
-    const d = gr(p,'a',96,96,416,416,C.plum);
+    const d = gr(p,'a',...gc(112,112,288,288),C.plum);
     return { defs:d, body:
-      Ci(256,256,160,`url(#${p}a)`,C.plum[2],5) +
-      Ci(256,256,120,'none',C.ice[2],3) +
-      Ci(256,256,80,'none',C.teal[2],3) +
-      Ci(256,256,40,C.ice[0],C.ice[2],3) +
-      Ci(200,200,30,'none',C.plum[2],3) + Ci(312,200,30,'none',C.plum[2],3) +
-      Ci(200,312,30,'none',C.plum[2],3) + Ci(312,312,30,'none',C.plum[2],3)
+      Ci(256,256,144,`url(#${p}a)`,C.plum[2],5) +
+      Ci(256,256,108,'none',C.ice[2],3) +
+      Ci(256,256,72,'none',C.teal[2],3) +
+      Ci(256,256,36,C.ice[0],C.ice[2],3) +
+      Ci(200,200,24,'none',C.plum[2],3) + Ci(312,200,24,'none',C.plum[2],3) +
+      Ci(200,312,24,'none',C.plum[2],3) + Ci(312,312,24,'none',C.plum[2],3)
     };
   }},
+
+  // Slot machine: 3 windows in a row + lever, ~280×220 centered
   slotmachine: { label:'Slot Machine', cat:'Games', icon:(p) => {
-    const d = gr(p,'a',112,62,400,450,C.amber) + gr(p,'b',136,130,376,310,C.white);
+    const d = gr(p,'a',...gc(116,146,280,220),C.amber) + gr(p,'w',...gc(140,176,60,120),C.white);
     return { defs:d, body:
-      R(112,62,288,388,`url(#${p}a)`,C.amber[2],5,12) +
-      R(136,130,80,180,`url(#${p}b)`,C.fog[2],3,4) +
-      R(224,130,80,180,`url(#${p}b)`,C.fog[2],3,4) +
-      R(312,130,80,180,`url(#${p}b)`,C.fog[2],3,4) +
-      `<text x="176" y="248" fill="${C.rose[1]}" font-family="serif" font-size="80" font-weight="bold" text-anchor="middle">7</text>` +
-      `<text x="264" y="248" fill="${C.sage[1]}" font-family="serif" font-size="80" font-weight="bold" text-anchor="middle">7</text>` +
-      `<text x="352" y="248" fill="${C.gold[1]}" font-family="serif" font-size="80" font-weight="bold" text-anchor="middle">7</text>` +
-      R(196,370,120,40,C.rose[0],C.rose[2],3,8)
+      R(116,146,280,220,`url(#${p}a)`,C.amber[2],5,12) +
+      R(140,176,60,120,`url(#${p}w)`,C.fog[2],3,6) +
+      R(226,176,60,120,`url(#${p}w)`,C.fog[2],3,6) +
+      R(312,176,60,120,`url(#${p}w)`,C.fog[2],3,6) +
+      Ci(170,236,14,C.rose[0],C.rose[2],2) +
+      Ci(256,236,14,C.sage[0],C.sage[2],2) +
+      Ci(342,236,14,C.gold[0],C.gold[2],2) +
+      R(186,332,140,20,C.rose[0],C.rose[2],3,6)
     };
   }},
 
   // ── Audio ───────────────────────────────────────────────────────
+
+  // 4 fader lines: tornado-style vertical stroked bars, ~240×240 centered
   noisemixer: { label:'Noise Mixer', cat:'Audio', icon:(p) => {
-    const d = gr(p,'a',92,62,420,450,C.slate);
-    const fader = (x,ky) => R(x,120,20,280,C.fog[1],'none',0,4) + R(x-4,ky,28,20,C.silver[0],C.silver[2],2,4);
+    const d =
+      gr(p,'t1',148,136,188,376,C.fog) + gr(p,'k1',148,196,188,236,C.silver) +
+      gr(p,'t2',218,136,258,376,C.fog) + gr(p,'k2',218,256,258,296,C.silver) +
+      gr(p,'t3',288,136,328,376,C.fog) + gr(p,'k3',288,176,328,216,C.silver) +
+      gr(p,'t4',358,136,398,376,C.fog) + gr(p,'k4',358,296,398,336,C.silver);
     return { defs:d, body:
-      R(92,62,328,388,`url(#${p}a)`,C.slate[2],5,10) +
-      fader(160,200) + fader(220,260) + fader(280,180) + fader(340,300) +
-      Ci(160,420,6,C.green[0],'none',0) + Ci(220,420,6,C.green[0],'none',0) +
-      Ci(280,420,6,C.green[0],'none',0) + Ci(340,420,6,C.green[0],'none',0)
+      SL(168,148,168,364,`url(#${p}t1)`,6) + R(156,206,24,18,`url(#${p}k1)`,C.silver[2],2,4) +
+      SL(238,148,238,364,`url(#${p}t2)`,6) + R(226,266,24,18,`url(#${p}k2)`,C.silver[2],2,4) +
+      SL(308,148,308,364,`url(#${p}t3)`,6) + R(296,186,24,18,`url(#${p}k3)`,C.silver[2],2,4) +
+      SL(378,148,378,364,`url(#${p}t4)`,6) + R(366,306,24,18,`url(#${p}k4)`,C.silver[2],2,4) +
+      Ci(168,382,6,C.green[0],'none',0) + Ci(238,382,6,C.green[0],'none',0) +
+      Ci(308,382,6,C.green[0],'none',0) + Ci(378,382,6,C.green[0],'none',0)
     };
   }},
+
+  // Tuning fork: prongs + handle, ~120×260 centered (like thermometer proportions)
   tuningfork: { label:'Tuning Fork', cat:'Audio', icon:(p) => {
-    const d = gr(p,'a',186,56,326,460,C.silver);
+    const d = gr(p,'a',...gc(196,126,120,260),C.silver);
     return { defs:d, body:
-      P('M206 56v200c0 22 16 40 36 40h0c20 0 36-18 36-40V56',`url(#${p}a)`,C.silver[2],12) +
-      R(238,280,36,180,`url(#${p}a)`,C.silver[2],6,8)
+      P('M216 130v160c0 18 14 32 30 32h20c16 0 30-14 30-32V130',`url(#${p}a)`,C.silver[2],12) +
+      R(243,310,26,80,`url(#${p}a)`,C.silver[2],6,6)
     };
   }},
+
+  // Waveform: curved stroked paths like wind icon, ~300×180 centered
   reverb: { label:'Reverb', cat:'Audio', icon:(p) => {
-    const d = gr(p,'a',92,82,420,430,C.slate) + gr(p,'b',130,200,382,300,C.ice);
+    const d = gr(p,'w1',106,126,406,306,C.ice) + gr(p,'w2',106,206,406,386,C.teal);
     return { defs:d, body:
-      R(92,82,328,348,`url(#${p}a)`,C.slate[2],5,10) +
-      `<path d="M130 256q32-80 64 0t64 0 64 0 64 0" fill="none" stroke="url(#${p}b)" stroke-width="6" stroke-linecap="round"/>` +
-      Ci(150,380,14,C.gold[0],C.gold[2],2) + Ci(256,380,14,C.gold[0],C.gold[2],2) + Ci(362,380,14,C.gold[0],C.gold[2],2)
+      `<path d="M106 216q50-80 100 0t100 0 100 0" fill="none" stroke="url(#${p}w1)" stroke-width="12" stroke-linecap="round"/>` +
+      `<path d="M106 296q50-60 100 0t100 0 100 0" fill="none" stroke="url(#${p}w2)" stroke-width="12" stroke-linecap="round"/>`
     };
   }},
+
+  // Wave + knobs: waveform + 3 control dots, ~300×200 centered
   soundproducer: { label:'Sound Producer', cat:'Audio', icon:(p) => {
-    const d = gr(p,'a',92,82,420,430,C.slate) + gr(p,'b',130,180,382,280,C.teal);
+    const d = gr(p,'w',106,176,406,296,C.teal);
     return { defs:d, body:
-      R(92,82,328,348,`url(#${p}a)`,C.slate[2],5,10) +
-      `<path d="M130 240q40-60 80 0t80 0 80 0" fill="none" stroke="url(#${p}b)" stroke-width="6" stroke-linecap="round"/>` +
-      Ci(140,370,8,C.rose[0],'none',0) + Ci(170,370,8,C.green[0],'none',0) + Ci(200,370,8,C.steel[0],'none',0) +
-      R(300,340,80,50,C.silver[0],C.silver[2],2,4)
+      `<path d="M106 236q40-80 80 0t80 0 80 0 80 0" fill="none" stroke="url(#${p}w)" stroke-width="12" stroke-linecap="round"/>` +
+      Ci(166,326,14,C.rose[0],C.rose[2],3) + Ci(256,326,14,C.sage[0],C.sage[2],3) + Ci(346,326,14,C.gold[0],C.gold[2],3)
     };
   }},
 
   // ── Accessories ─────────────────────────────────────────────────
+
+  // Paint palette: ellipse + color dots, ~300×240 centered
   paint: { label:'Paint', cat:'Accessories', icon:(p) => {
-    const d = gr(p,'a',76,106,436,406,C.amber);
+    const d = gr(p,'a',...gc(106,136,300,240),C.amber);
     return { defs:d, body:
-      `<ellipse cx="256" cy="270" rx="180" ry="140" fill="url(#${p}a)" stroke="${C.amber[2]}" stroke-width="5" stroke-miterlimit="10"/>` +
-      Ci(200,200,20,C.rose[0],C.rose[2],2) +
-      Ci(280,180,20,C.steel[0],C.steel[2],2) +
-      Ci(340,220,20,C.sage[0],C.sage[2],2) +
-      Ci(320,300,20,C.gold[0],C.gold[2],2) +
-      Ci(200,320,20,C.plum[0],C.plum[2],2) +
-      Ci(160,260,28,C.white[0],C.fog[2],3)
+      `<ellipse cx="256" cy="256" rx="150" ry="120" fill="url(#${p}a)" stroke="${C.amber[2]}" stroke-width="5" stroke-miterlimit="10"/>` +
+      Ci(200,200,16,C.rose[0],C.rose[2],2) +
+      Ci(270,186,16,C.steel[0],C.steel[2],2) +
+      Ci(330,216,16,C.sage[0],C.sage[2],2) +
+      Ci(310,296,16,C.gold[0],C.gold[2],2) +
+      Ci(196,306,16,C.plum[0],C.plum[2],2) +
+      Ci(160,256,22,C.white[0],C.fog[2],3)
     };
   }},
+
+  // Camera: body + flash + lens rings, ~280×200 centered
   photobooth: { label:'Photo Booth', cat:'Accessories', icon:(p) => {
-    const d = gr(p,'a',92,102,420,390,C.silver) + gr(p,'b',196,186,316,326,C.slate);
+    const d = gr(p,'a',...gc(116,156,280,200),C.silver) + gr(p,'l',...gc(196,206,120,120),C.slate);
     return { defs:d, body:
-      R(92,102,328,288,`url(#${p}a)`,C.silver[2],5,12) +
-      R(192,72,128,44,C.silver[0],C.silver[2],4,6) +
-      Ci(256,256,70,`url(#${p}b)`,C.slate[2],6) +
-      Ci(256,256,50,C.ice[0],C.ice[2],4) +
-      Ci(256,256,20,C.slate[0],C.slate[2],3) +
-      Ci(350,150,14,C.gold[0],C.gold[2],2)
+      R(116,166,280,190,`url(#${p}a)`,C.silver[2],6,12) +
+      R(206,136,100,40,C.silver[0],C.silver[2],4,6) +
+      Ci(256,266,60,`url(#${p}l)`,C.slate[2],6) +
+      Ci(256,266,40,C.ice[0],C.ice[2],4) +
+      Ci(256,266,16,C.slate[0],C.slate[2],3) +
+      Ci(346,196,12,C.gold[0],C.gold[2],2)
     };
   }},
 
   // ── Utilities ───────────────────────────────────────────────────
+
+  // Weather: reuse weather icon system (partly cloudy)
   weather: { label:'Weather', cat:'Utilities', icon:(p) => {
-    // Reuse weather system
     const d = WG.sun(p) + WG.cloud(p) + WS.sun(p) + WS.cloud(p);
     return { defs:d, body:
       `<use href="#${p}s" width="196" height="196" transform="translate(68 109)"/>` +
       `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>`
     };
   }},
+
+  // Globe-clock: globe with clock hands, r=150 centered
   timezone: { label:'Time Zone', cat:'Utilities', icon:(p) => {
-    const d = gr(p,'a',96,96,416,416,C.teal);
+    const d = gr(p,'a',...gc(106,106,300,300),C.teal);
     return { defs:d, body:
-      Ci(256,256,160,`url(#${p}a)`,C.teal[2],6) +
-      `<ellipse cx="256" cy="256" rx="60" ry="155" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
-      L(100,256,412,256,C.teal[2],3) +
-      L(256,140,256,256,C.white[0],6) + L(256,256,320,296,C.white[0],5) +
+      Ci(256,256,150,`url(#${p}a)`,C.teal[2],6) +
+      `<ellipse cx="256" cy="256" rx="55" ry="144" fill="none" stroke="${C.teal[2]}" stroke-width="3"/>` +
+      SL(106,256,406,256,C.teal[2],3) +
+      SL(256,146,256,256,C.white[0],6) + SL(256,256,316,296,C.white[0],5) +
       Ci(256,256,8,C.white[0],C.teal[2],3)
     };
   }},
+
+  // Disk platter: ellipse + spindle + arm, ~300×200 centered
   diskusage: { label:'Disk Usage', cat:'Utilities', icon:(p) => {
-    const d = gr(p,'a',96,136,416,376,C.silver);
+    const d = gr(p,'a',...gc(106,156,300,200),C.silver);
     return { defs:d, body:
-      `<ellipse cx="256" cy="256" rx="160" ry="100" fill="url(#${p}a)" stroke="${C.silver[2]}" stroke-width="5" stroke-miterlimit="10"/>` +
-      Ci(256,256,40,C.slate[0],C.slate[2],3) + Ci(256,256,12,C.silver[0],C.silver[2],2) +
-      `<ellipse cx="256" cy="256" rx="100" ry="62" fill="none" stroke="${C.fog[2]}" stroke-width="2"/>` +
-      L(256,256,380,200,C.slate[0],6)
+      `<ellipse cx="256" cy="256" rx="150" ry="96" fill="url(#${p}a)" stroke="${C.silver[2]}" stroke-width="5" stroke-miterlimit="10"/>` +
+      `<ellipse cx="256" cy="256" rx="94" ry="60" fill="none" stroke="${C.fog[2]}" stroke-width="2"/>` +
+      Ci(256,256,36,C.slate[0],C.slate[2],3) + Ci(256,256,10,C.silver[0],C.silver[2],2) +
+      SL(256,256,370,196,C.slate[0],6)
     };
   }},
+
+  // Stopwatch: circle + crown, centered (like barometer)
   stopwatch: { label:'Stopwatch', cat:'Utilities', icon:(p) => {
-    const d = gr(p,'a',96,106,416,426,C.silver) + gr(p,'b',126,136,386,396,C.white);
+    const d = gr(p,'a',...gc(116,126,280,280),C.silver) + gr(p,'f',...gc(136,146,240,240),C.white);
     return { defs:d, body:
-      Ci(256,270,160,`url(#${p}a)`,C.silver[2],5) +
-      Ci(256,270,135,`url(#${p}b)`,C.fog[2],3) +
-      R(240,80,32,36,C.silver[0],C.silver[2],4,4) +
-      L(256,270,256,170,C.slate[0],5) + L(256,270,320,310,C.rose[0],3) +
-      Ci(256,270,8,C.slate[0],C.silver[2],3)
+      Ci(256,266,140,`url(#${p}a)`,C.silver[2],5) +
+      Ci(256,266,118,`url(#${p}f)`,C.fog[2],3) +
+      R(242,100,28,30,C.silver[0],C.silver[2],4,4) +
+      SL(256,266,256,176,C.slate[0],5) + SL(256,266,316,300,C.rose[0],3) +
+      Ci(256,266,8,C.slate[0],C.silver[2],3)
     };
   }},
+
+  // Microphone: capsule + arc + stand, ~160×260 centered (like thermometer)
   voicecommands: { label:'Voice Commands', cat:'Utilities', icon:(p) => {
-    const d = gr(p,'a',206,66,306,266,C.silver);
+    const d = gr(p,'a',...gc(206,126,100,160),C.silver);
     return { defs:d, body:
-      R(206,66,100,200,`url(#${p}a)`,C.silver[2],5,50) +
-      Ci(256,166,50,`url(#${p}a)`,C.silver[2],5) +
-      P('M166 226c0 50 40 90 90 90s90-40 90-90','none',C.silver[2],6) +
-      L(256,316,256,396,C.silver[2],6) + L(196,396,316,396,C.silver[2],6) +
-      P('M340 166a14 14 0 010 0 14 14 0 010 0','none',C.steel[0],4) +
-      P('M360 166a14 14 0 010 0','none',C.steel[0],3)
+      R(206,126,100,160,`url(#${p}a)`,C.silver[2],6,50) +
+      P('M176,286c0,44,36,80,80,80s80-36,80-80','none',C.silver[2],6) +
+      SL(256,366,256,400,C.silver[2],6) + SL(206,400,306,400,C.silver[2],6) +
+      P('M326 196a12 12 0 110 0 12 12 0 110 0','none',C.steel[0],4) +
+      P('M346 196a12 12 0 110 0','none',C.steel[0],3)
     };
   }},
+
+  // Padlock: shackle arc + body rect + keyhole, ~200×260 centered
   cryptography: { label:'Cryptography', cat:'Utilities', icon:(p) => {
-    const d = gr(p,'a',156,200,356,440,C.gold) + gr(p,'b',186,80,326,220,C.silver);
+    const d = gr(p,'a',...gc(156,206,200,180),C.gold);
     return { defs:d, body:
-      P('M186 200c0-38 31-70 70-70s70 32 70 70','none',C.silver[2],16) +
-      R(146,230,220,200,`url(#${p}a)`,C.gold[2],5,12) +
-      Ci(256,310,20,C.amber[1],C.amber[2],3) + L(256,330,256,390,C.amber[1],6)
+      P('M190,226c0-36,30-66,66-66s66,30,66,66','none',C.silver[2],16) +
+      R(156,226,200,160,`url(#${p}a)`,C.gold[2],5,12) +
+      Ci(256,290,16,C.amber[1],C.amber[2],3) + SL(256,306,256,356,C.amber[1],6)
     };
   }},
 };
