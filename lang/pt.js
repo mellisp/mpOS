@@ -634,5 +634,31 @@ window._mpLangRegister('pt', {
   'crypto.run': 'Aplicar',
   'crypto.swap': 'Trocar \u21C5',
   'crypto.output': 'Saída',
-  'crypto.copy': 'Copiar Saída'
+  'crypto.copy': 'Copiar Saída',
+
+  /* Photo Booth */
+  'title.photoBooth': 'Photo Booth',
+  'app.photoBooth.name': 'Photo Booth',
+  'app.photoBooth.desc': 'Cabine fotogr\u00e1fica com filtros em tempo real.',
+  'win.photobooth': 'Photo Booth',
+  'pb.capture': 'Capturar',
+  'pb.save': 'Guardar',
+  'pb.mirror': 'Espelhar',
+  'pb.back': 'Voltar',
+  'pb.ready': 'Pronto',
+  'pb.photos': 'Fotos',
+  'pb.statusFilter': 'Filtro',
+  'pb.cameraError': 'C\u00e2mara indispon\u00edvel',
+  'pb.filter.normal': 'Normal',
+  'pb.filter.crt': 'Monitor CRT',
+  'pb.filter.underwater': 'Subaqu\u00e1tico',
+  'pb.filter.fisheye': 'Olho de Peixe',
+  'pb.filter.vhs': 'Cassete VHS',
+  'pb.filter.thermal': 'T\u00e9rmico',
+  'pb.filter.deepfried': 'Deep Fried',
+  'pb.filter.pixelsort': 'Pixel Sort',
+  'pb.filter.ascii': 'Arte ASCII',
+  'pb.filter.datamosh': 'Datamosh',
+  'pb.filter.kaleidoscope': 'Caleidosc\u00f3pio',
+  'pb.filter.timeslice': 'Time Slice'
 });

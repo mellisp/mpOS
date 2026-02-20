@@ -643,7 +643,33 @@
     'crypto.run': 'Apply',
     'crypto.swap': 'Swap \u21C5',
     'crypto.output': 'Output',
-    'crypto.copy': 'Copy Output'
+    'crypto.copy': 'Copy Output',
+
+    /* Photo Booth */
+    'title.photoBooth': 'Photo Booth',
+    'app.photoBooth.name': 'Photo Booth',
+    'app.photoBooth.desc': 'Webcam photo booth with live filters.',
+    'win.photobooth': 'Photo Booth',
+    'pb.capture': 'Capture',
+    'pb.save': 'Save',
+    'pb.mirror': 'Mirror',
+    'pb.back': 'Back',
+    'pb.ready': 'Ready',
+    'pb.photos': 'Photos',
+    'pb.statusFilter': 'Filter',
+    'pb.cameraError': 'Camera unavailable',
+    'pb.filter.normal': 'Normal',
+    'pb.filter.crt': 'CRT Monitor',
+    'pb.filter.underwater': 'Underwater',
+    'pb.filter.fisheye': 'Fisheye',
+    'pb.filter.vhs': 'VHS Tape',
+    'pb.filter.thermal': 'Thermal',
+    'pb.filter.deepfried': 'Deep Fried',
+    'pb.filter.pixelsort': 'Pixel Sort',
+    'pb.filter.ascii': 'ASCII Art',
+    'pb.filter.datamosh': 'Datamosh',
+    'pb.filter.kaleidoscope': 'Kaleidoscope',
+    'pb.filter.timeslice': 'Time Slice'
   });
 
   /* Restore saved language */

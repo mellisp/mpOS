@@ -11,7 +11,8 @@
     openOnTarget, openBrickBreaker, openFractal, openSlotMachine,
     openBrowser, openArchiveBrowser, openFishOfDay, openFishFinder,
     openAquarium, openNeoTracker,
-    openNotepad, openPaint, openStickyNotes, openNoiseMixer, openReverb,
+    openNotepad, openPaint, openStickyNotes, openPhotoBooth,
+    openNoiseMixer, openReverb,
     openCalculator, openCalendar, openTimeZone, openWeather,
     openDiskUsage, openVisitorMap, openStopwatch, openCryptography,
     openTuningFork, openMyComputer, openExplorer, openHelp, openSearch,
@@ -145,7 +146,8 @@
     const accessories = [
       { name: 'Notepad', _key: 'notepad', action: openNotepad },
       { name: 'Paint', _key: 'paint', action: openPaint },
-      { name: 'Sticky Notes', _key: 'stickyNotes', action: openStickyNotes }
+      { name: 'Sticky Notes', _key: 'stickyNotes', action: openStickyNotes },
+      { name: 'Photo Booth', _key: 'photoBooth', action: openPhotoBooth }
     ];
     const audio = [
       { name: 'White Noise Mixer', _key: 'noiseMixer', action: openNoiseMixer },
@@ -849,6 +851,7 @@
     if (window.searchRefreshOnLangChange) window.searchRefreshOnLangChange();
     if (window.soundProducerRefreshOnLangChange) window.soundProducerRefreshOnLangChange();
     if (window.chatRefreshOnLangChange) window.chatRefreshOnLangChange();
+    if (window.photoBoothRefreshOnLangChange) window.photoBoothRefreshOnLangChange();
     // Mobile launcher: rebuild
     if (mobileQuery.matches) buildMobileLauncher();
     // Update tray lang button

@@ -29,7 +29,8 @@ const FOLDER_ITEMS = {
   accessories: [
     { name: 'Notepad', _key: 'notepad', desc: 'A simple text editor with save and load.', tag: 'HTML', action: 'openNotepad' },
     { name: 'Paint', _key: 'paint', desc: 'Create and edit images.', tag: 'HTML', action: 'openPaint' },
-    { name: 'Sticky Notes', _key: 'stickyNotes', desc: 'Post-it style notes on the desktop.', tag: 'HTML', action: 'openStickyNotes' }
+    { name: 'Sticky Notes', _key: 'stickyNotes', desc: 'Post-it style notes on the desktop.', tag: 'HTML', action: 'openStickyNotes' },
+    { name: 'Photo Booth', _key: 'photoBooth', desc: 'Webcam photo booth with live filters.', tag: 'HTML', action: 'openPhotoBooth' }
   ],
   audio: [
     { name: 'White Noise Mixer', _key: 'noiseMixer', desc: 'Mix colored noise for focus, sleep, or relaxation.', tag: 'HTML', action: 'openNoiseMixer' },

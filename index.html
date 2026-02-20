@@ -561,6 +561,22 @@
       </div>
     </div>
 
+    <!-- Photo Booth Window (hidden initially) -->
+    <div class="window draggable resizable" id="photobooth" style="display:none;">
+      <div class="titlebar">
+        <span data-i18n="title.photoBooth">Photo Booth</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('photobooth')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closePhotoBooth()">X</div>
+        </div>
+      </div>
+      <div class="window-body"></div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="pbStatus" data-i18n="pb.ready">Ready</div>
+        <div class="statusbar-section" id="pbPhotoCount">Photos: 0</div>
+      </div>
+    </div>
+
     <!-- Calendar Window (hidden initially) -->
     <div class="window draggable" id="calendar" style="display:none;">
       <div class="titlebar">
@@ -1279,6 +1295,7 @@
   <script src="js/reverb.js" defer></script>
   <script src="js/sound-producer.js" defer></script>
   <script src="js/chat.js" defer></script>
+  <script src="js/photobooth.js" defer></script>
   <script src="js/utilities.js" defer></script>
   <script src="js/data-apps.js" defer></script>
   <script src="js/search.js" defer></script>

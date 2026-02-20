@@ -38,7 +38,8 @@
 .notepad-toolbar,
 .folder-toolbar,
 .help-toolbar,
-.paint-toolbar {
+.paint-toolbar,
+.pb-toolbar {
   display: flex;
   background: var(--silver);
   border-bottom: 1px solid var(--shadow);
@@ -3089,4 +3090,114 @@
   z-index: 99998;
   mix-blend-mode: screen;
   opacity: 0;
+}
+
+/* ── Photo Booth ── */
+#photobooth { width: min(680px, 96vw); left: min(120px, 3vw); top: 30px; }
+
+.pb-toolbar {
+  gap: 4px;
+  padding: 2px 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.pb-toolbar .btn { font-size: 11px; padding: 2px 8px; }
+
+.pb-canvas-wrap {
+  position: relative;
+  background: #000;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  margin: 4px;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.pb-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  image-rendering: auto;
+}
+
+.pb-countdown {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  font-size: 96px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pb-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+  transition: opacity 0.15s ease-out;
+}
+.pb-flash.active {
+  opacity: 0.9;
+  transition: none;
+}
+
+.pb-filter-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 4px;
+}
+
+.pb-filter-btn {
+  font-family: var(--font);
+  font-size: 11px;
+  padding: 2px 6px;
+  background: var(--silver);
+  border: 2px solid;
+  border-color: var(--white) var(--shadow) var(--shadow) var(--white);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pb-filter-btn:active,
+.pb-filter-btn.active {
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  background: var(--face);
+}
+
+.pb-strip {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  overflow-x: auto;
+  min-height: 68px;
+  border-top: 1px solid var(--shadow);
+  background: var(--face);
+}
+
+.pb-thumb {
+  width: 80px;
+  height: 60px;
+  flex-shrink: 0;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  cursor: pointer;
+  image-rendering: auto;
+}
+.pb-thumb:hover {
+  border-color: var(--highlight) var(--highlight) var(--highlight) var(--highlight);
+}
+
+@media (max-width: 767px) {
+  #photobooth { width: 100vw; left: 0; top: 0; }
+  .pb-filter-btn { font-size: 10px; padding: 3px 5px; }
+  .pb-strip { min-height: 54px; }
+  .pb-thumb { width: 64px; height: 48px; }
 }
