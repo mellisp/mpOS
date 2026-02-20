@@ -677,14 +677,6 @@
    *  Screensaver rendering
    * ════════════════════════════════════════════════════════════════════════ */
 
-  const SS_START_FNS = {
-    starfield: ssStartStarfield,
-    pipes: ssStartPipes,
-    bouncing: ssStartBouncing,
-    colorcycle: ssStartColorCycle,
-    mystify: ssStartMystify
-  };
-
   const ssUpdatePreview = (canvas) => {
     ssStopPreview();
     const ctx = canvas.getContext('2d');
@@ -894,6 +886,14 @@
         sh.hue = (sh.hue + 0.3) % 360;
       }
     }, 40);
+  };
+
+  const SS_START_FNS = {
+    starfield: ssStartStarfield,
+    pipes: ssStartPipes,
+    bouncing: ssStartBouncing,
+    colorcycle: ssStartColorCycle,
+    mystify: ssStartMystify
   };
 
   /* ════════════════════════════════════════════════════════════════════════
