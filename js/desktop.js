@@ -25,6 +25,7 @@
    * ==================================================================== */
   const exitSite = () => {
     closeStartMenu();
+    if (window.mpSoundProducer) window.mpSoundProducer.play('exit');
     const overlay = document.createElement('div');
     overlay.style.cssText =
       'position:fixed;inset:0;background:#000;opacity:0;z-index:99999;transition:opacity 1.2s ease-in;';
@@ -149,7 +150,8 @@
     const audio = [
       { name: 'White Noise Mixer', _key: 'noiseMixer', action: openNoiseMixer },
       { name: 'Tuning Fork', _key: 'tuningFork', action: openTuningFork },
-      { name: 'Reverb', _key: 'reverb', action: openReverb }
+      { name: 'Reverb', _key: 'reverb', action: openReverb },
+      { name: 'Sound Producer', _key: 'soundProducer', action: openSoundProducer }
     ];
     const utilities = [
       { name: 'Calculator', _key: 'calculator', action: openCalculator },
@@ -784,6 +786,26 @@
       if (sb) sb.classList.remove('pressed');
 
       voiceToggle();
+
+      // First-use balloon tip: show once, then never again
+      if (!localStorage.getItem('mp-voice-seen')) {
+        localStorage.setItem('mp-voice-seen', '1');
+        const balloon = document.createElement('div');
+        balloon.className = 'tray-balloon';
+        balloon.innerHTML = `<div class="tray-balloon-close" role="button" tabindex="0" aria-label="Close">&#x2715;</div>`
+          + `<div class="tray-balloon-title">${t('voice.balloonTitle')}</div>`
+          + `<div class="tray-balloon-body">${t('voice.balloonBody')}</div>`;
+        const tray = document.querySelector('.system-tray');
+        if (tray) {
+          tray.appendChild(balloon);
+          const dismiss = () => { if (balloon.parentNode) balloon.remove(); };
+          balloon.querySelector('.tray-balloon-close').addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            dismiss();
+          });
+          setTimeout(dismiss, 12000);
+        }
+      }
     });
 
     // Floating indicator: click to stop
@@ -825,6 +847,7 @@
     if (window.paintRefreshOnLangChange) window.paintRefreshOnLangChange();
     if (window.tmRefreshOnLangChange) window.tmRefreshOnLangChange();
     if (window.searchRefreshOnLangChange) window.searchRefreshOnLangChange();
+    if (window.soundProducerRefreshOnLangChange) window.soundProducerRefreshOnLangChange();
     // Mobile launcher: rebuild
     if (mobileQuery.matches) buildMobileLauncher();
     // Update tray lang button
@@ -1277,6 +1300,22 @@
         icon.removeAttribute('ondblclick');
       }
     });
+  }
+
+  /* ====================================================================
+   * Boot chime — once per tab session on first user gesture
+   * ==================================================================== */
+  if (!sessionStorage.getItem('mp-boot-played')) {
+    const bootHandler = () => {
+      if (window.mpSoundProducer) {
+        window.mpSoundProducer.play('boot');
+        sessionStorage.setItem('mp-boot-played', '1');
+      }
+      document.removeEventListener('click', bootHandler, true);
+      document.removeEventListener('keydown', bootHandler, true);
+    };
+    document.addEventListener('click', bootHandler, true);
+    document.addEventListener('keydown', bootHandler, true);
   }
 
   /* ====================================================================

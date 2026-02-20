@@ -50,6 +50,7 @@ window._mpLangRegister('pt', {
   'desktop.newBitmap': 'Imagem Bitmap',
   'desktop.wallpaper': 'Papel de Parede',
   'desktop.properties': 'Propriedades',
+  'desktop.degauss': 'Desmagnetizar',
 
   /* Window titles */
   'title.systemProperties': 'Propriedades do Sistema',
@@ -83,6 +84,7 @@ window._mpLangRegister('pt', {
   'title.fractal': 'Explorador Fractal',
   'title.slotMachine': 'Ca\u00e7a-N\u00edqueis',
   'title.reverb': 'Reverb',
+  'title.soundProducer': 'Produtor de Som',
   'title.noiseMixer': 'Misturador de Ru\u00eddo Branco',
 
   /* Start menu: Search sub-items */
@@ -147,6 +149,8 @@ window._mpLangRegister('pt', {
   'app.slotMachine.desc': 'Ca\u00e7a-n\u00edqueis cl\u00e1ssico de 3 rolos com reter e empurrar.',
   'app.reverb.name': 'Reverb',
   'app.reverb.desc': 'Efeito de reverb com cabos de patch.',
+  'app.soundProducer.name': 'Produtor de Som',
+  'app.soundProducer.desc': 'Pr\u00e9-visualizar e exportar sons procedimentais.',
   'sticky.deleteConfirm': 'Apagar esta nota?',
   'app.myComputer.name': 'O Meu Computador',
   'app.files.name': 'Ficheiros',
@@ -190,6 +194,7 @@ window._mpLangRegister('pt', {
   'mc.display.bgColor': 'Cor de Fundo',
   'mc.display.wallpaper': 'Padr\u00e3o de Fundo',
   'mc.display.resetDefaults': 'Repor Predefini\u00e7\u00f5es',
+  'mc.display.degauss': 'Desmagnetizar',
   'mc.display.wp.none': 'Nenhum',
   'mc.display.wp.sunset': 'P\u00f4r do Sol',
   'mc.display.wp.dots': 'Pontos',
@@ -489,6 +494,8 @@ window._mpLangRegister('pt', {
   'voice.helpMinimize': '"Minimizar [nome do app]"',
   'voice.helpLang': '"Mudar idioma"',
   'voice.continuous': 'Escuta cont\u00ednua',
+  'voice.balloonTitle': 'Comandos de Voz',
+  'voice.balloonBody': 'Experimente dizer <b>\u201cAbrir Calculadora\u201d</b> ou <b>\u201cMudar idioma\u201d</b>.<br>Clique no microfone novamente para parar.',
   'voice.stopped': 'Parou de ouvir',
   'voice.clickToStop': 'Clique para parar',
   'voice.helpStop': '"Parar de ouvir"',
@@ -531,6 +538,20 @@ window._mpLangRegister('pt', {
   'win.fractal': 'Explorador Fractal',
   'win.slotmachine': 'Ca\u00e7a-N\u00edqueis',
   'win.reverb': 'Reverb',
+  'win.soundproducer': 'Produtor de Som',
+
+  /* Sound Producer UI */
+  'sp.preset': 'Predefini\u00e7\u00e3o',
+  'sp.play': 'Reproduzir',
+  'sp.export': 'Exportar WAV',
+  'sp.duration': 'Dura\u00e7\u00e3o',
+  'sp.gain': 'Ganho',
+  'sp.freq': 'Frequ\u00eancia',
+  'sp.output': 'Sa\u00edda',
+  'sp.playing': 'A reproduzir',
+  'sp.rendering': 'A renderizar',
+  'sp.exported': 'Exportado',
+  'sp.error': 'Erro de renderiza\u00e7\u00e3o',
 
   /* Reverb presets */
   'reverb.preset.smallRoom': 'Sala Pequena',

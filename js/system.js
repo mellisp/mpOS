@@ -285,9 +285,16 @@
 
     body.appendChild(grid);
 
-    // Reset Defaults button
+    // Degauss + Reset Defaults row
     const resetRow = document.createElement('div');
-    resetRow.style.cssText = 'margin-top: 12px; display: flex; justify-content: flex-end;';
+    resetRow.style.cssText = 'margin-top: 12px; display: flex; justify-content: flex-end; gap: 8px;';
+
+    const degaussBtn = document.createElement('button');
+    degaussBtn.className = 'degauss-btn';
+    degaussBtn.textContent = t('mc.display.degauss');
+    degaussBtn.addEventListener('click', degauss);
+    resetRow.appendChild(degaussBtn);
+
     const resetBtn = document.createElement('button');
     resetBtn.className = 'btn';
     resetBtn.textContent = t('mc.display.resetDefaults');
@@ -996,6 +1003,150 @@
   };
 
   /* ════════════════════════════════════════════════════════════════════════
+   *  CRT Degauss effect
+   * ════════════════════════════════════════════════════════════════════════ */
+
+  let degaussActive = false;
+
+  const degaussSynthSound = () => {
+    if (localStorage.getItem('mp-muted') === '1') return null;
+    const vol = parseFloat(localStorage.getItem('mp-volume') || '0.1');
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+
+    // Low thunk: 80→30Hz sine, 150ms decay
+    const thunkOsc = ctx.createOscillator();
+    const thunkGain = ctx.createGain();
+    thunkOsc.type = 'sine';
+    thunkOsc.frequency.setValueAtTime(80, now);
+    thunkOsc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
+    thunkGain.gain.setValueAtTime(vol * 0.6, now);
+    thunkGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    thunkOsc.connect(thunkGain).connect(ctx.destination);
+    thunkOsc.start(now);
+    thunkOsc.stop(now + 0.2);
+
+    // Electromagnetic hum: 60Hz sawtooth through lowpass, builds and fades over 3.3s
+    const humOsc = ctx.createOscillator();
+    const humGain = ctx.createGain();
+    const humFilter = ctx.createBiquadFilter();
+    humOsc.type = 'sawtooth';
+    humOsc.frequency.value = 60;
+    humFilter.type = 'lowpass';
+    humFilter.frequency.value = 200;
+    humGain.gain.setValueAtTime(0.001, now);
+    humGain.gain.linearRampToValueAtTime(vol * 0.25, now + 1.2);
+    humGain.gain.setValueAtTime(vol * 0.25, now + 1.8);
+    humGain.gain.exponentialRampToValueAtTime(0.001, now + 3.3);
+    humOsc.connect(humFilter).connect(humGain).connect(ctx.destination);
+    humOsc.start(now + 0.1);
+    humOsc.stop(now + 3.4);
+
+    // High buzz: 120Hz square, thinner layer
+    const buzzOsc = ctx.createOscillator();
+    const buzzGain = ctx.createGain();
+    buzzOsc.type = 'square';
+    buzzOsc.frequency.value = 120;
+    buzzGain.gain.setValueAtTime(0.001, now);
+    buzzGain.gain.linearRampToValueAtTime(vol * 0.08, now + 1.2);
+    buzzGain.gain.setValueAtTime(vol * 0.08, now + 1.8);
+    buzzGain.gain.exponentialRampToValueAtTime(0.001, now + 3.3);
+    buzzOsc.connect(buzzGain).connect(ctx.destination);
+    buzzOsc.start(now + 0.1);
+    buzzOsc.stop(now + 3.4);
+
+    return ctx;
+  };
+
+  const degauss = () => {
+    if (degaussActive) return;
+
+    // Respect prefers-reduced-motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    degaussActive = true;
+
+    // Depress any active button
+    const btn = document.querySelector('.degauss-btn');
+    if (btn) btn.classList.add('active');
+
+    // Create color band overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'degauss-overlay';
+    document.body.appendChild(overlay);
+
+    // Start sound
+    const audioCtx = degaussSynthSound();
+
+    const TOTAL = 3500;
+    const start = performance.now();
+    const body = document.body;
+
+    const easeInQuad = (x) => x * x;
+    const easeOutCubic = (x) => 1 - Math.pow(1 - x, 3);
+
+    const loop = (time) => {
+      const elapsed = time - start;
+      if (elapsed >= TOTAL) {
+        // Clean up
+        body.style.transform = '';
+        body.style.filter = '';
+        overlay.remove();
+        if (btn) btn.classList.remove('active');
+        if (audioCtx) audioCtx.close();
+        // Cooldown — real CRT coils need time to cool
+        setTimeout(() => { degaussActive = false; }, 15000);
+        return;
+      }
+
+      let intensity = 0;
+
+      if (elapsed < 200) {
+        // Delay phase — nothing visible
+        intensity = 0;
+      } else if (elapsed < 1200) {
+        // Build-up: ramp from 0 to 1 (easeInQuad)
+        intensity = easeInQuad((elapsed - 200) / 1000);
+      } else if (elapsed < 1800) {
+        // Peak: hold at 1
+        intensity = 1;
+      } else {
+        // Settle: 1 to 0 (easeOutCubic)
+        intensity = 1 - easeOutCubic((elapsed - 1800) / 1700);
+      }
+
+      // Wobble: sinusoidal translate/skew/scaleX with multiple frequencies
+      const t1 = elapsed * 0.015;
+      const t2 = elapsed * 0.023;
+      const t3 = elapsed * 0.037;
+
+      const tx = Math.sin(t1) * 6 * intensity;
+      const ty = Math.sin(t2) * 3 * intensity;
+      const skew = Math.sin(t3) * 1.5 * intensity;
+      const scaleX = 1 + Math.sin(t2 * 1.3) * 0.008 * intensity;
+
+      body.style.transform = `translate(${tx}px, ${ty}px) skewX(${skew}deg) scaleX(${scaleX})`;
+
+      // Filter: hue-rotate, saturate, brightness
+      const hue = Math.sin(t1 * 1.7) * 40 * intensity;
+      const sat = 100 + 80 * intensity * Math.abs(Math.sin(t2 * 0.8));
+      const bright = 100 + Math.sin(t3 * 0.6) * 15 * intensity;
+
+      body.style.filter = `hue-rotate(${hue}deg) saturate(${sat}%) brightness(${bright}%)`;
+
+      // Color band overlay: sweeping HSL gradient
+      const sweep = (elapsed * 0.1) % 360;
+      overlay.style.opacity = 0.15 * intensity;
+      overlay.style.background = `linear-gradient(${sweep}deg, hsla(${sweep},100%,50%,0.6), hsla(${(sweep + 120) % 360},100%,50%,0.6), hsla(${(sweep + 240) % 360},100%,50%,0.6))`;
+
+      requestAnimationFrame(loop);
+    };
+
+    requestAnimationFrame(loop);
+  };
+
+  /* ════════════════════════════════════════════════════════════════════════
    *  Register with core + export to window
    * ════════════════════════════════════════════════════════════════════════ */
 
@@ -1020,6 +1171,7 @@
   window.applyDisplaySettings = applyDisplaySettings;
   window.mcSaveSettings      = mcSaveSettings;
   window.mcRefreshOnLangChange = mcRefreshOnLangChange;
+  window.degauss             = degauss;
 
   /* ── Load saved settings on startup ── */
   mcLoadSettings();

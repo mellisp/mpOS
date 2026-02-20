@@ -59,6 +59,7 @@
     'desktop.newBitmap': 'Bitmap Image',
     'desktop.wallpaper': 'Wallpaper',
     'desktop.properties': 'Properties',
+    'desktop.degauss': 'Degauss',
 
     /* Window titles */
     'title.systemProperties': 'System Properties',
@@ -92,6 +93,7 @@
     'title.fractal': 'Fractal Explorer',
     'title.slotMachine': 'Slot Machine',
     'title.reverb': 'Reverb',
+    'title.soundProducer': 'Sound Producer',
     'title.noiseMixer': 'White Noise Mixer',
 
     /* Start menu: Search sub-items */
@@ -156,6 +158,8 @@
     'app.slotMachine.desc': 'Classic 3-reel slot machine with hold & nudge.',
     'app.reverb.name': 'Reverb',
     'app.reverb.desc': 'Audio reverb effect with patch cable routing.',
+    'app.soundProducer.name': 'Sound Producer',
+    'app.soundProducer.desc': 'Preview and export procedural UI sounds.',
     'sticky.deleteConfirm': 'Delete this note?',
     'app.myComputer.name': 'My Computer',
     'app.files.name': 'Files',
@@ -199,6 +203,7 @@
     'mc.display.bgColor': 'Background Color',
     'mc.display.wallpaper': 'Wallpaper Pattern',
     'mc.display.resetDefaults': 'Reset Defaults',
+    'mc.display.degauss': 'Degauss',
     'mc.display.wp.none': 'None',
     'mc.display.wp.sunset': 'Sunset',
     'mc.display.wp.dots': 'Dots',
@@ -498,6 +503,8 @@
     'voice.helpMinimize': '"Minimize [app name]"',
     'voice.helpLang': '"Switch language"',
     'voice.continuous': 'Continuous listening',
+    'voice.balloonTitle': 'Voice Commands',
+    'voice.balloonBody': 'Try saying <b>\u201cOpen Calculator\u201d</b> or <b>\u201cSwitch language\u201d</b>.<br>Click the mic again to stop.',
     'voice.stopped': 'Stopped listening',
     'voice.clickToStop': 'Click to stop listening',
     'voice.helpStop': '"Stop listening"',
@@ -540,6 +547,20 @@
     'win.fractal': 'Fractal Explorer',
     'win.slotmachine': 'Slot Machine',
     'win.reverb': 'Reverb',
+    'win.soundproducer': 'Sound Producer',
+
+    /* Sound Producer UI */
+    'sp.preset': 'Preset',
+    'sp.play': 'Play',
+    'sp.export': 'Export WAV',
+    'sp.duration': 'Duration',
+    'sp.gain': 'Gain',
+    'sp.freq': 'Frequency',
+    'sp.output': 'Output',
+    'sp.playing': 'Playing',
+    'sp.rendering': 'Rendering',
+    'sp.exported': 'Exported',
+    'sp.error': 'Render error',
 
     /* Reverb presets */
     'reverb.preset.smallRoom': 'Small Room',

@@ -16,6 +16,13 @@
   const playSound = (name) => {
     if (isMuted()) return;
 
+    /* Delegate to Sound Producer for procedural synthesis when available */
+    if (window.mpSoundProducer) {
+      window.mpSoundProducer.play(name);
+      return;
+    }
+
+    /* Fallback: load MP3 from audio/ directory */
     if (!cache[name]) {
       cache[name] = new Audio(`audio/${name}.mp3`);
     }

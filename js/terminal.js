@@ -1082,7 +1082,7 @@ const cmdEdit = (args) => {
 const HELP_GROUPS = {
   'NAVIGATION': ['cd', 'dir', 'ls', 'tree', 'pwd'],
   'FILES':      ['type', 'cat', 'echo', 'touch', 'rm', 'edit', 'nano'],
-  'SYSTEM':     ['systeminfo', 'whoami', 'hostname', 'ver', 'date', 'time', 'tasklist', 'taskkill', 'uptime', 'top', 'neofetch', 'ipconfig', 'netstat'],
+  'SYSTEM':     ['systeminfo', 'whoami', 'hostname', 'ver', 'date', 'time', 'tasklist', 'taskkill', 'uptime', 'top', 'neofetch', 'ipconfig', 'netstat', 'degauss'],
   'PROGRAMS':   [],
   'TERMINAL':   ['cls', 'color', 'title', 'start', 'ping', 'matrix', 'help', 'exit', 'history', 'fortune', 'curl', 'fetch']
 };
@@ -1160,7 +1160,8 @@ const COMMANDS = {
   'neotracker':   { run: () => window.openNeoTracker(),   desc: 'Launch NEO Tracker' },
   'tuningfork':   { run: () => window.openTuningFork(),   desc: 'Launch Tuning Fork' },
   'fractal':      { run: () => window.openFractal(),      desc: 'Launch Fractal Explorer' },
-  'slotmachine':  { run: () => window.openSlotMachine(),  desc: 'Launch Slot Machine' }
+  'slotmachine':  { run: () => window.openSlotMachine(),  desc: 'Launch Slot Machine' },
+  'degauss':      { run: () => { termPrint('Degaussing display...'); setTimeout(() => window.degauss?.(), 300); }, desc: 'Degauss the CRT display' }
 };
 
 

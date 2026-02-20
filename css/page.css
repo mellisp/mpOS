@@ -2921,3 +2921,25 @@
   align-items: center;
   gap: 4px;
 }
+
+/* ── Degauss ── */
+.degauss-btn {
+  font-family: var(--font);
+  font-size: 11px;
+  padding: 2px 10px;
+  background: var(--silver, #d4d0c8);
+  border: 2px solid;
+  border-color: var(--white, #fff) var(--shadow, #808080) var(--shadow, #808080) var(--white, #fff);
+  cursor: pointer;
+}
+.degauss-btn:active, .degauss-btn.active {
+  border-color: var(--shadow, #808080) var(--white, #fff) var(--white, #fff) var(--shadow, #808080);
+}
+.degauss-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99998;
+  mix-blend-mode: screen;
+  opacity: 0;
+}

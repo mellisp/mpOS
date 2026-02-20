@@ -258,6 +258,7 @@
   };
 
   const closeWindow = (id) => {
+    if (window.mpSoundProducer) window.mpSoundProducer.play('close');
     const win = document.getElementById(id);
     if (!win) return;
     onAnimEnd(win, 'closing', () => { win.style.display = 'none'; });
