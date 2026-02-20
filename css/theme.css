@@ -280,7 +280,12 @@ body {
   border-radius: 2px;
   position: absolute;
   z-index: 1;
+  left: 20px;
 }
+/* CSS fallback positions — JS overrides these once initDesktopIcons runs */
+.desktop-icon[data-icon="mycomputer"] { top: 16px; }
+.desktop-icon[data-icon="files"]      { top: 104px; }
+.desktop-icon[data-icon="wikibrowser"]{ top: 192px; }
 
 .desktop-icon.icon-ready {
   transition: left 0.15s ease, top 0.15s ease;
@@ -852,6 +857,8 @@ button.start-menu-item {
     --grid-col-w: 94px;
     --grid-row-h: 96px;
   }
+  .desktop-icon[data-icon="files"]      { top: 112px; }
+  .desktop-icon[data-icon="wikibrowser"]{ top: 208px; }
 }
 
 /* ── Win2000-style tooltip ── */
