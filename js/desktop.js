@@ -848,6 +848,7 @@
     if (window.tmRefreshOnLangChange) window.tmRefreshOnLangChange();
     if (window.searchRefreshOnLangChange) window.searchRefreshOnLangChange();
     if (window.soundProducerRefreshOnLangChange) window.soundProducerRefreshOnLangChange();
+    if (window.chatRefreshOnLangChange) window.chatRefreshOnLangChange();
     // Mobile launcher: rebuild
     if (mobileQuery.matches) buildMobileLauncher();
     // Update tray lang button

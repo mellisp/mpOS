@@ -535,6 +535,30 @@
       </div>
     </div>
 
+    <!-- Chat Window (hidden initially) -->
+    <div class="window draggable" id="chat" style="display:none;">
+      <div class="titlebar">
+        <span data-i18n="title.chat">Chat</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('chat')">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeChat()">X</div>
+        </div>
+      </div>
+      <div class="window-body chat-body">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-bar">
+          <textarea class="chat-input" id="chatInput" rows="1"
+                    placeholder="Ask about mpOS..." data-i18n="chat.placeholder"
+                    data-i18n-attr="placeholder"></textarea>
+          <button type="button" class="btn chat-send-btn" id="chatSendBtn"
+                  onclick="sendChatMessage()" data-i18n="chat.send">Send</button>
+        </div>
+      </div>
+      <div class="statusbar">
+        <div class="statusbar-section" id="chatStatus" data-i18n="chat.ready">Ready</div>
+      </div>
+    </div>
+
     <!-- Calendar Window (hidden initially) -->
     <div class="window draggable" id="calendar" style="display:none;">
       <div class="titlebar">
@@ -1204,6 +1228,15 @@
           <div class="net-popup-note">Reported by browser APIs. Some values are estimates.</div>
         </div>
 
+        <!-- Chat -->
+        <div class="tray-icon" id="trayChatIcon" title="Chat">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 3h12v8H5l-3 3V3z" fill="#444"/>
+            <rect x="4" y="5.5" width="5" height="1" rx=".5" fill="#c0c0c0"/>
+            <rect x="4" y="7.5" width="7" height="1" rx=".5" fill="#c0c0c0"/>
+          </svg>
+        </div>
+
         <!-- Voice Commands -->
         <div class="tray-icon tray-mic" id="trayMicIcon" style="display:none" title="Voice Commands (Alt+Space)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -1243,6 +1276,7 @@
   <script src="js/media.js" defer></script>
   <script src="js/reverb.js" defer></script>
   <script src="js/sound-producer.js" defer></script>
+  <script src="js/chat.js" defer></script>
   <script src="js/utilities.js" defer></script>
   <script src="js/data-apps.js" defer></script>
   <script src="js/search.js" defer></script>

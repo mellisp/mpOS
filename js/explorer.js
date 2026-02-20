@@ -47,7 +47,8 @@ const FOLDER_ITEMS = {
     { name: 'Visitor Map', _key: 'visitorMap', desc: 'See where visitors are coming from.', tag: 'API', action: 'openVisitorMap' },
     { name: 'Stopwatch', _key: 'stopwatch', desc: 'Stopwatch with lap times.', tag: 'HTML', action: 'openStopwatch' },
     { name: 'Voice Commands', _key: 'voiceCommands', desc: 'Control mpOS with your voice.', tag: 'HTML', action: 'openVoiceCommands' },
-    { name: 'Cryptography', _key: 'cryptography', desc: 'Encrypt and decrypt messages with classic ciphers.', tag: 'HTML', action: 'openCryptography' }
+    { name: 'Cryptography', _key: 'cryptography', desc: 'Encrypt and decrypt messages with classic ciphers.', tag: 'HTML', action: 'openCryptography' },
+    { name: 'Chat', _key: 'chat', desc: 'Ask questions about mpOS.', tag: 'AI', action: 'openChat' }
   ]
 };
 

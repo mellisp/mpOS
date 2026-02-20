@@ -129,6 +129,19 @@
   navigator.connection?.addEventListener?.('change', updateNetStatus);
   updateNetStatus();
 
+  // --- Chat tray icon ---
+  const chatIcon = document.getElementById('trayChatIcon');
+  if (chatIcon) {
+    chatIcon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      volumePopup?.classList.remove('open');
+      netPopup?.classList.remove('open');
+      startMenu?.classList.remove('open');
+      startBtn?.classList.remove('pressed');
+      window.openChat?.();
+    });
+  }
+
   // --- Dismiss popups on outside click (single listener) ---
   const clearTouchSubmenus = () => {
     for (const s of document.querySelectorAll('.start-submenu.touch-open')) {

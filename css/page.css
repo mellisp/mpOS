@@ -2597,6 +2597,52 @@
   font-size: 11px;
 }
 
+/* XP-style balloon tip for first-use onboarding */
+.tray-balloon {
+  position: absolute;
+  bottom: 36px;
+  right: 4px;
+  width: 240px;
+  background: #ffffe1;
+  border: 1px solid #000;
+  border-radius: 0;
+  padding: 8px 28px 10px 10px;
+  font-size: 11px;
+  line-height: 1.4;
+  box-shadow: 2px 2px 6px rgba(0,0,0,.25);
+  z-index: 10001;
+  animation: balloon-in .25s ease-out;
+}
+.tray-balloon::after {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  right: 14px;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid #ffffe1;
+  filter: drop-shadow(0 1px 0 #000);
+}
+.tray-balloon-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #888;
+  line-height: 1;
+}
+.tray-balloon-close:hover { color: #000; }
+.tray-balloon-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.tray-balloon-body { color: #333; }
+@keyframes balloon-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Tablet touch targets ── */
 @media (max-width: 1024px) and (pointer: coarse) {
   .tree-item, .folder-list-item, .help-tree-folder, .help-tree-topic,

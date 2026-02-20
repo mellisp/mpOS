@@ -18,7 +18,7 @@ var HELP_TREE = [
   { title: 'Internet',        title_pt: 'Internet',          children: ['wikibrowser', 'archivebrowser', 'fishofday', 'fishfinder', 'aquarium', 'neotracker'] },
   { title: 'Accessories',     title_pt: 'Acess\u00f3rios',   children: ['notepad', 'paint', 'stickynotes'] },
   { title: 'Audio',           title_pt: '\u00c1udio',        children: ['noisemixer', 'tuningfork', 'reverb'] },
-  { title: 'Utilities',       title_pt: 'Utilit\u00e1rios',  children: ['calculator', 'calendar', 'timezone', 'weather', 'stopwatch', 'cryptography', 'diskusage', 'visitormap', 'search'] },
+  { title: 'Utilities',       title_pt: 'Utilit\u00e1rios',  children: ['calculator', 'calendar', 'timezone', 'weather', 'stopwatch', 'cryptography', 'diskusage', 'visitormap', 'search', 'chat'] },
   { title: 'System',          title_pt: 'Sistema',           children: ['mycomputer', 'explorer', 'run', 'taskmanager', 'voicecommands'] }
 ];
 
@@ -1518,6 +1518,45 @@ var HELP_TOPICS = {
         'Clique em Copiar para copiar a sa\u00edda para a \u00e1rea de transfer\u00eancia.'
       ]},
       { sa: ['notepad', 'calculator'] }
+    ]
+  },
+
+  chat: {
+    title: 'Chat',
+    title_pt: 'Chat',
+    keywords: ['chat', 'help', 'assistant', 'ai', 'ask', 'question', 'search'],
+    keywords_pt: ['chat', 'ajuda', 'assistente', 'ia', 'perguntar', 'pergunta', 'pesquisa'],
+    body: [
+      { p: 'Chat is an AI-powered help assistant that answers questions about mpOS apps and features.' },
+      { h: 'How It Works' },
+      { ul: [
+        'Type a question about any mpOS feature and press Enter or click Send.',
+        'Chat searches the help documentation for relevant topics.',
+        'When the AI service is available, you get natural-language answers based on help content.',
+        'When the AI service is unavailable, matched help topics are shown as clickable cards.'
+      ]},
+      { h: 'Opening Chat' },
+      { ul: [
+        'Click the chat bubble icon in the system tray.',
+        'Or open from Start \u2192 Utilities \u2192 Chat.'
+      ]},
+      { sa: ['welcome', 'search'] }
+    ],
+    body_pt: [
+      { p: 'O Chat \u00e9 um assistente de ajuda com IA que responde a perguntas sobre as aplica\u00e7\u00f5es e funcionalidades do mpOS.' },
+      { h: 'Como Funciona' },
+      { ul: [
+        'Escreva uma pergunta sobre qualquer funcionalidade do mpOS e pressione Enter ou clique em Enviar.',
+        'O Chat procura na documenta\u00e7\u00e3o de ajuda por t\u00f3picos relevantes.',
+        'Quando o servi\u00e7o de IA est\u00e1 dispon\u00edvel, recebe respostas em linguagem natural baseadas no conte\u00fado de ajuda.',
+        'Quando o servi\u00e7o de IA n\u00e3o est\u00e1 dispon\u00edvel, os t\u00f3picos de ajuda correspondentes s\u00e3o mostrados como cart\u00f5es clic\u00e1veis.'
+      ]},
+      { h: 'Abrir o Chat' },
+      { ul: [
+        'Clique no \u00edcone de bal\u00e3o de chat na bandeja do sistema.',
+        'Ou abra a partir de Iniciar \u2192 Utilit\u00e1rios \u2192 Chat.'
+      ]},
+      { sa: ['welcome', 'search'] }
     ]
   }
 };

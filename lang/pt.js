@@ -85,6 +85,7 @@ window._mpLangRegister('pt', {
   'title.slotMachine': 'Ca\u00e7a-N\u00edqueis',
   'title.reverb': 'Reverb',
   'title.soundProducer': 'Produtor de Som',
+  'title.chat': 'Chat',
   'title.noiseMixer': 'Misturador de Ru\u00eddo Branco',
 
   /* Start menu: Search sub-items */
@@ -151,6 +152,16 @@ window._mpLangRegister('pt', {
   'app.reverb.desc': 'Efeito de reverb com cabos de patch.',
   'app.soundProducer.name': 'Produtor de Som',
   'app.soundProducer.desc': 'Pr\u00e9-visualizar e exportar sons procedimentais.',
+  'app.chat.name': 'Chat',
+  'app.chat.desc': 'Fa\u00e7a perguntas sobre o mpOS.',
+  'chat.placeholder': 'Pergunte sobre o mpOS...',
+  'chat.send': 'Enviar',
+  'chat.ready': 'Pronto',
+  'chat.thinking': 'A pensar...',
+  'chat.welcome': 'Ol\u00e1! Pergunte-me qualquer coisa sobre o mpOS.',
+  'chat.noResults': 'N\u00e3o encontrei nada sobre isso. Tente reformular a sua pergunta.',
+  'chat.aiStatus.ready': 'Modo IA ativo',
+  'chat.aiStatus.unavailable': 'Modo de pesquisa por palavras-chave',
   'sticky.deleteConfirm': 'Apagar esta nota?',
   'app.myComputer.name': 'O Meu Computador',
   'app.files.name': 'Ficheiros',
@@ -539,6 +550,7 @@ window._mpLangRegister('pt', {
   'win.slotmachine': 'Ca\u00e7a-N\u00edqueis',
   'win.reverb': 'Reverb',
   'win.soundproducer': 'Produtor de Som',
+  'win.chat': 'Chat',
 
   /* Sound Producer UI */
   'sp.preset': 'Predefini\u00e7\u00e3o',

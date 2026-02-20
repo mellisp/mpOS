@@ -94,6 +94,7 @@
     'title.slotMachine': 'Slot Machine',
     'title.reverb': 'Reverb',
     'title.soundProducer': 'Sound Producer',
+    'title.chat': 'Chat',
     'title.noiseMixer': 'White Noise Mixer',
 
     /* Start menu: Search sub-items */
@@ -160,6 +161,16 @@
     'app.reverb.desc': 'Audio reverb effect with patch cable routing.',
     'app.soundProducer.name': 'Sound Producer',
     'app.soundProducer.desc': 'Preview and export procedural UI sounds.',
+    'app.chat.name': 'Chat',
+    'app.chat.desc': 'Ask questions about mpOS.',
+    'chat.placeholder': 'Ask about mpOS...',
+    'chat.send': 'Send',
+    'chat.ready': 'Ready',
+    'chat.thinking': 'Thinking...',
+    'chat.welcome': 'Hi! Ask me anything about mpOS.',
+    'chat.noResults': 'I couldn\'t find anything about that. Try rephrasing your question.',
+    'chat.aiStatus.ready': 'AI mode active',
+    'chat.aiStatus.unavailable': 'Keyword search mode',
     'sticky.deleteConfirm': 'Delete this note?',
     'app.myComputer.name': 'My Computer',
     'app.files.name': 'Files',
@@ -548,6 +559,7 @@
     'win.slotmachine': 'Slot Machine',
     'win.reverb': 'Reverb',
     'win.soundproducer': 'Sound Producer',
+    'win.chat': 'Chat',
 
     /* Sound Producer UI */
     'sp.preset': 'Preset',
