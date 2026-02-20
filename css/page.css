@@ -2968,6 +2968,107 @@
   gap: 4px;
 }
 
+/* ── Chat (AIM style) ── */
+#chat {
+  width: min(420px, 92vw);
+  height: 420px;
+  display: flex;
+  flex-direction: column;
+}
+#chat .window-body {
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  margin: 4px;
+  padding: 6px;
+  font-size: 13px;
+  font-family: var(--font);
+}
+.chat-input-area {
+  padding: 0 4px 4px;
+}
+.chat-input {
+  width: 100%;
+  box-sizing: border-box;
+  resize: none;
+  font-size: 13px;
+  font-family: var(--font);
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  padding: 4px;
+}
+.chat-button-row {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 3px;
+}
+.chat-msg {
+  margin-bottom: 8px;
+}
+.chat-msg-header {
+  font-size: 13px;
+}
+.chat-screen-name-bot {
+  font-weight: bold;
+  color: #00008B;
+}
+.chat-screen-name-user {
+  font-weight: bold;
+  color: #8B0000;
+}
+.chat-timestamp {
+  color: #808080;
+  font-size: 11px;
+}
+.chat-msg-body {
+  padding-left: 10px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+.chat-msg-system {
+  text-align: center;
+  font-style: italic;
+  color: #808080;
+  margin: 8px 0;
+}
+.chat-topic-card {
+  border: 2px solid;
+  border-color: var(--shadow) var(--white) var(--white) var(--shadow);
+  box-shadow: inset 1px 1px 0 var(--dk-shadow);
+  background: #fff;
+  padding: 6px;
+  margin: 4px 0;
+}
+.chat-topic-title {
+  font-weight: bold;
+  color: #00008B;
+  cursor: pointer;
+  font-size: 13px;
+}
+.chat-topic-title:hover {
+  text-decoration: underline;
+}
+.chat-topic-body {
+  font-size: 12px;
+  margin: 3px 0;
+}
+.chat-topic-list {
+  font-size: 12px;
+  margin: 3px 0;
+  padding-left: 20px;
+}
+
 /* ── Degauss ── */
 .degauss-btn {
   font-family: var(--font);

@@ -22,7 +22,7 @@ function corsHeaders(origin) {
   if (ALLOWED_ORIGINS.has(origin)) {
     return {
       'Access-Control-Allow-Origin': origin,
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '86400'
     };
@@ -40,6 +40,15 @@ export default {
     }
 
     const url = new URL(request.url);
+
+    // GET /ip — return visitor's public IP
+    if (url.pathname === '/ip' && request.method === 'GET') {
+      const ip = request.headers.get('cf-connecting-ip') || '';
+      return new Response(JSON.stringify({ ip }), {
+        headers: { ...headers, 'Content-Type': 'application/json' }
+      });
+    }
+
     if (url.pathname !== '/chat' || request.method !== 'POST') {
       return new Response('Not found', { status: 404, headers });
     }

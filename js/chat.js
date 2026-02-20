@@ -13,6 +13,8 @@
   let aiAvailable = null;  // null = untested, true/false after first check
   let helpLoaded = false;
   let sending = false;
+  let visitorName = 'Guest';
+  let ipFetched = false;
 
   /* ── DOM refs (resolved once on first open) ── */
   let chatMessagesEl, chatInputEl, chatStatusEl, chatSendBtn;
@@ -73,17 +75,65 @@
     return scored.slice(0, 5);
   };
 
+  /* ── IP fetch ── */
+
+  const fetchVisitorIP = async () => {
+    if (ipFetched) return;
+    ipFetched = true;
+    try {
+      const resp = await fetch(WORKER_URL + '/ip', { signal: AbortSignal.timeout(5000) });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.ip) visitorName = data.ip;
+      }
+    } catch { /* keep Guest */ }
+  };
+
   /* ── Message rendering ── */
+
+  const BOT_NAME = 'mpOSbot';
+
+  const timeStamp = () =>
+    new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
   const scrollToBottom = () => {
     if (chatMessagesEl) chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
   };
 
-  const renderMessage = (role, content, extraClass) => {
+  const renderMessage = (role, content) => {
     if (!chatMessagesEl) return;
+
+    if (role === 'system') {
+      const div = document.createElement('div');
+      div.className = 'chat-msg chat-msg-system';
+      div.textContent = content;
+      chatMessagesEl.appendChild(div);
+      scrollToBottom();
+      return;
+    }
+
     const div = document.createElement('div');
-    div.className = `chat-msg chat-msg-${role}${extraClass ? ' ' + extraClass : ''}`;
-    div.textContent = content;
+    div.className = 'chat-msg';
+
+    // Header: screen name + timestamp
+    const header = document.createElement('div');
+    header.className = 'chat-msg-header';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = role === 'assistant' ? 'chat-screen-name-bot' : 'chat-screen-name-user';
+    nameSpan.textContent = role === 'assistant' ? BOT_NAME : visitorName;
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'chat-timestamp';
+    timeSpan.textContent = ` (${timeStamp()}):`;
+    header.appendChild(nameSpan);
+    header.appendChild(timeSpan);
+    div.appendChild(header);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'chat-msg-body';
+    body.textContent = content;
+    div.appendChild(body);
+
     chatMessagesEl.appendChild(div);
     scrollToBottom();
   };
@@ -91,14 +141,33 @@
   const renderTopicCards = (topics) => {
     if (!chatMessagesEl) return;
     const wrapper = document.createElement('div');
-    wrapper.className = 'chat-msg chat-msg-assistant';
+    wrapper.className = 'chat-msg';
+
+    // Header for topic card response
+    const header = document.createElement('div');
+    header.className = 'chat-msg-header';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'chat-screen-name-bot';
+    nameSpan.textContent = BOT_NAME;
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'chat-timestamp';
+    timeSpan.textContent = ` (${timeStamp()}):`;
+    header.appendChild(nameSpan);
+    header.appendChild(timeSpan);
+    wrapper.appendChild(header);
 
     if (!topics.length) {
-      wrapper.textContent = window.t?.('chat.noResults') || 'I couldn\'t find anything about that. Try rephrasing your question.';
+      const body = document.createElement('div');
+      body.className = 'chat-msg-body';
+      body.textContent = window.t?.('chat.noResults') || 'I couldn\'t find anything about that. Try rephrasing your question.';
+      wrapper.appendChild(body);
       chatMessagesEl.appendChild(wrapper);
       scrollToBottom();
       return;
     }
+
+    const body = document.createElement('div');
+    body.className = 'chat-msg-body';
 
     for (const topic of topics) {
       const card = document.createElement('div');
@@ -135,9 +204,10 @@
         }
       }
 
-      wrapper.appendChild(card);
+      body.appendChild(card);
     }
 
+    wrapper.appendChild(body);
     chatMessagesEl.appendChild(wrapper);
     scrollToBottom();
   };
@@ -217,7 +287,6 @@
     if (!text) return;
 
     chatInputEl.value = '';
-    chatInputEl.style.height = 'auto';
     messages.push({ role: 'user', content: text });
     renderMessage('user', text);
 
@@ -256,14 +325,6 @@
     }
   };
 
-  /* ── Auto-resize textarea ── */
-
-  const autoResize = () => {
-    if (!chatInputEl) return;
-    chatInputEl.style.height = 'auto';
-    chatInputEl.style.height = Math.min(chatInputEl.scrollHeight, 80) + 'px';
-  };
-
   /* ── Clear history ── */
 
   const clearChat = () => {
@@ -291,10 +352,11 @@
 
     window.openWindow('chat');
 
-    // First open: show welcome + check AI
+    // First open: show welcome, check AI, fetch IP
     if (!chatMessagesEl?.children.length) {
       showWelcome();
       checkAI();
+      fetchVisitorIP();
     }
 
     // Set up input handlers (idempotent)
@@ -306,7 +368,6 @@
           sendMessage();
         }
       });
-      chatInputEl.addEventListener('input', autoResize);
     }
   };
 
@@ -333,6 +394,6 @@
   window.chatRefreshOnLangChange = chatRefreshOnLangChange;
 
   mpRegisterActions({ openChat });
-  mpRegisterWindows({ chat: 'Chat' });
+  mpRegisterWindows({ chat: 'Chat - mpOSbot' });
   mpRegisterCloseHandlers({ chat: closeChat });
 })();

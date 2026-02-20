@@ -538,7 +538,7 @@
     <!-- Chat Window (hidden initially) -->
     <div class="window draggable" id="chat" style="display:none;">
       <div class="titlebar">
-        <span data-i18n="title.chat">Chat</span>
+        <span data-i18n="title.chat">Chat - mpOSbot</span>
         <div class="titlebar-buttons">
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('chat')">_</div>
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeChat()">X</div>
@@ -546,12 +546,14 @@
       </div>
       <div class="window-body chat-body">
         <div class="chat-messages" id="chatMessages"></div>
-        <div class="chat-input-bar">
-          <textarea class="chat-input" id="chatInput" rows="1"
+        <div class="chat-input-area">
+          <textarea class="chat-input" id="chatInput" rows="4"
                     placeholder="Ask about mpOS..." data-i18n="chat.placeholder"
                     data-i18n-attr="placeholder"></textarea>
-          <button type="button" class="btn chat-send-btn" id="chatSendBtn"
-                  onclick="sendChatMessage()" data-i18n="chat.send">Send</button>
+          <div class="chat-button-row">
+            <button type="button" class="btn" id="chatSendBtn"
+                    onclick="sendChatMessage()" data-i18n="chat.send">Send</button>
+          </div>
         </div>
       </div>
       <div class="statusbar">

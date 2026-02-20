@@ -85,7 +85,7 @@ window._mpLangRegister('pt', {
   'title.slotMachine': 'Ca\u00e7a-N\u00edqueis',
   'title.reverb': 'Reverb',
   'title.soundProducer': 'Produtor de Som',
-  'title.chat': 'Chat',
+  'title.chat': 'Chat - mpOSbot',
   'title.noiseMixer': 'Misturador de Ru\u00eddo Branco',
 
   /* Start menu: Search sub-items */

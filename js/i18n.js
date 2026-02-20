@@ -94,7 +94,7 @@
     'title.slotMachine': 'Slot Machine',
     'title.reverb': 'Reverb',
     'title.soundProducer': 'Sound Producer',
-    'title.chat': 'Chat',
+    'title.chat': 'Chat - mpOSbot',
     'title.noiseMixer': 'White Noise Mixer',
 
     /* Start menu: Search sub-items */
