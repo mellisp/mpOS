@@ -532,8 +532,8 @@ const buildUI = () => {
 
   /* Event handlers */
   select.addEventListener('change', () => loadPresetToUI(select.value));
-  playBtn.addEventListener('click', playFromUI);
-  exportBtn.addEventListener('click', exportFromUI);
+  playBtn.addEventListener('click', (e) => { e.stopPropagation(); playFromUI(); });
+  exportBtn.addEventListener('click', (e) => { e.stopPropagation(); exportFromUI(); });
 
   drawWaveform(null);
 };
