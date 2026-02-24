@@ -39,35 +39,33 @@ let _n = 0;
 
 // ── Color Palette ───────────────────────────────────────────────────
 // [top/mid, bottom, stroke] — mpOS icon palette
+// Weather icons are the source of truth. All values flow from there.
 const C = {
-  // Core palette
-  sun:    ['#fbbf24','#f59e0b','#f8af18'],
-  ice:    ['#86c3db','#5eafcf','#72b9d5'],
-  blue:   ['#3392d6','#2477b2','#2885c7'],
-  red:    ['#f87171','#dc2626','#ef4444'],
-  green:  ['#51cf66','#37b24d','#40c057'],
-  gray:   ['#d4d7dd','#bec1c6','#cdd0d5'],
-  dark:   ['#6b7280','#374151','#515a68'],
-  // Cool palette
-  steel:  ['#7a9ec8','#5680a8','#6890b8'],
-  teal:   ['#5eafcf','#3e8faf','#4ea0c0'],
-  amber:  ['#d4a460','#b48040','#c49250'],
-  sage:   ['#6aae7a','#4a8e5a','#5a9e6a'],
-  rose:   ['#d47a7a','#b45a5a','#c46a6a'],
-  plum:   ['#9a8ab0','#7a6a90','#8a7aa0'],
-  gold:   ['#f0b824','#d49408','#e2a616'],
-  // Surfaces
-  white:  ['#f0f4f8','#e2eaf0','#e8f0f4'],
-  fog:    ['#d0d8e2','#c0cad6','#c8d0dc'],
-  slate:  ['#5a6878','#384858','#4a5868'],
-  // Weather
-  cloud:  ['#dce4ee','#c8d4e4','#d0dae8'],
-  dkcloud:['#9ca3af','#6b7280','#848b98'],
-  wsun:   ['#f0b824','#d49408','#e2a616'],
-  rain:   ['#6aabe0','#4a90cc','#5a9dd8'],
-  snow:   ['#86c3db','#6eb0ca','#78b9d3'],
-  bolt:   ['#f7b23b','#f59e0b','#f6a823'],
-  mist:   ['#d0d8e2','#c2ccd8','#c8d0da'],
+  // Weather baseline
+  sun:     ['#f0b824','#d49408','#e2a616'],  // warm gold
+  bolt:    ['#f7b23b','#f59e0b','#f6a823'],  // energy yellow
+  snow:    ['#86c3db','#6eb0ca','#78b9d3'],  // cool light blue
+  rain:    ['#6aabe0','#4a90cc','#5a9dd8'],  // blue
+  cloud:   ['#dce4ee','#c8d4e4','#d0dae8'],  // blue-tinted white
+  dkcloud: ['#9ca3af','#6b7280','#848b98'],  // overcast gray
+  mist:    ['#d0d8e2','#c2ccd8','#c8d0da'],  // light neutral
+  // Structural
+  gray:    ['#d4d7dd','#bec1c6','#cdd0d5'],  // neutral silver
+  dark:    ['#6b7280','#374151','#515a68'],   // charcoal
+  white:   ['#f0f4f8','#e2eaf0','#e8f0f4'],  // near-white surface
+  slate:   ['#5a6878','#384858','#4a5868'],   // dark blue-gray
+  // Accents
+  red:     ['#f87171','#dc2626','#ef4444'],
+  green:   ['#51cf66','#37b24d','#40c057'],
+  steel:   ['#7a9ec8','#5680a8','#6890b8'],
+  teal:    ['#5eafcf','#3e8faf','#4ea0c0'],
+  amber:   ['#d4a460','#b48040','#c49250'],
+  sage:    ['#6aae7a','#4a8e5a','#5a9e6a'],
+  rose:    ['#d47a7a','#b45a5a','#c46a6a'],
+  plum:    ['#9a8ab0','#7a6a90','#8a7aa0'],
+  // Aliases (icon code references — same values as weather entries)
+  ice:     ['#86c3db','#6eb0ca','#78b9d3'],  // = snow
+  fog:     ['#d0d8e2','#c2ccd8','#c8d0da'],  // = mist
 };
 
 // ── Helpers ─────────────────────────────────────────────────────────
@@ -213,10 +211,10 @@ const APPS = {
     };
   }},
 
-  // ── Productivity ────────────────────────────────────────────────
+  // ── Accessories ────────────────────────────────────────────────
 
   // OBJECT: Page — white body, red margin, blue text lines (sw 6)
-  notepad: { label:'Notepad', cat:'Productivity', icon:(p) => {
+  notepad: { label:'Notepad', cat:'Accessories', icon:(p) => {
     const d = gr(p,'a',...gc(136,104,240,304),C.white);
     return { defs:d, body:
       `<path d="M144 104h164l68 68v228a12 12 0 01-12 12H144a12 12 0 01-12-12V116a12 12 0 0112-12Z" fill="url(#${p}a)" stroke="${C.gray[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
@@ -227,7 +225,7 @@ const APPS = {
   }},
 
   // OBJECT: Calculator — gray body + teal display + 3 buttons
-  calculator: { label:'Calculator', cat:'Productivity', icon:(p) => {
+  calculator: { label:'Calculator', cat:'Utilities', icon:(p) => {
     const d = gr(p,'a',...gc(144,104,224,304),C.gray) + gr(p,'d',...gc(172,132,168,80),C.teal);
     return { defs:d, body:
       `<rect x="144" y="104" width="224" height="304" rx="20" fill="url(#${p}a)" stroke="${C.gray[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
@@ -239,7 +237,7 @@ const APPS = {
   }},
 
   // OBJECT: Calendar — red header + white body + 2 clips
-  calendar: { label:'Calendar', cat:'Productivity', icon:(p) => {
+  calendar: { label:'Calendar', cat:'Utilities', icon:(p) => {
     const d = gr(p,'h',...gc(112,152,288,52),C.red) + gr(p,'b',...gc(112,204,288,188),C.white);
     return { defs:d, body:
       `<rect x="112" y="152" width="288" height="52" rx="12" fill="url(#${p}h)" stroke="${C.red[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
@@ -251,7 +249,7 @@ const APPS = {
   }},
 
   // OBJECT: Sticky note — gold body + fold + text lines
-  stickynotes: { label:'Sticky Notes', cat:'Productivity', icon:(p) => {
+  stickynotes: { label:'Sticky Notes', cat:'Accessories', icon:(p) => {
     const d = gr(p,'a',...gc(124,124,264,264),C.sun);
     return { defs:d, body:
       `<path d="M132 124h248v216l-56 56H132V124Z" fill="url(#${p}a)" stroke="${C.sun[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
@@ -261,7 +259,7 @@ const APPS = {
   }},
 
   // OBJECT: Magnifying glass — ice ring sw 12 + white lens + gray handle sw 40
-  search: { label:'Search', cat:'Productivity', icon:(p) => {
+  search: { label:'Search', cat:'System', icon:(p) => {
     const d = gr(p,'a',...gc(80,80,228,228),C.ice);
     return { defs:d, body:
       `<circle cx="194" cy="194" r="114" fill="url(#${p}a)" stroke="${C.ice[2]}" stroke-width="12" stroke-miterlimit="10"/>` +
@@ -271,7 +269,7 @@ const APPS = {
   }},
 
   // INSTRUMENT: Help — gray compass face + white ? (sw 16) + dot
-  help: { label:'Help', cat:'Productivity', icon:(p) => {
+  help: { label:'Help', cat:'System', icon:(p) => {
     const d = instGrad(p);
     return { defs:d, body:
       instCircle(p) +
@@ -349,7 +347,7 @@ const APPS = {
   }},
 
   // INSTRUMENT: Globe (teal, sw 12 bezel) + white lines + red pin
-  visitormap: { label:'Visitor Map', cat:'Internet', icon:(p) => {
+  visitormap: { label:'Visitor Map', cat:'Utilities', icon:(p) => {
     const d = cInstGrad(p, 'a', C.teal) + gr(p,'p',...gc(220,168,72,104),C.red);
     return { defs:d, body:
       cInstCircle(p, 'a') +
@@ -361,7 +359,7 @@ const APPS = {
   }},
 
   // OBJECT: Speech bubble — steel body (sw 6) + white text lines (sw 8)
-  chat: { label:'Chat', cat:'Internet', icon:(p) => {
+  chat: { label:'Chat', cat:'Utilities', icon:(p) => {
     const d = gr(p,'a',...gc(108,124,296,244),C.steel);
     return { defs:d, body:
       `<path d="M156 132h200a44 44 0 0144 44v108a44 44 0 01-44 44H232l-56 48v-48h-20a44 44 0 01-44-44V176a44 44 0 0144-44Z" fill="url(#${p}a)" stroke="${C.steel[2]}" stroke-width="6" stroke-miterlimit="10"/>` +
@@ -592,16 +590,30 @@ for (const [k,v] of Object.entries(APPS)) {
   if (!cats[v.cat]) cats[v.cat] = [];
   cats[v.cat].push(k);
 }
+// Explorer tree order: Programs (Games, Internet, Accessories, Audio), Utilities, System
+const CAT_ORDER = ['Games', 'Internet', 'Accessories', 'Audio', 'Utilities', 'System'];
 
-const paletteColors = ['sun','ice','red','green','gray','dark','steel','teal','amber','sage','rose','plum','white','fog','slate'];
+const paletteColors = [
+  // Weather baseline
+  'sun','bolt','snow','rain','cloud','dkcloud','mist',
+  // Structural
+  'gray','dark','white','slate',
+  // Accents
+  'red','green','steel','teal','amber','sage','rose','plum',
+];
 const paletteHtml = paletteColors.map(name => {
   const c = C[name];
-  return `<div class="swatch" style="background:linear-gradient(135deg,${c[0]} 50%,${c[1]} 100%)">${name}</div>`;
+  const light = ['cloud','mist','gray','white'].includes(name);
+  const style = `background:linear-gradient(135deg,${c[0]} 50%,${c[1]} 100%)`;
+  const textStyle = light ? 'color:#333;text-shadow:none' : '';
+  return `<div class="swatch" style="${style};${textStyle}">${name}</div>`;
 }).join('');
 
 // Build category index
-const catNames = Object.keys(cats);
-const tocLinks = catNames.map(c => `<a href="#cat-${c.toLowerCase().replace(/\s+/g,'-')}">${c}</a>`).join('') +
+const tocLinks = CAT_ORDER.map(c => `<a href="#cat-${c.toLowerCase().replace(/\s+/g,'-')}">${c}</a>`).join('') +
+  `<a href="#cat-brand">Brand</a>` +
+  `<a href="#cat-system-tray">System Tray</a>` +
+  `<a href="#cat-alerts">Alerts</a>` +
   `<a href="icon-test-weather.html">Weather (animated) &rarr;</a>`;
 
 let html = `
@@ -610,7 +622,9 @@ let html = `
   <div class="palette">${paletteHtml}</div>
 `;
 
-for (const [cat, keys] of Object.entries(cats)) {
+for (const cat of CAT_ORDER) {
+  const keys = cats[cat];
+  if (!keys) continue;
   const id = cat.toLowerCase().replace(/\s+/g, '-');
   html += `
   <div class="divider"></div>
@@ -623,6 +637,94 @@ for (const [cat, keys] of Object.entries(cats)) {
   <div class="chrome-bg"><div class="grid">${appRow(keys, 16)}</div></div>
   `;
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// BRAND — Smiley (favicon + start button states)
+// ══════════════════════════════════════════════════════════════════════
+
+const smiley = (id, mouthPath, size) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">` +
+  `<defs><radialGradient id="${id}" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="40%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f9a825"/></radialGradient></defs>` +
+  `<circle cx="32" cy="32" r="31" fill="url(#${id})" stroke="#c49000" stroke-width="2"/>` +
+  `<ellipse cx="26" cy="20" rx="12" ry="8" fill="white" opacity="0.3"/>` +
+  `<circle cx="22" cy="26" r="4" fill="#5d4037"/>` +
+  `<circle cx="42" cy="26" r="4" fill="#5d4037"/>` +
+  mouthPath + `</svg>`;
+
+const closedMouth = `<path d="M18 38 Q32 50 46 38" fill="none" stroke="#5d4037" stroke-width="3" stroke-linecap="round"/>`;
+const openMouth = `<path d="M22 38 Q32 48 42 38 Q32 54 22 38" fill="#5d4037" stroke="#5d4037" stroke-width="2" stroke-linejoin="round"/>`;
+
+function brandRow(size) {
+  return `<div class="cell">${smiley('br'+(_n++)+'-f', closedMouth, size)}<span>Closed (default)</span></div>` +
+    `<div class="cell">${smiley('br'+(_n++)+'-f', openMouth, size)}<span>Open (pressed)</span></div>`;
+}
+
+html += `
+  <div class="divider"></div>
+  <h2 id="cat-brand">Brand</h2>
+  <h3>48px — desktop</h3>
+  <div class="desktop-bg"><div class="grid">${brandRow(48)}</div></div>
+  <h3>20px — start menu</h3>
+  <div class="chrome-bg"><div class="grid">${brandRow(20)}</div></div>
+  <h3>16px — taskbar</h3>
+  <div class="chrome-bg"><div class="grid">${brandRow(16)}</div></div>
+`;
+
+// ══════════════════════════════════════════════════════════════════════
+// SYSTEM TRAY — current production (16×16 monochrome, to be redesigned at 512)
+// ══════════════════════════════════════════════════════════════════════
+
+const TRAY_CURRENT = {
+  volume:        { label: 'Volume',          svg: `<svg width="SZ" height="SZ" viewBox="0 0 16 16" fill="none"><path d="M2 6h2l3-3v10l-3-3H2V6z" fill="#444" stroke="#444" stroke-width=".5" stroke-linejoin="round"/><path d="M10 5c1.2.9 1.8 1.9 1.8 3s-.6 2.1-1.8 3" stroke="#444" stroke-width="1.2" fill="none"/><path d="M12 3c1.5 1.3 2.3 3 2.3 5s-.8 3.7-2.3 5" stroke="#444" stroke-width="1.2" fill="none"/></svg>` },
+  network:       { label: 'Network',         svg: `<svg width="SZ" height="SZ" viewBox="0 0 16 16" fill="none"><rect x="2" y="10" width="2.5" height="4" fill="#444"/><rect x="6.75" y="7" width="2.5" height="7" fill="#444"/><rect x="11.5" y="4" width="2.5" height="10" fill="#444"/></svg>` },
+  chat:          { label: 'Chat',            svg: `<svg width="SZ" height="SZ" viewBox="0 0 16 16" fill="none"><path d="M2 3h12v8H5l-3 3V3z" fill="#444"/><rect x="4" y="5.5" width="5" height="1" rx=".5" fill="#c0c0c0"/><rect x="4" y="7.5" width="7" height="1" rx=".5" fill="#c0c0c0"/></svg>` },
+  mic_idle:      { label: 'Mic (idle)',      svg: `<svg width="SZ" height="SZ" viewBox="0 0 16 16" fill="none"><rect x="6.5" y="2" width="3" height="7" rx="1.5" fill="#444"/><path d="M4.5 7v1a3.5 3.5 0 0 0 7 0V7" stroke="#444" stroke-width="1.2" fill="none"/><line x1="8" y1="11.5" x2="8" y2="14" stroke="#444" stroke-width="1.2"/><line x1="6" y1="14" x2="10" y2="14" stroke="#444" stroke-width="1.2"/></svg>` },
+  mic_listening: { label: 'Mic (listening)', svg: `<svg width="SZ" height="SZ" viewBox="0 0 16 16" fill="none"><rect x="6.5" y="2" width="3" height="7" rx="1.5" fill="#c62828"/><path d="M4.5 7v1a3.5 3.5 0 0 0 7 0V7" stroke="#c62828" stroke-width="1.2" fill="none"/><line x1="8" y1="11.5" x2="8" y2="14" stroke="#c62828" stroke-width="1.2"/><line x1="6" y1="14" x2="10" y2="14" stroke="#c62828" stroke-width="1.2"/></svg>` },
+  mic_executing: { label: 'Mic (executing)', svg: `<svg width="SZ" height="SZ" viewBox="0 0 16 16" fill="none"><rect x="6.5" y="2" width="3" height="7" rx="1.5" fill="#2e7d32"/><path d="M4.5 7v1a3.5 3.5 0 0 0 7 0V7" stroke="#2e7d32" stroke-width="1.2" fill="none"/><line x1="8" y1="11.5" x2="8" y2="14" stroke="#2e7d32" stroke-width="1.2"/><line x1="6" y1="14" x2="10" y2="14" stroke="#2e7d32" stroke-width="1.2"/></svg>` }
+};
+
+function trayRow(size) {
+  return Object.values(TRAY_CURRENT).map(t =>
+    `<div class="cell">${t.svg.replace(/SZ/g, size)}<span>${t.label}</span></div>`
+  ).join('');
+}
+
+html += `
+  <div class="divider"></div>
+  <h2 id="cat-system-tray">System Tray</h2>
+  <h3>48px — desktop</h3>
+  <div class="desktop-bg"><div class="grid">${trayRow(48)}</div></div>
+  <h3>20px — start menu</h3>
+  <div class="chrome-bg"><div class="grid">${trayRow(20)}</div></div>
+  <h3>16px — taskbar</h3>
+  <div class="chrome-bg"><div class="grid">${trayRow(16)}</div></div>
+`;
+
+// ══════════════════════════════════════════════════════════════════════
+// ALERTS — Warning triangle + Info/question circle
+// ══════════════════════════════════════════════════════════════════════
+
+const ALERTS = {
+  warning: { label: 'Warning',  svg: (id, sz) => `<svg width="${sz}" height="${sz}" viewBox="0 0 32 32" fill="none"><defs><linearGradient id="${id}" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="20%" stop-color="#ffe88a"/><stop offset="50%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#e8a000"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#${id})" stroke="#a07000" stroke-width="1.5" stroke-linejoin="round"/><line x1="6" y1="26" x2="16" y2="5" stroke="white" stroke-width="1" opacity="0.3" stroke-linecap="round"/><ellipse cx="13" cy="14" rx="5" ry="6" fill="white" opacity="0.15"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>` },
+  info:    { label: 'Info',     svg: (id, sz) => `<svg width="${sz}" height="${sz}" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" fill="#1c6dba" stroke="#145a9e" stroke-width="1.5"/><circle cx="16" cy="16" r="12" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/><path d="M12.5 12 Q12.5 8.5 16 8.5 Q19.5 8.5 19.5 12 Q19.5 14 16 15 L16 17.5" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="22" r="1.5" fill="white"/></svg>` }
+};
+
+function alertRow(size) {
+  return Object.entries(ALERTS).map(([k, a]) =>
+    `<div class="cell">${a.svg('al-'+(_n++)+'-'+k, size)}<span>${a.label}</span></div>`
+  ).join('');
+}
+
+html += `
+  <div class="divider"></div>
+  <h2 id="cat-alerts">Alerts</h2>
+  <h3>48px — desktop</h3>
+  <div class="desktop-bg"><div class="grid">${alertRow(48)}</div></div>
+  <h3>20px — start menu</h3>
+  <div class="chrome-bg"><div class="grid">${alertRow(20)}</div></div>
+  <h3>16px — taskbar</h3>
+  <div class="chrome-bg"><div class="grid">${alertRow(16)}</div></div>
+`;
 
 document.getElementById('icons').innerHTML = html;
 </script>
