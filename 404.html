@@ -2,46 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 Not Found</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/theme.css">
-    <style>
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
-
-        .window { width: 420px; max-width: 95vw; }
-        .window-body { padding: 16px; }
-        .error-text h1 { margin-bottom: 8px; }
-    </style>
+    <title>404</title>
+    <script>
+    // Redirect to mpOS with the missing path so the OS can show the error
+    var path = location.pathname + location.search + location.hash;
+    location.replace('/?404=' + encodeURIComponent(path));
+    </script>
 </head>
-<body>
-    <div class="window">
-        <div class="titlebar">
-            <span>404 Not Found</span>
-            <div class="titlebar-buttons">
-                <div class="titlebar-btn">X</div>
-            </div>
-        </div>
-        <div class="window-body">
-            <div class="error-row">
-                <svg class="alert-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="al-tri" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fffde0"/><stop offset="20%" stop-color="#ffe88a"/><stop offset="50%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#e8a000"/></linearGradient></defs><path d="M16 2 L30 28 L2 28 Z" fill="url(#al-tri)" stroke="#a07000" stroke-width="1.5" stroke-linejoin="round"/><line x1="6" y1="26" x2="16" y2="5" stroke="white" stroke-width="1" opacity="0.3" stroke-linecap="round"/><ellipse cx="13" cy="14" rx="5" ry="6" fill="white" opacity="0.15"/><rect x="14.5" y="11" width="3" height="9" rx="1.5" fill="#5d4037"/><rect x="14.5" y="22" width="3" height="3" rx="1.5" fill="#5d4037"/></svg>
-                <div class="error-text">
-                    <h1>Error 404 — Not Found</h1>
-                    <p>The page you requested could not be found. It may have been moved or deleted.</p>
-                </div>
-            </div>
-            <div class="button-row">
-                <a class="btn" href="/">OK</a>
-            </div>
-        </div>
-    </div>
-</body>
+<body></body>
 </html>

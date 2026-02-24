@@ -1292,6 +1292,70 @@
   initDesktopIcons();
 
   /* ====================================================================
+   * 404 handler — show OS-style error when redirected from 404.html
+   * ==================================================================== */
+  (() => {
+    const params = new URLSearchParams(location.search);
+    const missingPath = params.get('404');
+    if (!missingPath) return;
+    // Clean the URL so refreshing doesn't re-show the error
+    history.replaceState(null, '', '/');
+    // Build a modal error dialog (mpConfirm-style, single OK button)
+    const overlay = document.createElement('div');
+    overlay.className = 'mp-confirm-overlay';
+    const win = document.createElement('div');
+    win.className = 'window';
+    win.id = 'mpConfirmDialog';
+    const tb = document.createElement('div');
+    tb.className = 'titlebar';
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = '404 Not Found';
+    tb.appendChild(titleSpan);
+    const tbBtns = document.createElement('div');
+    tbBtns.className = 'titlebar-buttons';
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'titlebar-btn';
+    closeBtn.setAttribute('role', 'button');
+    closeBtn.setAttribute('tabindex', '0');
+    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.textContent = 'X';
+    tbBtns.appendChild(closeBtn);
+    tb.appendChild(tbBtns);
+    win.appendChild(tb);
+    const body = document.createElement('div');
+    body.className = 'window-body';
+    const row = document.createElement('div');
+    row.className = 'error-row';
+    row.innerHTML = alertTriangleSVG('al-tri-404');
+    const msgEl = document.createElement('div');
+    msgEl.className = 'error-text';
+    const h = document.createElement('strong');
+    h.textContent = 'Error 404 — Not Found';
+    const p = document.createElement('p');
+    p.textContent = missingPath + ' could not be found. It may have been moved or deleted.';
+    msgEl.appendChild(h);
+    msgEl.appendChild(p);
+    row.appendChild(msgEl);
+    body.appendChild(row);
+    const btnRow = document.createElement('div');
+    btnRow.className = 'button-row';
+    const okBtn = document.createElement('button');
+    okBtn.type = 'button';
+    okBtn.className = 'btn';
+    okBtn.textContent = t('ui.ok');
+    btnRow.appendChild(okBtn);
+    body.appendChild(btnRow);
+    win.appendChild(body);
+    document.body.appendChild(overlay);
+    document.body.appendChild(win);
+    const cleanup = () => { win.remove(); overlay.remove(); };
+    okBtn.addEventListener('click', cleanup);
+    closeBtn.addEventListener('click', cleanup);
+    overlay.addEventListener('click', cleanup);
+    okBtn.focus();
+  })();
+
+  /* ====================================================================
    * Touch: single-tap desktop icons (instead of double-click)
    * ==================================================================== */
   if (window.matchMedia('(pointer: coarse)').matches) {
