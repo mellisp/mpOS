@@ -191,26 +191,73 @@
 
   <script>
   (() => {
-    const canvas = document.getElementById('canvas');
-    const gl = canvas.getContext('webgl', { antialias: false, preserveDrawingBuffer: false });
-    if (!gl) {
-      document.body.innerHTML = '<div style="padding:20px;text-align:center;color:#666">WebGL is not supported in this browser.</div>';
-      return;
-    }
+    'use strict';
 
-    /* --- State --- */
-    let centerX = -0.5, centerY = 0.0;
-    let zoom = 0.003;
-    let maxIter = 200;
-    let isJulia = false;
-    let juliaCr = -0.7, juliaCi = 0.27015;
-    let palette = 0;
+    // =========================================================================
+    // §1  CONSTANTS & STATE
+    // =========================================================================
+
+    const canvas = document.getElementById('canvas');
+    // Target visible math-space ranges (consistent framing regardless of canvas size)
+    const MANDELBROT_VIEW_WIDTH = 5.0;  // math units visible across canvas width
+    const JULIA_VIEW_WIDTH = 4.0;       // Julia sets are smaller, tighter framing
+    const MAX_ZOOM_OUT_FACTOR = 3.0;    // can zoom out 3× beyond default
+    const PAN_BOUND_MANDELBROT = 3;
+    const PAN_BOUND_JULIA = 2;            // Julia sets bounded by radius 2
+    const ESCAPE_R2 = 256.0; // |z|² escape radius (higher = smoother coloring)
+
+    // Zoom tier thresholds
+    const ZOOM_TIER_DEKKER = 1e-6;   // switch to Dekker below this zoom
+    const ZOOM_TIER_PERTURB = 1e-14; // switch to perturbation below this zoom
+
+    // Compute zoom from canvas pixel width so the set fills the view consistently
+    const computeDefaultZoom = (isJulia) => {
+      const dpr = window.devicePixelRatio || 1;
+      const pixels = Math.round(canvas.clientWidth * dpr) || 1280;
+      const viewWidth = isJulia ? JULIA_VIEW_WIDTH : MANDELBROT_VIEW_WIDTH;
+      return viewWidth / pixels;
+    };
+
+    const state = {
+      centerX: -0.228, centerY: 0,
+      zoom: 0.003, // placeholder — set properly in init() after canvas is sized
+      maxIter: 200,
+      isJulia: false,
+      juliaCr: -0.7, juliaCi: 0.27015,
+      palette: 0,
+      aaEnabled: true,
+      pickMode: false,
+    };
+
     let needsRender = true;
     let rafPending = false;
-    let aaEnabled = true;
-    let pickMode = false;
+    let activeRenderer = null;
+    let currentZoomTier = 'f32'; // 'f32' | 'dekker' | 'perturb'
 
-    /* --- Curated Julia seeds --- */
+    // Interaction-aware quality scaling: during active pan/zoom, render fast
+    // (no AA, no distance estimate overhead). After settling, re-render crisp.
+    let interacting = false;
+    let settleTimer = 0;
+    const SETTLE_MS = 150; // ms of no input before quality render
+
+    const onSettle = () => {
+      interacting = false;
+      scheduleRender(); // re-render at full quality
+    };
+    const markInteracting = () => {
+      interacting = true;
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(onSettle, SETTLE_MS);
+    };
+
+    const getMaxZoom = () => computeDefaultZoom(state.isJulia) * MAX_ZOOM_OUT_FACTOR;
+
+    const clampCenter = () => {
+      const bound = state.isJulia ? PAN_BOUND_JULIA : PAN_BOUND_MANDELBROT;
+      state.centerX = Math.max(-bound, Math.min(bound, state.centerX));
+      state.centerY = Math.max(-bound, Math.min(bound, state.centerY));
+    };
+
     const JULIA_SEEDS = [
       { name: 'Dendrite',       cr: -0.8,     ci:  0.156   },
       { name: 'Rabbit',         cr: -0.4,     ci:  0.6     },
@@ -227,128 +274,1562 @@
     ];
     let seedIndex = -1;
 
-    /* --- Shader sources --- */
-    const vsSource = `attribute vec2 a_pos;
+
+    // =========================================================================
+    // §2  ARBITRARY-PRECISION MATH (BigInt fixed-point for perturbation)
+    // =========================================================================
+
+    // 128-bit scale factor for BigInt fixed-point arithmetic
+    const FP_BITS = 128;
+    const FP_SCALE = 1n << BigInt(FP_BITS);
+    const FP_SCALE_F = Number(FP_SCALE);
+
+    const fpFromFloat = (x) => BigInt(Math.round(x * FP_SCALE_F));
+    const fpToFloat = (x) => Number(x) / FP_SCALE_F;
+    const fpMul = (a, b) => (a * b) >> BigInt(FP_BITS);
+    const fpAdd = (a, b) => a + b;
+    const fpSub = (a, b) => a - b;
+
+
+    // =========================================================================
+    // §3  REFERENCE ORBIT COMPUTATION
+    // =========================================================================
+
+    // Cached reference orbit for perturbation theory
+    let refOrbit = null;     // Float32Array [re0, im0, re1, im1, ...]
+    let refOrbitLen = 0;     // number of points stored
+    let refOrbitCenter = null; // {x, y} center used for computation
+    let refOrbitMaxIter = 0;
+    let refOrbitZoomTier = null;
+    let refOrbitVersion = 0;  // incremented when orbit data changes
+
+    /**
+     * Compute reference orbit at (cx, cy) for maxIter iterations.
+     * Uses float64 when zoom > ZOOM_TIER_PERTURB, BigInt otherwise.
+     * Returns Float32Array of [re, im, re, im, ...] pairs.
+     */
+    const computeReferenceOrbit = (cx, cy, maxIter, useBigInt) => {
+      const result = new Float32Array((maxIter + 1) * 2);
+      let len = 0;
+
+      if (!useBigInt) {
+        // Float64 path — native JS doubles
+        let zr = 0, zi = 0;
+        for (let i = 0; i <= maxIter; i++) {
+          result[len++] = zr;
+          result[len++] = zi;
+          const zr2 = zr * zr;
+          const zi2 = zi * zi;
+          if (zr2 + zi2 > ESCAPE_R2) break;
+          const newZr = zr2 - zi2 + cx;
+          const newZi = 2 * zr * zi + cy;
+          zr = newZr;
+          zi = newZi;
+        }
+      } else {
+        // BigInt fixed-point path for extreme depth
+        let zr = 0n, zi = 0n;
+        const cr = fpFromFloat(cx);
+        const ci = fpFromFloat(cy);
+        const escR2 = fpFromFloat(ESCAPE_R2);
+
+        for (let i = 0; i <= maxIter; i++) {
+          result[len++] = fpToFloat(zr);
+          result[len++] = fpToFloat(zi);
+          const zr2 = fpMul(zr, zr);
+          const zi2 = fpMul(zi, zi);
+          if (fpAdd(zr2, zi2) > escR2) break;
+          const newZr = fpAdd(fpSub(zr2, zi2), cr);
+          const newZi = fpAdd(fpMul(2n * zr, zi), ci);
+          zr = newZr;
+          zi = newZi;
+        }
+      }
+
+      return { data: result, length: len / 2 };
+    };
+
+    /**
+     * Check if we need to recompute the reference orbit.
+     * Recompute if center drifted >10% of screen, or maxIter/zoomTier changed.
+     */
+    const needsNewOrbit = (tier) => {
+      if (!refOrbitCenter) return true;
+      if (refOrbitMaxIter !== state.maxIter) return true;
+      if (refOrbitZoomTier !== tier) return true;
+      // Check if center drifted more than 10% of screen width
+      const screenWidth = canvas.width * state.zoom;
+      const dx = Math.abs(state.centerX - refOrbitCenter.x);
+      const dy = Math.abs(state.centerY - refOrbitCenter.y);
+      return (dx > screenWidth * 0.1 || dy > screenWidth * 0.1);
+    };
+
+    const updateReferenceOrbit = (tier) => {
+      if (!needsNewOrbit(tier)) return;
+      const useBigInt = (tier === 'perturb' && state.zoom < ZOOM_TIER_PERTURB);
+      const result = computeReferenceOrbit(
+        state.centerX, state.centerY, state.maxIter, useBigInt
+      );
+      refOrbit = result.data;
+      refOrbitLen = result.length;
+      refOrbitCenter = { x: state.centerX, y: state.centerY };
+      refOrbitMaxIter = state.maxIter;
+      refOrbitZoomTier = tier;
+      refOrbitVersion++;
+    };
+
+
+    // =========================================================================
+    // §4  RENDERER DETECTION
+    // =========================================================================
+
+    /**
+     * Split a JS float64 into hi + lo float32 pair (Dekker split).
+     * Uses Float32Array for f32 rounding (avoids Math.fround heap boxing).
+     * Writes hi/lo into pre-allocated _sd array at given offset.
+     * Call pattern: splitDouble(val, arr, i) → arr[i]=hi, arr[i+1]=lo
+     */
+    const _f32Round = new Float32Array(1);
+    const _splitBuf = new Float32Array(16); // scratch for split results
+    const splitDouble = (val, out, i) => {
+      _f32Round[0] = val;
+      out[i] = _f32Round[0];
+      _f32Round[0] = val - out[i];
+      out[i + 1] = _f32Round[0];
+    };
+
+    /**
+     * Determine the best available renderer tier.
+     * Returns { tier, context } or null if nothing works.
+     */
+    const detectRenderer = async (cvs) => {
+      // Try WebGPU
+      if (navigator.gpu) {
+        try {
+          const adapter = await navigator.gpu.requestAdapter();
+          if (adapter) {
+            const device = await adapter.requestDevice();
+            const gpuCtx = cvs.getContext('webgpu');
+            if (gpuCtx && device) {
+              return { tier: 'webgpu', device, context: gpuCtx, adapter };
+            }
+          }
+        } catch (e) {
+          // WebGPU not available, fall through
+        }
+      }
+
+      // Try WebGL2
+      const gl2 = cvs.getContext('webgl2', { antialias: false, preserveDrawingBuffer: false });
+      if (gl2) {
+        // Check for float texture support (needed for orbit texture)
+        const floatExt = gl2.getExtension('EXT_color_buffer_float');
+        return { tier: 'webgl2', gl: gl2, hasFloatTexture: !!floatExt };
+      }
+
+      // Fall back to WebGL1
+      const gl1 = cvs.getContext('webgl', { antialias: false, preserveDrawingBuffer: false });
+      if (gl1) {
+        return { tier: 'webgl1', gl: gl1 };
+      }
+
+      return null;
+    };
+
+
+    // =========================================================================
+    // §5  SHARED GLSL/WGSL STRINGS
+    // =========================================================================
+
+    // Cosine palette function — shared across all GLSL shaders
+    const GLSL_PALETTE = `
+vec3 cospal(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
+  return a + b * cos(6.28318 * (c * t + d));
+}
+
+vec3 getColor(float t, int palette) {
+  if (palette == 1) return cospal(t, vec3(0.5,0.1,0.0), vec3(0.5,0.4,0.3), vec3(1.0,1.0,1.0), vec3(0.0,0.15,0.2));
+  if (palette == 2) return cospal(t, vec3(0.0,0.2,0.4), vec3(0.3,0.3,0.5), vec3(1.0,1.0,1.0), vec3(0.0,0.1,0.2));
+  if (palette == 3) return cospal(t, vec3(0.5,0.5,0.5), vec3(0.5,0.5,0.5), vec3(1.0,1.0,0.5), vec3(0.8,0.9,0.3));
+  return cospal(t, vec3(0.5,0.5,0.5), vec3(0.5,0.5,0.5), vec3(1.0,1.0,1.0), vec3(0.0,0.1,0.2));
+}
+`;
+
+    // Dekker double-double arithmetic for GLSL (WebGL2)
+    // u_one uniform prevents GPU drivers from optimizing away error terms
+    const GLSL_DEKKER = `
+uniform float u_one; // = 1.0 at runtime, defeats compiler constant folding
+
+// Split a float into hi and lo parts for error-free multiplication
+vec2 ds_split(float a) {
+  float t = 8193.0 * a;
+  float hi = t - (t - a);
+  float lo = a - hi;
+  return vec2(hi, lo);
+}
+
+// Double-single addition: (a.hi + a.lo) + (b.hi + b.lo)
+vec2 ds_add(vec2 a, vec2 b) {
+  float s = a.x + b.x;
+  float v = s - a.x;
+  float e = (a.x - (s - v)) + (b.x - v);
+  e = (e + a.y + b.y) * u_one;
+  return vec2(s, e);
+}
+
+// Double-single subtraction
+vec2 ds_sub(vec2 a, vec2 b) {
+  return ds_add(a, vec2(-b.x, -b.y));
+}
+
+// Double-single multiplication
+vec2 ds_mul(vec2 a, vec2 b) {
+  float p = a.x * b.x;
+  vec2 sa = ds_split(a.x);
+  vec2 sb = ds_split(b.x);
+  float e = ((sa.x * sb.x - p) + sa.x * sb.y + sa.y * sb.x) + sa.y * sb.y;
+  e = (e + a.x * b.y + a.y * b.x) * u_one;
+  return vec2(p, e);
+}
+
+// Double-single from single float
+vec2 ds_set(float a) {
+  return vec2(a, 0.0);
+}
+`;
+
+    // Distance estimate helper for adaptive AA (works in all GLSL tiers)
+    const GLSL_DISTANCE_ESTIMATE = `
+// Compute distance estimate from escaped orbit.
+// zr, zi = final z values; dzr, dzi = derivative values; r2 = |z|²
+float distanceEstimate(float zr, float zi, float dzr, float dzi, float r2) {
+  float az = sqrt(r2);
+  float adz = sqrt(dzr * dzr + dzi * dzi);
+  if (adz < 1e-30) return 1e10;
+  return 0.5 * az * log(r2) / adz;
+}
+`;
+
+
+    // =========================================================================
+    // §6  WebGL1 RENDERER
+    // =========================================================================
+
+    const createWebGL1Renderer = (cvs, glCtx) => {
+      const gl = glCtx;
+
+      const vsSource = `attribute vec2 a_pos;
 void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }`;
 
-    const fsSource = `precision highp float;
+      const buildFsSource = (maxIterVal) => `precision highp float;
+#define MAX_ITER ${maxIterVal}
+#define ESCAPE_R2 ${ESCAPE_R2.toFixed(1)}
 uniform vec2 u_resolution;
 uniform vec2 u_center;
 uniform float u_zoom;
-uniform int u_maxIter;
 uniform int u_julia;
 uniform vec2 u_juliaC;
 uniform int u_palette;
 uniform int u_aa;
 
-vec3 cospal(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
-  return a + b * cos(6.28318 * (c * t + d));
-}
+${GLSL_PALETTE}
+${GLSL_DISTANCE_ESTIMATE}
 
-vec3 getColor(float t) {
-  if (u_palette == 1) return cospal(t, vec3(0.5,0.1,0.0), vec3(0.5,0.4,0.3), vec3(1.0,1.0,1.0), vec3(0.0,0.15,0.2));
-  if (u_palette == 2) return cospal(t, vec3(0.0,0.2,0.4), vec3(0.3,0.3,0.5), vec3(1.0,1.0,1.0), vec3(0.0,0.1,0.2));
-  if (u_palette == 3) return cospal(t, vec3(0.5,0.5,0.5), vec3(0.5,0.5,0.5), vec3(1.0,1.0,0.5), vec3(0.8,0.9,0.3));
-  return cospal(t, vec3(0.5,0.5,0.5), vec3(0.5,0.5,0.5), vec3(1.0,1.0,1.0), vec3(0.0,0.1,0.2));
-}
-
-vec3 fractalColor(vec2 coord) {
+// Fractal iteration with derivative tracking for distance estimate
+// Returns vec4(iter_smooth, dist_estimate, 0, 0) — or (-1, 0, 0, 0) for interior
+vec4 fractalIter(vec2 coord) {
   vec2 c, z;
   if (u_julia == 1) { z = coord; c = u_juliaC; }
-  else { c = coord; z = vec2(0.0); }
-
-  int iter = 0;
-  for (int i = 0; i < 2000; i++) {
-    if (i >= u_maxIter) break;
-    float x2 = z.x * z.x;
-    float y2 = z.y * z.y;
-    if (x2 + y2 > 4.0) break;
-    z = vec2(x2 - y2 + c.x, 2.0 * z.x * z.y + c.y);
-    iter++;
+  else {
+    c = coord; z = vec2(0.0);
+    float q = (c.x - 0.25) * (c.x - 0.25) + c.y * c.y;
+    if (q * (q + (c.x - 0.25)) < 0.25 * c.y * c.y) return vec4(-1.0, 0.0, 0.0, 0.0);
+    if ((c.x + 1.0) * (c.x + 1.0) + c.y * c.y < 0.0625) return vec4(-1.0, 0.0, 0.0, 0.0);
   }
 
-  if (iter >= u_maxIter) return vec3(0.0);
+  // Derivative dz for distance estimate: dz' = 2*z*dz + 1 (Mandelbrot) or 2*z*dz (Julia)
+  float dzr = u_julia == 1 ? 1.0 : 0.0;
+  float dzi = 0.0;
 
-  float fiter = float(iter) + 1.0 - log(log(length(z))) / log(2.0);
-  float t = fiter / 80.0;
-  return getColor(t);
+  int iter = 0;
+  vec2 zOld = vec2(0.0);
+  int period = 0;
+  int checkLen = 1;
+
+  for (int i = 0; i < MAX_ITER; i++) {
+    float x2 = z.x * z.x;
+    float y2 = z.y * z.y;
+    float r2 = x2 + y2;
+    if (r2 > ESCAPE_R2) {
+      float fiter = float(iter) + 1.0 - log(log(sqrt(r2))) / log(2.0);
+      float dist = distanceEstimate(z.x, z.y, dzr, dzi, r2);
+      return vec4(fiter, dist, 0.0, 0.0);
+    }
+
+    // Update derivative: dz = 2*z*dz + dc (dc=1 for Mandelbrot, 0 for Julia)
+    float newDzr = 2.0 * (z.x * dzr - z.y * dzi);
+    float newDzi = 2.0 * (z.x * dzi + z.y * dzr);
+    if (u_julia == 0) { newDzr += 1.0; }
+    dzr = newDzr;
+    dzi = newDzi;
+
+    z = vec2(x2 - y2 + c.x, 2.0 * z.x * z.y + c.y);
+    iter++;
+
+    float dx = z.x - zOld.x;
+    float dy = z.y - zOld.y;
+    if (dx * dx + dy * dy < 1e-10) return vec4(-1.0, 0.0, 0.0, 0.0);
+    period++;
+    if (period == checkLen) {
+      zOld = z;
+      period = 0;
+      checkLen = checkLen + checkLen;
+    }
+  }
+
+  return vec4(-1.0, 0.0, 0.0, 0.0);
+}
+
+vec3 colorFromIter(float fiter) {
+  if (fiter < 0.0) return vec3(0.0);
+  return getColor(fiter / 80.0, u_palette);
 }
 
 void main() {
   vec2 base = (gl_FragCoord.xy - u_resolution * 0.5) * u_zoom + u_center;
 
   if (u_aa == 1) {
-    vec2 px = vec2(u_zoom * 0.25);
-    vec3 col = fractalColor(base + vec2(-px.x, -px.y))
-             + fractalColor(base + vec2( px.x, -px.y))
-             + fractalColor(base + vec2(-px.x,  px.y))
-             + fractalColor(base + vec2( px.x,  px.y));
-    gl_FragColor = vec4(col * 0.25, 1.0);
+    // Adaptive AA: compute center sample first
+    vec4 centerResult = fractalIter(base);
+    float dist = centerResult.y;
+    float pixelSize = u_zoom;
+
+    // Only supersample near the boundary (distance < 2 pixels)
+    if (dist < pixelSize * 2.0 && centerResult.x >= 0.0) {
+      vec2 px = vec2(u_zoom * 0.25);
+      vec3 col = colorFromIter(fractalIter(base + vec2(-px.x, -px.y)).x)
+               + colorFromIter(fractalIter(base + vec2( px.x, -px.y)).x)
+               + colorFromIter(fractalIter(base + vec2(-px.x,  px.y)).x)
+               + colorFromIter(fractalIter(base + vec2( px.x,  px.y)).x);
+      gl_FragColor = vec4(col * 0.25, 1.0);
+    } else {
+      // Interior or far from boundary — single sample suffices
+      gl_FragColor = vec4(colorFromIter(centerResult.x), 1.0);
+    }
   } else {
-    gl_FragColor = vec4(fractalColor(base), 1.0);
+    gl_FragColor = vec4(colorFromIter(fractalIter(base).x), 1.0);
   }
 }`;
 
-    /* --- Compile shaders --- */
-    const compileShader = (src, type) => {
-      const s = gl.createShader(type);
-      gl.shaderSource(s, src);
-      gl.compileShader(s);
-      return s;
+      const showError = (msg) => {
+        document.body.innerHTML = `<div style="padding:20px;text-align:center;color:#666">${msg}</div>`;
+      };
+
+      const compileShader = (src, type) => {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+          console.error('Shader compile error:', gl.getShaderInfoLog(s));
+          return null;
+        }
+        return s;
+      };
+
+      const vs = compileShader(vsSource, gl.VERTEX_SHADER);
+      if (!vs) return null;
+
+      let u = {};
+      let currentProg = null;
+      let compiledMaxIter = 0;
+
+      const buildProgram = (iterCount) => {
+        const fs = compileShader(buildFsSource(iterCount), gl.FRAGMENT_SHADER);
+        if (!fs) return false;
+        const p = gl.createProgram();
+        gl.attachShader(p, vs);
+        gl.attachShader(p, fs);
+        gl.bindAttribLocation(p, 0, 'a_pos');
+        gl.linkProgram(p);
+        gl.deleteShader(fs);
+        if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+          console.error('Shader link error:', gl.getProgramInfoLog(p));
+          return false;
+        }
+        if (currentProg) gl.deleteProgram(currentProg);
+        currentProg = p;
+        compiledMaxIter = iterCount;
+        gl.useProgram(p);
+        u = {
+          res:     gl.getUniformLocation(p, 'u_resolution'),
+          center:  gl.getUniformLocation(p, 'u_center'),
+          zoom:    gl.getUniformLocation(p, 'u_zoom'),
+          julia:   gl.getUniformLocation(p, 'u_julia'),
+          juliaC:  gl.getUniformLocation(p, 'u_juliaC'),
+          palette: gl.getUniformLocation(p, 'u_palette'),
+          aa:      gl.getUniformLocation(p, 'u_aa'),
+        };
+        return true;
+      };
+
+      // Full-screen quad
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+      return {
+        tier: 'webgl1',
+
+        init() {
+          if (!buildProgram(state.maxIter)) return false;
+          console.log('[Fractal] Active renderer: WebGL1 (f32 only)');
+          return true;
+        },
+
+        render(st) {
+          if (st.maxIter !== compiledMaxIter) buildProgram(st.maxIter);
+          gl.uniform2f(u.res, cvs.width, cvs.height);
+          gl.uniform2f(u.center, st.centerX, st.centerY);
+          gl.uniform1f(u.zoom, st.zoom);
+          gl.uniform1i(u.julia, st.isJulia ? 1 : 0);
+          gl.uniform2f(u.juliaC, st.juliaCr, st.juliaCi);
+          gl.uniform1i(u.palette, st.palette);
+          gl.uniform1i(u.aa, st.aaEnabled ? 1 : 0);
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        },
+
+        resize(w, h) {
+          gl.viewport(0, 0, w, h);
+        },
+
+        destroy() {
+          if (currentProg) gl.deleteProgram(currentProg);
+          gl.deleteBuffer(buf);
+        }
+      };
     };
-    const vs = compileShader(vsSource, gl.VERTEX_SHADER);
-    const fs = compileShader(fsSource, gl.FRAGMENT_SHADER);
-    const prog = gl.createProgram();
-    gl.attachShader(prog, vs);
-    gl.attachShader(prog, fs);
-    gl.linkProgram(prog);
-    gl.useProgram(prog);
 
-    /* --- Full-screen quad --- */
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-    const aPos = gl.getAttribLocation(prog, 'a_pos');
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-    /* --- Uniform locations --- */
-    const uRes = gl.getUniformLocation(prog, 'u_resolution');
-    const uCenter = gl.getUniformLocation(prog, 'u_center');
-    const uZoom = gl.getUniformLocation(prog, 'u_zoom');
-    const uMaxIter = gl.getUniformLocation(prog, 'u_maxIter');
-    const uJulia = gl.getUniformLocation(prog, 'u_julia');
-    const uJuliaC = gl.getUniformLocation(prog, 'u_juliaC');
-    const uPalette = gl.getUniformLocation(prog, 'u_palette');
-    const uAA = gl.getUniformLocation(prog, 'u_aa');
+    // =========================================================================
+    // §7  WebGL2 RENDERER (f32 + Dekker + perturbation programs)
+    // =========================================================================
 
-    /* --- Resize --- */
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      needsRender = true;
+    const createWebGL2Renderer = (cvs, glCtx, hasFloatTexture) => {
+      const gl = glCtx;
+
+      const vsSource = `#version 300 es
+in vec2 a_pos;
+void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }`;
+
+      // --- f32 program (same as WebGL1 but in GLSL 300 es) ---
+      const buildFs_f32 = (maxIterVal) => `#version 300 es
+precision highp float;
+#define MAX_ITER ${maxIterVal}
+#define ESCAPE_R2 ${ESCAPE_R2.toFixed(1)}
+uniform vec2 u_resolution;
+uniform vec2 u_center;
+uniform float u_zoom;
+uniform int u_julia;
+uniform vec2 u_juliaC;
+uniform int u_palette;
+uniform int u_aa;
+out vec4 fragColor;
+
+${GLSL_PALETTE}
+${GLSL_DISTANCE_ESTIMATE}
+
+vec4 fractalIter(vec2 coord) {
+  vec2 c, z;
+  if (u_julia == 1) { z = coord; c = u_juliaC; }
+  else {
+    c = coord; z = vec2(0.0);
+    float q = (c.x - 0.25) * (c.x - 0.25) + c.y * c.y;
+    if (q * (q + (c.x - 0.25)) < 0.25 * c.y * c.y) return vec4(-1.0, 0.0, 0.0, 0.0);
+    if ((c.x + 1.0) * (c.x + 1.0) + c.y * c.y < 0.0625) return vec4(-1.0, 0.0, 0.0, 0.0);
+  }
+
+  float dzr = u_julia == 1 ? 1.0 : 0.0;
+  float dzi = 0.0;
+  int iter = 0;
+  vec2 zOld = vec2(0.0);
+  int period = 0;
+  int checkLen = 1;
+
+  for (int i = 0; i < MAX_ITER; i++) {
+    float x2 = z.x * z.x;
+    float y2 = z.y * z.y;
+    float r2 = x2 + y2;
+    if (r2 > ESCAPE_R2) {
+      float fiter = float(iter) + 1.0 - log(log(sqrt(r2))) / log(2.0);
+      float dist = distanceEstimate(z.x, z.y, dzr, dzi, r2);
+      return vec4(fiter, dist, 0.0, 0.0);
+    }
+    float newDzr = 2.0 * (z.x * dzr - z.y * dzi);
+    float newDzi = 2.0 * (z.x * dzi + z.y * dzr);
+    if (u_julia == 0) { newDzr += 1.0; }
+    dzr = newDzr;
+    dzi = newDzi;
+    z = vec2(x2 - y2 + c.x, 2.0 * z.x * z.y + c.y);
+    iter++;
+    float dx = z.x - zOld.x;
+    float dy = z.y - zOld.y;
+    if (dx * dx + dy * dy < 1e-10) return vec4(-1.0, 0.0, 0.0, 0.0);
+    period++;
+    if (period == checkLen) { zOld = z; period = 0; checkLen += checkLen; }
+  }
+  return vec4(-1.0, 0.0, 0.0, 0.0);
+}
+
+vec3 colorFromIter(float fiter) {
+  if (fiter < 0.0) return vec3(0.0);
+  return getColor(fiter / 80.0, u_palette);
+}
+
+void main() {
+  vec2 base = (gl_FragCoord.xy - u_resolution * 0.5) * u_zoom + u_center;
+  if (u_aa == 1) {
+    vec4 centerResult = fractalIter(base);
+    float dist = centerResult.y;
+    float pixelSize = u_zoom;
+    if (dist < pixelSize * 2.0 && centerResult.x >= 0.0) {
+      vec2 px = vec2(u_zoom * 0.25);
+      vec3 col = colorFromIter(fractalIter(base + vec2(-px.x, -px.y)).x)
+               + colorFromIter(fractalIter(base + vec2( px.x, -px.y)).x)
+               + colorFromIter(fractalIter(base + vec2(-px.x,  px.y)).x)
+               + colorFromIter(fractalIter(base + vec2( px.x,  px.y)).x);
+      fragColor = vec4(col * 0.25, 1.0);
+    } else {
+      fragColor = vec4(colorFromIter(centerResult.x), 1.0);
+    }
+  } else {
+    fragColor = vec4(colorFromIter(fractalIter(base).x), 1.0);
+  }
+}`;
+
+      // --- Dekker double-precision program ---
+      const buildFs_dekker = (maxIterVal) => `#version 300 es
+precision highp float;
+#define MAX_ITER ${maxIterVal}
+#define ESCAPE_R2 ${ESCAPE_R2.toFixed(1)}
+uniform vec2 u_resolution;
+uniform vec2 u_center_hi;
+uniform vec2 u_center_lo;
+uniform float u_zoom;
+uniform int u_julia;
+uniform vec2 u_juliaC;
+uniform int u_palette;
+uniform int u_aa;
+out vec4 fragColor;
+
+${GLSL_PALETTE}
+${GLSL_DEKKER}
+${GLSL_DISTANCE_ESTIMATE}
+
+vec4 fractalIter_dk(vec2 pixOffset) {
+  // Pixel coordinate in double-single
+  vec2 ds_cx = ds_add(vec2(u_center_hi.x, u_center_lo.x), ds_set(pixOffset.x * u_zoom));
+  vec2 ds_cy = ds_add(vec2(u_center_hi.y, u_center_lo.y), ds_set(pixOffset.y * u_zoom));
+
+  vec2 ds_zr, ds_zi, ds_cr, ds_ci;
+  if (u_julia == 1) {
+    ds_zr = ds_cx; ds_zi = ds_cy;
+    ds_cr = ds_set(u_juliaC.x); ds_ci = ds_set(u_juliaC.y);
+  } else {
+    ds_cr = ds_cx; ds_ci = ds_cy;
+    ds_zr = ds_set(0.0); ds_zi = ds_set(0.0);
+    // Cardioid check (f32 approximation is fine for skip test)
+    float cx = ds_cx.x; float cy = ds_cy.x;
+    float q = (cx - 0.25) * (cx - 0.25) + cy * cy;
+    if (q * (q + (cx - 0.25)) < 0.25 * cy * cy) return vec4(-1.0, 0.0, 0.0, 0.0);
+    if ((cx + 1.0) * (cx + 1.0) + cy * cy < 0.0625) return vec4(-1.0, 0.0, 0.0, 0.0);
+  }
+
+  float dzr = u_julia == 1 ? 1.0 : 0.0;
+  float dzi = 0.0;
+  int iter = 0;
+
+  for (int i = 0; i < MAX_ITER; i++) {
+    vec2 ds_zr2 = ds_mul(ds_zr, ds_zr);
+    vec2 ds_zi2 = ds_mul(ds_zi, ds_zi);
+    float r2 = ds_zr2.x + ds_zi2.x; // f32 check is sufficient for escape
+    if (r2 > ESCAPE_R2) {
+      float zr = ds_zr.x; float zi = ds_zi.x;
+      float fiter = float(iter) + 1.0 - log(log(sqrt(r2))) / log(2.0);
+      float dist = distanceEstimate(zr, zi, dzr, dzi, r2);
+      return vec4(fiter, dist, 0.0, 0.0);
+    }
+
+    // Derivative (f32 — derivative doesn't need double precision)
+    float zrf = ds_zr.x; float zif = ds_zi.x;
+    float newDzr = 2.0 * (zrf * dzr - zif * dzi);
+    float newDzi = 2.0 * (zrf * dzi + zif * dzr);
+    if (u_julia == 0) { newDzr += 1.0; }
+    dzr = newDzr;
+    dzi = newDzi;
+
+    // z = z² + c in double-single
+    vec2 ds_newZr = ds_add(ds_sub(ds_zr2, ds_zi2), ds_cr);
+    vec2 ds_newZi = ds_add(ds_mul(ds_mul(ds_set(2.0), ds_zr), ds_zi), ds_ci);
+    ds_zr = ds_newZr;
+    ds_zi = ds_newZi;
+    iter++;
+  }
+  return vec4(-1.0, 0.0, 0.0, 0.0);
+}
+
+vec3 colorFromIter(float fiter) {
+  if (fiter < 0.0) return vec3(0.0);
+  return getColor(fiter / 80.0, u_palette);
+}
+
+void main() {
+  vec2 pixOffset = gl_FragCoord.xy - u_resolution * 0.5;
+  if (u_aa == 1) {
+    vec4 centerResult = fractalIter_dk(pixOffset);
+    float dist = centerResult.y;
+    float pixelSize = u_zoom;
+    if (dist < pixelSize * 2.0 && centerResult.x >= 0.0) {
+      vec3 col = colorFromIter(fractalIter_dk(pixOffset + vec2(-0.25, -0.25)).x)
+               + colorFromIter(fractalIter_dk(pixOffset + vec2( 0.25, -0.25)).x)
+               + colorFromIter(fractalIter_dk(pixOffset + vec2(-0.25,  0.25)).x)
+               + colorFromIter(fractalIter_dk(pixOffset + vec2( 0.25,  0.25)).x);
+      fragColor = vec4(col * 0.25, 1.0);
+    } else {
+      fragColor = vec4(colorFromIter(centerResult.x), 1.0);
+    }
+  } else {
+    fragColor = vec4(colorFromIter(fractalIter_dk(pixOffset).x), 1.0);
+  }
+}`;
+
+      // --- Perturbation program ---
+      const buildFs_perturb = (maxIterVal) => `#version 300 es
+precision highp float;
+#define MAX_ITER ${maxIterVal}
+#define ESCAPE_R2 ${ESCAPE_R2.toFixed(1)}
+uniform vec2 u_resolution;
+uniform vec2 u_center_hi;
+uniform vec2 u_center_lo;
+uniform vec2 u_ref_center_hi;
+uniform vec2 u_ref_center_lo;
+uniform float u_zoom;
+uniform int u_julia;
+uniform vec2 u_juliaC;
+uniform int u_palette;
+uniform int u_aa;
+uniform int u_orbitLen;
+uniform highp sampler2D u_orbitTex;
+uniform int u_orbitTexWidth;
+out vec4 fragColor;
+
+${GLSL_PALETTE}
+${GLSL_DEKKER}
+${GLSL_DISTANCE_ESTIMATE}
+
+// Fetch reference orbit point n from RGBA32F texture
+// 2 orbit points per texel: texel i stores (re_2i, im_2i, re_2i+1, im_2i+1)
+vec2 fetchOrbit(int n) {
+  int texelIdx = n / 2;
+  int comp = n - texelIdx * 2; // 0 or 1
+  int texW = u_orbitTexWidth;
+  int y = texelIdx / texW;
+  int x = texelIdx - y * texW;
+  vec4 val = texelFetch(u_orbitTex, ivec2(x, y), 0);
+  return comp == 0 ? val.xy : val.zw;
+}
+
+vec4 fractalIter_pt(vec2 pixOffset) {
+  // Delta from reference center to this pixel (double-single)
+  vec2 ds_dcr = ds_add(
+    ds_sub(vec2(u_center_hi.x, u_center_lo.x), vec2(u_ref_center_hi.x, u_ref_center_lo.x)),
+    ds_set(pixOffset.x * u_zoom)
+  );
+  vec2 ds_dci = ds_add(
+    ds_sub(vec2(u_center_hi.y, u_center_lo.y), vec2(u_ref_center_hi.y, u_ref_center_lo.y)),
+    ds_set(pixOffset.y * u_zoom)
+  );
+
+  float dcr = ds_dcr.x + ds_dcr.y;
+  float dci = ds_dci.x + ds_dci.y;
+
+  // For Julia mode, initial delta = pixel - juliaC offset (simplified: use standard f32)
+  if (u_julia == 1) {
+    // Perturbation for Julia: dc is juliaC delta, dz starts at pixel delta from ref
+    // Simplified: fall back to Dekker-like behavior using perturbation framework
+  }
+
+  float dzr = 0.0, dzi = 0.0;
+  float dzdr = 0.0, dzdi = 0.0; // derivative of delta
+  int iter = 0;
+  int orbitLen = u_orbitLen;
+
+  for (int i = 0; i < MAX_ITER; i++) {
+    if (i >= orbitLen - 1) break;
+
+    vec2 Zn = fetchOrbit(i);
+    float Zr = Zn.x; float Zi = Zn.y;
+
+    // Full value = Z_n + dz
+    float fullR = Zr + dzr;
+    float fullI = Zi + dzi;
+    float r2 = fullR * fullR + fullI * fullI;
+
+    if (r2 > ESCAPE_R2) {
+      float fiter = float(iter) + 1.0 - log(log(sqrt(r2))) / log(2.0);
+      // Approximate distance from derivative
+      float adz = sqrt(dzdr * dzdr + dzdi * dzdi);
+      float dist = adz < 1e-30 ? 1e10 : 0.5 * sqrt(r2) * log(r2) / adz;
+      return vec4(fiter, dist, 0.0, 0.0);
+    }
+
+    // Glitch detection: if |dz| > |Z_n|, the delta is too large — bail
+    float dz2 = dzr * dzr + dzi * dzi;
+    float Z2 = Zr * Zr + Zi * Zi;
+    if (dz2 > Z2 * 1e6 && Z2 > 1e-20) {
+      // Glitch: treat as interior for now
+      return vec4(-1.0, 0.0, 0.0, 0.0);
+    }
+
+    // Delta recurrence: dz_{n+1} = 2*Z_n*dz + dz² + dc
+    float newDzr = 2.0 * (Zr * dzr - Zi * dzi) + (dzr * dzr - dzi * dzi) + dcr;
+    float newDzi = 2.0 * (Zr * dzi + Zi * dzr) + 2.0 * dzr * dzi + dci;
+
+    // Derivative of delta for distance estimate
+    float newDzdr = 2.0 * ((Zr + dzr) * dzdr - (Zi + dzi) * dzdi) + 1.0;
+    float newDzdi = 2.0 * ((Zr + dzr) * dzdi + (Zi + dzi) * dzdr);
+
+    dzr = newDzr; dzi = newDzi;
+    dzdr = newDzdr; dzdi = newDzdi;
+    iter++;
+  }
+  return vec4(-1.0, 0.0, 0.0, 0.0);
+}
+
+vec3 colorFromIter(float fiter) {
+  if (fiter < 0.0) return vec3(0.0);
+  return getColor(fiter / 80.0, u_palette);
+}
+
+void main() {
+  vec2 pixOffset = gl_FragCoord.xy - u_resolution * 0.5;
+  if (u_aa == 1) {
+    vec4 centerResult = fractalIter_pt(pixOffset);
+    float dist = centerResult.y;
+    if (dist < u_zoom * 2.0 && centerResult.x >= 0.0) {
+      vec3 col = colorFromIter(fractalIter_pt(pixOffset + vec2(-0.25, -0.25)).x)
+               + colorFromIter(fractalIter_pt(pixOffset + vec2( 0.25, -0.25)).x)
+               + colorFromIter(fractalIter_pt(pixOffset + vec2(-0.25,  0.25)).x)
+               + colorFromIter(fractalIter_pt(pixOffset + vec2( 0.25,  0.25)).x);
+      fragColor = vec4(col * 0.25, 1.0);
+    } else {
+      fragColor = vec4(colorFromIter(centerResult.x), 1.0);
+    }
+  } else {
+    fragColor = vec4(colorFromIter(fractalIter_pt(pixOffset).x), 1.0);
+  }
+}`;
+
+      // --- Shader management ---
+      const showError = (msg) => {
+        console.error('[Fractal WebGL2]', msg);
+      };
+
+      const compileShader = (src, type) => {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+          showError('Shader compile error: ' + gl.getShaderInfoLog(s));
+          return null;
+        }
+        return s;
+      };
+
+      const vs = compileShader(vsSource, gl.VERTEX_SHADER);
+      if (!vs) return null;
+
+      // Program cache: keyed by `${mode}_${maxIter}`
+      const programCache = new Map();
+      let activeProgram = null;
+      let activeUniforms = {};
+      let activeMode = '';
+
+      const getOrBuildProgram = (mode, maxIter) => {
+        const key = `${mode}_${maxIter}`;
+        if (programCache.has(key)) return programCache.get(key);
+
+        let fsSrc;
+        if (mode === 'f32') fsSrc = buildFs_f32(maxIter);
+        else if (mode === 'dekker') fsSrc = buildFs_dekker(maxIter);
+        else fsSrc = buildFs_perturb(maxIter);
+
+        const fs = compileShader(fsSrc, gl.FRAGMENT_SHADER);
+        if (!fs) return null;
+
+        const p = gl.createProgram();
+        gl.attachShader(p, vs);
+        gl.attachShader(p, fs);
+        gl.bindAttribLocation(p, 0, 'a_pos');
+        gl.linkProgram(p);
+        gl.deleteShader(fs);
+        if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+          showError('Link error: ' + gl.getProgramInfoLog(p));
+          return null;
+        }
+
+        // Collect all uniforms (not all exist in every program)
+        const uniforms = {};
+        const names = [
+          'u_resolution', 'u_center', 'u_center_hi', 'u_center_lo',
+          'u_ref_center_hi', 'u_ref_center_lo',
+          'u_zoom', 'u_julia', 'u_juliaC', 'u_palette', 'u_aa', 'u_one',
+          'u_orbitTex', 'u_orbitLen', 'u_orbitTexWidth'
+        ];
+        for (const n of names) {
+          uniforms[n] = gl.getUniformLocation(p, n);
+        }
+
+        const entry = { program: p, uniforms };
+        programCache.set(key, entry);
+
+        // Evict old entries to prevent unbounded growth (keep last 6)
+        if (programCache.size > 6) {
+          const oldest = programCache.keys().next().value;
+          const old = programCache.get(oldest);
+          gl.deleteProgram(old.program);
+          programCache.delete(oldest);
+        }
+
+        return entry;
+      };
+
+      const useProgram = (mode, maxIter) => {
+        const entry = getOrBuildProgram(mode, maxIter);
+        if (!entry) return false;
+        if (activeProgram !== entry.program) {
+          gl.useProgram(entry.program);
+          activeProgram = entry.program;
+          activeUniforms = entry.uniforms;
+          activeMode = mode;
+        }
+        return true;
+      };
+
+      // Full-screen quad
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+      // Orbit texture for perturbation — cached to avoid per-frame re-upload
+      let orbitTexture = null;
+      let orbitTexWidth = 0;
+      let uploadedOrbitVersion = -1;
+      let orbitPackBuf = null;  // reusable Float32Array for packing
+
+      const uploadOrbitTexture = (orbitData, orbitLength) => {
+        if (!hasFloatTexture) return;
+        // Skip upload if orbit hasn't changed since last upload
+        if (uploadedOrbitVersion === refOrbitVersion) return;
+        uploadedOrbitVersion = refOrbitVersion;
+
+        const texelCount = Math.ceil(orbitLength / 2);
+        const texW = Math.min(texelCount, 2048);
+        const texH = Math.ceil(texelCount / texW);
+        const totalTexels = texW * texH;
+        const needed = totalTexels * 4;
+
+        // Reuse packing buffer if large enough, else allocate
+        if (!orbitPackBuf || orbitPackBuf.length < needed) {
+          orbitPackBuf = new Float32Array(needed);
+        } else {
+          orbitPackBuf.fill(0, 0, needed);
+        }
+
+        for (let i = 0; i < orbitLength; i++) {
+          const texelIdx = Math.floor(i / 2);
+          const comp = i % 2;
+          orbitPackBuf[texelIdx * 4 + comp * 2] = orbitData[i * 2];
+          orbitPackBuf[texelIdx * 4 + comp * 2 + 1] = orbitData[i * 2 + 1];
+        }
+
+        if (!orbitTexture) {
+          orbitTexture = gl.createTexture();
+          gl.activeTexture(gl.TEXTURE0);
+          gl.bindTexture(gl.TEXTURE_2D, orbitTexture);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        } else {
+          gl.activeTexture(gl.TEXTURE0);
+          gl.bindTexture(gl.TEXTURE_2D, orbitTexture);
+        }
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, texW, texH, 0, gl.RGBA, gl.FLOAT, orbitPackBuf);
+
+        orbitTexWidth = texW;
+      };
+
+      return {
+        tier: 'webgl2',
+
+        init() {
+          // Pre-build the f32 program
+          if (!getOrBuildProgram('f32', state.maxIter)) return false;
+          console.log('[Fractal] Active renderer: WebGL2 (f32 + Dekker + perturbation)');
+          return true;
+        },
+
+        render(st, zoomTier) {
+          const mode = (zoomTier === 'perturb' && hasFloatTexture) ? 'perturb'
+                     : (zoomTier === 'dekker' || zoomTier === 'perturb') ? 'dekker'
+                     : 'f32';
+
+          if (!useProgram(mode, st.maxIter)) return;
+          const u = activeUniforms;
+
+          gl.uniform2f(u.u_resolution, cvs.width, cvs.height);
+          gl.uniform1f(u.u_zoom, st.zoom);
+          gl.uniform1i(u.u_julia, st.isJulia ? 1 : 0);
+          gl.uniform2f(u.u_juliaC, st.juliaCr, st.juliaCi);
+          gl.uniform1i(u.u_palette, st.palette);
+          gl.uniform1i(u.u_aa, st.aaEnabled ? 1 : 0);
+
+          if (mode === 'f32') {
+            gl.uniform2f(u.u_center, st.centerX, st.centerY);
+          } else {
+            // Split center into hi/lo for Dekker (writes into _splitBuf, no allocation)
+            splitDouble(st.centerX, _splitBuf, 0); // [0]=cxHi, [1]=cxLo
+            splitDouble(st.centerY, _splitBuf, 2); // [2]=cyHi, [3]=cyLo
+            gl.uniform2f(u.u_center_hi, _splitBuf[0], _splitBuf[2]);
+            gl.uniform2f(u.u_center_lo, _splitBuf[1], _splitBuf[3]);
+            if (u.u_one !== null) gl.uniform1f(u.u_one, 1.0);
+
+            if (mode === 'perturb' && refOrbit) {
+              uploadOrbitTexture(refOrbit, refOrbitLen);
+              gl.uniform1i(u.u_orbitTex, 0);
+              gl.uniform1i(u.u_orbitLen, refOrbitLen);
+              gl.uniform1i(u.u_orbitTexWidth, orbitTexWidth);
+              if (refOrbitCenter) {
+                splitDouble(refOrbitCenter.x, _splitBuf, 4); // [4]=rxHi, [5]=rxLo
+                splitDouble(refOrbitCenter.y, _splitBuf, 6); // [6]=ryHi, [7]=ryLo
+                gl.uniform2f(u.u_ref_center_hi, _splitBuf[4], _splitBuf[6]);
+                gl.uniform2f(u.u_ref_center_lo, _splitBuf[5], _splitBuf[7]);
+              }
+            }
+          }
+
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        },
+
+        resize(w, h) {
+          gl.viewport(0, 0, w, h);
+        },
+
+        destroy() {
+          for (const [, entry] of programCache) {
+            gl.deleteProgram(entry.program);
+          }
+          programCache.clear();
+          if (orbitTexture) gl.deleteTexture(orbitTexture);
+          gl.deleteBuffer(buf);
+        }
+      };
     };
-    window.addEventListener('resize', resize);
 
-    /* --- Render --- */
+
+    // =========================================================================
+    // §8  WebGPU RENDERER (WGSL compute + blit)
+    // =========================================================================
+
+    const createWebGPURenderer = (cvs, gpuDevice, gpuContext, gpuAdapter) => {
+      const device = gpuDevice;
+      const context = gpuContext;
+      const presentFormat = navigator.gpu.getPreferredCanvasFormat();
+
+      context.configure({
+        device,
+        format: presentFormat,
+        alphaMode: 'opaque',
+      });
+
+      // --- Uniform buffer (80 bytes, pre-allocated views) ---
+      const UNIFORM_SIZE = 80;
+      const uniformBuffer = device.createBuffer({
+        size: UNIFORM_SIZE,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+      });
+      // Pre-allocated typed array views — reused every frame, zero GC pressure
+      const uniformData = new ArrayBuffer(UNIFORM_SIZE);
+      const uf32 = new Float32Array(uniformData);
+      const ui32 = new Int32Array(uniformData);
+
+      // Orbit storage buffer (start with reasonable size, recreate if needed)
+      let orbitBuffer = null;
+      let orbitBufferSize = 0;
+      let orbitBufferGeneration = 0; // incremented when buffer object is recreated
+
+      const ensureOrbitBuffer = (neededFloats) => {
+        const neededBytes = neededFloats * 4;
+        if (orbitBuffer && orbitBufferSize >= neededBytes) return;
+        if (orbitBuffer) orbitBuffer.destroy();
+        orbitBufferSize = Math.max(neededBytes, 16384);
+        orbitBuffer = device.createBuffer({
+          size: orbitBufferSize,
+          usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+        });
+        orbitBufferGeneration++;  // invalidate cached bind groups
+      };
+      ensureOrbitBuffer(4096);
+
+      // Compute output texture — recreated on resize
+      let outputTexture = null;
+      let outputView = null;
+      let texWidth = 0, texHeight = 0;
+
+      const ensureOutputTexture = (w, h) => {
+        if (outputTexture && texWidth === w && texHeight === h) return;
+        if (outputTexture) outputTexture.destroy();
+        texWidth = w; texHeight = h;
+        outputTexture = device.createTexture({
+          size: [w, h],
+          format: 'rgba8unorm',
+          usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.TEXTURE_BINDING,
+        });
+        outputView = outputTexture.createView();
+        // Invalidate cached bind groups since outputView changed
+        cachedComputeBindGroup = null;
+        cachedBlitBindGroup = null;
+      };
+
+      // --- Bind group cache ---
+      // Bind groups reference stable buffer/texture objects; only recreate when
+      // the underlying resource object changes (resize or orbit buffer growth).
+      let cachedComputeBindGroup = null;
+      let cachedBlitBindGroup = null;
+      let cachedOrbitBufferGen = -1;
+      let gpuUploadedOrbitVersion = -1;
+
+      // Pre-allocated render pass descriptor — mutated in place each frame
+      // to avoid creating nested object literals every frame.
+      const blitColorAttachment = {
+        view: null, // set per-frame to context.getCurrentTexture().createView()
+        loadOp: 'clear',
+        storeOp: 'store',
+        clearValue: { r: 0, g: 0, b: 0, a: 1 },
+      };
+      const blitPassDescriptor = { colorAttachments: [blitColorAttachment] };
+      const submitArray = [null]; // reusable 1-element array for queue.submit
+
+      // --- WGSL Compute Shader ---
+      const buildComputeWGSL = () => `
+// Fractal compute shader — all math tiers
+struct Uniforms {
+  resolution: vec2f,
+  center_hi: vec2f,
+  center_lo: vec2f,
+  ref_center_hi: vec2f,
+  ref_center_lo: vec2f,
+  juliaC: vec2f,
+  zoom: f32,
+  maxIter: i32,
+  palette: i32,
+  julia: i32,
+  aa: i32,
+  orbitLen: i32,
+  mode: i32, // 0=f32, 1=dekker, 2=perturb
+  one: f32,  // = 1.0 at runtime, defeats GPU driver constant folding in Dekker ops
+};
+
+@group(0) @binding(0) var<uniform> u: Uniforms;
+@group(0) @binding(1) var output: texture_storage_2d<rgba8unorm, write>;
+@group(0) @binding(2) var<storage, read> orbit: array<f32>;
+
+const ESCAPE_R2: f32 = ${ESCAPE_R2.toFixed(1)};
+const PI2: f32 = 6.28318;
+
+fn cospal(t: f32, a: vec3f, b: vec3f, c: vec3f, d: vec3f) -> vec3f {
+  return a + b * cos(PI2 * (c * t + d));
+}
+
+fn getColor(t: f32, palette: i32) -> vec3f {
+  if (palette == 1) { return cospal(t, vec3f(0.5,0.1,0.0), vec3f(0.5,0.4,0.3), vec3f(1.0,1.0,1.0), vec3f(0.0,0.15,0.2)); }
+  if (palette == 2) { return cospal(t, vec3f(0.0,0.2,0.4), vec3f(0.3,0.3,0.5), vec3f(1.0,1.0,1.0), vec3f(0.0,0.1,0.2)); }
+  if (palette == 3) { return cospal(t, vec3f(0.5,0.5,0.5), vec3f(0.5,0.5,0.5), vec3f(1.0,1.0,0.5), vec3f(0.8,0.9,0.3)); }
+  return cospal(t, vec3f(0.5,0.5,0.5), vec3f(0.5,0.5,0.5), vec3f(1.0,1.0,1.0), vec3f(0.0,0.1,0.2));
+}
+
+fn colorFromIter(fiter: f32) -> vec3f {
+  if (fiter < 0.0) { return vec3f(0.0); }
+  return getColor(fiter / 80.0, u.palette);
+}
+
+fn distanceEstimate(zr: f32, zi: f32, dzr: f32, dzi: f32, r2: f32) -> f32 {
+  let az = sqrt(r2);
+  let adz = sqrt(dzr * dzr + dzi * dzi);
+  if (adz < 1e-30) { return 1e10; }
+  return 0.5 * az * log(r2) / adz;
+}
+
+// Dekker split
+fn ds_split(a: f32) -> vec2f {
+  let t = 8193.0 * a;
+  let hi = t - (t - a);
+  return vec2f(hi, a - hi);
+}
+
+fn ds_add(a: vec2f, b: vec2f) -> vec2f {
+  let s = a.x + b.x;
+  let v = s - a.x;
+  let e = ((a.x - (s - v)) + (b.x - v) + a.y + b.y) * u.one;
+  return vec2f(s, e);
+}
+
+fn ds_sub(a: vec2f, b: vec2f) -> vec2f {
+  return ds_add(a, vec2f(-b.x, -b.y));
+}
+
+fn ds_mul(a: vec2f, b: vec2f) -> vec2f {
+  let p = a.x * b.x;
+  let sa = ds_split(a.x);
+  let sb = ds_split(b.x);
+  let e = (((sa.x * sb.x - p) + sa.x * sb.y + sa.y * sb.x) + sa.y * sb.y + a.x * b.y + a.y * b.x) * u.one;
+  return vec2f(p, e);
+}
+
+fn ds_set(a: f32) -> vec2f {
+  return vec2f(a, 0.0);
+}
+
+// --- f32 iteration ---
+fn fractalIter_f32(coord: vec2f) -> vec2f {
+  var c: vec2f;
+  var z: vec2f;
+  if (u.julia == 1) { z = coord; c = u.juliaC; }
+  else {
+    c = coord; z = vec2f(0.0);
+    let q = (c.x - 0.25) * (c.x - 0.25) + c.y * c.y;
+    if (q * (q + (c.x - 0.25)) < 0.25 * c.y * c.y) { return vec2f(-1.0, 0.0); }
+    if ((c.x + 1.0) * (c.x + 1.0) + c.y * c.y < 0.0625) { return vec2f(-1.0, 0.0); }
+  }
+
+  var dzr: f32; var dzi: f32 = 0.0;
+  if (u.julia == 1) { dzr = 1.0; } else { dzr = 0.0; }
+  var zOld = vec2f(0.0);
+  var period: i32 = 0;
+  var checkLen: i32 = 1;
+
+  for (var i: i32 = 0; i < u.maxIter; i++) {
+    let x2 = z.x * z.x;
+    let y2 = z.y * z.y;
+    let r2 = x2 + y2;
+    if (r2 > ESCAPE_R2) {
+      let fiter = f32(i) + 1.0 - log(log(sqrt(r2))) / log(2.0);
+      let dist = distanceEstimate(z.x, z.y, dzr, dzi, r2);
+      return vec2f(fiter, dist);
+    }
+    let newDzr = 2.0 * (z.x * dzr - z.y * dzi) + select(0.0, 1.0, u.julia == 0);
+    let newDzi = 2.0 * (z.x * dzi + z.y * dzr);
+    dzr = newDzr; dzi = newDzi;
+    z = vec2f(x2 - y2 + c.x, 2.0 * z.x * z.y + c.y);
+    let dx = z.x - zOld.x;
+    let dy = z.y - zOld.y;
+    if (dx * dx + dy * dy < 1e-10) { return vec2f(-1.0, 0.0); }
+    period++;
+    if (period == checkLen) { zOld = z; period = 0; checkLen += checkLen; }
+  }
+  return vec2f(-1.0, 0.0);
+}
+
+// --- Dekker iteration ---
+fn fractalIter_dk(pixOffset: vec2f) -> vec2f {
+  var ds_cx = ds_add(vec2f(u.center_hi.x, u.center_lo.x), ds_set(pixOffset.x * u.zoom));
+  var ds_cy = ds_add(vec2f(u.center_hi.y, u.center_lo.y), ds_set(pixOffset.y * u.zoom));
+
+  var ds_zr: vec2f; var ds_zi: vec2f;
+  var ds_cr: vec2f; var ds_ci: vec2f;
+  if (u.julia == 1) {
+    ds_zr = ds_cx; ds_zi = ds_cy;
+    ds_cr = ds_set(u.juliaC.x); ds_ci = ds_set(u.juliaC.y);
+  } else {
+    ds_cr = ds_cx; ds_ci = ds_cy;
+    ds_zr = ds_set(0.0); ds_zi = ds_set(0.0);
+    let cx = ds_cx.x; let cy = ds_cy.x;
+    let q = (cx - 0.25) * (cx - 0.25) + cy * cy;
+    if (q * (q + (cx - 0.25)) < 0.25 * cy * cy) { return vec2f(-1.0, 0.0); }
+    if ((cx + 1.0) * (cx + 1.0) + cy * cy < 0.0625) { return vec2f(-1.0, 0.0); }
+  }
+
+  var dzr: f32; var dzi: f32 = 0.0;
+  if (u.julia == 1) { dzr = 1.0; } else { dzr = 0.0; }
+
+  for (var i: i32 = 0; i < u.maxIter; i++) {
+    let ds_zr2 = ds_mul(ds_zr, ds_zr);
+    let ds_zi2 = ds_mul(ds_zi, ds_zi);
+    let r2 = ds_zr2.x + ds_zi2.x;
+    if (r2 > ESCAPE_R2) {
+      let fiter = f32(i) + 1.0 - log(log(sqrt(r2))) / log(2.0);
+      let dist = distanceEstimate(ds_zr.x, ds_zi.x, dzr, dzi, r2);
+      return vec2f(fiter, dist);
+    }
+    let zrf = ds_zr.x; let zif = ds_zi.x;
+    let newDzr = 2.0 * (zrf * dzr - zif * dzi) + select(0.0, 1.0, u.julia == 0);
+    let newDzi = 2.0 * (zrf * dzi + zif * dzr);
+    dzr = newDzr; dzi = newDzi;
+    let ds_newZr = ds_add(ds_sub(ds_zr2, ds_zi2), ds_cr);
+    let ds_newZi = ds_add(ds_mul(ds_mul(ds_set(2.0), ds_zr), ds_zi), ds_ci);
+    ds_zr = ds_newZr;
+    ds_zi = ds_newZi;
+  }
+  return vec2f(-1.0, 0.0);
+}
+
+// --- Perturbation iteration ---
+fn fetchOrbit(n: i32) -> vec2f {
+  let idx = n * 2;
+  return vec2f(orbit[idx], orbit[idx + 1]);
+}
+
+fn fractalIter_pt(pixOffset: vec2f) -> vec2f {
+  let ds_dcr = ds_add(
+    ds_sub(vec2f(u.center_hi.x, u.center_lo.x), vec2f(u.ref_center_hi.x, u.ref_center_lo.x)),
+    ds_set(pixOffset.x * u.zoom)
+  );
+  let ds_dci = ds_add(
+    ds_sub(vec2f(u.center_hi.y, u.center_lo.y), vec2f(u.ref_center_hi.y, u.ref_center_lo.y)),
+    ds_set(pixOffset.y * u.zoom)
+  );
+
+  let dcr = ds_dcr.x + ds_dcr.y;
+  let dci = ds_dci.x + ds_dci.y;
+
+  var dzr: f32 = 0.0; var dzi: f32 = 0.0;
+  var dzdr: f32 = 0.0; var dzdi: f32 = 0.0;
+  let orbitLen = u.orbitLen;
+
+  for (var i: i32 = 0; i < u.maxIter; i++) {
+    if (i >= orbitLen - 1) { break; }
+    let Zn = fetchOrbit(i);
+    let fullR = Zn.x + dzr;
+    let fullI = Zn.y + dzi;
+    let r2 = fullR * fullR + fullI * fullI;
+    if (r2 > ESCAPE_R2) {
+      let fiter = f32(i) + 1.0 - log(log(sqrt(r2))) / log(2.0);
+      let adz = sqrt(dzdr * dzdr + dzdi * dzdi);
+      var dist: f32;
+      if (adz < 1e-30) { dist = 1e10; } else { dist = 0.5 * sqrt(r2) * log(r2) / adz; }
+      return vec2f(fiter, dist);
+    }
+    let dz2 = dzr * dzr + dzi * dzi;
+    let Z2 = Zn.x * Zn.x + Zn.y * Zn.y;
+    if (dz2 > Z2 * 1e6 && Z2 > 1e-20) { return vec2f(-1.0, 0.0); }
+
+    let newDzr = 2.0 * (Zn.x * dzr - Zn.y * dzi) + (dzr * dzr - dzi * dzi) + dcr;
+    let newDzi = 2.0 * (Zn.x * dzi + Zn.y * dzr) + 2.0 * dzr * dzi + dci;
+    let newDzdr = 2.0 * ((Zn.x + dzr) * dzdr - (Zn.y + dzi) * dzdi) + 1.0;
+    let newDzdi = 2.0 * ((Zn.x + dzr) * dzdi + (Zn.y + dzi) * dzdr);
+    dzr = newDzr; dzi = newDzi;
+    dzdr = newDzdr; dzdi = newDzdi;
+  }
+  return vec2f(-1.0, 0.0);
+}
+
+fn samplePixel(pixCoord: vec2f) -> vec2f {
+  if (u.mode == 0) {
+    let base = (pixCoord - u.resolution * 0.5) * u.zoom + vec2f(u.center_hi.x + u.center_lo.x, u.center_hi.y + u.center_lo.y);
+    return fractalIter_f32(base);
+  } else if (u.mode == 1) {
+    return fractalIter_dk(pixCoord - u.resolution * 0.5);
+  } else {
+    return fractalIter_pt(pixCoord - u.resolution * 0.5);
+  }
+}
+
+@compute @workgroup_size(8, 8)
+fn main(@builtin(global_invocation_id) gid: vec3u) {
+  let dims = textureDimensions(output);
+  if (gid.x >= dims.x || gid.y >= dims.y) { return; }
+
+  let pixCoord = vec2f(f32(gid.x) + 0.5, f32(gid.y) + 0.5);
+
+  var col: vec3f;
+  if (u.aa == 1) {
+    let centerResult = samplePixel(pixCoord);
+    let dist = centerResult.y;
+    if (dist < u.zoom * 2.0 && centerResult.x >= 0.0) {
+      col = colorFromIter(samplePixel(pixCoord + vec2f(-0.25, -0.25)).x)
+          + colorFromIter(samplePixel(pixCoord + vec2f( 0.25, -0.25)).x)
+          + colorFromIter(samplePixel(pixCoord + vec2f(-0.25,  0.25)).x)
+          + colorFromIter(samplePixel(pixCoord + vec2f( 0.25,  0.25)).x);
+      col *= 0.25;
+    } else {
+      col = colorFromIter(centerResult.x);
+    }
+  } else {
+    col = colorFromIter(samplePixel(pixCoord).x);
+  }
+
+  textureStore(output, vec2i(gid.xy), vec4f(col, 1.0));
+}
+`;
+
+      // --- Blit shader (fullscreen quad samples compute output) ---
+      const blitWGSL = `
+@group(0) @binding(0) var srcTex: texture_2d<f32>;
+@group(0) @binding(1) var srcSampler: sampler;
+
+struct VsOut {
+  @builtin(position) pos: vec4f,
+  @location(0) uv: vec2f,
+};
+
+@vertex
+fn vs(@builtin(vertex_index) idx: u32) -> VsOut {
+  var positions = array<vec2f, 4>(
+    vec2f(-1.0, -1.0), vec2f(1.0, -1.0), vec2f(-1.0, 1.0), vec2f(1.0, 1.0)
+  );
+  var uvs = array<vec2f, 4>(
+    vec2f(0.0, 1.0), vec2f(1.0, 1.0), vec2f(0.0, 0.0), vec2f(1.0, 0.0)
+  );
+  var out: VsOut;
+  out.pos = vec4f(positions[idx], 0.0, 1.0);
+  out.uv = uvs[idx];
+  return out;
+}
+
+@fragment
+fn fs(in: VsOut) -> @location(0) vec4f {
+  return textureSample(srcTex, srcSampler, in.uv);
+}
+`;
+
+      // Create pipelines
+      let computePipeline = null;
+      let blitPipeline = null;
+      let computeBindGroupLayout = null;
+      let blitBindGroupLayout = null;
+      let sampler = null;
+
+      const initPipelines = () => {
+        // Compute pipeline
+        const computeModule = device.createShaderModule({ code: buildComputeWGSL() });
+        computeBindGroupLayout = device.createBindGroupLayout({
+          entries: [
+            { binding: 0, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'uniform' } },
+            { binding: 1, visibility: GPUShaderStage.COMPUTE, storageTexture: { access: 'write-only', format: 'rgba8unorm' } },
+            { binding: 2, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'read-only-storage' } },
+          ],
+        });
+        computePipeline = device.createComputePipeline({
+          layout: device.createPipelineLayout({ bindGroupLayouts: [computeBindGroupLayout] }),
+          compute: { module: computeModule, entryPoint: 'main' },
+        });
+
+        // Blit pipeline
+        const blitModule = device.createShaderModule({ code: blitWGSL });
+        blitBindGroupLayout = device.createBindGroupLayout({
+          entries: [
+            { binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'float' } },
+            { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'filtering' } },
+          ],
+        });
+        blitPipeline = device.createRenderPipeline({
+          layout: device.createPipelineLayout({ bindGroupLayouts: [blitBindGroupLayout] }),
+          vertex: { module: blitModule, entryPoint: 'vs' },
+          fragment: {
+            module: blitModule,
+            entryPoint: 'fs',
+            targets: [{ format: presentFormat }],
+          },
+          primitive: { topology: 'triangle-strip', stripIndexFormat: undefined },
+        });
+
+        sampler = device.createSampler({ magFilter: 'nearest', minFilter: 'nearest' });
+      };
+
+      return {
+        tier: 'webgpu',
+
+        init() {
+          try {
+            initPipelines();
+            console.log('[Fractal] Active renderer: WebGPU (compute shader)');
+            return true;
+          } catch (e) {
+            console.error('[Fractal] WebGPU init failed:', e);
+            return false;
+          }
+        },
+
+        render(st, zoomTier) {
+          if (!computePipeline || !outputTexture) return;
+
+          const mode = zoomTier === 'perturb' ? 2 : zoomTier === 'dekker' ? 1 : 0;
+
+          // Fill pre-allocated uniform views (zero allocation)
+          // Split into _splitBuf: [0]=cxHi,[1]=cxLo,[2]=cyHi,[3]=cyLo,[4]=rxHi,[5]=rxLo,[6]=ryHi,[7]=ryLo
+          splitDouble(st.centerX, _splitBuf, 0);
+          splitDouble(st.centerY, _splitBuf, 2);
+          if (refOrbitCenter) {
+            splitDouble(refOrbitCenter.x, _splitBuf, 4);
+            splitDouble(refOrbitCenter.y, _splitBuf, 6);
+          } else {
+            _splitBuf[4] = 0; _splitBuf[5] = 0;
+            _splitBuf[6] = 0; _splitBuf[7] = 0;
+          }
+
+          uf32[0] = cvs.width;      uf32[1] = cvs.height;
+          uf32[2] = _splitBuf[0];   uf32[3] = _splitBuf[2];  // cxHi, cyHi
+          uf32[4] = _splitBuf[1];   uf32[5] = _splitBuf[3];  // cxLo, cyLo
+          uf32[6] = _splitBuf[4];   uf32[7] = _splitBuf[6];  // rxHi, ryHi
+          uf32[8] = _splitBuf[5];   uf32[9] = _splitBuf[7];  // rxLo, ryLo
+          uf32[10] = st.juliaCr;  uf32[11] = st.juliaCi;
+          uf32[12] = st.zoom;
+          ui32[13] = st.maxIter;
+          ui32[14] = st.palette;
+          ui32[15] = st.isJulia ? 1 : 0;
+          ui32[16] = st.aaEnabled ? 1 : 0;
+          ui32[17] = refOrbitLen || 0;
+          ui32[18] = mode;
+          uf32[19] = 1.0; // u.one — defeats GPU driver constant folding in Dekker ops
+
+          device.queue.writeBuffer(uniformBuffer, 0, uniformData);
+
+          // Upload orbit data only when it actually changed
+          if (mode === 2 && refOrbit) {
+            const orbitFloats = refOrbitLen * 2;
+            ensureOrbitBuffer(orbitFloats);
+            if (gpuUploadedOrbitVersion !== refOrbitVersion) {
+              device.queue.writeBuffer(orbitBuffer, 0, refOrbit, 0, orbitFloats);
+              gpuUploadedOrbitVersion = refOrbitVersion;
+            }
+          }
+
+          // Reuse cached bind groups — only recreate when resource objects change
+          if (!cachedComputeBindGroup || cachedOrbitBufferGen !== orbitBufferGeneration) {
+            cachedComputeBindGroup = device.createBindGroup({
+              layout: computeBindGroupLayout,
+              entries: [
+                { binding: 0, resource: { buffer: uniformBuffer } },
+                { binding: 1, resource: outputView },
+                { binding: 2, resource: { buffer: orbitBuffer } },
+              ],
+            });
+            cachedBlitBindGroup = device.createBindGroup({
+              layout: blitBindGroupLayout,
+              entries: [
+                { binding: 0, resource: outputView },
+                { binding: 1, resource: sampler },
+              ],
+            });
+            cachedOrbitBufferGen = orbitBufferGeneration;
+          }
+
+          const encoder = device.createCommandEncoder();
+
+          const computePass = encoder.beginComputePass();
+          computePass.setPipeline(computePipeline);
+          computePass.setBindGroup(0, cachedComputeBindGroup);
+          computePass.dispatchWorkgroups(
+            Math.ceil(cvs.width / 8),
+            Math.ceil(cvs.height / 8)
+          );
+          computePass.end();
+
+          // Mutate pre-allocated descriptor — only the swapchain view changes per frame
+          blitColorAttachment.view = context.getCurrentTexture().createView();
+          const blitPass = encoder.beginRenderPass(blitPassDescriptor);
+          blitPass.setPipeline(blitPipeline);
+          blitPass.setBindGroup(0, cachedBlitBindGroup);
+          blitPass.draw(4);
+          blitPass.end();
+
+          submitArray[0] = encoder.finish();
+          device.queue.submit(submitArray);
+        },
+
+        resize(w, h) {
+          ensureOutputTexture(w, h);
+          context.configure({
+            device,
+            format: presentFormat,
+            alphaMode: 'opaque',
+          });
+        },
+
+        destroy() {
+          uniformBuffer.destroy();
+          if (orbitBuffer) orbitBuffer.destroy();
+          if (outputTexture) outputTexture.destroy();
+        }
+      };
+    };
+
+
+    // =========================================================================
+    // §9  RENDER ORCHESTRATOR (scheduleRender, zoom tier, orbit management)
+    // =========================================================================
+
+    /**
+     * Determine the zoom tier based on current zoom level and renderer capabilities.
+     */
+    const determineZoomTier = () => {
+      if (!activeRenderer || activeRenderer.tier === 'webgl1') return 'f32';
+      if (state.zoom < ZOOM_TIER_PERTURB) return 'perturb';
+      if (state.zoom < ZOOM_TIER_DEKKER) return 'dekker';
+      return 'f32';
+    };
+
+    const coordEl = document.getElementById('coordDisplay');
+    // Track last-displayed values to skip string allocation when unchanged
+    let lastCoordX = NaN, lastCoordY = NaN, lastCoordZoom = NaN;
+    const updateCoordDisplay = () => {
+      // Skip if values haven't changed (avoids toFixed/template string allocation)
+      if (state.centerX === lastCoordX && state.centerY === lastCoordY && state.zoom === lastCoordZoom) return;
+      lastCoordX = state.centerX;
+      lastCoordY = state.centerY;
+      lastCoordZoom = state.zoom;
+      const baseZoom = getMaxZoom();
+      const zoomLevel = baseZoom / state.zoom;
+      const digits = Math.min(20, Math.max(4, Math.ceil(-Math.log10(state.zoom)) + 2));
+      const zoomStr = zoomLevel < 1e6 ? zoomLevel.toFixed(1)
+                    : zoomLevel < 1e15 ? zoomLevel.toExponential(2)
+                    : zoomLevel.toExponential(4);
+      coordEl.textContent = `x:${state.centerX.toFixed(digits)} y:${state.centerY.toFixed(digits)} z:${zoomStr}x`;
+    };
+
     const render = () => {
       rafPending = false;
-      if (!needsRender) return;
+      if (!needsRender || !activeRenderer) return;
       needsRender = false;
-      gl.uniform2f(uRes, canvas.width, canvas.height);
-      gl.uniform2f(uCenter, centerX, centerY);
-      gl.uniform1f(uZoom, zoom);
-      gl.uniform1i(uMaxIter, maxIter);
-      gl.uniform1i(uJulia, isJulia ? 1 : 0);
-      gl.uniform2f(uJuliaC, juliaCr, juliaCi);
-      gl.uniform1i(uPalette, palette);
-      gl.uniform1i(uAA, aaEnabled ? 1 : 0);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      updateCoordDisplay();
+
+      const newTier = determineZoomTier();
+      if (newTier !== currentZoomTier) {
+        console.log(`[Fractal] Zoom tier: ${currentZoomTier} → ${newTier}`);
+        currentZoomTier = newTier;
+      }
+
+      // Update reference orbit if in perturbation mode
+      if (currentZoomTier === 'perturb') {
+        updateReferenceOrbit(currentZoomTier);
+      }
+
+      // During active interaction: suppress AA for fast preview frames.
+      // Full quality re-renders automatically after SETTLE_MS of no input.
+      if (interacting) {
+        const saved = state.aaEnabled;
+        state.aaEnabled = false;
+        activeRenderer.render(state, currentZoomTier);
+        state.aaEnabled = saved;
+      } else {
+        activeRenderer.render(state, currentZoomTier);
+      }
+      // Skip coord string generation during interaction — values change every
+      // frame so the string work is wasted. Coords update on settle.
+      if (!interacting) updateCoordDisplay();
     };
 
     const scheduleRender = () => {
@@ -359,14 +1840,30 @@ void main() {
       }
     };
 
-    /* --- Coordinate display --- */
-    const coordEl = document.getElementById('coordDisplay');
-    const updateCoordDisplay = () => {
-      const zoomLevel = (0.003 / zoom).toFixed(1);
-      coordEl.textContent = `x:${centerX.toFixed(8)} y:${centerY.toFixed(8)} z:${zoomLevel}x`;
+    // Cached canvas rect — updated on resize, avoids DOMRect allocation per event
+    let canvasRect = { left: 0, top: 0 };
+    const updateCanvasRect = () => {
+      const r = canvas.getBoundingClientRect();
+      canvasRect.left = r.left;
+      canvasRect.top = r.top;
     };
 
-    /* --- Mouse interaction --- */
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(canvas.clientWidth * dpr);
+      canvas.height = Math.round(canvas.clientHeight * dpr);
+      updateCanvasRect();
+      if (activeRenderer) activeRenderer.resize(canvas.width, canvas.height);
+      scheduleRender();
+    };
+    window.addEventListener('resize', resize);
+    window.addEventListener('scroll', updateCanvasRect, { passive: true });
+
+
+    // =========================================================================
+    // §10 INPUT HANDLING (mouse, touch, wheel)
+    // =========================================================================
+
     let dragging = false;
     let dragX = 0, dragY = 0;
     let dragDist = 0;
@@ -387,8 +1884,10 @@ void main() {
       dragX = e.clientX;
       dragY = e.clientY;
       const dpr = window.devicePixelRatio || 1;
-      centerX -= dx * dpr * zoom;
-      centerY += dy * dpr * zoom;
+      state.centerX -= dx * dpr * state.zoom;
+      state.centerY += dy * dpr * state.zoom;
+      clampCenter();
+      markInteracting();
       scheduleRender();
     });
 
@@ -396,54 +1895,67 @@ void main() {
 
     canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      const mx = (e.clientX - rect.left) * dpr;
-      const my = (e.clientY - rect.top) * dpr;
-      const wx = (mx - canvas.width * 0.5) * zoom + centerX;
-      const wy = (canvas.height * 0.5 - my) * zoom + centerY;
+      const mx = (e.clientX - canvasRect.left) * dpr;
+      const my = (e.clientY - canvasRect.top) * dpr;
+      const wx = (mx - canvas.width * 0.5) * state.zoom + state.centerX;
+      const wy = (canvas.height * 0.5 - my) * state.zoom + state.centerY;
       const factor = e.deltaY > 0 ? 1.15 : 1 / 1.15;
-      zoom *= factor;
-      centerX = wx - (mx - canvas.width * 0.5) * zoom;
-      centerY = wy - (canvas.height * 0.5 - my) * zoom;
+      state.zoom = Math.min(state.zoom * factor, getMaxZoom());
+      state.centerX = wx - (mx - canvas.width * 0.5) * state.zoom;
+      state.centerY = wy - (canvas.height * 0.5 - my) * state.zoom;
+      clampCenter();
+      markInteracting();
       scheduleRender();
     }, { passive: false });
 
     /* --- Pick mode: click to set Julia seed --- */
     canvas.addEventListener('click', (e) => {
       if (dragDist > 5) return;
-      if (!pickMode) return;
-      const rect = canvas.getBoundingClientRect();
+      if (!state.pickMode) return;
       const dpr = window.devicePixelRatio || 1;
-      const mx = (e.clientX - rect.left) * dpr;
-      const my = (e.clientY - rect.top) * dpr;
-      juliaCr = (mx - canvas.width * 0.5) * zoom + centerX;
-      juliaCi = (canvas.height * 0.5 - my) * zoom + centerY;
-      crInput.value = juliaCr.toFixed(4);
-      ciInput.value = juliaCi.toFixed(4);
-      isJulia = true;
+      const mx = (e.clientX - canvasRect.left) * dpr;
+      const my = (e.clientY - canvasRect.top) * dpr;
+      state.juliaCr = (mx - canvas.width * 0.5) * state.zoom + state.centerX;
+      state.juliaCi = (canvas.height * 0.5 - my) * state.zoom + state.centerY;
+      crInput.value = state.juliaCr.toFixed(4);
+      ciInput.value = state.juliaCi.toFixed(4);
+      state.isJulia = true;
       juliaToggle.checked = true;
       juliaParams.classList.add('visible');
-      centerX = 0; centerY = 0; zoom = 0.005;
+      state.centerX = 0; state.centerY = 0; state.zoom = computeDefaultZoom(true);
       exitPickMode();
       scheduleRender();
     });
 
-    /* --- Touch interaction (unified) --- */
+    /* --- Touch interaction --- */
     const touches = new Map();
     let lastPinchDist = 0;
     let lastPinchCX = 0, lastPinchCY = 0;
 
+    // Pool touch entry objects to avoid per-touch allocation
+    const touchPool = [];
+    const acquireTouch = (x, y) => {
+      const entry = touchPool.pop() || { x: 0, y: 0, startX: 0, startY: 0 };
+      entry.x = x; entry.y = y; entry.startX = x; entry.startY = y;
+      return entry;
+    };
+    const releaseTouch = (entry) => { touchPool.push(entry); };
+
+    // Pre-allocated 2-element array for getTwoTouches — avoids [a, b] per call
+    const _twoPair = [null, null];
     const getTwoTouches = () => {
       if (touches.size < 2) return null;
       const iter = touches.values();
-      return [iter.next().value, iter.next().value];
+      _twoPair[0] = iter.next().value;
+      _twoPair[1] = iter.next().value;
+      return _twoPair;
     };
 
     canvas.addEventListener('touchstart', (e) => {
       e.preventDefault();
       for (const t of e.changedTouches) {
-        touches.set(t.identifier, { x: t.clientX, y: t.clientY, startX: t.clientX, startY: t.clientY });
+        touches.set(t.identifier, acquireTouch(t.clientX, t.clientY));
       }
       const pair = getTwoTouches();
       if (pair) {
@@ -460,14 +1972,16 @@ void main() {
       const dpr = window.devicePixelRatio || 1;
 
       if (touches.size === 1) {
-        const t = e.changedTouches[0];
-        const entry = touches.get(t.identifier);
-        if (!entry) return;
-        const prevX = entry.x, prevY = entry.y;
-        entry.x = t.clientX;
-        entry.y = t.clientY;
-        centerX -= (t.clientX - prevX) * dpr * zoom;
-        centerY += (t.clientY - prevY) * dpr * zoom;
+        for (const t of e.changedTouches) {
+          const entry = touches.get(t.identifier);
+          if (!entry) continue;
+          state.centerX -= (t.clientX - entry.x) * dpr * state.zoom;
+          state.centerY += (t.clientY - entry.y) * dpr * state.zoom;
+          entry.x = t.clientX;
+          entry.y = t.clientY;
+        }
+        clampCenter();
+        markInteracting();
         scheduleRender();
       } else if (touches.size >= 2) {
         for (const t of e.changedTouches) {
@@ -483,16 +1997,17 @@ void main() {
         const cy = (pair[0].y + pair[1].y) / 2;
         if (lastPinchDist > 0) {
           const factor = lastPinchDist / dist;
-          const rect = canvas.getBoundingClientRect();
-          const mx = (cx - rect.left) * dpr;
-          const my = (cy - rect.top) * dpr;
-          const wx = (mx - canvas.width * 0.5) * zoom + centerX;
-          const wy = (canvas.height * 0.5 - my) * zoom + centerY;
-          zoom *= factor;
-          centerX = wx - (mx - canvas.width * 0.5) * zoom;
-          centerY = wy - (canvas.height * 0.5 - my) * zoom;
-          centerX -= (cx - lastPinchCX) * dpr * zoom;
-          centerY += (cy - lastPinchCY) * dpr * zoom;
+          const mx = (cx - canvasRect.left) * dpr;
+          const my = (cy - canvasRect.top) * dpr;
+          const wx = (mx - canvas.width * 0.5) * state.zoom + state.centerX;
+          const wy = (canvas.height * 0.5 - my) * state.zoom + state.centerY;
+          state.zoom = Math.min(state.zoom * factor, getMaxZoom());
+          state.centerX = wx - (mx - canvas.width * 0.5) * state.zoom;
+          state.centerY = wy - (canvas.height * 0.5 - my) * state.zoom;
+          state.centerX -= (cx - lastPinchCX) * dpr * state.zoom;
+          state.centerY += (cy - lastPinchCY) * dpr * state.zoom;
+          clampCenter();
+          markInteracting();
           scheduleRender();
         }
         lastPinchDist = dist;
@@ -503,6 +2018,8 @@ void main() {
 
     const touchEnd = (e) => {
       for (const t of e.changedTouches) {
+        const entry = touches.get(t.identifier);
+        if (entry) releaseTouch(entry);
         touches.delete(t.identifier);
       }
       if (touches.size < 2) lastPinchDist = 0;
@@ -510,25 +2027,28 @@ void main() {
     canvas.addEventListener('touchend', touchEnd);
     canvas.addEventListener('touchcancel', touchEnd);
 
-    /* --- Pick mode helpers --- */
+
+    // =========================================================================
+    // §11 UI CONTROLS (Julia, palette, slider, reset, welcome)
+    // =========================================================================
+
     const pickSeedBtn = document.getElementById('pickSeedBtn');
     const pickBanner = document.getElementById('pickBanner');
 
     const enterPickMode = () => {
-      pickMode = true;
+      state.pickMode = true;
       pickSeedBtn.classList.add('pressed');
       pickBanner.classList.add('visible');
       canvas.classList.add('pick-mode');
     };
 
     const exitPickMode = () => {
-      pickMode = false;
+      state.pickMode = false;
       pickSeedBtn.classList.remove('pressed');
       pickBanner.classList.remove('visible');
       canvas.classList.remove('pick-mode');
     };
 
-    /* --- Controls --- */
     const juliaToggle = document.getElementById('juliaToggle');
     const juliaParams = document.getElementById('juliaParams');
     const iterSlider = document.getElementById('iterSlider');
@@ -555,95 +2075,151 @@ void main() {
       }
     });
 
-    /* Pick Seed button */
     pickSeedBtn.addEventListener('click', () => {
-      if (pickMode) exitPickMode();
+      if (state.pickMode) exitPickMode();
       else enterPickMode();
     });
 
-    /* Escape cancels pick mode */
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && pickMode) exitPickMode();
+      if (e.key === 'Escape' && state.pickMode) exitPickMode();
     });
 
-    /* Random seed button */
     randomBtn.addEventListener('click', () => {
       seedIndex = (seedIndex + 1) % JULIA_SEEDS.length;
       const seed = JULIA_SEEDS[seedIndex];
-      juliaCr = seed.cr;
-      juliaCi = seed.ci;
-      crInput.value = juliaCr;
-      ciInput.value = juliaCi;
-      isJulia = true;
+      state.juliaCr = seed.cr;
+      state.juliaCi = seed.ci;
+      crInput.value = state.juliaCr;
+      ciInput.value = state.juliaCi;
+      state.isJulia = true;
       juliaToggle.checked = true;
       juliaParams.classList.add('visible');
-      centerX = 0; centerY = 0; zoom = 0.005;
-      if (pickMode) exitPickMode();
+      state.centerX = 0; state.centerY = 0; state.zoom = computeDefaultZoom(true);
+      if (state.pickMode) exitPickMode();
       scheduleRender();
     });
 
-    /* Julia toggle */
     juliaToggle.addEventListener('change', () => {
-      isJulia = juliaToggle.checked;
-      juliaParams.classList.toggle('visible', isJulia);
-      if (!isJulia) { centerX = -0.5; centerY = 0; zoom = 0.003; }
-      else { centerX = 0; centerY = 0; zoom = 0.005; }
+      state.isJulia = juliaToggle.checked;
+      juliaParams.classList.toggle('visible', state.isJulia);
+      state.centerX = state.isJulia ? 0 : -0.228; state.centerY = 0;
+      state.zoom = computeDefaultZoom(state.isJulia);
       scheduleRender();
     });
 
-    /* AA toggle */
     aaToggle.addEventListener('change', () => {
-      aaEnabled = aaToggle.checked;
+      state.aaEnabled = aaToggle.checked;
       scheduleRender();
     });
 
-    /* Iteration slider */
     let iterDebounce = null;
     iterSlider.addEventListener('input', () => {
       iterLabel.textContent = iterSlider.value;
       clearTimeout(iterDebounce);
       iterDebounce = setTimeout(() => {
-        maxIter = parseInt(iterSlider.value, 10);
+        state.maxIter = parseInt(iterSlider.value, 10);
         scheduleRender();
       }, 100);
     });
 
-    /* Palette select */
     paletteSelect.addEventListener('change', () => {
-      palette = parseInt(paletteSelect.value, 10);
+      state.palette = parseInt(paletteSelect.value, 10);
       scheduleRender();
     });
 
-    /* Julia c inputs */
     crInput.addEventListener('change', () => {
-      juliaCr = parseFloat(crInput.value) || 0;
+      state.juliaCr = parseFloat(crInput.value) || 0;
       scheduleRender();
     });
     ciInput.addEventListener('change', () => {
-      juliaCi = parseFloat(ciInput.value) || 0;
+      state.juliaCi = parseFloat(ciInput.value) || 0;
       scheduleRender();
     });
 
-    /* Reset button */
     resetBtn.addEventListener('click', () => {
-      isJulia = false;
+      state.isJulia = false;
       juliaToggle.checked = false;
       juliaParams.classList.remove('visible');
-      juliaCr = -0.7; juliaCi = 0.27015;
+      state.juliaCr = -0.7; state.juliaCi = 0.27015;
       crInput.value = '-0.7'; ciInput.value = '0.27015';
-      centerX = -0.5; centerY = 0; zoom = 0.003;
-      maxIter = 200; iterSlider.value = '200'; iterLabel.textContent = '200';
-      palette = 0; paletteSelect.value = '0';
-      aaEnabled = true; aaToggle.checked = true;
+      state.centerX = -0.228; state.centerY = 0; state.zoom = computeDefaultZoom(false);
+      state.maxIter = 200; iterSlider.value = '200'; iterLabel.textContent = '200';
+      state.palette = 0; paletteSelect.value = '0';
+      state.aaEnabled = true; aaToggle.checked = true;
       seedIndex = -1;
-      if (pickMode) exitPickMode();
+      if (state.pickMode) exitPickMode();
+      // Reset orbit cache
+      refOrbitCenter = null;
+      currentZoomTier = 'f32';
       scheduleRender();
     });
 
-    /* --- Init --- */
-    resize();
-    render();
-    welcomeBtn.focus();
+
+    // =========================================================================
+    // §12 INIT
+    // =========================================================================
+
+    const init = async () => {
+      const detected = await detectRenderer(canvas);
+      if (!detected) {
+        document.body.innerHTML = '<div style="padding:20px;text-align:center;color:#666">WebGL is not supported in this browser.</div>';
+        return;
+      }
+
+      let renderer = null;
+
+      if (detected.tier === 'webgpu') {
+        renderer = createWebGPURenderer(canvas, detected.device, detected.context, detected.adapter);
+        if (!renderer || !renderer.init()) {
+          // Fallback: re-detect without WebGPU
+          console.warn('[Fractal] WebGPU init failed, falling back...');
+          renderer = null;
+          // Need a new canvas context — WebGPU may have claimed it
+          // Try WebGL2 on the same canvas (getContext returns null if already used differently)
+          const gl2 = canvas.getContext('webgl2', { antialias: false, preserveDrawingBuffer: false });
+          if (gl2) {
+            const floatExt = gl2.getExtension('EXT_color_buffer_float');
+            renderer = createWebGL2Renderer(canvas, gl2, !!floatExt);
+            if (!renderer || !renderer.init()) renderer = null;
+          }
+          if (!renderer) {
+            const gl1 = canvas.getContext('webgl', { antialias: false, preserveDrawingBuffer: false });
+            if (gl1) {
+              renderer = createWebGL1Renderer(canvas, gl1);
+              if (!renderer || !renderer.init()) renderer = null;
+            }
+          }
+        }
+      } else if (detected.tier === 'webgl2') {
+        renderer = createWebGL2Renderer(canvas, detected.gl, detected.hasFloatTexture);
+        if (!renderer || !renderer.init()) {
+          // Fallback to WebGL1
+          console.warn('[Fractal] WebGL2 init failed, falling back to WebGL1...');
+          const gl1 = canvas.getContext('webgl', { antialias: false, preserveDrawingBuffer: false });
+          if (gl1) {
+            renderer = createWebGL1Renderer(canvas, gl1);
+            if (!renderer || !renderer.init()) renderer = null;
+          }
+        }
+      } else {
+        renderer = createWebGL1Renderer(canvas, detected.gl);
+        if (!renderer || !renderer.init()) renderer = null;
+      }
+
+      if (!renderer) {
+        document.body.innerHTML = '<div style="padding:20px;text-align:center;color:#666">Failed to initialize renderer.</div>';
+        return;
+      }
+
+      activeRenderer = renderer;
+      resize();
+      // Set default zoom now that canvas is properly sized
+      state.zoom = computeDefaultZoom(state.isJulia);
+      render();
+      welcomeBtn.focus();
+    };
+
+    init();
   })();
   </script>
 </body>
