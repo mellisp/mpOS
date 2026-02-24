@@ -16,6 +16,8 @@
   .chrome-bg { background: #d4d0c8; padding: 14px 24px; border: 2px outset #fff; margin-bottom: 4px; }
   .chrome-bg .cell span { color: #555; }
   .divider { border-top: 1px solid #ccc; margin: 28px 0; }
+  .toc { font-size: 13px; margin: 12px 0 16px; line-height: 2; }
+  .toc a { margin-right: 16px; }
   .palette { display: flex; gap: 4px; margin: 8px 0 16px; flex-wrap: wrap; }
   .swatch { width: 48px; height: 24px; border: 1px solid #999; font-size: 8px; display: flex;
             align-items: center; justify-content: center; color: #fff; text-shadow: 0 0 2px #000; }
@@ -25,10 +27,9 @@
 
 <h1>mpOS Icon System</h1>
 <p class="note">
-  Bas Milius technique: 512 canvas, flat-middle gradients, 60&deg; lighting.
-  Instrument icons use exact compass/barometer treatment: gray face (#6b7280&rarr;#374151),
-  #e5e7eb silver bezel, stroke-width 12. Objects use stroke-width 6.
-  Abstract icons use stroke-width 24. Interior accents use stroke-width 12.
+  512 canvas, flat-middle gradients, 60&deg; lighting, symbol/use architecture.
+  Instrument icons: gray face, silver bezel, stroke-width 12.
+  Object icons: stroke-width 6. Abstract icons: stroke-width 24.
 </p>
 
 <div id="icons"></div>
@@ -37,9 +38,9 @@
 let _n = 0;
 
 // ── Color Palette ───────────────────────────────────────────────────
-// [top/mid, bottom, stroke] — Bas Milius exact where possible
+// [top/mid, bottom, stroke] — mpOS icon palette
 const C = {
-  // Bas Milius exact
+  // Core palette
   sun:    ['#fbbf24','#f59e0b','#f8af18'],
   ice:    ['#86c3db','#5eafcf','#72b9d5'],
   blue:   ['#3392d6','#2477b2','#2885c7'],
@@ -74,10 +75,10 @@ const gr = (p, id, x1, y1, x2, y2, c) =>
   `<linearGradient id="${p}${id}" x1="${x1}" x2="${x2}" y1="${y1}" y2="${y2}" gradientUnits="userSpaceOnUse">` +
   `<stop offset="0" stop-color="${c[0]}"/><stop offset=".5" stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient>`;
 
-// 60° gradient coords (width-based angle, matches Bas Milius compass)
+// 60° gradient coords (width-based angle, matches instrument compass)
 const gc = (x, y, w, h) => [x + w*0.25, y + h/2 - w*0.433, x + w*0.75, y + h/2 + w*0.433];
 
-// Instrument face: exact Bas Milius compass gradient coords for r=144 at (256,256)
+// Instrument face: compass gradient coords for r=144 at (256,256)
 const INST = [184, 131.3, 328, 380.7];
 const instGrad = (p, id='a') => gr(p, id, ...INST, C.dark);
 const instCircle = (p, id='a') =>
@@ -92,7 +93,7 @@ function mkSvg(p, defs, body, size) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// WEATHER ICONS (Bas Milius elements + cool palette)
+// WEATHER ICONS (mpOS elements + cool palette)
 // ══════════════════════════════════════════════════════════════════════
 
 const WG = {
@@ -152,7 +153,7 @@ function weatherIcon(key, size) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// APP ICONS — Bas Milius treatment applied
+// APP ICONS — mpOS icon system
 //
 // Instrument: exact compass/barometer (gray face, #e5e7eb bezel, sw 12)
 //   Interior accents: stroke-width 12, bright color
@@ -170,7 +171,7 @@ const APPS = {
 
   // ── System ──────────────────────────────────────────────────────
 
-  // OBJECT: Monitor — Bas Milius gray (#d4d7dd) body + teal screen
+  // OBJECT: Monitor — gray (#d4d7dd) body + teal screen
   computer: { label:'My Computer', cat:'System', icon:(p) => {
     const d = gr(p,'m',...gc(108,128,296,200),C.gray) + gr(p,'s',...gc(128,148,256,164),C.teal);
     return { defs:d, body:
@@ -498,12 +499,11 @@ const APPS = {
 
   // ── Utilities ───────────────────────────────────────────────────
 
-  // SCENE: Sun behind cloud (reuse weather — already Bas Milius)
+  // SCENE: Standalone sun (matches production Weather app icon)
   weather: { label:'Weather', cat:'Utilities', icon:(p) => {
-    const d = WG.sun(p) + WG.cloud(p) + WS.sun(p) + WS.cloud(p);
+    const d = WG.sun(p) + WS.sun(p);
     return { defs:d, body:
-      `<use href="#${p}s" width="196" height="196" transform="translate(68 109)"/>` +
-      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>`
+      `<use href="#${p}s" width="340" height="340" transform="translate(86 86)"/>`
     };
   }},
 
@@ -599,24 +599,22 @@ const paletteHtml = paletteColors.map(name => {
   return `<div class="swatch" style="background:linear-gradient(135deg,${c[0]} 50%,${c[1]} 100%)">${name}</div>`;
 }).join('');
 
+// Build category index
+const catNames = Object.keys(cats);
+const tocLinks = catNames.map(c => `<a href="#cat-${c.toLowerCase().replace(/\s+/g,'-')}">${c}</a>`).join('') +
+  `<a href="icon-test-weather.html">Weather (animated) &rarr;</a>`;
+
 let html = `
+  <div class="toc">${tocLinks}</div>
   <h2>Color Palette</h2>
   <div class="palette">${paletteHtml}</div>
-
-  <div class="divider"></div>
-  <h2>Weather Conditions</h2>
-  <h3>48px — desktop</h3>
-  <div class="desktop-bg"><div class="grid">${weatherRow(48)}</div></div>
-  <h3>20px — start menu</h3>
-  <div class="chrome-bg"><div class="grid">${weatherRow(20)}</div></div>
-  <h3>16px — taskbar</h3>
-  <div class="chrome-bg"><div class="grid">${weatherRow(16)}</div></div>
 `;
 
 for (const [cat, keys] of Object.entries(cats)) {
+  const id = cat.toLowerCase().replace(/\s+/g, '-');
   html += `
   <div class="divider"></div>
-  <h2>${cat}</h2>
+  <h2 id="cat-${id}">${cat}</h2>
   <h3>48px — desktop</h3>
   <div class="desktop-bg"><div class="grid">${appRow(keys, 48)}</div></div>
   <h3>20px — start menu</h3>

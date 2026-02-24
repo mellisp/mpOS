@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>mpOS Weather Icons</title>
+<style>
+  body { font-family: Tahoma, sans-serif; color: #222; padding: 40px; background: #f0f0f0; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 24px 0 6px; }
+  h3 { font-size: 13px; margin: 20px 0 4px; color: #555; }
+  .note { font-size: 12px; color: #666; max-width: 750px; line-height: 1.5; margin: 0 0 16px; }
+  .grid { display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap; }
+  .cell { text-align: center; }
+  .cell span { display: block; font-size: 10px; margin-top: 4px; color: #888; white-space: nowrap; }
+  .desktop-bg { background: #3a6ea5; padding: 20px 28px; margin-bottom: 4px; }
+  .desktop-bg .cell span { color: rgba(255,255,255,0.6); }
+  .chrome-bg { background: #d4d0c8; padding: 14px 24px; border: 2px outset #fff; margin-bottom: 4px; }
+  .chrome-bg .cell span { color: #555; }
+  .divider { border-top: 1px solid #ccc; margin: 28px 0; }
+  table.mapping { border-collapse: collapse; font-size: 12px; margin: 8px 0 16px; }
+  table.mapping th, table.mapping td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
+  table.mapping th { background: #e8e8e8; }
+  .mono { font-family: monospace; font-size: 11px; }
+  a { color: #336; }
+  .controls { margin: 12px 0; display: flex; gap: 12px; align-items: center; }
+  .controls button { font-family: Tahoma, sans-serif; font-size: 12px; padding: 3px 10px; cursor: pointer; }
+  .controls span { font-size: 11px; color: #666; }
+  .palette { display: flex; gap: 4px; margin: 8px 0 16px; flex-wrap: wrap; }
+  .swatch { width: 48px; height: 24px; border: 1px solid #999; font-size: 8px; display: flex;
+            align-items: center; justify-content: center; color: #fff; text-shadow: 0 0 2px #000; }
+</style>
+</head>
+<body>
+
+<h1>mpOS Weather Icons</h1>
+<p class="note">
+  Animated weather set: 13 conditions, SMIL animation,
+  512 canvas, flat-middle gradients, 60&deg; lighting, symbol/use architecture,
+  cool palette, golden ratio composition.
+  <br><a href="icon-test.html">&larr; App icons</a>
+</p>
+
+<div id="icons"></div>
+
+<script>
+let _n = 0;
+
+// ── Cool Palette ────────────────────────────────────────────
+const C = {
+  sun:    ['#f0b824','#d49408','#e2a616'],
+  moon:   ['#86c3db','#5eafcf','#72b9d5'],
+  cloud:  ['#dce4ee','#c8d4e4','#d0dae8'],
+  dkcloud:['#9ca3af','#6b7280','#848b98'],
+  rain:   ['#6aabe0','#4a90cc','#5a9dd8'],
+  snow:   ['#86c3db','#6eb0ca','#78b9d3'],
+  hail:   ['#86c3db','#5eafcf','#72b9d5'],
+  bolt:   ['#f7b23b','#f59e0b','#f6a823'],
+  fog:    ['#d0d8e2','#c2ccd8','#c8d0da'],
+};
+
+// ── Helpers ──────────────────────────────────────────────────
+const gr = (p, id, x1, y1, x2, y2, c, mid) =>
+  `<linearGradient id="${p}${id}" x1="${x1}" x2="${x2}" y1="${y1}" y2="${y2}" gradientUnits="userSpaceOnUse">` +
+  `<stop offset="0" stop-color="${c[0]}"/><stop offset=".5" stop-color="${mid || c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient>`;
+
+const mkSvg = (p, defs, body, size) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${body}</svg>`;
+
+// ── Gradient Definitions ────────────────────────────────────
+const WG = {
+  sunLg:  (p) => gr(p,'sg', 150,119.2, 234,264.8, C.sun),
+  sun:    (p) => gr(p,'sg', 73.5,55.6, 122.5,140.5, C.sun),
+  moonLg: (p) => gr(p,'mg', 54.3,29, 187.2,259.1, C.moon),
+  moonSm: (p) => gr(p,'mg', 34.7,18.6, 119.2,165, C.moon),
+  fullMoon:(p) => gr(p,'fm', 73.5,55.6, 122.5,140.5, C.moon),
+  cloud:  (p) => gr(p,'cg', 99.5,30.7, 232.6,261.4, C.cloud),
+  dkcloud:(p) => gr(p,'dg', 99.5,30.7, 232.6,261.4, C.dkcloud),
+  bkcloud:(p) => gr(p,'bkg', 52.7,9.6, 133.4,149.3, C.dkcloud),
+  rain:   (p) => gr(p,'r1', 0.5,8.5, 16.5,56.5, C.rain, C.rain[2]) + gr(p,'r2', 56.5,8.5, 72.5,56.5, C.rain, C.rain[2]) + gr(p,'r3', 112.5,8.5, 128.5,56.5, C.rain, C.rain[2]),
+  drizzle:(p) => gr(p,'d1', 0.5,0.5, 16.5,28.5, C.rain, C.rain[2]) + gr(p,'d2', 56.5,0.5, 72.5,28.5, C.rain, C.rain[2]) + gr(p,'d3', 112.5,0.5, 128.5,28.5, C.rain, C.rain[2]),
+  flake:  (p) => gr(p,'f1', 11.4,5.9, 32.8,43.1, C.snow) + gr(p,'f2', 67.4,5.9, 88.8,43.1, C.snow) + gr(p,'f3', 123.4,5.9, 144.8,43.1, C.snow),
+  hail:   (p) => gr(p,'h1', 6.5,2.1, 18.5,22.9, C.hail) + gr(p,'h2', 62.5,2.1, 74.5,22.9, C.hail) + gr(p,'h3', 118.5,2.1, 130.5,22.9, C.hail),
+  sleetDrop:(p) => gr(p,'sr1', 14.1,0.5, 30.1,28.5, C.rain, C.rain[2]) + gr(p,'sr2', 70.1,0.5, 86.1,28.5, C.rain, C.rain[2]) + gr(p,'sr3', 126.1,0.5, 142.1,28.5, C.rain, C.rain[2]),
+  bolt:   (p) => gr(p,'bl', 8.7,17.1, 80.9,142.1, C.bolt),
+  fog:    (p) => gr(p,'fg1', 96,-2.4, 168,122.3, C.fog) + gr(p,'fg2', 96,-50.4, 168,74.3, C.fog),
+};
+
+// ── Animated Symbol Definitions ─────────────────────────────
+
+// Snowflake cog path (single flake, centered at given cx)
+const cogPath = (cx) => {
+  const x = cx;
+  // BM exact cog geometry, translated to center at (cx, 24)
+  const x0 = x - 3;  // center of cog hub
+  return `m${x+19.7} 31-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V4.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2l-5.8-3.3a4 4 0 00-5.6 1.5 4 4 0 001.5 5.5l5.8 3.3a13.7 13.7 0 000 6.5l-5.8 3.2a4 4 0 00-1.5 5.5 4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM${x-3} 29.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z`;
+};
+
+const WS = {
+  // Sun — large (384×384), rays rotate 45° over 6s
+  sunLg: (p) =>
+    `<symbol id="${p}SL" viewBox="0 0 384 384">` +
+    `<circle cx="192" cy="192" r="84" fill="url(#${p}sg)" stroke="${C.sun[2]}" stroke-miterlimit="10" stroke-width="6"/>` +
+    `<path fill="none" stroke="${C.sun[0]}" stroke-linecap="round" stroke-miterlimit="10" stroke-width="24" d="M192 61.7V12m0 360v-49.7m92.2-222.5 35-35M64.8 319.2l35.1-35.1m0-184.4-35-35m254.5 254.5-35.1-35.1M61.7 192H12m360 0h-49.7">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="0 192 192; 45 192 192"/>` +
+    `</path></symbol>`,
+
+  // Sun — small (196×196), rays rotate
+  sun: (p) =>
+    `<symbol id="${p}s" viewBox="0 0 196 196">` +
+    `<circle cx="98" cy="98" r="49" fill="url(#${p}sg)" stroke="${C.sun[2]}" stroke-miterlimit="10" stroke-width="4"/>` +
+    `<path fill="none" stroke="${C.sun[0]}" stroke-linecap="round" stroke-miterlimit="10" stroke-width="12" d="M98 24.3V6m0 184v-18.3M150.1 45.9l13-13M45.9 150.1l-13 13M45.9 45.9 33 33m130.1 130.1-13-13M6 98h18.3M190 98h-18.3">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="0 98 98; 45 98 98"/>` +
+    `</path></symbol>`,
+
+  // Moon — large (270×270), gentle rocking
+  moonLg: (p) =>
+    `<symbol id="${p}ML" overflow="visible" viewBox="0 0 270 270">` +
+    `<path fill="url(#${p}mg)" stroke="${C.moon[2]}" stroke-linecap="round" stroke-linejoin="round" stroke-width="6" d="M252.3 168.6A133.4 133.4 0 01118 36.2 130.5 130.5 0 01122.5 3 133 133 0 003 134.6C3 207.7 63 267 137.2 267c62.5 0 114.8-42.2 129.8-99.2a135.6 135.6 0 01-14.8.8Z">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="-15 135 135; 9 135 135; -15 135 135"/>` +
+    `</path></symbol>`,
+
+  // Moon — small (172×172), gentle rocking
+  moonSm: (p) =>
+    `<symbol id="${p}ms" overflow="visible" viewBox="0 0 172 172">` +
+    `<path fill="url(#${p}mg)" stroke="${C.moon[2]}" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M160.6 107.4a84.8 84.8 0 01-85.4-84.3A83.3 83.3 0 0178 2 84.7 84.7 0 002 85.7 84.8 84.8 0 0087.4 170a85.2 85.2 0 0082.6-63.1 88 88 0 01-9.4.5Z">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="-15 86 86; 9 86 86; -15 86 86"/>` +
+    `</path></symbol>`,
+
+  // Full moon — circle disc, moon colors, no rays (static)
+  fullMoon: (p) =>
+    `<symbol id="${p}fM" viewBox="0 0 196 196">` +
+    `<circle cx="98" cy="98" r="49" fill="url(#${p}fm)" stroke="${C.moon[2]}" stroke-miterlimit="10" stroke-width="4"/>` +
+    `</symbol>`,
+
+  // Cloud — light (static, no animation)
+  cloud: (p) =>
+    `<symbol id="${p}c" viewBox="0 0 350 222">` +
+    `<path fill="url(#${p}cg)" stroke="${C.cloud[2]}" stroke-miterlimit="10" stroke-width="6" d="m291 107-2.5.1A83.9 83.9 0 00135.6 43 56 56 0 0051 91a56.6 56.6 0 00.8 9A60 60 0 0063 219l4-.2v.2h224a56 56 0 000-112Z"/>` +
+    `</symbol>`,
+
+  // Cloud — dark (static)
+  dkcloud: (p) =>
+    `<symbol id="${p}dc" viewBox="0 0 350 222">` +
+    `<path fill="url(#${p}dg)" stroke="${C.dkcloud[2]}" stroke-miterlimit="10" stroke-width="6" d="m291 107-2.5.1A83.9 83.9 0 00135.6 43 56 56 0 0051 91a56.6 56.6 0 00.8 9A60 60 0 0063 219l4-.2v.2h224a56 56 0 000-112Z"/>` +
+    `</symbol>`,
+
+  // Cloud — back/gray (static, for overcast)
+  bkcloud: (p) =>
+    `<symbol id="${p}bc" viewBox="0 0 200.3 126.1">` +
+    `<path fill="url(#${p}bkg)" stroke="${C.dkcloud[2]}" stroke-miterlimit="10" d="M.5 93.2a32.4 32.4 0 0032.4 32.4h129.8v-.1l2.3.1a34.8 34.8 0 006.5-68.9 32.4 32.4 0 00-48.5-33 48.6 48.6 0 00-88.6 37.1h-1.5A32.4 32.4 0 00.5 93.1Z"/>` +
+    `</symbol>`,
+
+  // Rain — 3 drops, animated fall + fade (BM exact: viewBox 129×57, overflow visible)
+  rain: (p) =>
+    `<symbol id="${p}r" overflow="visible" viewBox="0 0 129 57">` +
+    `<path fill="url(#${p}r1)" stroke="${C.rain[2]}" stroke-miterlimit="10" d="M8.5 56.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z" opacity="0">` +
+    `<animateTransform id="${p}rx1" additive="sum" attributeName="transform" begin="0s; ${p}rx1.end+.33s" dur=".67s" type="translate" values="0 -60; 0 60"/>` +
+    `<animate id="${p}ry1" attributeName="opacity" begin="0s; ${p}ry1.end+.33s" dur=".67s" keyTimes="0; .25; 1" values="0; 1; 0"/>` +
+    `</path>` +
+    `<path fill="url(#${p}r2)" stroke="${C.rain[2]}" stroke-miterlimit="10" d="M64.5 56.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z" opacity="0">` +
+    `<animateTransform id="${p}rx2" additive="sum" attributeName="transform" begin=".33s; ${p}rx2.end+.33s" dur=".67s" type="translate" values="0 -60; 0 60"/>` +
+    `<animate id="${p}ry2" attributeName="opacity" begin=".33s; ${p}ry2.end+.33s" dur=".67s" keyTimes="0; .25; 1" values="0; 1; 0"/>` +
+    `</path>` +
+    `<path fill="url(#${p}r3)" stroke="${C.rain[2]}" stroke-miterlimit="10" d="M120.5 56.5a8 8 0 01-8-8v-40a8 8 0 0116 0v40a8 8 0 01-8 8Z" opacity="0">` +
+    `<animateTransform id="${p}rx3" additive="sum" attributeName="transform" begin="-.33s; ${p}rx3.end+.33s" dur=".67s" type="translate" values="0 -60; 0 60"/>` +
+    `<animate id="${p}ry3" attributeName="opacity" begin="-.33s; ${p}ry3.end+.33s" dur=".67s" keyTimes="0; .25; 1" values="0; 1; 0"/>` +
+    `</path></symbol>`,
+
+  // Drizzle — 3 short drops, animated fall + fade (slower than rain)
+  drizzle: (p) =>
+    `<symbol id="${p}dz" overflow="visible" viewBox="0 0 129 29">` +
+    `<path fill="url(#${p}d1)" stroke="${C.rain[2]}" stroke-miterlimit="10" d="M8.5 28.5a8 8 0 01-8-8v-12a8 8 0 0116 0v12a8 8 0 01-8 8Z" opacity="0">` +
+    `<animateTransform id="${p}dx1" additive="sum" attributeName="transform" begin="0s; ${p}dx1.end+1s" dur="1s" keyTimes="0; .25; 1" type="translate" values="0 -32; 0 -32; 0 120"/>` +
+    `<animate id="${p}dy1" attributeName="opacity" begin="0s; ${p}dy1.end+1s" dur="1s" keyTimes="0; .25; 1" values="0; 1; 0"/>` +
+    `</path>` +
+    `<path fill="url(#${p}d2)" stroke="${C.rain[2]}" stroke-miterlimit="10" d="M64.5 28.5a8 8 0 01-8-8v-12a8 8 0 0116 0v12a8 8 0 01-8 8Z" opacity="0">` +
+    `<animateTransform id="${p}dx2" additive="sum" attributeName="transform" begin="1.34s; ${p}dx2.end+1s" dur="1s" keyTimes="0; .25; 1" type="translate" values="0 -32; 0 -32; 0 120"/>` +
+    `<animate id="${p}dy2" attributeName="opacity" begin="1.34s; ${p}dy2.end+1s" dur="1s" keyTimes="0; .25; 1" values="0; 1; 0"/>` +
+    `</path>` +
+    `<path fill="url(#${p}d3)" stroke="${C.rain[2]}" stroke-miterlimit="10" d="M120.5 28.5a8 8 0 01-8-8v-12a8 8 0 0116 0v12a8 8 0 01-8 8Z" opacity="0">` +
+    `<animateTransform id="${p}dx3" additive="sum" attributeName="transform" begin=".67s; ${p}dx3.end+1s" dur="1s" keyTimes="0; .25; 1" type="translate" values="0 -32; 0 -32; 0 120"/>` +
+    `<animate id="${p}dy3" attributeName="opacity" begin=".67s; ${p}dy3.end+1s" dur="1s" keyTimes="0; .25; 1" values="0; 1; 0"/>` +
+    `</path></symbol>`,
+
+  // Snowflakes — 3 cogs, animated: spin + fall + fade (BM exact timing)
+  flake: (p) =>
+    `<symbol id="${p}f" overflow="visible" viewBox="0 0 156.2 49">` +
+    // Flake 1 (cx=24)
+    `<g><path fill="url(#${p}f1)" stroke="${C.snow[2]}" stroke-miterlimit="10" d="m41.7 31-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V4.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L6.6 11A4 4 0 001 12.5 4 4 0 002.5 18l5.8 3.3a13.7 13.7 0 000 6.5L2.5 31A4 4 0 001 36.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM19 29.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z" opacity="0">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="0 24 24; 360 24 24"/>` +
+    `<animate id="${p}t1" attributeName="opacity" begin="0s; ${p}t1.end+1s" dur="2s" keyTimes="0; .17; .83; 1" values="0; 1; 1; 0"/>` +
+    `</path><animateTransform id="${p}s1" additive="sum" attributeName="transform" begin="0s; ${p}s1.end+1s" dur="2s" type="translate" values="0 -36; 0 92"/></g>` +
+    // Flake 2 (cx=80)
+    `<g><path fill="url(#${p}f2)" stroke="${C.snow[2]}" stroke-miterlimit="10" d="m97.7 31-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V4.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L62.6 11a4 4 0 00-5.6 1.5 4 4 0 001.5 5.5l5.8 3.3a13.7 13.7 0 000 6.5L58.5 31a4 4 0 00-1.5 5.5 4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.7 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008 0v-6.6a14.2 14.2 0 005.7-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM75 29.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z" opacity="0">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="0 80 24; 360 80 24"/>` +
+    `<animate id="${p}t2" attributeName="opacity" begin="-.83s; ${p}t2.end+1s" dur="2s" keyTimes="0; .17; .83; 1" values="0; 1; 1; 0"/>` +
+    `</path><animateTransform id="${p}s2" additive="sum" attributeName="transform" begin="-.83s; ${p}s2.end+1s" dur="2s" type="translate" values="0 -36; 0 92"/></g>` +
+    // Flake 3 (cx=136)
+    `<g><path fill="url(#${p}f3)" stroke="${C.snow[2]}" stroke-miterlimit="10" d="m153.7 31-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V4.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2l-5.8-3.3a4 4 0 00-5.6 1.5 4 4 0 001.5 5.5l5.8 3.3a13.7 13.7 0 000 6.5l-5.8 3.2a4 4 0 00-1.5 5.5 4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.7 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008 0v-6.6a14.2 14.2 0 005.7-3.2l5.8 3.3a4 4 0 002 .5 4 4 0 003.5-2 4 4 0 00-1.3-5.5ZM131 29.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z" opacity="0">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="0 136 24; 360 136 24"/>` +
+    `<animate id="${p}t3" attributeName="opacity" begin=".83s; ${p}t3.end+1s" dur="2s" keyTimes="0; .17; .83; 1" values="0; 1; 1; 0"/>` +
+    `</path><animateTransform id="${p}s3" additive="sum" attributeName="transform" begin=".83s; ${p}s3.end+1s" dur="2s" type="translate" values="0 -36; 0 92"/></g>` +
+    `</symbol>`,
+
+  // Hailstones — 3 circles, animated fall + bounce + fade (BM exact)
+  hail: (p) =>
+    `<symbol id="${p}ha" overflow="visible" viewBox="0 0 137 25">` +
+    `<path fill="url(#${p}h1)" stroke="${C.hail[2]}" stroke-miterlimit="10" d="M12.5.5a12 12 0 1012 12 12 12 0 00-12-12Z" opacity="0">` +
+    `<animateTransform id="${p}hx1" additive="sum" attributeName="transform" begin="0s; ${p}hx1.end+.42s" dur=".58s" keyTimes="0; .71; 1" type="translate" values="0 -46; 0 86; -18 74"/>` +
+    `<animate id="${p}hy1" attributeName="opacity" begin="0s; ${p}hy1.end+.42s" dur=".58s" keyTimes="0; .14; .71; 1" values="0; 1; 1; 0"/>` +
+    `</path>` +
+    `<path fill="url(#${p}h2)" stroke="${C.hail[2]}" stroke-miterlimit="10" d="M68.5.5a12 12 0 1012 12 12 12 0 00-12-12Z" opacity="0">` +
+    `<animateTransform id="${p}hx2" additive="sum" attributeName="transform" begin=".67s; ${p}hx2.end+.42s" dur=".58s" keyTimes="0; .71; 1" type="translate" values="0 -46; 0 86; 0 74"/>` +
+    `<animate id="${p}hy2" attributeName="opacity" begin=".67s; ${p}hy2.end+.42s" dur=".58s" keyTimes="0; .14; .71; 1" values="0; 1; 1; 0"/>` +
+    `</path>` +
+    `<path fill="url(#${p}h3)" stroke="${C.hail[2]}" stroke-miterlimit="10" d="M124.5.5a12 12 0 1012 12 12 12 0 00-12-12Z" opacity="0">` +
+    `<animateTransform id="${p}hx3" additive="sum" attributeName="transform" begin=".33s; ${p}hx3.end+.42s" dur=".58s" keyTimes="0; .71; 1" type="translate" values="0 -46; 0 86; 18 74"/>` +
+    `<animate id="${p}hy3" attributeName="opacity" begin=".33s; ${p}hy3.end+.42s" dur=".58s" keyTimes="0; .14; .71; 1" values="0; 1; 1; 0"/>` +
+    `</path></symbol>`,
+
+  // Sleet — snowflakes (spinning+falling) + drizzle drops (falling), combined
+  sleet: (p) =>
+    `<symbol id="${p}st" overflow="visible" viewBox="0 0 156.2 49">` +
+    // Flake 1 with animation
+    `<g><path fill="url(#${p}f1)" stroke="${C.snow[2]}" stroke-miterlimit="10" d="m41.7 31-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V4.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L6.6 11A4 4 0 001 12.5 4 4 0 002.5 18l5.8 3.3a13.7 13.7 0 000 6.5L2.5 31A4 4 0 001 36.5a4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.6 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008.2 0v-6.6a14.2 14.2 0 005.6-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM19 29.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z" opacity="0">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="0 24 24; 360 24 24"/>` +
+    `<animate id="${p}u1" attributeName="opacity" begin="0s; ${p}u1.end+1s" dur="2s" keyTimes="0; .17; .83; 1" values="0; 1; 1; 0"/>` +
+    `</path><animateTransform id="${p}v1" additive="sum" attributeName="transform" begin="0s; ${p}v1.end+1s" dur="2s" type="translate" values="0 -36; 0 92"/></g>` +
+    // Flake 2
+    `<g><path fill="url(#${p}f2)" stroke="${C.snow[2]}" stroke-miterlimit="10" d="m97.7 31-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V4.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2L62.6 11a4 4 0 00-5.6 1.5 4 4 0 001.5 5.5l5.8 3.3a13.7 13.7 0 000 6.5L58.5 31a4 4 0 00-1.5 5.5 4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.7 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008 0v-6.6a14.2 14.2 0 005.7-3.2l6 3.3a4 4 0 002 .5 4 4 0 003.4-2 4 4 0 00-1.4-5.5ZM75 29.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z" opacity="0">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="0 80 24; 360 80 24"/>` +
+    `<animate id="${p}u2" attributeName="opacity" begin="-.83s; ${p}u2.end+1s" dur="2s" keyTimes="0; .17; .83; 1" values="0; 1; 1; 0"/>` +
+    `</path><animateTransform id="${p}v2" additive="sum" attributeName="transform" begin="-.83s; ${p}v2.end+1s" dur="2s" type="translate" values="0 -36; 0 92"/></g>` +
+    // Flake 3
+    `<g><path fill="url(#${p}f3)" stroke="${C.snow[2]}" stroke-miterlimit="10" d="m153.7 31-5.8-3.3a13.7 13.7 0 000-6.5l5.8-3.2a4 4 0 001.5-5.5 4 4 0 00-5.6-1.5l-5.8 3.3a13.6 13.6 0 00-2.6-2 13.8 13.8 0 00-3-1.3V4.5a4 4 0 00-8.1 0v6.6a14.3 14.3 0 00-5.7 3.2l-5.8-3.3a4 4 0 00-5.6 1.5 4 4 0 001.5 5.5l5.8 3.3a13.7 13.7 0 000 6.5l-5.8 3.2a4 4 0 00-1.5 5.5 4 4 0 003.5 2 4 4 0 002-.5l5.8-3.3a13.6 13.6 0 002.7 2 13.8 13.8 0 003 1.2v6.6a4 4 0 008 0v-6.6a14.2 14.2 0 005.7-3.2l5.8 3.3a4 4 0 002 .5 4 4 0 003.5-2 4 4 0 00-1.3-5.5ZM131 29.7a6 6 0 01-2.3-8.2 6.1 6.1 0 015.3-3 6.2 6.2 0 013 .8 6 6 0 012.2 8.2 6.1 6.1 0 01-8.2 2.2Z" opacity="0">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="0 136 24; 360 136 24"/>` +
+    `<animate id="${p}u3" attributeName="opacity" begin=".83s; ${p}u3.end+1s" dur="2s" keyTimes="0; .17; .83; 1" values="0; 1; 1; 0"/>` +
+    `</path><animateTransform id="${p}v3" additive="sum" attributeName="transform" begin=".83s; ${p}v3.end+1s" dur="2s" type="translate" values="0 -36; 0 92"/></g>` +
+    // 3 drizzle drops interleaved
+    `<path fill="url(#${p}sr1)" stroke="${C.rain[2]}" stroke-miterlimit="10" d="M22.1 28.5a8 8 0 01-8-8v-12a8 8 0 0116 0v12a8 8 0 01-8 8Z" opacity="0">` +
+    `<animateTransform id="${p}sdx1" additive="sum" attributeName="transform" begin=".5s; ${p}sdx1.end+1s" dur="1s" keyTimes="0; .25; 1" type="translate" values="0 -32; 0 -32; 0 120"/>` +
+    `<animate id="${p}sdy1" attributeName="opacity" begin=".5s; ${p}sdy1.end+1s" dur="1s" keyTimes="0; .25; 1" values="0; 1; 0"/>` +
+    `</path>` +
+    `<path fill="url(#${p}sr2)" stroke="${C.rain[2]}" stroke-miterlimit="10" d="M78.1 28.5a8 8 0 01-8-8v-12a8 8 0 0116 0v12a8 8 0 01-8 8Z" opacity="0">` +
+    `<animateTransform id="${p}sdx2" additive="sum" attributeName="transform" begin="1.5s; ${p}sdx2.end+1s" dur="1s" keyTimes="0; .25; 1" type="translate" values="0 -32; 0 -32; 0 120"/>` +
+    `<animate id="${p}sdy2" attributeName="opacity" begin="1.5s; ${p}sdy2.end+1s" dur="1s" keyTimes="0; .25; 1" values="0; 1; 0"/>` +
+    `</path>` +
+    `<path fill="url(#${p}sr3)" stroke="${C.rain[2]}" stroke-miterlimit="10" d="M134.1 28.5a8 8 0 01-8-8v-12a8 8 0 0116 0v12a8 8 0 01-8 8Z" opacity="0">` +
+    `<animateTransform id="${p}sdx3" additive="sum" attributeName="transform" begin="1s; ${p}sdx3.end+1s" dur="1s" keyTimes="0; .25; 1" type="translate" values="0 -32; 0 -32; 0 120"/>` +
+    `<animate id="${p}sdy3" attributeName="opacity" begin="1s; ${p}sdy3.end+1s" dur="1s" keyTimes="0; .25; 1" values="0; 1; 0"/>` +
+    `</path></symbol>`,
+
+  // Lightning bolt — opacity flicker (BM exact keyTimes)
+  bolt: (p) =>
+    `<symbol id="${p}b" viewBox="0 0 102.7 186.8">` +
+    `<path fill="url(#${p}bl)" stroke="${C.bolt[2]}" stroke-miterlimit="10" stroke-width="4" d="m34.8 2-32 96h32l-16 80 80-112h-48l32-64h-48z">` +
+    `<animate id="${p}bk" attributeName="opacity" begin="0s; ${p}bk.end+.67s" dur="1.33s" keyTimes="0; .38; .5; .63; .75; .86; .94; 1" values="1; 1; 0; 1; 0; 1; 0; 1"/>` +
+    `</path></symbol>`,
+
+  // Fog lines — counter-sway horizontal oscillation
+  fog: (p) =>
+    `<symbol id="${p}fg" overflow="visible" viewBox="0 0 264 72">` +
+    `<path fill="none" stroke="url(#${p}fg1)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="24" d="M12 60h240">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="translate" values="-24 0; 24 0; -24 0"/>` +
+    `</path>` +
+    `<path fill="none" stroke="url(#${p}fg2)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="24" d="M12 12h240">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="translate" values="24 0; -24 0; 24 0"/>` +
+    `</path></symbol>`,
+};
+
+// ── Weather Conditions ──────────────────────────────────────
+const WEATHER = {
+  'clear-day': {
+    label: 'Clear (Day)', codes: '0, 1',
+    defs: ['sunLg'], syms: ['sunLg'],
+    body: (p) => `<use href="#${p}SL" width="350" height="350" transform="translate(81 81)"/>`
+  },
+  'clear-night': {
+    label: 'Clear (Night)', codes: '0, 1',
+    defs: ['moonLg'], syms: ['moonLg'],
+    body: (p) => `<use href="#${p}ML" width="282" height="282" transform="translate(115 115)"/>`
+  },
+  'partly-cloudy-day': {
+    label: 'Partly Cloudy (Day)', codes: '2',
+    defs: ['sun', 'cloud'], syms: ['sun', 'cloud'],
+    body: (p) =>
+      `<use href="#${p}s" width="216" height="216" transform="translate(58 99)"/>` +
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>`
+  },
+  'partly-cloudy-night': {
+    label: 'Partly Cloudy (Night)', codes: '2',
+    defs: ['fullMoon', 'cloud'], syms: ['fullMoon', 'cloud'],
+    body: (p) =>
+      `<use href="#${p}fM" width="256" height="256" transform="translate(38 79)"/>` +
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>`
+  },
+  'overcast': {
+    label: 'Overcast', codes: '3',
+    defs: ['cloud', 'bkcloud'], syms: ['cloud', 'bkcloud'],
+    body: (p) =>
+      `<use href="#${p}bc" width="216" height="136" transform="translate(271 172)">` +
+      `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="translate" values="-9 0; 9 0; -9 0"/>` +
+      `</use>` +
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)">` +
+      `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="translate" values="-18 0; 18 0; -18 0"/>` +
+      `</use>`
+  },
+  'fog': {
+    label: 'Fog', codes: '45, 48',
+    defs: ['cloud', 'fog'], syms: ['cloud', 'fog'],
+    body: (p) =>
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` +
+      `<use href="#${p}fg" width="216" height="59" transform="translate(148 402)"/>`
+  },
+  'drizzle': {
+    label: 'Drizzle', codes: '51, 53, 55',
+    defs: ['cloud', 'drizzle'], syms: ['cloud', 'drizzle'],
+    body: (p) =>
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` +
+      `<use href="#${p}dz" width="134" height="30.1" transform="translate(189 347.5)"/>`
+  },
+  'rain': {
+    label: 'Rain', codes: '61-65, 80-82',
+    defs: ['cloud', 'rain'], syms: ['cloud', 'rain'],
+    body: (p) =>
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` +
+      `<use href="#${p}r" width="134" height="59.2" transform="translate(189 343.5)"/>`
+  },
+  'sleet': {
+    label: 'Sleet', codes: '56, 57, 66, 67',
+    defs: ['cloud', 'flake', 'sleetDrop'], syms: ['cloud', 'sleet'],
+    body: (p) =>
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` +
+      `<use href="#${p}st" width="134" height="42" transform="translate(189 337.5)"/>`
+  },
+  'snow': {
+    label: 'Snow', codes: '71-77, 85, 86',
+    defs: ['cloud', 'flake'], syms: ['cloud', 'flake'],
+    body: (p) =>
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` +
+      `<use href="#${p}f" width="134" height="42" transform="translate(189 337.5)"/>`
+  },
+  'hail': {
+    label: 'Hail', codes: '96, 99',
+    defs: ['cloud', 'hail'], syms: ['cloud', 'hail'],
+    body: (p) =>
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` +
+      `<use href="#${p}ha" width="134" height="24.5" transform="translate(189 349.5)"/>`
+  },
+  'thunderstorm': {
+    label: 'Thunderstorm', codes: '95',
+    defs: ['dkcloud', 'bolt'], syms: ['dkcloud', 'bolt'],
+    body: (p) =>
+      `<use href="#${p}dc" width="350" height="222" transform="translate(81 145)"/>` +
+      `<use href="#${p}b" width="92.5" height="168.2" transform="translate(209.75 291)"/>`
+  },
+  'thunderstorm-rain': {
+    label: 'Thunderstorm + Rain', codes: '95',
+    defs: ['cloud', 'rain', 'bolt'], syms: ['cloud', 'rain', 'bolt'],
+    body: (p) =>
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` +
+      `<use href="#${p}r" width="134" height="59.2" transform="translate(189 343.5)"/>` +
+      `<use href="#${p}b" width="92.5" height="168.2" transform="translate(209.75 291)"/>`
+  },
+};
+
+// ── Golden Ratio Variants (partly-cloudy-day) ───────────────
+// φ = 1.618033988749895
+// BM original: sun 196×196 at (68,109), cloud 350×222 at (81,145)
+
+const PHI_VARIANTS = {
+  original: {
+    label: 'Original (BM)',
+    desc: 'Original reference positioning',
+    body: (p) =>
+      `<use href="#${p}s" width="196" height="196" transform="translate(68 109)"/>` +
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>`
+  },
+  visibleArea: {
+    label: 'Visible Area \u03c6',
+    desc: 'Sun ~61.8% visible, ~38.2% behind cloud',
+    body: (p) =>
+      `<use href="#${p}s" width="196" height="196" transform="translate(22 62)"/>` +
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>`
+  },
+  sizeRatio: {
+    label: 'Size 1:\u03c6',
+    desc: 'Sun scaled to 350/\u03c6 \u2248 216px (cloud/sun = \u03c6)',
+    body: (p) =>
+      `<use href="#${p}s" width="216" height="216" transform="translate(58 99)"/>` +
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>`
+  },
+  gridPosition: {
+    label: 'Canvas Grid \u03c6',
+    desc: 'Sun center at \u03c6 intersection (195, 195)',
+    body: (p) =>
+      `<use href="#${p}s" width="196" height="196" transform="translate(97 97)"/>` +
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>`
+  },
+  goldenCloud: {
+    label: 'Cloud Geometry \u03c6',
+    desc: 'Cloud bumps in \u03c6 ratio: 90 / 53 / 35',
+    extraDefs: (p) =>
+      `<symbol id="${p}gc" viewBox="0 0 350 222">` +
+      `<path fill="url(#${p}cg)" stroke="${C.cloud[2]}" stroke-miterlimit="10" stroke-width="6" ` +
+      `d="m291 115-2.5.1A90 90 0 00140 30 35 35 0 0082 58a40 40 0 00-4 18A75 75 0 0055 219l5-.2v.2h231a53 53 0 000-104Z"/>` +
+      `</symbol>`,
+    body: (p) =>
+      `<use href="#${p}s" width="196" height="196" transform="translate(68 109)"/>` +
+      `<use href="#${p}gc" width="350" height="222" transform="translate(81 145)"/>`
+  },
+};
+
+function phiIcon(variant, size) {
+  const p = 'w' + (_n++) + '_';
+  const defs = WG.sun(p) + WG.cloud(p) + WS.sun(p) + WS.cloud(p) + (variant.extraDefs ? variant.extraDefs(p) : '');
+  return mkSvg(p, defs, variant.body(p), size);
+}
+
+// ── Rendering ───────────────────────────────────────────────
+function weatherIcon(key, size) {
+  const p = 'w' + (_n++) + '_';
+  const w = WEATHER[key];
+  const defs = w.defs.map(k => WG[k](p)).join('') + w.syms.map(k => WS[k](p)).join('');
+  return mkSvg(p, defs, w.body(p), size);
+}
+
+function weatherRow(keys, size) {
+  return keys.map(k =>
+    `<div class="cell">${weatherIcon(k, size)}<span>${WEATHER[k].label}</span></div>`
+  ).join('');
+}
+
+const keys = Object.keys(WEATHER);
+
+const paletteNames = ['sun','moon','cloud','dkcloud','rain','snow','hail','bolt','fog'];
+const paletteHtml = paletteNames.map(name => {
+  const c = C[name];
+  return `<div class="swatch" style="background:linear-gradient(135deg,${c[0]} 50%,${c[1]} 100%)">${name}</div>`;
+}).join('');
+
+const wmoRows = [
+  ['0','Clear sky','clear-day / clear-night'],
+  ['1','Mainly clear','clear-day / clear-night'],
+  ['2','Partly cloudy','partly-cloudy-day / night'],
+  ['3','Overcast','overcast'],
+  ['45','Fog','fog'],
+  ['48','Rime fog','fog'],
+  ['51','Light drizzle','drizzle'],
+  ['53','Drizzle','drizzle'],
+  ['55','Dense drizzle','drizzle'],
+  ['56','Light freezing drizzle','sleet'],
+  ['57','Dense freezing drizzle','sleet'],
+  ['61','Slight rain','rain'],
+  ['63','Rain','rain'],
+  ['65','Heavy rain','rain'],
+  ['66','Light freezing rain','sleet'],
+  ['67','Heavy freezing rain','sleet'],
+  ['71','Slight snow','snow'],
+  ['73','Snow','snow'],
+  ['75','Heavy snow','snow'],
+  ['77','Snow grains','snow'],
+  ['80','Light showers','rain'],
+  ['81','Showers','rain'],
+  ['82','Heavy showers','rain'],
+  ['85','Snow showers','snow'],
+  ['86','Heavy snow showers','snow'],
+  ['95','Thunderstorm','thunderstorm'],
+  ['96','Thunderstorm w/ hail','hail'],
+  ['99','Severe thunderstorm','thunderstorm'],
+];
+
+// ── Moon Size Iterations (partly-cloudy-night) ──────────────
+// All keep center at (166, 207) on the 512 canvas, cloud unchanged
+const MOON_SIZES = [
+  { size: 216, label: '216px (= sun)', desc: 'Same as sun viewBox scaled to \u03c6' },
+  { size: 256, label: '256px', desc: 'Disc matches sun disc + inner rays' },
+  { size: 296, label: '296px', desc: 'Disc matches sun full ray extent' },
+  { size: 336, label: '336px', desc: 'Disc nearly fills the celestial slot' },
+];
+
+function moonSizeIcon(moonDisplaySize, renderSize) {
+  const p = 'w' + (_n++) + '_';
+  const half = moonDisplaySize / 2;
+  const tx = (166 - half).toFixed(0);
+  const ty = (207 - half).toFixed(0);
+  const defs = WG.fullMoon(p) + WG.cloud(p) + WS.fullMoon(p) + WS.cloud(p);
+  const body =
+    `<use href="#${p}fM" width="${moonDisplaySize}" height="${moonDisplaySize}" transform="translate(${tx} ${ty})"/>` +
+    `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>`;
+  return mkSvg(p, defs, body, renderSize);
+}
+
+// ── Overcast Golden Ratio Iterations ─────────────────────────
+// Front cloud: 350×222 at (68.84, 145), ±18px sway — UNCHANGED in all variants
+// Back cloud (BM): 200.3×126.1 at (266.84, 172), ±9px sway
+const OVERCAST_VARIANTS = [
+  { label: 'Original (BM)', desc: 'Back 200.3px, ±9px sway, y=172',
+    bw: 200.3, bh: 126.1, bx: 266.84, by: 172, amp: 9 },
+  { label: 'Size \u03c6', desc: 'Back scaled to 350/\u03c6 \u2248 216px',
+    bw: 216, bh: 136, bx: 259, by: 172, amp: 9 },
+  { label: 'Amplitude \u03c6', desc: 'Back sway 18/\u03c6 \u2248 \u00b111px',
+    bw: 200.3, bh: 126.1, bx: 266.84, by: 172, amp: 11 },
+  { label: 'All \u03c6', desc: 'Size 216 + \u00b111px + y=179',
+    bw: 216, bh: 136, bx: 259, by: 179, amp: 11 },
+];
+
+function overcastIcon(v, renderSize) {
+  const p = 'w' + (_n++) + '_';
+  const defs = WG.cloud(p) + WG.bkcloud(p) + WS.cloud(p) + WS.bkcloud(p);
+  const body =
+    `<use href="#${p}bc" width="${v.bw}" height="${v.bh}" transform="translate(${v.bx} ${v.by})">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="translate" values="-${v.amp} 0; ${v.amp} 0; -${v.amp} 0"/>` +
+    `</use>` +
+    `<use href="#${p}c" width="350" height="222" transform="translate(68.84 145)">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="translate" values="-18 0; 18 0; -18 0"/>` +
+    `</use>`;
+  return mkSvg(p, defs, body, renderSize);
+}
+
+// ── Fog Golden Ratio Iterations ──────────────────────────────
+// Cloud unchanged: 350×222 at (81, 145)
+// BM fog: 264×72 at (124, 402), two 240px lines
+const FOG_VARIANTS = [
+  { label: 'Original (BM)', desc: 'Both lines 240px, 264 wide',
+    l1x: 12, l1w: 240, l2x: 12, l2w: 240, fw: 264, fh: 72, fx: 124 },
+  { label: 'Size \u03c6', desc: 'Fog scaled to 350/\u03c6 \u2248 216px',
+    l1x: 12, l1w: 240, l2x: 12, l2w: 240, fw: 216, fh: 59, fx: 148 },
+  { label: 'Line Ratio \u03c6', desc: 'Bottom 240px, top 240/\u03c6 \u2248 148px',
+    l1x: 12, l1w: 240, l2x: 58, l2w: 148, fw: 264, fh: 72, fx: 124 },
+  { label: 'Combined \u03c6', desc: 'Size 216 + line ratio \u03c6',
+    l1x: 12, l1w: 240, l2x: 58, l2w: 148, fw: 216, fh: 59, fx: 148 },
+];
+
+function fogIcon(v, renderSize) {
+  const p = 'w' + (_n++) + '_';
+  const defs = WG.cloud(p) + WG.fog(p) + WS.cloud(p) +
+    `<symbol id="${p}vfg" overflow="visible" viewBox="0 0 264 72">` +
+    `<path fill="none" stroke="url(#${p}fg1)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="24" d="M${v.l1x} 60h${v.l1w}">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="translate" values="-24 0; 24 0; -24 0"/>` +
+    `</path>` +
+    `<path fill="none" stroke="url(#${p}fg2)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="24" d="M${v.l2x} 12h${v.l2w}">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="translate" values="24 0; -24 0; 24 0"/>` +
+    `</path></symbol>`;
+  const body =
+    `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` +
+    `<use href="#${p}vfg" width="${v.fw}" height="${v.fh}" transform="translate(${v.fx} 402)"/>`;
+  return mkSvg(p, defs, body, renderSize);
+}
+
+// ── Overcast Cloud Position Iterations ───────────────────────
+const OVERCAST_POS = [
+  { label: 'BM Offset', desc: 'Front cloud at (68.84, 145)', fx: 68.84, bx: 259 },
+  { label: 'Standard', desc: 'Front cloud at (81, 145) — matches all others', fx: 81, bx: 271 },
+];
+
+function overcastPosIcon(v, renderSize) {
+  const p = 'w' + (_n++) + '_';
+  const defs = WG.cloud(p) + WG.bkcloud(p) + WS.cloud(p) + WS.bkcloud(p);
+  const body =
+    `<use href="#${p}bc" width="216" height="136" transform="translate(${v.bx} 172)">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="translate" values="-9 0; 9 0; -9 0"/>` +
+    `</use>` +
+    `<use href="#${p}c" width="350" height="222" transform="translate(${v.fx} 145)">` +
+    `<animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="translate" values="-18 0; 18 0; -18 0"/>` +
+    `</use>`;
+  return mkSvg(p, defs, body, renderSize);
+}
+
+// ── Clear Day Golden Ratio Iterations ────────────────────────
+const CLEARDAY_VARIANTS = [
+  { label: 'Original (BM)', desc: '384px centered',
+    sw: 384, tx: 64, ty: 64 },
+  { label: 'Size \u03c6', desc: '316px (512/\u03c6), 61.8% fill',
+    sw: 316, tx: 98, ty: 98 },
+  { label: 'Position \u03c6', desc: '384px, center at \u03c6 point (196, 196)',
+    sw: 384, tx: 4, ty: 4 },
+  { label: 'Both \u03c6', desc: '316px at \u03c6 point (196, 196)',
+    sw: 316, tx: 38, ty: 38 },
+  { label: '\u03c6 Chain', desc: '350px \u2014 small sun \u00d7 \u03c6 = cloud width',
+    sw: 350, tx: 81, ty: 81 },
+];
+
+function clearDayIcon(v, renderSize) {
+  const p = 'w' + (_n++) + '_';
+  const defs = WG.sunLg(p) + WS.sunLg(p);
+  const body = `<use href="#${p}SL" width="${v.sw}" height="${v.sw}" transform="translate(${v.tx} ${v.ty})"/>`;
+  return mkSvg(p, defs, body, renderSize);
+}
+
+// ── Clear Night Moon Size Iterations ─────────────────────────
+// Partly-cloudy moon = 256px. Clear-day sun = 350px.
+const CLEARNIGHT_VARIANTS = [
+  { label: 'Original (BM)', desc: '270px (BM exact)',
+    sw: 270, tx: 121, ty: 121 },
+  { label: 'Match Sun', desc: '350px \u2014 same as clear-day sun',
+    sw: 350, tx: 81, ty: 81 },
+  { label: '\u03c6 Chain', desc: '414px \u2014 partly-cloudy moon \u00d7 \u03c6',
+    sw: 414, tx: 49, ty: 49 },
+];
+
+function clearNightIcon(v, renderSize) {
+  const p = 'w' + (_n++) + '_';
+  const defs = WG.fullMoon(p) + WS.fullMoon(p);
+  const body = `<use href="#${p}fM" width="${v.sw}" height="${v.sw}" transform="translate(${v.tx} ${v.ty})"/>`;
+  return mkSvg(p, defs, body, renderSize);
+}
+
+const wmoTable = `<table class="mapping">
+<tr><th>WMO</th><th>Description</th><th>Icon</th></tr>
+${wmoRows.map(r => `<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td class="mono">${r[2]}</td></tr>`).join('')}
+</table>`;
+
+// ── Precipitation φ Iterations ───────────────────────────────
+// Cloud: 350×222 at (81,145). Center-x = 256, bottom-y = 367.
+// φ = 1.618, our system unit = 350/φ ≈ 216
+
+// Each precip type: { key, label, sym, symKey, defKeys, origW, origH, origX, origY }
+const PRECIP_TYPES = [
+  { key: 'drizzle', label: 'Drizzle', symRef: 'dz', defKeys: ['drizzle'], symKeys: ['drizzle'], origW: 129, origH: 29, origX: 191.5, origY: 347.5 },
+  { key: 'rain',    label: 'Rain',    symRef: 'r',  defKeys: ['rain'],    symKeys: ['rain'],    origW: 129, origH: 57, origX: 191.5, origY: 343.5 },
+  { key: 'sleet',   label: 'Sleet',   symRef: 'st', defKeys: ['flake','sleetDrop'], symKeys: ['sleet'], origW: 156.2, origH: 49, origX: 177.9, origY: 337.5 },
+  { key: 'snow',    label: 'Snow',    symRef: 'f',  defKeys: ['flake'],   symKeys: ['flake'],   origW: 156.2, origH: 49, origX: 177.9, origY: 337.5 },
+  { key: 'hail',    label: 'Hail',    symRef: 'ha', defKeys: ['hail'],    symKeys: ['hail'],    origW: 137, origH: 25, origX: 187.5, origY: 349.5 },
+];
+
+// φ scaling variants for precipitation width
+const PHI_SCALES = [
+  { label: 'Original (BM)', factor: 1.0, desc: 'BM exact dimensions' },
+  { label: 'Width \u03c6 (216)', factor: null, desc: 'Precip width = 350/\u03c6 \u2248 216', targetW: 216 },
+  { label: 'Width \u03c6\u00b2 (134)', factor: null, desc: 'Precip width = 350/\u03c6\u00b2 \u2248 134', targetW: 134 },
+];
+
+function precipVariantIcon(pt, variant, renderSize) {
+  const p = 'w' + (_n++) + '_';
+  // Build defs: cloud + precip-specific gradients and symbols
+  let defs = WG.cloud(p) + WS.cloud(p);
+  for (const dk of pt.defKeys) defs += WG[dk](p);
+  for (const sk of pt.symKeys) defs += WS[sk](p);
+
+  let w, h, x, y;
+  if (variant.factor === 1.0) {
+    // Original BM
+    w = pt.origW; h = pt.origH; x = pt.origX; y = pt.origY;
+  } else {
+    // Scale to target width, maintain aspect ratio
+    const scale = variant.targetW / pt.origW;
+    w = variant.targetW;
+    h = +(pt.origH * scale).toFixed(1);
+    // Re-center horizontally under cloud center (256)
+    x = +(256 - w / 2).toFixed(1);
+    // Keep same vertical gap from cloud bottom (367)
+    const origGap = pt.origY - 367;
+    y = +(367 + origGap).toFixed(1);
+  }
+
+  const body =
+    `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` +
+    `<use href="#${p}${pt.symRef}" width="${w}" height="${h}" transform="translate(${x} ${y})"/>`;
+  return mkSvg(p, defs, body, renderSize);
+}
+
+function precipIterationsHtml() {
+  let html = '';
+  for (const pt of PRECIP_TYPES) {
+    html += `<h3>${pt.label} (${pt.origW}&times;${pt.origH} &rarr; &phi; variants)</h3>`;
+    html += `<div class="desktop-bg"><div class="grid">`;
+    for (const v of PHI_SCALES) {
+      html += `<div class="cell">${precipVariantIcon(pt, v, 128)}<span>${v.label}</span></div>`;
+    }
+    html += `</div></div>`;
+  }
+  return html;
+}
+
+// ── Bolt φ Iterations ─────────────────────────────────────────
+// Current bolt: 102.7×186.8 at (205.2, 291). Aspect ratio preserved.
+// Cloud center-x = 256. Chain: cloud(350) → precip(134) → bolt(?)
+const BOLT_VARIANTS = [
+  { label: 'Original (102.7)', desc: 'BM exact',
+    w: 102.7, h: 186.8, x: 205.2, y: 291 },
+  { label: '\u03c6\u00b2\u00b7\u2075 (105)', desc: '350/\u03c6^2.5 \u2014 geometric mean of \u03c6\u00b2 and \u03c6\u00b3',
+    w: 105, h: 190.9, x: 203.5, y: 291 },
+  { label: '92.5', desc: 'Custom midpoint',
+    w: 92.5, h: 168.2, x: 209.75, y: 291 },
+  { label: '\u03c6\u00b3 (83)', desc: 'Next chain step: 350\u2192216\u2192134\u219283',
+    w: 83, h: 151, x: 214.5, y: 291 },
+];
+
+function boltVariantIcon(v, useDkCloud, renderSize) {
+  const p = 'w' + (_n++) + '_';
+  const cloudDef = useDkCloud ? WG.dkcloud(p) : WG.cloud(p);
+  const cloudSym = useDkCloud ? WS.dkcloud(p) : WS.cloud(p);
+  const cloudRef = useDkCloud ? `${p}dc` : `${p}c`;
+  const defs = cloudDef + cloudSym + WG.bolt(p) + WS.bolt(p);
+  const body =
+    `<use href="#${cloudRef}" width="350" height="222" transform="translate(81 145)"/>` +
+    `<use href="#${p}b" width="${v.w}" height="${v.h}" transform="translate(${v.x} ${v.y})"/>`;
+  return mkSvg(p, defs, body, renderSize);
+}
+
+function boltIterationsHtml() {
+  let html = '<h3>Thunderstorm (dark cloud + bolt)</h3>';
+  html += '<div class="desktop-bg"><div class="grid">';
+  for (const v of BOLT_VARIANTS) {
+    html += `<div class="cell">${boltVariantIcon(v, true, 128)}<span>${v.label}</span></div>`;
+  }
+  html += '</div></div>';
+
+  html += '<h3>Thunderstorm + Rain (light cloud + rain + bolt)</h3>';
+  html += '<div class="desktop-bg"><div class="grid">';
+  for (const v of BOLT_VARIANTS) {
+    const p = 'w' + (_n++) + '_';
+    const defs = WG.cloud(p) + WS.cloud(p) + WG.rain(p) + WS.rain(p) + WG.bolt(p) + WS.bolt(p);
+    const body =
+      `<use href="#${p}c" width="350" height="222" transform="translate(81 145)"/>` +
+      `<use href="#${p}r" width="134" height="59.2" transform="translate(189 343.5)"/>` +
+      `<use href="#${p}b" width="${v.w}" height="${v.h}" transform="translate(${v.x} ${v.y})"/>`;
+    html += `<div class="cell">${mkSvg(p, defs, body, 128)}<span>${v.label}</span></div>`;
+  }
+  html += '</div></div>';
+  return html;
+}
+
+document.getElementById('icons').innerHTML = `
+  <h2>Color Palette</h2>
+  <div class="palette">${paletteHtml}</div>
+
+  <div class="divider"></div>
+  <div class="controls">
+    <button id="btnPause">Pause All</button>
+    <button id="btnResume">Resume All</button>
+    <span id="animStatus"></span>
+  </div>
+
+  <h2>All Conditions &mdash; 128px</h2>
+  <div class="desktop-bg"><div class="grid">${weatherRow(keys, 128)}</div></div>
+
+  <!--
+  <div class="divider"></div>
+  <h2>All Conditions &mdash; 48px (desktop)</h2>
+  <div class="desktop-bg"><div class="grid">${weatherRow(keys, 48)}</div></div>
+
+  <h3>20px (start menu)</h3>
+  <div class="chrome-bg"><div class="grid">${weatherRow(keys, 20)}</div></div>
+
+  <h3>16px (taskbar)</h3>
+  <div class="chrome-bg"><div class="grid">${weatherRow(keys, 16)}</div></div>
+  -->
+
+  <div class="divider"></div>
+  <h2>WMO Code Mapping (Open-Meteo)</h2>
+  <p class="note">Day/night variants selected using <code>current_weather.is_day</code> from Open-Meteo API.</p>
+  ${wmoTable}
+
+`;
+
+// ── Animation Control (production-ready utilities) ──────────
+
+// Pause all SMIL animations within a container element
+const pauseWeatherAnimations = (container) => {
+  container.querySelectorAll('svg').forEach(svg => {
+    if (!svg.animationsPaused()) svg.pauseAnimations();
+  });
+};
+
+// Resume all SMIL animations within a container element
+const resumeWeatherAnimations = (container) => {
+  container.querySelectorAll('svg').forEach(svg => {
+    if (svg.animationsPaused()) svg.unpauseAnimations();
+  });
+};
+
+// Visibility-based pause: stop animations when container leaves viewport
+const observeWeatherVisibility = (container) => {
+  if (!('IntersectionObserver' in window)) return;
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        resumeWeatherAnimations(entry.target);
+      } else {
+        pauseWeatherAnimations(entry.target);
+      }
+    }
+  }, { threshold: 0 });
+  observer.observe(container);
+  return observer;
+};
+
+// ── Test page controls ──────────────────────────────────────
+
+const iconContainer = document.getElementById('icons');
+const status = document.getElementById('animStatus');
+
+document.getElementById('btnPause').addEventListener('click', () => {
+  pauseWeatherAnimations(iconContainer);
+  status.textContent = 'Paused';
+});
+
+document.getElementById('btnResume').addEventListener('click', () => {
+  resumeWeatherAnimations(iconContainer);
+  status.textContent = 'Playing';
+});
+
+// Activate visibility observer on each row
+iconContainer.querySelectorAll('.desktop-bg, .chrome-bg').forEach(row => {
+  observeWeatherVisibility(row);
+});
+</script>
+
+</body>
+</html>
