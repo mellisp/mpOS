@@ -345,6 +345,7 @@ window._mpLangRegister('pt', {
   'weather.code.96': 'Trovoada com granizo',
   'weather.code.99': 'Trovoada severa',
   'weather.unknown': 'Desconhecido',
+  'weather.today': 'Hoje',
 
   /* NEO Tracker */
   'neo.loading': 'A carregar dados NEO...',

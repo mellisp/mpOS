@@ -354,6 +354,7 @@
     'weather.code.96': 'Thunderstorm w/ hail',
     'weather.code.99': 'Severe thunderstorm',
     'weather.unknown': 'Unknown',
+    'weather.today': 'Today',
 
     /* NEO Tracker */
     'neo.loading': 'Loading NEO data...',

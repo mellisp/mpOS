@@ -25,7 +25,6 @@
 .paint-file-list,
 .help-index-input,
 .help-search-input,
-.weather-day,
 .du-bar,
 .vm-map-wrap {
   border: 2px solid;
@@ -1189,16 +1188,27 @@
 }
 
 /* Weather window */
-#weather { width: min(400px, 92vw); left: min(110px, 5vw); top: 50px; }
-
-.weather-current {
-  padding: 12px;
-  text-align: center;
+#weather { width: min(420px, 92vw); left: min(110px, 5vw); top: 50px; }
+#weather > .window-body {
+  padding: 0;
+  background: #fff;
 }
 
+.weather-current {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px 16px;
+}
+
+.weather-current .weather-icon { width: 110px; height: 110px; flex-shrink: 0; }
+
+.weather-info { min-width: 0; }
+
 .weather-temp {
-  font-size: 32px;
+  font-size: 40px;
   font-weight: bold;
+  line-height: 1;
 }
 
 .weather-desc {
@@ -1207,28 +1217,35 @@
   margin-top: 4px;
 }
 
-.weather-icon { display: block; margin: 0 auto; }
-.weather-current .weather-icon { width: 48px; height: 48px; margin-bottom: 4px; }
-.weather-day .weather-icon { width: 28px; height: 28px; margin-bottom: 2px; }
+.weather-hilo {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.weather-icon {
+  display: block;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.18));
+}
 
 .weather-forecast {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  padding: 0 10px 10px;
+  display: flex;
+  padding: 8px 8px 10px;
 }
 
 .weather-day {
+  flex: 1;
   text-align: center;
-  padding: 10px;
-  background: var(--white);
+  padding: 6px 4px;
 }
 
+.weather-day .weather-icon { width: 56px; height: 56px; margin: 4px auto; }
+
 .weather-day-name {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .weather-day-temp {
@@ -1239,7 +1256,7 @@
 .weather-day-low {
   font-size: 13px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 /* NEO Tracker window */
