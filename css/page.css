@@ -2905,6 +2905,13 @@
   from { box-shadow: 0 0 2px rgba(100,200,255,0.3); }
   to   { box-shadow: 0 0 8px rgba(100,200,255,0.7); }
 }
+.audio-jack.rejected {
+  animation: jack-reject 0.15s ease-in-out 0s 3;
+}
+@keyframes jack-reject {
+  0%, 100% { background: radial-gradient(circle at 35% 35%, #f0e0a0, #c8a840 50%, #8a6a20 100%); }
+  50%      { background: radial-gradient(circle at 35% 35%, #ff8080, #cc3030 50%, #801010 100%); }
+}
 
 .audio-jack-label {
   font-size: 9px;

@@ -147,7 +147,7 @@
     rvDryGain.connect(rvOutputGain);
     rvWetGain.connect(rvOutputGain);
     rvOutputGain.connect(rvAnalyser);
-    rvAnalyser.connect(rvCtx.destination);
+    rvAnalyser.connect(window.mpAudioBus.getDestination());
   };
 
   const rvUpdateIR = () => {
@@ -373,12 +373,14 @@
     window.mpAudioBus.registerInput(inputJackId, {
       node: rvInputGain,
       label: 'Reverb Input',
-      element: inputJackEl
+      element: inputJackEl,
+      module: 'reverb'
     });
     window.mpAudioBus.registerOutput(outputJackId, {
       node: rvOutputGain,
       label: 'Reverb Output',
-      element: outputJackEl
+      element: outputJackEl,
+      module: 'reverb'
     });
 
     // Start scope

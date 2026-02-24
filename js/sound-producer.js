@@ -310,7 +310,7 @@ const play = (presetName, overrides) => {
     gain.gain.value = volume;
 
     src.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(bus.getDestination());
     /* Also route through output jack for patch cable routing */
     if (spOutputNode) gain.connect(spOutputNode);
     src.start();
@@ -319,7 +319,7 @@ const play = (presetName, overrides) => {
 
   /* Real-time synthesis fallback */
   const effective = overrides ? { ...preset, ...overrides } : preset;
-  buildGraph(ctx, effective, volume);
+  buildGraph(ctx, effective, volume, bus.getDestination());
 };
 
 /* ══════════════════════════════════════════════════════════════════════

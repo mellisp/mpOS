@@ -366,7 +366,7 @@
     inst.directNode = inst.ctx.createGain();
     inst.directNode.gain.value = 1;
     inst.outputNode.connect(inst.directNode);
-    inst.directNode.connect(inst.ctx.destination);
+    inst.directNode.connect(window.mpAudioBus.getDestination());
 
     // Register output jack with audio bus
     window.mpAudioBus.registerOutput(jackId, {
@@ -586,7 +586,7 @@
     nmExternalInput.connect(nmMasterGain);
     nmMasterGain.connect(nmAnalyser);
     nmAnalyser.connect(nmLimiter);
-    nmLimiter.connect(nmCtx.destination);
+    nmLimiter.connect(window.mpAudioBus.getDestination());
     nmTimeDomain = new Uint8Array(nmAnalyser.fftSize);
     nmSyncVolume();
   };

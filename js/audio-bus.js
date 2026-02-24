@@ -3,8 +3,9 @@
   'use strict';
 
   let ctx = null;
-  const outputs = {};   // id -> { node, label, element, cables: [] }
-  const inputs = {};    // id -> { node, label, element, cable: null }
+  let limiter = null;
+  const outputs = {};   // id -> { node, label, element, cables: [], module }
+  const inputs = {};    // id -> { node, label, element, cable: null, module }
   const cables = {};    // cableId -> { outputId, inputId, path, audioNode }
   let cableIdCounter = 0;
   let svgOverlay = null;
@@ -19,6 +20,57 @@
     }
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
+  };
+
+  /* ── Safety limiter — brick-wall before destination ── */
+  const getDestination = () => {
+    const c = getContext();
+    if (!limiter) {
+      limiter = c.createDynamicsCompressor();
+      limiter.threshold.value = -3;   // start limiting at -3 dB
+      limiter.knee.value = 0;         // hard knee
+      limiter.ratio.value = 20;       // near brick-wall
+      limiter.attack.value = 0.001;   // instant attack
+      limiter.release.value = 0.01;   // fast release
+      limiter.connect(c.destination);
+    }
+    return limiter;
+  };
+
+  /* ── Cycle detection ── */
+  const wouldCycle = (outputId, inputId) => {
+    const outMod = outputs[outputId]?.module;
+    const inMod = inputs[inputId]?.module;
+    // Self-loop: same module has internal routing from input to output
+    if (outMod && inMod && outMod === inMod) return true;
+    // Multi-hop: BFS from input's module outputs through cables
+    if (!inMod) return false;
+    const visited = new Set();
+    const queue = [];
+    for (const oid in outputs) {
+      if (outputs[oid].module === inMod) queue.push(oid);
+    }
+    while (queue.length > 0) {
+      const cur = queue.shift();
+      if (visited.has(cur)) continue;
+      visited.add(cur);
+      const reg = outputs[cur];
+      if (!reg) continue;
+      for (const cid of reg.cables) {
+        const cable = cables[cid];
+        if (!cable) continue;
+        const targetMod = inputs[cable.inputId]?.module;
+        if (targetMod === outMod) return true;
+        if (targetMod) {
+          for (const oid in outputs) {
+            if (outputs[oid].module === targetMod && !visited.has(oid)) {
+              queue.push(oid);
+            }
+          }
+        }
+      }
+    }
+    return false;
   };
 
   /* ── SVG Overlay ── */
@@ -75,8 +127,8 @@
   };
 
   /* ── Register / Unregister ── */
-  const registerOutput = (id, { node, label, element }) => {
-    outputs[id] = { node, label, element, cables: [] };
+  const registerOutput = (id, { node, label, element, module }) => {
+    outputs[id] = { node, label, element, cables: [], module: module || null };
     if (element) {
       element.classList.add('audio-jack', 'audio-jack-output');
       element.title = label || 'Output';
@@ -90,8 +142,8 @@
     }
   };
 
-  const registerInput = (id, { node, label, element }) => {
-    inputs[id] = { node, label, element, cable: null };
+  const registerInput = (id, { node, label, element, module }) => {
+    inputs[id] = { node, label, element, cable: null, module: module || null };
     if (element) {
       element.classList.add('audio-jack', 'audio-jack-input');
       element.title = label || 'Input';
@@ -136,6 +188,16 @@
     const outReg = outputs[outputId];
     const inReg = inputs[inputId];
     if (!outReg || !inReg) return null;
+
+    // Prevent feedback loops
+    if (wouldCycle(outputId, inputId)) {
+      // Visual rejection flash on the input jack
+      if (inReg.element) {
+        inReg.element.classList.add('rejected');
+        setTimeout(() => inReg.element.classList.remove('rejected'), 600);
+      }
+      return null;
+    }
 
     // If input already has a cable, disconnect it first
     if (inReg.cable) disconnect(inReg.cable);
@@ -314,6 +376,7 @@
   /* ── Export ── */
   window.mpAudioBus = {
     getContext,
+    getDestination,
     registerOutput,
     registerInput,
     unregisterOutput,
