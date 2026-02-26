@@ -23,7 +23,7 @@
     browserFrame.src = 'about:blank';
     vp.dataset.loaded = '';
     browserUrl.value = '';
-    browserTitle.textContent = 'WikiBrowser';
+    browserTitle.textContent = t('title.wikiBrowser');
     mpTaskbar.closeWindow('browser');
   };
 
@@ -53,7 +53,7 @@
       if (loc && loc !== 'about:blank') {
         browserUrl.value = loc;
         const title = browserFrame.contentDocument && browserFrame.contentDocument.title;
-        browserTitle.textContent = title ? `WikiBrowser \u2014 ${title}` : 'WikiBrowser';
+        browserTitle.textContent = title ? t('title.wikiBrowserPage', { title }) : t('title.wikiBrowser');
       }
     } catch (e) {
       /* cross-origin — can't read iframe location */
@@ -82,7 +82,7 @@
     archiveBrowserFrame.src = 'about:blank';
     vp.dataset.loaded = '';
     archiveBrowserUrl.value = '';
-    archiveBrowserTitle.textContent = 'Archive Browser';
+    archiveBrowserTitle.textContent = t('title.archiveBrowser');
     mpTaskbar.closeWindow('archivebrowser');
   };
 
@@ -114,7 +114,7 @@
       if (loc && loc !== 'about:blank') {
         archiveBrowserUrl.value = loc;
         const title = archiveBrowserFrame.contentDocument && archiveBrowserFrame.contentDocument.title;
-        archiveBrowserTitle.textContent = title ? `Archive Browser \u2014 ${title}` : 'Archive Browser';
+        archiveBrowserTitle.textContent = title ? t('title.archiveBrowserPage', { title }) : t('title.archiveBrowser');
       }
     } catch (e) {
       /* cross-origin — can't read iframe location */

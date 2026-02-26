@@ -122,7 +122,7 @@ const renderExplorerContent = () => {
         tile.appendChild(descEl);
         const tagEl = document.createElement('span');
         tagEl.className = 'tag';
-        tagEl.textContent = 'Folder';
+        tagEl.textContent = t('explorer.folder');
         tile.appendChild(tagEl);
       }
       container.appendChild(tile);

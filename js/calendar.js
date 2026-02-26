@@ -231,7 +231,7 @@
     tzAnalog = !tzAnalog;
     tzGridEl.classList.toggle('tz-digital-mode', !tzAnalog);
     const btn = document.querySelector('.tz-toggle');
-    btn.textContent = tzAnalog ? 'Digital' : 'Analog';
+    btn.textContent = tzAnalog ? t('cal.digital') : t('cal.analog');
     tzTick();
   };
 

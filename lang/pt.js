@@ -593,8 +593,7 @@ window._mpLangRegister('pt', {
   'sm.holdOffered': 'RETER oferecido! Selecione rolos, depois GIRE.',
   'sm.nudgeOffered': '{count} empurr\u00e3o(s) dispon\u00edvel(is)!',
   'sm.jackpot': 'JACKPOT!',
-  'sm.gameOver': 'Sem cr\u00e9ditos! Inserir moeda para 100 cr\u00e9ditos?',
-  'sm.waitCooldown': 'Por favor aguarde antes de inserir outra moeda.',
+  'sm.gameOver': 'Sem cr\u00e9ditos!',
   'sm.play': 'JOGAR',
   'sm.topPrize': 'PR\u00caMIO M\u00c1XIMO',
   'sm.totalSpins': 'Jogadas',
@@ -661,5 +660,76 @@ window._mpLangRegister('pt', {
   'pb.filter.ascii': 'Arte ASCII',
   'pb.filter.datamosh': 'Datamosh',
   'pb.filter.kaleidoscope': 'Caleidosc\u00f3pio',
-  'pb.filter.timeslice': 'Time Slice'
+  'pb.filter.timeslice': 'Time Slice',
+
+  /* Tuning Fork */
+  'tf.strike': 'Tocar',
+  'tf.stop': 'Parar',
+  'tf.note': 'Nota',
+  'tf.oct': 'Oit',
+  'tf.fine': 'Fino',
+  'tf.wave': 'Onda',
+  'tf.wave.sine': 'Sinusoidal',
+  'tf.wave.triangle': 'Tri\u00e2ngulo',
+  'tf.wave.square': 'Quadrada',
+  'tf.wave.sawtooth': 'Dente de Serra',
+  'tf.eq': 'EQ',
+  'tf.ready': 'Pronto',
+  'tf.playing': 'A tocar {freq} Hz',
+  'tf.title': 'Diapas\u00e3o #{id}',
+
+  /* Noise Mixer */
+  'nm.start': 'Iniciar',
+  'nm.stop': 'Parar',
+  'nm.stopped': 'Parado',
+  'nm.playing': 'A tocar',
+  'nm.ready': 'Pronto',
+  'nm.master': 'Mestre',
+  'nm.preset': 'Preset:',
+  'nm.scope': 'SCOPE',
+
+  /* Stopwatch */
+  'sw.lap': 'Volta',
+  'sw.split': 'Parcial',
+  'sw.time': 'Tempo',
+  'sw.laps': 'Voltas: {count}',
+
+  /* Crypto (additions) */
+  'crypto.clear': 'Limpar',
+  'crypto.ready': 'Pronto',
+  'crypto.copied': 'Copiado!',
+
+  /* Reverb */
+  'reverb.presetLabel': 'Preset',
+  'reverb.mix': 'Mix',
+  'reverb.decay': 'Decay',
+  'reverb.tone': 'Tom',
+
+  /* Browser titles */
+  'title.wikiBrowser': 'WikiBrowser',
+  'title.wikiBrowserPage': 'WikiBrowser \u2014 {title}',
+  'title.archiveBrowser': 'Archive Browser',
+  'title.archiveBrowserPage': 'Archive Browser \u2014 {title}',
+
+  /* Desktop */
+  'desktop.shutdownMsg': '\u00c9 seguro desligar o computador.',
+  'desktop.actions': 'A\u00e7\u00f5es:',
+  'error.404.title': '404 N\u00e3o Encontrado',
+  'error.404.heading': 'Erro 404 \u2014 N\u00e3o Encontrado',
+  'error.404.desc': '{path} n\u00e3o foi encontrado. Pode ter sido movido ou eliminado.',
+
+  /* Terminal editor */
+  'term.editorTitle': '  Editor mpOS - {file}',
+  'term.editorStatus': '  ^S Guardar   ^X Sair   Esc Sair',
+  'term.editorSaved': '  Guardado! | ^S Guardar   ^X Sair   Esc Sair',
+
+  /* Calendar */
+  'cal.digital': 'Digital',
+  'cal.analog': 'Anal\u00f3gico',
+
+  /* Explorer */
+  'explorer.folder': 'Pasta',
+
+  /* Desktop (shutdown) */
+  'desktop.shutdownTitle': 'Encerrar'
 });

@@ -37,14 +37,14 @@
     overlay.addEventListener('transitionend', () => {
       window.close();
       // If browser blocks window.close(), show shutdown screen
-      document.title = 'Shutdown';
+      document.title = t('desktop.shutdownTitle');
       document.body.textContent = '';
       document.body.style.cssText =
         'margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;';
       const msg = document.createElement('div');
       msg.style.cssText =
         'color:#e8a040;font-family:sans-serif;font-size:1.125rem;text-align:center;line-height:1.6;';
-      msg.textContent = 'It is now safe to turn off your computer.';
+      msg.textContent = t('desktop.shutdownMsg');
       document.body.appendChild(msg);
     });
   };
@@ -758,7 +758,7 @@
 
       // Actions
       const dtAct = document.createElement('dt');
-      dtAct.textContent = getLang() === 'pt' ? 'A\u00e7\u00f5es:' : 'Actions:';
+      dtAct.textContent = t('desktop.actions');
       vcHelpList.appendChild(dtAct);
       const actions = [t('voice.helpClose'), t('voice.helpMinimize'), t('voice.helpLang'), t('voice.helpStop')];
       for (let j = 0; j < actions.length; j++) {
@@ -1310,7 +1310,7 @@
     const tb = document.createElement('div');
     tb.className = 'titlebar';
     const titleSpan = document.createElement('span');
-    titleSpan.textContent = '404 Not Found';
+    titleSpan.textContent = t('error.404.title');
     tb.appendChild(titleSpan);
     const tbBtns = document.createElement('div');
     tbBtns.className = 'titlebar-buttons';
@@ -1331,9 +1331,9 @@
     const msgEl = document.createElement('div');
     msgEl.className = 'error-text';
     const h = document.createElement('strong');
-    h.textContent = 'Error 404 — Not Found';
+    h.textContent = t('error.404.heading');
     const p = document.createElement('p');
-    p.textContent = missingPath + ' could not be found. It may have been moved or deleted.';
+    p.textContent = t('error.404.desc', { path: missingPath });
     msgEl.appendChild(h);
     msgEl.appendChild(p);
     row.appendChild(msgEl);

@@ -88,9 +88,9 @@
     inst.playing = true;
 
     const btn = inst.elements.strikeBtn;
-    if (btn) { btn.textContent = 'Stop'; btn.classList.add('tf-active'); }
+    if (btn) { btn.textContent = t('tf.stop'); btn.classList.add('tf-active'); }
     const statusEl = inst.elements.status;
-    if (statusEl) statusEl.textContent = `Playing ${tfGetFreq(inst).toFixed(2)} Hz`;
+    if (statusEl) statusEl.textContent = t('tf.playing', { freq: tfGetFreq(inst).toFixed(2) });
   };
 
   const tfStop = (inst) => {
@@ -106,9 +106,9 @@
     }
     inst.playing = false;
     const btn = inst.elements.strikeBtn;
-    if (btn) { btn.textContent = 'Strike'; btn.classList.remove('tf-active'); }
+    if (btn) { btn.textContent = t('tf.strike'); btn.classList.remove('tf-active'); }
     const statusEl = inst.elements.status;
-    if (statusEl) statusEl.textContent = 'Ready';
+    if (statusEl) statusEl.textContent = t('tf.ready');
   };
 
   const tfBuildUI = (inst) => {
@@ -118,7 +118,7 @@
     const noteRow = document.createElement('div');
     noteRow.className = 'tf-row';
     const noteLbl = document.createElement('label');
-    noteLbl.textContent = 'Note';
+    noteLbl.textContent = t('tf.note');
     noteLbl.className = 'tf-label';
     const noteSel = document.createElement('select');
     noteSel.className = 'tf-select';
@@ -136,7 +136,7 @@
 
     // Octave selector
     const octLbl = document.createElement('label');
-    octLbl.textContent = 'Oct';
+    octLbl.textContent = t('tf.oct');
     octLbl.className = 'tf-label tf-label-sm';
     const octSel = document.createElement('select');
     octSel.className = 'tf-select tf-select-sm';
@@ -164,7 +164,7 @@
     const centsRow = document.createElement('div');
     centsRow.className = 'tf-row';
     const centsLbl = document.createElement('label');
-    centsLbl.textContent = 'Fine';
+    centsLbl.textContent = t('tf.fine');
     centsLbl.className = 'tf-label';
     const centsSlider = document.createElement('input');
     centsSlider.type = 'range';
@@ -187,7 +187,7 @@
     const waveRow = document.createElement('div');
     waveRow.className = 'tf-row';
     const waveLbl = document.createElement('label');
-    waveLbl.textContent = 'Wave';
+    waveLbl.textContent = t('tf.wave');
     waveLbl.className = 'tf-label';
     const waveSel = document.createElement('select');
     waveSel.className = 'tf-select';
@@ -196,10 +196,10 @@
     };
     inst.elements.waveSelect = waveSel;
     const waves = [
-      { val: 'sine', lbl: 'Sine' },
-      { val: 'triangle', lbl: 'Triangle' },
-      { val: 'square', lbl: 'Square' },
-      { val: 'sawtooth', lbl: 'Sawtooth' }
+      { val: 'sine', lbl: t('tf.wave.sine') },
+      { val: 'triangle', lbl: t('tf.wave.triangle') },
+      { val: 'square', lbl: t('tf.wave.square') },
+      { val: 'sawtooth', lbl: t('tf.wave.sawtooth') }
     ];
     for (const w of waves) {
       const wopt = document.createElement('option');
@@ -215,7 +215,7 @@
     const eqRow = document.createElement('div');
     eqRow.className = 'tf-row';
     const eqLbl = document.createElement('label');
-    eqLbl.textContent = 'EQ';
+    eqLbl.textContent = t('tf.eq');
     eqLbl.className = 'tf-label';
     const eqSlider = document.createElement('input');
     eqSlider.type = 'range';
@@ -243,7 +243,7 @@
     const strikeBtn = document.createElement('button');
     strikeBtn.type = 'button';
     strikeBtn.className = 'tf-strike-btn';
-    strikeBtn.textContent = 'Strike';
+    strikeBtn.textContent = t('tf.strike');
     strikeBtn.onclick = () => tfStrike(inst);
     inst.elements.strikeBtn = strikeBtn;
     body.appendChild(strikeBtn);
@@ -284,7 +284,7 @@
     const titlebar = document.createElement('div');
     titlebar.className = 'titlebar';
     const titleSpan = document.createElement('span');
-    titleSpan.textContent = `Tuning Fork #${id}`;
+    titleSpan.textContent = t('tf.title', { id });
     titlebar.appendChild(titleSpan);
     const titleBtns = document.createElement('div');
     titleBtns.className = 'titlebar-buttons';
@@ -318,7 +318,7 @@
     statusbar.className = 'statusbar';
     const statusSection = document.createElement('div');
     statusSection.className = 'statusbar-section';
-    statusSection.textContent = 'Ready';
+    statusSection.textContent = t('tf.ready');
     statusbar.appendChild(statusSection);
     win.appendChild(statusbar);
 
@@ -667,8 +667,8 @@
       nmRunning = false;
       if (nmRafId) { cancelAnimationFrame(nmRafId); nmRafId = null; }
       const powerBtn = document.getElementById('nmPowerBtn');
-      if (powerBtn) { powerBtn.classList.remove('active'); powerBtn.textContent = 'Start'; }
-      document.getElementById('nmStatus').textContent = 'Stopped';
+      if (powerBtn) { powerBtn.classList.remove('active'); powerBtn.textContent = t('nm.start'); }
+      document.getElementById('nmStatus').textContent = t('nm.stopped');
     } else {
       if (!nmCtx) nmInitAudio();
       if (nmCtx.state === 'suspended') nmCtx.resume();
@@ -679,8 +679,8 @@
       nmStartChannels();
       nmRunning = true;
       const powerBtn = document.getElementById('nmPowerBtn');
-      if (powerBtn) { powerBtn.classList.add('active'); powerBtn.textContent = 'Stop'; }
-      document.getElementById('nmStatus').textContent = 'Playing';
+      if (powerBtn) { powerBtn.classList.add('active'); powerBtn.textContent = t('nm.stop'); }
+      document.getElementById('nmStatus').textContent = t('nm.playing');
       if (nmScopeEnabled) nmDrawScope();
     }
   };
@@ -734,7 +734,7 @@
 
     const label = document.createElement('div');
     label.className = 'nm-channel-label';
-    label.textContent = idx === -1 ? 'Master' : ch.name;
+    label.textContent = idx === -1 ? t('nm.master') : ch.name;
     strip.appendChild(label);
 
     const faderWrap = document.createElement('div');
@@ -861,7 +861,7 @@
     const toolbar = document.createElement('div');
     toolbar.className = 'nm-toolbar';
     const presetLabel = document.createElement('span');
-    presetLabel.textContent = 'Preset:';
+    presetLabel.textContent = t('nm.preset');
     presetLabel.style.fontSize = '0.6875rem';
     toolbar.appendChild(presetLabel);
 
@@ -903,7 +903,7 @@
     powerBtn.type = 'button';
     powerBtn.className = 'nm-power-btn';
     powerBtn.id = 'nmPowerBtn';
-    powerBtn.textContent = 'Start';
+    powerBtn.textContent = t('nm.start');
     powerBtn.onclick = nmTogglePower;
     toolbar.appendChild(powerBtn);
     body.appendChild(toolbar);
@@ -924,7 +924,7 @@
     scopeBtn.type = 'button';
     scopeBtn.className = 'nm-scope-toggle active';
     scopeBtn.id = 'nmScopeBtn';
-    scopeBtn.textContent = 'SCOPE';
+    scopeBtn.textContent = t('nm.scope');
     scopeBtn.onclick = nmToggleScope;
     scopeWrap.appendChild(scopeBtn);
     body.appendChild(scopeWrap);
@@ -1001,7 +1001,7 @@
     nmBuilt = false;
     const powerBtn = document.getElementById('nmPowerBtn');
     if (powerBtn) powerBtn.classList.remove('active');
-    document.getElementById('nmStatus').textContent = 'Ready';
+    document.getElementById('nmStatus').textContent = t('nm.ready');
     mpTaskbar.closeWindow('noisemixer');
   };
 

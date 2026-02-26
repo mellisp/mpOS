@@ -602,8 +602,7 @@
     'sm.holdOffered': 'HOLD offered! Select reels, then SPIN.',
     'sm.nudgeOffered': '{count} nudge(s) available!',
     'sm.jackpot': 'JACKPOT!',
-    'sm.gameOver': 'Out of credits! Insert coin for 100 credits?',
-    'sm.waitCooldown': 'Please wait before inserting another coin.',
+    'sm.gameOver': 'Out of credits!',
     'sm.play': 'PLAY',
     'sm.topPrize': 'TOP PRIZE',
     'sm.totalSpins': 'Spins',
@@ -670,7 +669,78 @@
     'pb.filter.ascii': 'ASCII Art',
     'pb.filter.datamosh': 'Datamosh',
     'pb.filter.kaleidoscope': 'Kaleidoscope',
-    'pb.filter.timeslice': 'Time Slice'
+    'pb.filter.timeslice': 'Time Slice',
+
+    /* Tuning Fork */
+    'tf.strike': 'Strike',
+    'tf.stop': 'Stop',
+    'tf.note': 'Note',
+    'tf.oct': 'Oct',
+    'tf.fine': 'Fine',
+    'tf.wave': 'Wave',
+    'tf.wave.sine': 'Sine',
+    'tf.wave.triangle': 'Triangle',
+    'tf.wave.square': 'Square',
+    'tf.wave.sawtooth': 'Sawtooth',
+    'tf.eq': 'EQ',
+    'tf.ready': 'Ready',
+    'tf.playing': 'Playing {freq} Hz',
+    'tf.title': 'Tuning Fork #{id}',
+
+    /* Noise Mixer */
+    'nm.start': 'Start',
+    'nm.stop': 'Stop',
+    'nm.stopped': 'Stopped',
+    'nm.playing': 'Playing',
+    'nm.ready': 'Ready',
+    'nm.master': 'Master',
+    'nm.preset': 'Preset:',
+    'nm.scope': 'SCOPE',
+
+    /* Stopwatch */
+    'sw.lap': 'Lap',
+    'sw.split': 'Split',
+    'sw.time': 'Time',
+    'sw.laps': 'Laps: {count}',
+
+    /* Crypto (additions) */
+    'crypto.clear': 'Clear',
+    'crypto.ready': 'Ready',
+    'crypto.copied': 'Copied to clipboard!',
+
+    /* Reverb */
+    'reverb.presetLabel': 'Preset',
+    'reverb.mix': 'Mix',
+    'reverb.decay': 'Decay',
+    'reverb.tone': 'Tone',
+
+    /* Browser titles */
+    'title.wikiBrowser': 'WikiBrowser',
+    'title.wikiBrowserPage': 'WikiBrowser \u2014 {title}',
+    'title.archiveBrowser': 'Archive Browser',
+    'title.archiveBrowserPage': 'Archive Browser \u2014 {title}',
+
+    /* Desktop */
+    'desktop.shutdownMsg': 'It is now safe to turn off your computer.',
+    'desktop.actions': 'Actions:',
+    'error.404.title': '404 Not Found',
+    'error.404.heading': 'Error 404 \u2014 Not Found',
+    'error.404.desc': '{path} could not be found. It may have been moved or deleted.',
+
+    /* Terminal editor */
+    'term.editorTitle': '  mpOS Editor - {file}',
+    'term.editorStatus': '  ^S Save   ^X Exit   Esc Exit',
+    'term.editorSaved': '  Saved! | ^S Save   ^X Exit   Esc Exit',
+
+    /* Calendar */
+    'cal.digital': 'Digital',
+    'cal.analog': 'Analog',
+
+    /* Explorer */
+    'explorer.folder': 'Folder',
+
+    /* Desktop (shutdown) */
+    'desktop.shutdownTitle': 'Shutdown'
   });
 
   /* Restore saved language */

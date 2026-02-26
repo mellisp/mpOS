@@ -1034,7 +1034,7 @@ const cmdEdit = (args) => {
 
   const titlebar = document.createElement('div');
   titlebar.className = 'edit-statusbar';
-  titlebar.textContent = `  mpOS Editor - ${filename}`;
+  titlebar.textContent = t('term.editorTitle', { file: filename });
   overlay.appendChild(titlebar);
 
   const textarea = document.createElement('textarea');
@@ -1045,7 +1045,7 @@ const cmdEdit = (args) => {
 
   const statusbar = document.createElement('div');
   statusbar.className = 'edit-statusbar';
-  statusbar.textContent = '  ^S Save   ^X Exit   Esc Exit';
+  statusbar.textContent = t('term.editorStatus');
   overlay.appendChild(statusbar);
 
   term.appendChild(overlay);
@@ -1065,9 +1065,9 @@ const cmdEdit = (args) => {
     if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
       e.preventDefault();
       editSave(textarea);
-      statusbar.textContent = '  Saved! | ^S Save   ^X Exit   Esc Exit';
+      statusbar.textContent = t('term.editorSaved');
       setTimeout(() => {
-        statusbar.textContent = '  ^S Save   ^X Exit   Esc Exit';
+        statusbar.textContent = t('term.editorStatus');
       }, 1500);
       return;
     }

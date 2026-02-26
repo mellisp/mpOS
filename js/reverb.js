@@ -198,7 +198,7 @@
     presetRow.className = 'rv-row';
     const presetLbl = document.createElement('label');
     presetLbl.className = 'rv-label';
-    presetLbl.textContent = 'Preset';
+    presetLbl.textContent = t('reverb.presetLabel');
     const presetSel = document.createElement('select');
     presetSel.className = 'rv-select';
     for (let i = 0; i < RV_PRESETS.length; i++) {
@@ -252,7 +252,7 @@
     mixRow.className = 'rv-row';
     const mixLbl = document.createElement('label');
     mixLbl.className = 'rv-label';
-    mixLbl.textContent = 'Mix';
+    mixLbl.textContent = t('reverb.mix');
     const mixSlider = document.createElement('input');
     mixSlider.type = 'range';
     mixSlider.className = 'rv-slider';
@@ -282,7 +282,7 @@
     decayRow.className = 'rv-row';
     const decayLbl = document.createElement('label');
     decayLbl.className = 'rv-label';
-    decayLbl.textContent = 'Decay';
+    decayLbl.textContent = t('reverb.decay');
     const decaySlider = document.createElement('input');
     decaySlider.type = 'range';
     decaySlider.className = 'rv-slider';
@@ -311,7 +311,7 @@
     toneRow.className = 'rv-row';
     const toneLbl = document.createElement('label');
     toneLbl.className = 'rv-label';
-    toneLbl.textContent = 'Tone';
+    toneLbl.textContent = t('reverb.tone');
     const toneSlider = document.createElement('input');
     toneSlider.type = 'range';
     toneSlider.className = 'rv-slider';

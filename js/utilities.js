@@ -68,7 +68,7 @@
     const lapsEl = document.getElementById('swLaps');
     lapsEl.textContent = '';
     lapsEl.classList.remove('has-laps');
-    document.getElementById('swStatus').textContent = 'Laps: 0';
+    document.getElementById('swStatus').textContent = t('sw.laps', { count: 0 });
   };
 
   const swLap = () => {
@@ -82,7 +82,7 @@
       if (!lapsEl.querySelector('.sw-lap-header')) {
         const hdr = document.createElement('div');
         hdr.className = 'sw-lap-header';
-        hdr.innerHTML = '<span>Lap</span><span>Split</span><span>Time</span>';
+        hdr.innerHTML = `<span>${t('sw.lap')}</span><span>${t('sw.split')}</span><span>${t('sw.time')}</span>`;
         lapsEl.appendChild(hdr);
       }
     }
@@ -103,7 +103,7 @@
     lapsEl.scrollTop = 0;
 
     // Update statusbar
-    document.getElementById('swStatus').textContent = `Laps: ${swLaps.length}`;
+    document.getElementById('swStatus').textContent = t('sw.laps', { count: swLaps.length });
 
     // Highlight fastest/slowest splits (need 3+ laps)
     const rows = lapsEl.querySelectorAll('.sw-lap-row');
@@ -746,7 +746,7 @@
     try {
       await navigator.clipboard.writeText(out.textContent);
       const status = document.getElementById('cryptoStatus');
-      if (status) { status.textContent = 'Copied to clipboard!'; setTimeout(() => { cryptoRun(); }, 1500); }
+      if (status) { status.textContent = t('crypto.copied'); setTimeout(() => { cryptoRun(); }, 1500); }
     } catch (e) {
       // clipboard write failed silently
     }
@@ -862,7 +862,7 @@
     const swapBtn = document.createElement('button');
     swapBtn.type = 'button'; swapBtn.className = 'cry-btn'; swapBtn.textContent = t('crypto.swap');
     const clearBtn = document.createElement('button');
-    clearBtn.type = 'button'; clearBtn.className = 'cry-btn'; clearBtn.textContent = 'Clear';
+    clearBtn.type = 'button'; clearBtn.className = 'cry-btn'; clearBtn.textContent = t('crypto.clear');
     btnRow.appendChild(applyBtn);
     btnRow.appendChild(swapBtn);
     btnRow.appendChild(clearBtn);
@@ -902,7 +902,7 @@
     textarea.oninput = () => { cryptoRun(); };
     applyBtn.onclick = () => { cryptoRun(); };
     swapBtn.onclick = () => { cryptoSwapIO(); };
-    clearBtn.onclick = () => { textarea.value = ''; outputDiv.textContent = ''; document.getElementById('cryptoStatus').textContent = 'Ready'; };
+    clearBtn.onclick = () => { textarea.value = ''; outputDiv.textContent = ''; document.getElementById('cryptoStatus').textContent = t('crypto.ready'); };
     copyBtn.onclick = () => { cryptoCopyOutput(); };
 
     cryptoBuilt = true;
