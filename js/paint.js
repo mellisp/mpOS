@@ -652,6 +652,21 @@ const paintDismissDialog = () => {
   if (d) d.remove();
 };
 
+/* ── Delegated listeners on paint window ── */
+const paintWin = document.getElementById('paint');
+paintWin.addEventListener('click', (e) => {
+  const tool = e.target.closest('.paint-tool');
+  if (tool && tool.dataset.tool) { paintSetTool(tool.dataset.tool); return; }
+  const act = e.target.closest('[data-action]');
+  if (!act) return;
+  const actions = { paintNew, paintSave, paintLoad: paintLoad, paintUndo, paintRedo, paintClear };
+  const fn = actions[act.dataset.action];
+  if (fn) fn();
+});
+document.getElementById('paintSize')?.addEventListener('input', (e) => {
+  paintSizeChange(e.target.value);
+});
+
 /* ── Registration ── */
 mpRegisterActions({ openPaint });
 mpRegisterWindows({ paint: 'Paint' });
@@ -663,21 +678,8 @@ const paintRefreshOnLangChange = () => {
   if (el && el.style.display !== 'none') { paintSetTitle(); paintUpdateStatus(); }
 };
 
-/* ── Exports to window (for inline onclick handlers in index.html) ── */
+/* ── Exports ── */
 window.openPaint = openPaint;
-window.closePaint = closePaint;
-window.paintNew = paintNew;
-window.paintSave = paintSave;
-window.paintLoad = paintLoad;
-window.paintSaveAs = paintSaveAs;
-window.paintOpenFile = paintOpenFile;
-window.paintDeleteFile = paintDeleteFile;
-window.paintDismissDialog = paintDismissDialog;
-window.paintSetTool = paintSetTool;
-window.paintUndo = paintUndo;
-window.paintRedo = paintRedo;
-window.paintClear = paintClear;
-window.paintSizeChange = paintSizeChange;
 window.paintRefreshOnLangChange = paintRefreshOnLangChange;
 
 })();

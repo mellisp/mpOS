@@ -351,6 +351,24 @@ let MPOS_VERSION = '2.4';
   } catch { /* version.json unavailable */ }
 })();
 
+/* ── Start menu delegation ── */
+document.querySelector('.start-menu')?.addEventListener('click', (e) => {
+  const item = e.target.closest('[data-action]');
+  if (!item) return;
+  const action = item.dataset.action;
+  const arg = item.dataset.arg;
+  const fn = ACTION_MAP[action];
+  if (!fn) return;
+  if (item.tagName === 'SPAN') e.stopPropagation();
+  const result = arg ? fn(arg) : fn();
+  if (item.dataset.href) { closeStartMenu(); if (result) location.href = item.dataset.href; return; }
+  if (action !== 'exitSite') closeStartMenu();
+  if (item.dataset.after) {
+    const [afterFn, afterArg] = item.dataset.after.split(':');
+    setTimeout(() => window[afterFn]?.(afterArg), 200);
+  }
+});
+
 /* ── Button click sound ── */
 document.addEventListener('click', (e) => {
   if (e.target.closest('.btn, .start-btn, .titlebar-btn, .project-list li')) {

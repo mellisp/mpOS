@@ -142,6 +142,25 @@
     calcUpdateDisplay();
   };
 
+  /* ── Delegated click listener for calculator buttons ── */
+  document.getElementById('calculator').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-calc]');
+    if (!btn) return;
+    const type = btn.dataset.calc;
+    const val = btn.dataset.val;
+    if (type === 'digit') calcDigit(val);
+    else if (type === 'op') calcOp(val);
+    else if (type === 'sci') calcSciFn(val);
+    else if (type === 'clear') calcClear();
+    else if (type === 'ce') calcClearEntry();
+    else if (type === 'bs') calcBackspace();
+    else if (type === 'decimal') calcDecimal();
+    else if (type === 'eq') calcEquals();
+  });
+
+  /* ── Scientific toggle listener ── */
+  document.getElementById('calcSciToggle').addEventListener('change', calcToggleScientific);
+
   /* ── Keyboard support ── */
   document.getElementById('calculator').addEventListener('keydown', (e) => {
     const key = e.key;
@@ -157,15 +176,6 @@
   window.mpRegisterActions({ openCalculator });
   window.mpRegisterWindows({ calculator: 'Calculator' });
 
-  /* ── Export HTML onclick handlers ── */
+  /* ── Exports ── */
   window.openCalculator = openCalculator;
-  window.calcDigit = calcDigit;
-  window.calcDecimal = calcDecimal;
-  window.calcOp = calcOp;
-  window.calcEquals = calcEquals;
-  window.calcClear = calcClear;
-  window.calcClearEntry = calcClearEntry;
-  window.calcBackspace = calcBackspace;
-  window.calcToggleScientific = calcToggleScientific;
-  window.calcSciFn = calcSciFn;
 })();

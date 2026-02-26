@@ -99,7 +99,7 @@
     </div>
     <div class="desktop-area">
       <!-- My Computer icon -->
-      <div class="desktop-icon" data-icon="mycomputer" role="button" tabindex="0" ondblclick="openMyComputer()" onkeydown="if(event.key==='Enter')openMyComputer()">
+      <div class="desktop-icon" data-icon="mycomputer" role="button" tabindex="0" data-action="openMyComputer">
         <svg class="desktop-icon-img" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
           <rect x="8" y="10" width="48" height="32" rx="8" fill="#3A3F47"/>
           <rect x="14" y="16" width="36" height="20" fill="#4A7A9B"/>
@@ -110,7 +110,7 @@
       </div>
 
       <!-- Files folder icon -->
-      <div class="desktop-icon" data-icon="files" role="button" tabindex="0" ondblclick="openExplorer()" onkeydown="if(event.key==='Enter')openExplorer()">
+      <div class="desktop-icon" data-icon="files" role="button" tabindex="0" data-action="openExplorer">
         <svg class="desktop-icon-img" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
           <rect x="14" y="12" width="22" height="12" rx="8" fill="#D4B470"/>
           <rect x="6" y="20" width="52" height="34" rx="8" fill="#B89A5A"/>
@@ -118,7 +118,7 @@
         <span class="desktop-icon-label" data-i18n="desktop.files">Files</span>
       </div>
       <!-- WikiBrowser icon -->
-      <div class="desktop-icon" data-icon="wikibrowser" role="button" tabindex="0" ondblclick="openBrowser()" onkeydown="if(event.key==='Enter')openBrowser()">
+      <div class="desktop-icon" data-icon="wikibrowser" role="button" tabindex="0" data-action="openBrowser">
         <svg class="desktop-icon-img" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <clipPath id="wb-clip"><circle cx="32" cy="31" r="22"/></clipPath>
@@ -138,15 +138,15 @@
       <div class="titlebar">
         <span data-i18n="title.systemProperties">System Properties</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('mycomputer')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeMyComputer()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="mycomputer-tabs">
-        <button type="button" class="mycomputer-tab active" id="mcTabGeneral" onclick="mcSwitchTab('general')" data-i18n="mc.tab.general">General</button>
-        <button type="button" class="mycomputer-tab" id="mcTabDisplay" onclick="mcSwitchTab('display')" data-i18n="mc.tab.display">Display</button>
-        <button type="button" class="mycomputer-tab" id="mcTabScreenSaver" onclick="mcSwitchTab('screensaver')" data-i18n="mc.tab.screensaver">Screen Saver</button>
-        <button type="button" class="mycomputer-tab" id="mcTabRegional" onclick="mcSwitchTab('regional')" data-i18n="mc.tab.regional">Region</button>
+        <button type="button" class="mycomputer-tab active" id="mcTabGeneral" data-tab="general" data-i18n="mc.tab.general">General</button>
+        <button type="button" class="mycomputer-tab" id="mcTabDisplay" data-tab="display" data-i18n="mc.tab.display">Display</button>
+        <button type="button" class="mycomputer-tab" id="mcTabScreenSaver" data-tab="screensaver" data-i18n="mc.tab.screensaver">Screen Saver</button>
+        <button type="button" class="mycomputer-tab" id="mcTabRegional" data-tab="regional" data-i18n="mc.tab.regional">Region</button>
       </div>
       <div class="mycomputer-tab-body" id="mcTabBody"></div>
     </div>
@@ -156,8 +156,8 @@
       <div class="titlebar">
         <span id="explorerTitle" data-i18n="title.files">Files</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('explorer')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('explorer')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="folder-toolbar">
@@ -166,35 +166,35 @@
           <div class="folder-address-bar" id="explorerAddress">C:\mpOS</div>
         </div>
         <div class="folder-view-btns">
-          <button type="button" class="folder-view-btn" onclick="setExplorerView('icon')" title="Icons">&#9638;</button>
-          <button type="button" class="folder-view-btn active" onclick="setExplorerView('list')" title="List">&#9776;</button>
+          <button type="button" class="folder-view-btn" data-view="icon" title="Icons">&#9638;</button>
+          <button type="button" class="folder-view-btn active" data-view="list" title="List">&#9776;</button>
         </div>
       </div>
       <div class="explorer-panes">
         <div class="explorer-sidebar">
           <div class="sidebar-tree">
-            <div class="tree-item" role="button" tabindex="0" onclick="navigateExplorer('all')" onkeydown="if(event.key==='Enter')navigateExplorer('all')">
+            <div class="tree-item" role="button" tabindex="0" data-folder="all">
               <span class="tree-icon">&#128187;</span> mpOS
             </div>
-            <div class="tree-item tree-child" role="button" tabindex="0" onclick="navigateExplorer('programs')" onkeydown="if(event.key==='Enter')navigateExplorer('programs')">
+            <div class="tree-item tree-child" role="button" tabindex="0" data-folder="programs">
               <span class="tree-icon">&#128194;</span> <span data-i18n="explorer.sidebar.programs">Programs</span>
             </div>
-            <div class="tree-item tree-grandchild" role="button" tabindex="0" onclick="navigateExplorer('games')" onkeydown="if(event.key==='Enter')navigateExplorer('games')">
+            <div class="tree-item tree-grandchild" role="button" tabindex="0" data-folder="games">
               <span class="tree-icon">&#128194;</span> <span data-i18n="explorer.sidebar.games">Games</span>
             </div>
-            <div class="tree-item tree-grandchild" role="button" tabindex="0" onclick="navigateExplorer('internet')" onkeydown="if(event.key==='Enter')navigateExplorer('internet')">
+            <div class="tree-item tree-grandchild" role="button" tabindex="0" data-folder="internet">
               <span class="tree-icon">&#128194;</span> <span data-i18n="explorer.sidebar.internet">Internet</span>
             </div>
-            <div class="tree-item tree-grandchild" role="button" tabindex="0" onclick="navigateExplorer('accessories')" onkeydown="if(event.key==='Enter')navigateExplorer('accessories')">
+            <div class="tree-item tree-grandchild" role="button" tabindex="0" data-folder="accessories">
               <span class="tree-icon">&#128194;</span> <span data-i18n="explorer.sidebar.accessories">Accessories</span>
             </div>
-            <div class="tree-item tree-grandchild" role="button" tabindex="0" onclick="navigateExplorer('audio')" onkeydown="if(event.key==='Enter')navigateExplorer('audio')">
+            <div class="tree-item tree-grandchild" role="button" tabindex="0" data-folder="audio">
               <span class="tree-icon">&#128194;</span> <span data-i18n="explorer.sidebar.audio">Audio</span>
             </div>
-            <div class="tree-item tree-child" role="button" tabindex="0" onclick="navigateExplorer('documents')" onkeydown="if(event.key==='Enter')navigateExplorer('documents')">
+            <div class="tree-item tree-child" role="button" tabindex="0" data-folder="documents">
               <span class="tree-icon">&#128194;</span> <span data-i18n="explorer.sidebar.documents">Documents</span>
             </div>
-            <div class="tree-item tree-child" role="button" tabindex="0" onclick="navigateExplorer('utilities')" onkeydown="if(event.key==='Enter')navigateExplorer('utilities')">
+            <div class="tree-item tree-child" role="button" tabindex="0" data-folder="utilities">
               <span class="tree-icon">&#128194;</span> <span data-i18n="explorer.sidebar.utilities">Utilities</span>
             </div>
           </div>
@@ -211,8 +211,8 @@
       <div class="titlebar">
         <span data-i18n="title.fishOfDay">Fish of the Day</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('fishofday')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('fishofday')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
@@ -236,8 +236,8 @@
       <div class="titlebar">
         <span data-i18n="title.aquarium">Virtual Aquarium</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('aquarium')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeAquarium()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
@@ -253,8 +253,8 @@
       <div class="titlebar">
         <span data-i18n="title.fishFinder">Fish Finder</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('fishfinder')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('fishfinder')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="fishFinderBody"></div>
@@ -268,8 +268,8 @@
       <div class="titlebar">
         <span data-i18n="title.onTarget">On Target</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('ontarget')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeOnTarget()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
@@ -282,10 +282,8 @@
       <div class="titlebar">
         <span data-i18n="title.brickBreaker">Brick Breaker</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize"
-               onclick="mpTaskbar.minimizeWindow('brickbreaker')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close"
-               onclick="closeBrickBreaker()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
@@ -298,10 +296,8 @@
       <div class="titlebar">
         <span data-i18n="title.fractal">Fractal Explorer</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize"
-               onclick="mpTaskbar.minimizeWindow('fractal')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close"
-               onclick="closeFractal()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
@@ -314,8 +310,8 @@
       <div class="titlebar">
         <span data-i18n="title.run">Run</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('run')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeRun()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
@@ -334,8 +330,8 @@
       <div class="titlebar">
         <span id="browserTitle" data-i18n="title.wikiBrowser">WikiBrowser</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('browser')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeBrowser()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
@@ -353,8 +349,8 @@
       <div class="titlebar">
         <span id="archiveBrowserTitle" data-i18n="title.archiveBrowser">Archive Browser</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('archivebrowser')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeArchiveBrowser()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
@@ -372,15 +368,15 @@
       <div class="titlebar">
         <span id="notepadTitle" data-i18n="title.notepad">Notepad</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('notepad')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeNotepad()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
         <div class="notepad-toolbar">
-          <button type="button" class="btn" onclick="notepadNew()" data-i18n="ui.new">New</button>
-          <button type="button" class="btn" onclick="notepadSave()" data-i18n="ui.save">Save</button>
-          <button type="button" class="btn" onclick="notepadLoad()" data-i18n="ui.open">Open</button>
+          <button type="button" class="btn" data-action="notepadNew" data-i18n="ui.new">New</button>
+          <button type="button" class="btn" data-action="notepadSave" data-i18n="ui.save">Save</button>
+          <button type="button" class="btn" data-action="notepadLoad" data-i18n="ui.open">Open</button>
         </div>
         <textarea class="notepad-editor" id="notepadEditor" spellcheck="false" placeholder="Type here..." data-i18n="notepad.placeholder" data-i18n-attr="placeholder"></textarea>
       </div>
@@ -394,52 +390,52 @@
       <div class="titlebar">
         <span data-i18n="title.calculator">Calculator</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('calculator')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('calculator')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
         <div class="calc-display" id="calcDisplay">0</div>
         <div class="calc-mode-bar">
           <label class="calc-mode-toggle">
-            <input type="checkbox" id="calcSciToggle" onchange="calcToggleScientific()">
+            <input type="checkbox" id="calcSciToggle">
             <span data-i18n="ui.scientific">Scientific</span>
           </label>
         </div>
         <div class="calc-sci-buttons" id="calcSciButtons" style="display:none;">
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('sin')">sin</button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('cos')">cos</button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('tan')">tan</button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('sqrt')">&radic;</button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('sq')">x<sup>2</sup></button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcOp('pow')">x<sup>y</sup></button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('pi')">&pi;</button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('negate')">&plusmn;</button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('log')">log</button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('ln')">ln</button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('inv')">1/x</button>
-          <button type="button" class="calc-btn calc-sci" onclick="calcSciFn('fact')">n!</button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="sin">sin</button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="cos">cos</button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="tan">tan</button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="sqrt">&radic;</button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="sq">x<sup>2</sup></button>
+          <button type="button" class="calc-btn calc-sci" data-calc="op" data-val="pow">x<sup>y</sup></button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="pi">&pi;</button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="negate">&plusmn;</button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="log">log</button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="ln">ln</button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="inv">1/x</button>
+          <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="fact">n!</button>
         </div>
         <div class="calc-buttons">
-          <button type="button" class="calc-btn calc-fn" onclick="calcClearEntry()">CE</button>
-          <button type="button" class="calc-btn calc-fn" onclick="calcClear()">C</button>
-          <button type="button" class="calc-btn calc-fn" onclick="calcBackspace()">&#9003;</button>
-          <button type="button" class="calc-btn calc-op" onclick="calcOp('/')">&divide;</button>
-          <button type="button" class="calc-btn" onclick="calcDigit('7')">7</button>
-          <button type="button" class="calc-btn" onclick="calcDigit('8')">8</button>
-          <button type="button" class="calc-btn" onclick="calcDigit('9')">9</button>
-          <button type="button" class="calc-btn calc-op" onclick="calcOp('*')">&times;</button>
-          <button type="button" class="calc-btn" onclick="calcDigit('4')">4</button>
-          <button type="button" class="calc-btn" onclick="calcDigit('5')">5</button>
-          <button type="button" class="calc-btn" onclick="calcDigit('6')">6</button>
-          <button type="button" class="calc-btn calc-op" onclick="calcOp('-')">&minus;</button>
-          <button type="button" class="calc-btn" onclick="calcDigit('1')">1</button>
-          <button type="button" class="calc-btn" onclick="calcDigit('2')">2</button>
-          <button type="button" class="calc-btn" onclick="calcDigit('3')">3</button>
-          <button type="button" class="calc-btn calc-op" onclick="calcOp('+')">+</button>
-          <button type="button" class="calc-btn calc-zero" onclick="calcDigit('0')">0</button>
-          <button type="button" class="calc-btn" onclick="calcDecimal()">.</button>
-          <button type="button" class="calc-btn calc-eq" onclick="calcEquals()">=</button>
+          <button type="button" class="calc-btn calc-fn" data-calc="ce">CE</button>
+          <button type="button" class="calc-btn calc-fn" data-calc="clear">C</button>
+          <button type="button" class="calc-btn calc-fn" data-calc="bs">&#9003;</button>
+          <button type="button" class="calc-btn calc-op" data-calc="op" data-val="/">&divide;</button>
+          <button type="button" class="calc-btn" data-calc="digit" data-val="7">7</button>
+          <button type="button" class="calc-btn" data-calc="digit" data-val="8">8</button>
+          <button type="button" class="calc-btn" data-calc="digit" data-val="9">9</button>
+          <button type="button" class="calc-btn calc-op" data-calc="op" data-val="*">&times;</button>
+          <button type="button" class="calc-btn" data-calc="digit" data-val="4">4</button>
+          <button type="button" class="calc-btn" data-calc="digit" data-val="5">5</button>
+          <button type="button" class="calc-btn" data-calc="digit" data-val="6">6</button>
+          <button type="button" class="calc-btn calc-op" data-calc="op" data-val="-">&minus;</button>
+          <button type="button" class="calc-btn" data-calc="digit" data-val="1">1</button>
+          <button type="button" class="calc-btn" data-calc="digit" data-val="2">2</button>
+          <button type="button" class="calc-btn" data-calc="digit" data-val="3">3</button>
+          <button type="button" class="calc-btn calc-op" data-calc="op" data-val="+">+</button>
+          <button type="button" class="calc-btn calc-zero" data-calc="digit" data-val="0">0</button>
+          <button type="button" class="calc-btn" data-calc="decimal">.</button>
+          <button type="button" class="calc-btn calc-eq" data-calc="eq">=</button>
         </div>
       </div>
     </div>
@@ -449,16 +445,16 @@
       <div class="titlebar">
         <span data-i18n="title.stopwatch">Stopwatch</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('stopwatch')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('stopwatch')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
         <div class="sw-display" id="swDisplay">00<span class="sw-sep">:</span>00<span class="sw-cs">.00</span></div>
         <div class="sw-buttons">
-          <button type="button" class="sw-btn" id="swStartBtn" onclick="swStartStop()" data-i18n="ui.start">Start</button>
-          <button type="button" class="sw-btn" onclick="swLap()" data-i18n="ui.lap">Lap</button>
-          <button type="button" class="sw-btn" onclick="swReset()" data-i18n="ui.reset">Reset</button>
+          <button type="button" class="sw-btn" id="swStartBtn" data-action="swStartStop" data-i18n="ui.start">Start</button>
+          <button type="button" class="sw-btn" data-action="swLap" data-i18n="ui.lap">Lap</button>
+          <button type="button" class="sw-btn" data-action="swReset" data-i18n="ui.reset">Reset</button>
         </div>
         <div class="sw-laps" id="swLaps"></div>
       </div>
@@ -472,8 +468,8 @@
       <div class="titlebar">
         <span data-i18n="title.slotMachine">Slot Machine</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('slotmachine')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeSlotMachine()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="slotmachineBody"></div>
@@ -487,8 +483,8 @@
       <div class="titlebar">
         <span data-i18n="title.cryptography">Cryptography</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('cryptography')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('cryptography')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="cryptographyBody"></div>
@@ -502,8 +498,8 @@
       <div class="titlebar">
         <span data-i18n="title.chat">Chat - mpOSbot</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('chat')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeChat()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body chat-body">
@@ -513,8 +509,7 @@
                     placeholder="Ask about mpOS..." data-i18n="chat.placeholder"
                     data-i18n-attr="placeholder"></textarea>
           <div class="chat-button-row">
-            <button type="button" class="btn" id="chatSendBtn"
-                    onclick="sendChatMessage()" data-i18n="chat.send">Send</button>
+            <button type="button" class="btn" id="chatSendBtn" data-action="sendChatMessage" data-i18n="chat.send">Send</button>
           </div>
         </div>
       </div>
@@ -528,8 +523,8 @@
       <div class="titlebar">
         <span data-i18n="title.photoBooth">Photo Booth</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('photobooth')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closePhotoBooth()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body"></div>
@@ -544,16 +539,16 @@
       <div class="titlebar">
         <span data-i18n="title.calendar">Calendar</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('calendar')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('calendar')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
         <div class="cal-header">
-          <button type="button" class="calc-btn cal-nav" onclick="calendarPrev()">&lsaquo;</button>
+          <button type="button" class="calc-btn cal-nav" data-action="calendarPrev">&lsaquo;</button>
           <span class="cal-title" id="calTitle"></span>
-          <button type="button" class="calc-btn cal-nav" onclick="calendarNext()">&rsaquo;</button>
-          <button type="button" class="calc-btn cal-today" onclick="calendarToday()" data-i18n="ui.today">Today</button>
+          <button type="button" class="calc-btn cal-nav" data-action="calendarNext">&rsaquo;</button>
+          <button type="button" class="calc-btn cal-today" data-action="calendarToday" data-i18n="ui.today">Today</button>
         </div>
         <div class="cal-grid" id="calGrid"></div>
       </div>
@@ -564,13 +559,13 @@
       <div class="titlebar">
         <span data-i18n="title.timeZone">Time Zone</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('timezone')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeTimeZone()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
         <div class="tz-toolbar">
-          <button type="button" class="calc-btn tz-toggle" onclick="tzToggleView()" data-i18n="ui.digital">Digital</button>
+          <button type="button" class="calc-btn tz-toggle" data-action="tzToggleView" data-i18n="ui.digital">Digital</button>
         </div>
         <div class="tz-grid" id="tzGrid"></div>
       </div>
@@ -581,8 +576,8 @@
       <div class="titlebar">
         <span data-i18n="title.weather">Weather</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('weather')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('weather')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="weatherBody">
@@ -598,8 +593,8 @@
       <div class="titlebar">
         <span data-i18n="title.diskUsage">Disk Usage</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('diskusage')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('diskusage')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="diskUsageBody">
@@ -615,8 +610,8 @@
       <div class="titlebar">
         <span data-i18n="title.visitorMap">Visitor Map</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('visitormap')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('visitormap')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="visitorMapBody">
@@ -632,22 +627,22 @@
       <div class="titlebar">
         <span id="helpTitle" data-i18n="title.help">mpOS Help</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('help')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('help')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="help-toolbar">
-        <button type="button" class="btn help-tb-btn" id="helpToggleBtn" onclick="helpToggleNav()" data-i18n="help.hide">Hide</button>
-        <button type="button" class="btn help-tb-btn" id="helpBackBtn" onclick="helpBack()" disabled data-i18n="help.back">Back</button>
-        <button type="button" class="btn help-tb-btn" id="helpFwdBtn" onclick="helpForward()" disabled data-i18n="help.forward">Forward</button>
-        <button type="button" class="btn help-tb-btn" onclick="helpHome()" data-i18n="help.home">Home</button>
+        <button type="button" class="btn help-tb-btn" id="helpToggleBtn" data-action="helpToggleNav" data-i18n="help.hide">Hide</button>
+        <button type="button" class="btn help-tb-btn" id="helpBackBtn" data-action="helpBack" disabled data-i18n="help.back">Back</button>
+        <button type="button" class="btn help-tb-btn" id="helpFwdBtn" data-action="helpForward" disabled data-i18n="help.forward">Forward</button>
+        <button type="button" class="btn help-tb-btn" data-action="helpHome" data-i18n="help.home">Home</button>
       </div>
       <div class="help-panes">
         <div class="help-nav" id="helpNav">
           <div class="help-tabs">
-            <button type="button" class="help-tab active" id="helpTabContents" onclick="helpSwitchTab('contents')" data-i18n="help.tab.contents">Contents</button>
-            <button type="button" class="help-tab" id="helpTabIndex" onclick="helpSwitchTab('index')" data-i18n="help.tab.index">Index</button>
-            <button type="button" class="help-tab" id="helpTabSearch" onclick="helpSwitchTab('search')" data-i18n="help.tab.search">Search</button>
+            <button type="button" class="help-tab active" id="helpTabContents" data-tab="contents" data-i18n="help.tab.contents">Contents</button>
+            <button type="button" class="help-tab" id="helpTabIndex" data-tab="index" data-i18n="help.tab.index">Index</button>
+            <button type="button" class="help-tab" id="helpTabSearch" data-tab="search" data-i18n="help.tab.search">Search</button>
           </div>
           <div class="help-tab-body" id="helpTabBody"></div>
         </div>
@@ -660,8 +655,8 @@
       <div class="titlebar">
         <span data-i18n="title.searchResults">Search Results</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('search')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('search')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="search-panes">
@@ -670,7 +665,7 @@
           <label class="search-label"><span data-i18n="search.named">Named:</span>
             <input type="text" class="search-input" id="searchInput" spellcheck="false" autocomplete="off">
           </label>
-          <button type="button" class="btn search-now-btn" onclick="searchNow()" data-i18n="search.searchNow">Search Now</button>
+          <button type="button" class="btn search-now-btn" data-action="searchNow" data-i18n="search.searchNow">Search Now</button>
           <div class="search-sidebar-hint"></div>
         </div>
         <div class="search-results" id="searchResults"></div>
@@ -685,47 +680,47 @@
       <div class="titlebar">
         <span id="paintTitle" data-i18n="title.paint">Paint</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('paint')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closePaint()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
         <div class="paint-toolbar">
-          <button type="button" class="btn" onclick="paintNew()" data-i18n="ui.new">New</button>
-          <button type="button" class="btn" onclick="paintSave()" data-i18n="ui.save">Save</button>
-          <button type="button" class="btn" onclick="paintLoad()" data-i18n="ui.open">Open</button>
+          <button type="button" class="btn" data-action="paintNew" data-i18n="ui.new">New</button>
+          <button type="button" class="btn" data-action="paintSave" data-i18n="ui.save">Save</button>
+          <button type="button" class="btn" data-action="paintLoad" data-i18n="ui.open">Open</button>
           <span class="paint-tb-sep"></span>
-          <button type="button" class="btn" id="paintUndoBtn" onclick="paintUndo()" disabled data-i18n="ui.undo">Undo</button>
-          <button type="button" class="btn" id="paintRedoBtn" onclick="paintRedo()" disabled data-i18n="ui.redo">Redo</button>
+          <button type="button" class="btn" id="paintUndoBtn" data-action="paintUndo" disabled data-i18n="ui.undo">Undo</button>
+          <button type="button" class="btn" id="paintRedoBtn" data-action="paintRedo" disabled data-i18n="ui.redo">Redo</button>
           <span class="paint-tb-sep"></span>
-          <button type="button" class="btn" onclick="paintClear()" data-i18n="ui.clear">Clear</button>
+          <button type="button" class="btn" data-action="paintClear" data-i18n="ui.clear">Clear</button>
           <span class="paint-tb-sep"></span>
           <label class="paint-size-label"><span data-i18n="paint.sizeLabel">Size:</span>
-            <input type="range" id="paintSize" min="1" max="50" value="3" oninput="paintSizeChange(this.value)">
+            <input type="range" id="paintSize" min="1" max="50" value="3">
             <span id="paintSizeVal">3</span>px
           </label>
         </div>
         <div class="paint-main">
           <div class="paint-sidebar">
-            <button type="button" class="paint-tool active" data-tool="pencil" onclick="paintSetTool('pencil')" title="Pencil (1px)" data-i18n="paint.tool.pencil" data-i18n-attr="title">
+            <button type="button" class="paint-tool active" data-tool="pencil" title="Pencil (1px)" data-i18n="paint.tool.pencil" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><path d="M3 13 L11 5 L13 3 L11 5 L3 13Z" stroke="#444" stroke-width="1.5" stroke-linecap="round"/><path d="M2.5 13.5 L3 11 L5 13Z" fill="#444"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="brush" onclick="paintSetTool('brush')" title="Brush" data-i18n="paint.tool.brush" data-i18n-attr="title">
+            <button type="button" class="paint-tool" data-tool="brush" title="Brush" data-i18n="paint.tool.brush" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><path d="M4 12 Q6 8 8 6 Q10 4 12 3" stroke="#444" stroke-width="2.5" stroke-linecap="round"/><path d="M2 14 Q3 12 4 12" stroke="#444" stroke-width="1" stroke-linecap="round"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="eraser" onclick="paintSetTool('eraser')" title="Eraser" data-i18n="paint.tool.eraser" data-i18n-attr="title">
+            <button type="button" class="paint-tool" data-tool="eraser" title="Eraser" data-i18n="paint.tool.eraser" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="6" width="10" height="6" rx="1" fill="#e8e0d8" stroke="#888" stroke-width="1"/><rect x="3" y="10" width="10" height="3" rx="1" fill="#f8a0a0" stroke="#888" stroke-width="0.8"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="line" onclick="paintSetTool('line')" title="Line" data-i18n="paint.tool.line" data-i18n-attr="title">
+            <button type="button" class="paint-tool" data-tool="line" title="Line" data-i18n="paint.tool.line" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><line x1="3" y1="13" x2="13" y2="3" stroke="#444" stroke-width="1.5" stroke-linecap="round"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="rect" onclick="paintSetTool('rect')" title="Rectangle" data-i18n="paint.tool.rect" data-i18n-attr="title">
+            <button type="button" class="paint-tool" data-tool="rect" title="Rectangle" data-i18n="paint.tool.rect" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="8" stroke="#444" stroke-width="1.5" fill="none"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="ellipse" onclick="paintSetTool('ellipse')" title="Ellipse" data-i18n="paint.tool.ellipse" data-i18n-attr="title">
+            <button type="button" class="paint-tool" data-tool="ellipse" title="Ellipse" data-i18n="paint.tool.ellipse" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="8" rx="6" ry="4" stroke="#444" stroke-width="1.5" fill="none"/></svg>
             </button>
-            <button type="button" class="paint-tool" data-tool="fill" onclick="paintSetTool('fill')" title="Fill" data-i18n="paint.tool.fill" data-i18n-attr="title">
+            <button type="button" class="paint-tool" data-tool="fill" title="Fill" data-i18n="paint.tool.fill" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><path d="M4 12 L4 6 L8 2 L12 6 L12 8" stroke="#444" stroke-width="1.2" fill="none" stroke-linejoin="round"/><path d="M12 8 Q14 10 12 12 Q10 14 8 12" fill="#4a8abe" stroke="#2a6898" stroke-width="0.8"/></svg>
             </button>
           </div>
@@ -754,8 +749,8 @@
       <div class="titlebar">
         <span data-i18n="title.taskManager">Task Manager</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('taskmanager')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeTaskManager()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="taskmanagerBody"></div>
@@ -771,8 +766,8 @@
       <div class="titlebar">
         <span data-i18n="title.noiseMixer">White Noise Mixer</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('noisemixer')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeNoiseMixer()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="noisemixerBody"></div>
@@ -786,8 +781,8 @@
       <div class="titlebar">
         <span data-i18n="title.reverb">Reverb</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('reverb')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeReverb()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="reverbBody"></div>
@@ -801,8 +796,8 @@
       <div class="titlebar">
         <span data-i18n="title.soundProducer">Sound Producer</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('soundproducer')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeSoundProducer()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="soundproducerBody"></div>
@@ -816,7 +811,7 @@
       <div class="titlebar">
         <span data-i18n="title.chickenFingers">Chicken Fingers</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('chickenError')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body">
@@ -828,7 +823,7 @@
           </div>
         </div>
         <div class="button-row">
-          <button type="button" class="btn" data-i18n="ui.ok" onclick="mpTaskbar.closeWindow('chickenError')">OK</button>
+          <button type="button" class="btn" data-i18n="ui.ok" data-action="closeChickenError">OK</button>
         </div>
       </div>
     </div>
@@ -838,8 +833,8 @@
       <div class="titlebar">
         <span data-i18n="title.voiceCommands">Voice Commands</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('voicecommands')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="closeVoiceCommands()">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body vc-body">
@@ -873,8 +868,8 @@
       <div class="titlebar">
         <span data-i18n="title.neoTracker">NEO Tracker</span>
         <div class="titlebar-buttons">
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize" onclick="mpTaskbar.minimizeWindow('neotracker')">_</div>
-          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close" onclick="mpTaskbar.closeWindow('neotracker')">X</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Minimize">_</div>
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
       <div class="window-body" id="neotrackerBody">
@@ -918,7 +913,7 @@
             <rect x="7" y="7" width="12" height="3" rx="1" fill="url(#pg-title)"/>
             <rect x="7.8" y="7.4" width="3" height="1.5" rx="0.3" fill="white" opacity="0.25"/>
           </svg>
-          <span onclick="openExplorerTo('programs'); closeStartMenu(); event.stopPropagation();" data-i18n="ui.programs">Programs</span>
+          <span data-action="openExplorerTo" data-arg="programs" data-i18n="ui.programs">Programs</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <!-- Games sub-submenu -->
@@ -927,23 +922,23 @@
               <span data-i18n="ui.games">Games</span>
               <span class="arrow">&#9654;</span>
               <div class="start-submenu">
-                <button class="start-menu-item" type="button" onclick="openOnTarget(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openOnTarget">
                   <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ot-red" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ff8a8a"/><stop offset="40%" stop-color="#ef5350"/><stop offset="100%" stop-color="#b71c1c"/></radialGradient><radialGradient id="ot-wht" cx="0.4" cy="0.4" r="0.6"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e8e0e0"/></radialGradient></defs><circle cx="10" cy="10" r="9" fill="url(#ot-red)" stroke="#8b1a1a" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#ot-wht)" stroke="#c62828" stroke-width="0.3"/><circle cx="10" cy="10" r="5" fill="url(#ot-red)" stroke="#8b1a1a" stroke-width="0.3"/><circle cx="10" cy="10" r="3" fill="url(#ot-wht)" stroke="#c62828" stroke-width="0.3"/><circle cx="10" cy="10" r="1.5" fill="url(#ot-red)"/><ellipse cx="7.5" cy="6" rx="4" ry="2.5" fill="white" opacity="0.25"/></svg>
                   <span data-i18n="app.onTarget.name">On Target</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="closeStartMenu(); if(openChickenFingers()) location.href='chicken-fingers.html';">
+                <button class="start-menu-item" type="button" data-action="openChickenFingers" data-href="chicken-fingers.html">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cf-body" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#fffde0"/><stop offset="30%" stop-color="#ffe68a"/><stop offset="70%" stop-color="#ffc840"/><stop offset="100%" stop-color="#e8a010"/></radialGradient></defs><ellipse cx="10" cy="12" rx="6" ry="5" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="8.5" cy="11" rx="3.5" ry="2" fill="white" opacity="0.2"/><circle cx="10" cy="6" r="4" fill="url(#cf-body)" stroke="#c49000" stroke-width="0.7"/><ellipse cx="9" cy="5" rx="2.5" ry="1.5" fill="white" opacity="0.25"/><circle cx="8.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="8.8" cy="5.2" r="0.2" fill="white"/><circle cx="11.5" cy="5.5" r="0.8" fill="#5d4037"/><circle cx="11.8" cy="5.2" r="0.2" fill="white"/><path d="M9 7.5 L10 8.5 L11 7.5" stroke="#d45500" stroke-width="0.8" fill="#e67e22"/><path d="M5 4 Q7 2 9 3" stroke="#c49000" stroke-width="0.6" fill="none"/><path d="M11 3 Q13 2 15 4" stroke="#c49000" stroke-width="0.6" fill="none"/></svg>
                   <span data-i18n="app.chickenFingers.name">Chicken Fingers</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openBrickBreaker(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openBrickBreaker">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bb-red" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ff8a80"/><stop offset="50%" stop-color="#ef5350"/><stop offset="100%" stop-color="#c62828"/></radialGradient><radialGradient id="bb-yellow" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#ffd54f"/><stop offset="50%" stop-color="#ffc107"/><stop offset="100%" stop-color="#e8a000"/></radialGradient><radialGradient id="bb-green" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#9ccc9c"/><stop offset="50%" stop-color="#66bb6a"/><stop offset="100%" stop-color="#2e7d32"/></radialGradient><linearGradient id="bb-paddle" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8e0f8"/><stop offset="100%" stop-color="#4a8abe"/></linearGradient><radialGradient id="bb-ball" cx="0.3" cy="0.3" r="0.7"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e8e8e8"/></radialGradient></defs><rect x="2" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="7" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="12" y="2.5" width="4.5" height="2" rx="0.4" fill="url(#bb-red)" stroke="#b71c1c" stroke-width="0.6"/><rect x="2" y="5" width="4.5" height="2" rx="0.4" fill="url(#bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="7" y="5" width="4.5" height="2" rx="0.4" fill="url(#bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="12" y="5" width="4.5" height="2" rx="0.4" fill="url(#bb-yellow)" stroke="#c67c00" stroke-width="0.6"/><rect x="2" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#bb-green)" stroke="#1b5e20" stroke-width="0.6"/><rect x="7" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#bb-green)" stroke="#1b5e20" stroke-width="0.6"/><rect x="12" y="7.5" width="4.5" height="2" rx="0.4" fill="url(#bb-green)" stroke="#1b5e20" stroke-width="0.6"/><circle cx="10" cy="13" r="1.8" fill="url(#bb-ball)" stroke="#bdbdbd" stroke-width="0.6"/><rect x="6.5" y="16" width="7" height="1.8" rx="0.5" fill="url(#bb-paddle)" stroke="#1a4a6e" stroke-width="0.7"/></svg>
                   <span data-i18n="app.brickBreaker.name">Brick Breaker</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openFractal(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openFractal">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="fr-bg" cx="0.4" cy="0.4" r="0.65"><stop offset="0%" stop-color="#a0d0ff"/><stop offset="40%" stop-color="#4a8abe"/><stop offset="70%" stop-color="#2a5a8e"/><stop offset="100%" stop-color="#1a2a4e"/></radialGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#fr-bg)" stroke="#1a2a4e" stroke-width="0.8"/><ellipse cx="8" cy="7.5" rx="4" ry="3" fill="white" opacity="0.2"/><path d="M10 10 Q12 6 10 4 Q8 6 10 10 Q14 8 16 10 Q14 12 10 10 Q8 14 10 16 Q12 14 10 10 Q6 12 4 10 Q6 8 10 10Z" fill="none" stroke="#c0e0ff" stroke-width="0.7" opacity="0.8"/><circle cx="10" cy="10" r="2.5" fill="none" stroke="#80b0e0" stroke-width="0.5"/><circle cx="10" cy="10" r="5" fill="none" stroke="#6090c0" stroke-width="0.4" opacity="0.6"/><circle cx="10" cy="10" r="1" fill="#e0f0ff"/></svg>
                   <span data-i18n="app.fractal.name">Fractal Explorer</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openSlotMachine(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openSlotMachine">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sm-g" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e8d060"/><stop offset="30%" stop-color="#c8a030"/><stop offset="70%" stop-color="#a08020"/><stop offset="100%" stop-color="#806010"/></linearGradient><linearGradient id="sm-f" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="100%" stop-color="#d8e8f8"/></linearGradient></defs><rect x="2" y="1" width="16" height="18" rx="2" fill="url(#sm-g)" stroke="#604800" stroke-width="0.8"/><line x1="3" y1="2" x2="17" y2="2" stroke="white" stroke-width="0.5" opacity="0.4"/><rect x="4" y="4" width="4" height="6" rx="0.5" fill="url(#sm-f)" stroke="#604800" stroke-width="0.5"/><rect x="8.5" y="4" width="4" height="6" rx="0.5" fill="url(#sm-f)" stroke="#604800" stroke-width="0.5"/><rect x="13" y="4" width="4" height="6" rx="0.5" fill="url(#sm-f)" stroke="#604800" stroke-width="0.5"/><text x="6" y="8.5" font-size="4" font-weight="bold" fill="#ef5350" text-anchor="middle" font-family="sans-serif">7</text><text x="10.5" y="8.5" font-size="4" font-weight="bold" fill="#ef5350" text-anchor="middle" font-family="sans-serif">7</text><text x="15" y="8.5" font-size="4" font-weight="bold" fill="#ef5350" text-anchor="middle" font-family="sans-serif">7</text><rect x="7" y="13" width="6" height="3" rx="1" fill="#ef5350" stroke="#b71c1c" stroke-width="0.5"/><ellipse cx="10" cy="14.5" rx="2" ry="0.8" fill="white" opacity="0.3"/></svg>
                   <span data-i18n="app.slotMachine.name">Slot Machine</span>
                 </button>
@@ -955,27 +950,27 @@
               <span data-i18n="ui.internet">Internet</span>
               <span class="arrow">&#9654;</span>
               <div class="start-submenu">
-                <button class="start-menu-item" type="button" onclick="openBrowser(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openBrowser">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="wbs-sphere" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="wbs-clip"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#wbs-sphere)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#wbs-clip)" opacity="0.35"><ellipse cx="8" cy="8" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="13" cy="11" rx="2" ry="3" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.7"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.7"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.5"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.5"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/></svg>
                   <span data-i18n="app.wikiBrowser.name">WikiBrowser</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openFishOfDay(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openFishOfDay">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="fd-fish" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#b0f0d0"/><stop offset="30%" stop-color="#70c898"/><stop offset="70%" stop-color="#40a068"/><stop offset="100%" stop-color="#2a8858"/></linearGradient></defs><path d="M1 7 Q3 10 1 14 L4 11 Z" fill="url(#fd-fish)" stroke="#1a5c42" stroke-width="0.6"/><ellipse cx="10" cy="11" rx="8" ry="5" fill="url(#fd-fish)" stroke="#1a5c42" stroke-width="0.8"/><ellipse cx="9" cy="9.5" rx="5" ry="2" fill="white" opacity="0.3"/><circle cx="15" cy="10" r="1" fill="#1a5c42"/><circle cx="15.3" cy="9.7" r="0.3" fill="white"/></svg>
                   <span data-i18n="app.fishOfDay.name">Fish of the Day</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openFishFinder(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openFishFinder">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ff-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="30%" stop-color="#d8ecff"/><stop offset="60%" stop-color="#a8d0f0"/><stop offset="100%" stop-color="#78b0d8"/></radialGradient><linearGradient id="ff-handle" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d0c8"/><stop offset="50%" stop-color="#a0a098"/><stop offset="100%" stop-color="#787870"/></linearGradient></defs><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="url(#ff-handle)" stroke-width="3" stroke-linecap="round"/><circle cx="9" cy="9" r="6" fill="url(#ff-lens)" stroke="#1a4a6e" stroke-width="1.2"/><circle cx="9" cy="9" r="4.5" fill="none" stroke="#1a4a6e" stroke-width="0.4" opacity="0.3"/><ellipse cx="7" cy="7" rx="3.5" ry="2.5" fill="white" opacity="0.4"/></svg>
                   <span data-i18n="app.fishFinder.name">Fish Finder</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openAquarium(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openAquarium">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="va-body" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#d0e8ff"/><stop offset="30%" stop-color="#6aafe0"/><stop offset="70%" stop-color="#3a8ac0"/><stop offset="100%" stop-color="#1a4a6e"/></linearGradient><linearGradient id="va-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a8aaa"/><stop offset="40%" stop-color="#0d5a76"/><stop offset="100%" stop-color="#082a3e"/></linearGradient></defs><rect x="1" y="3" width="18" height="12" rx="2" fill="url(#va-body)" stroke="#1a4a6e" stroke-width="0.8"/><line x1="2" y1="4" x2="18" y2="4" stroke="white" stroke-width="0.5" opacity="0.4"/><rect x="3" y="5" width="14" height="8" rx="1" fill="url(#va-water)"/><ellipse cx="7" cy="9" rx="3" ry="1.5" fill="#ffa000" opacity="0.7"/><ellipse cx="12" cy="10" rx="2" ry="1" fill="#ffa000" opacity="0.6"/><path d="M4 7 Q6 6 8 7" stroke="#5ac8e0" stroke-width="0.4" opacity="0.4" fill="none"/><rect x="7" y="15.5" width="6" height="2" rx="0.5" fill="#a0a098" stroke="#8a8680" stroke-width="0.4"/></svg>
                   <span data-i18n="app.aquarium.name">Virtual Aquarium</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openNeoTracker(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openNeoTracker">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="neo-ast" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#d0c8b8"/><stop offset="50%" stop-color="#a09080"/><stop offset="100%" stop-color="#706050"/></radialGradient></defs><circle cx="10" cy="10" r="4.5" fill="url(#neo-ast)" stroke="#504030" stroke-width="0.8"/><ellipse cx="8.5" cy="8" rx="2.5" ry="1.5" fill="white" opacity="0.3"/><circle cx="12" cy="8.5" r="0.8" fill="#504030" opacity="0.5"/><circle cx="8" cy="11" r="0.6" fill="#504030" opacity="0.4"/><line x1="5" y1="5" x2="3" y2="3" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="15" y1="5" x2="17" y2="3" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="5" y1="15" x2="3" y2="17" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><line x1="15" y1="15" x2="17" y2="17" stroke="#a08060" stroke-width="0.6" stroke-linecap="round"/><circle cx="3" cy="3" r="0.5" fill="#c0a080"/><circle cx="17" cy="3" r="0.4" fill="#c0a080"/><circle cx="3" cy="17" r="0.3" fill="#c0a080"/><circle cx="17" cy="17" r="0.4" fill="#c0a080"/></svg>
                   <span data-i18n="app.neoTracker.name">NEO Tracker</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openArchiveBrowser(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openArchiveBrowser">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="abs-cover" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#c8a070"/><stop offset="50%" stop-color="#a07848"/><stop offset="100%" stop-color="#604018"/></linearGradient></defs><rect x="2" y="2" width="3" height="16" rx="0.5" fill="#604018" stroke="#402808" stroke-width="0.4"/><rect x="5" y="3" width="12" height="14" rx="0.5" fill="#fff8e8" stroke="#a09078" stroke-width="0.3"/><path d="M2 2 Q2 1.5 2.5 1.5 L16.5 1.5 Q17 1.5 17 2 L17 18 Q17 18.5 16.5 18.5 L2.5 18.5 Q2 18.5 2 18 Z" fill="url(#abs-cover)" stroke="#402808" stroke-width="0.5" opacity="0.85"/><line x1="5" y1="1.5" x2="5" y2="18.5" stroke="#402808" stroke-width="0.4"/><rect x="6.5" y="5" width="9" height="4" rx="0.5" fill="#f0e0c0" stroke="#a08050" stroke-width="0.3"/><line x1="7" y1="11" x2="15" y2="11" stroke="#a08050" stroke-width="0.3" opacity="0.6"/><line x1="7" y1="13" x2="15" y2="13" stroke="#a08050" stroke-width="0.3" opacity="0.6"/></svg>
                   <span data-i18n="app.archiveBrowser.name">Archive Browser</span>
                 </button>
@@ -987,15 +982,15 @@
               <span data-i18n="ui.accessories">Accessories</span>
               <span class="arrow">&#9654;</span>
               <div class="start-submenu">
-                <button class="start-menu-item" type="button" onclick="openNotepad(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openNotepad">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="np-doc" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="30%" stop-color="#f0f4ff"/><stop offset="70%" stop-color="#c8d8f0"/><stop offset="100%" stop-color="#a0b8d8"/></linearGradient></defs><path d="M3 1 L13 1 L17 5 L17 19 L3 19 Z" fill="url(#np-doc)" stroke="#4a6a8e" stroke-width="0.8"/><path d="M13 1 L13 5 L17 5" fill="#c8d8f0" stroke="#4a6a8e" stroke-width="0.5"/><rect x="4" y="2" width="6" height="2" rx="0.5" fill="white" opacity="0.4"/><line x1="6" y1="8" x2="14" y2="8" stroke="#8a9ab8" stroke-width="0.5"/><line x1="6" y1="11" x2="14" y2="11" stroke="#8a9ab8" stroke-width="0.5"/><line x1="6" y1="14" x2="11" y2="14" stroke="#8a9ab8" stroke-width="0.5"/></svg>
                   <span data-i18n="app.notepad.name">Notepad</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openPaint(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openPaint">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pt-pal" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffe082"/><stop offset="70%" stop-color="#f0c050"/><stop offset="100%" stop-color="#c49000"/></linearGradient></defs><ellipse cx="10" cy="11" rx="8" ry="7" fill="url(#pt-pal)" stroke="#a07000" stroke-width="0.8"/><ellipse cx="9" cy="8" rx="5" ry="3" fill="white" opacity="0.3"/><circle cx="6" cy="9" r="1.5" fill="#ef5350"/><circle cx="9" cy="7" r="1.3" fill="#4a8abe"/><circle cx="13" cy="8" r="1.4" fill="#5aaa80"/><circle cx="14" cy="11" r="1.3" fill="#ffc107"/><circle cx="6" cy="13" r="1.2" fill="#9c27b0"/><ellipse cx="11" cy="14" rx="1" ry="0.8" fill="#ff9800"/><path d="M15 5 Q16 3 17 2 Q18 1.5 18 3 Q17 4 16 6 Q15 7 15 5Z" fill="#a07000" stroke="#785000" stroke-width="0.5"/></svg>
                   <span data-i18n="app.paint.name">Paint</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openStickyNotes(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openStickyNotes">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sn-bg2" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#fff9b1"/><stop offset="50%" stop-color="#f5e87b"/><stop offset="100%" stop-color="#e8d44d"/></linearGradient></defs><rect x="2" y="2" width="14" height="14" fill="url(#sn-bg2)" stroke="#c4a82b" stroke-width="0.7"/><path d="M16 2 L16 9 L12 2 Z" fill="#e8d44d" stroke="#c4a82b" stroke-width="0.5"/><path d="M16 9 Q14 10 12 9 L12 2 Z" fill="#d4c43b" stroke="#c4a82b" stroke-width="0.5" opacity="0.6"/><line x1="4" y1="6" x2="11" y2="6" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/><line x1="4" y1="9" x2="11" y2="9" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/><line x1="4" y1="12" x2="9" y2="12" stroke="#c4a82b" stroke-width="0.6" opacity="0.4"/></svg>
                   <span data-i18n="app.stickyNotes.name">Sticky Notes</span>
                 </button>
@@ -1007,19 +1002,19 @@
               <span data-i18n="ui.audio">Audio</span>
               <span class="arrow">&#9654;</span>
               <div class="start-submenu">
-                <button class="start-menu-item" type="button" onclick="openNoiseMixer(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openNoiseMixer">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="nm-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient><linearGradient id="nm-fdr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#a0a0a0"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#nm-body)" stroke="#606060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><rect x="3" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="3.2" y="8" width="1.1" height="1.2" rx="0.2" fill="url(#nm-fdr)"/><rect x="3" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50"/><rect x="6.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="6.7" y="10" width="1.1" height="1.2" rx="0.2" fill="url(#nm-fdr)"/><rect x="6.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.7"/><rect x="10" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="10.2" y="11" width="1.1" height="1.2" rx="0.2" fill="url(#nm-fdr)"/><rect x="10" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.5"/><rect x="13.5" y="7" width="1.5" height="8" rx="0.3" fill="#333" stroke="#555" stroke-width="0.3"/><rect x="13.7" y="9" width="1.1" height="1.2" rx="0.2" fill="url(#nm-fdr)"/><rect x="13.5" y="14" width="1.5" height="1" rx="0.2" fill="#4caf50" opacity="0.8"/></svg>
                   <span data-i18n="app.noiseMixer.name">White Noise</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openTuningFork(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openTuningFork">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tf-fork" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d0d0d0"/><stop offset="50%" stop-color="#a0a0a0"/><stop offset="100%" stop-color="#707070"/></linearGradient></defs><path d="M7 2 L7 11 Q7 14 10 14 Q13 14 13 11 L13 2" fill="none" stroke="url(#tf-fork)" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="14" x2="10" y2="19" stroke="url(#tf-fork)" stroke-width="2" stroke-linecap="round"/><ellipse cx="7" cy="3" rx="1" ry="0.5" fill="white" opacity="0.4"/><ellipse cx="13" cy="3" rx="1" ry="0.5" fill="white" opacity="0.4"/></svg>
                   <span data-i18n="app.tuningFork.name">Tuning Fork</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openReverb(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openReverb">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rv-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#4a4a5a"/><stop offset="30%" stop-color="#2a2a3a"/><stop offset="100%" stop-color="#1a1a2a"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#rv-body)" stroke="#505068" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><path d="M3 11 Q5 7 7 11 Q9 15 11 11 Q13 7 15 11 Q17 15 18 11" fill="none" stroke="#8888ff" stroke-width="1.2" opacity="0.8"/><circle cx="5" cy="15" r="1.2" fill="#c8a840" stroke="#6a5010" stroke-width="0.5"/><circle cx="15" cy="15" r="1.2" fill="#c8a840" stroke="#6a5010" stroke-width="0.5"/></svg>
                   <span data-i18n="app.reverb.name">Reverb</span>
                 </button>
-                <button class="start-menu-item" type="button" onclick="openSoundProducer(); closeStartMenu();">
+                <button class="start-menu-item" type="button" data-action="openSoundProducer">
                   <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sp-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#3a4a5a"/><stop offset="30%" stop-color="#2a3a4a"/><stop offset="100%" stop-color="#1a2a3a"/></linearGradient></defs><rect x="1" y="4" width="18" height="14" rx="1" fill="url(#sp-body)" stroke="#405060" stroke-width="0.7"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.4" opacity="0.15"/><path d="M3 11 L5 8 L7 13 L9 9 L11 12 L13 7 L15 14 L17 11" fill="none" stroke="#66bbff" stroke-width="1" opacity="0.9"/><circle cx="5" cy="15.5" r="1" fill="#66bb6a" stroke="#2e7d32" stroke-width="0.4"/><circle cx="10" cy="15.5" r="1" fill="#ef5350" stroke="#b71c1c" stroke-width="0.4"/><circle cx="15" cy="15.5" r="1" fill="#ffc107" stroke="#c49000" stroke-width="0.4"/></svg>
                   <span data-i18n="app.soundProducer.name">Sound Producer</span>
                 </button>
@@ -1039,7 +1034,7 @@
             <line x1="5" y1="18.5" x2="43" y2="18.5" stroke="white" stroke-width="0.8" opacity="0.45"/>
             <ellipse cx="16" cy="24" rx="12" ry="5" fill="white" opacity="0.2"/>
           </svg>
-          <span onclick="openExplorerTo('documents'); closeStartMenu(); event.stopPropagation();" data-i18n="ui.documents">Documents</span>
+          <span data-action="openExplorerTo" data-arg="documents" data-i18n="ui.documents">Documents</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
             <div class="start-menu-empty" data-i18n="ui.noDocumentsYet">No documents yet</div>
@@ -1054,42 +1049,42 @@
             <circle cx="10" cy="9" r="3" fill="#e0f0ff" stroke="#1a4a6e" stroke-width="0.6"/>
             <ellipse cx="8.5" cy="7" rx="3" ry="2" fill="white" opacity="0.3"/>
           </svg>
-          <span onclick="openExplorerTo('utilities'); closeStartMenu(); event.stopPropagation();" data-i18n="ui.utilities">Utilities</span>
+          <span data-action="openExplorerTo" data-arg="utilities" data-i18n="ui.utilities">Utilities</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
-            <button class="start-menu-item" type="button" onclick="openCalculator(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openCalculator">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ca-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="30%" stop-color="#d8d4cc"/><stop offset="70%" stop-color="#b8b4ac"/><stop offset="100%" stop-color="#98948c"/></linearGradient><linearGradient id="ca-lcd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0f0d0"/><stop offset="100%" stop-color="#b0d098"/></linearGradient></defs><rect x="3" y="1" width="14" height="18" rx="1.5" fill="url(#ca-body)" stroke="#787470" stroke-width="0.8"/><line x1="4" y1="2" x2="16" y2="2" stroke="white" stroke-width="0.5" opacity="0.5"/><rect x="5" y="3" width="10" height="3" rx="0.5" fill="url(#ca-lcd)" stroke="#6a8a5a" stroke-width="0.5"/><rect x="5" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="8" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="8" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="9" y="12" width="2" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="12" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/><rect x="5" y="16" width="6" height="2" rx="0.3" fill="#fff" stroke="#8a8680" stroke-width="0.4"/><rect x="13" y="16" width="2" height="2" rx="0.3" fill="#c8d8e8" stroke="#6a8a9e" stroke-width="0.4"/></svg>
               <span data-i18n="app.calculator.name">Calculator</span>
             </button>
-            <button class="start-menu-item" type="button" onclick="openCalendar(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openCalendar">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="cl-page" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient><linearGradient id="cl-bar" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ef5350"/><stop offset="50%" stop-color="#d32f2f"/><stop offset="100%" stop-color="#b71c1c"/></linearGradient></defs><rect x="3" y="3" width="14" height="16" rx="1" fill="url(#cl-page)" stroke="#8a8680" stroke-width="0.8"/><rect x="3" y="3" width="14" height="3.5" rx="1" fill="url(#cl-bar)"/><line x1="4" y1="3.8" x2="10" y2="3.8" stroke="white" stroke-width="0.5" opacity="0.4"/><circle cx="7" cy="10" r="0.6" fill="#808080"/><circle cx="10" cy="10" r="0.6" fill="#808080"/><circle cx="13" cy="10" r="0.6" fill="#808080"/><circle cx="7" cy="13" r="0.6" fill="#808080"/><circle cx="10" cy="13" r="0.6" fill="#808080"/><circle cx="13" cy="13" r="0.6" fill="#808080"/><circle cx="7" cy="16" r="0.6" fill="#808080"/><circle cx="10" cy="16" r="0.6" fill="#808080"/></svg>
               <span data-i18n="app.calendar.name">Calendar</span>
             </button>
-            <button class="start-menu-item" type="button" onclick="openTimeZone(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openTimeZone">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tz-face" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient><linearGradient id="tz-rim" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient></defs><circle cx="10" cy="10" r="8.5" fill="url(#tz-rim)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="10" r="7" fill="url(#tz-face)"/><ellipse cx="8.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><line x1="10" y1="10" x2="10" y2="5" stroke="#2a4a6e" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="10" x2="14" y2="10" stroke="#2a4a6e" stroke-width="0.9" stroke-linecap="round"/><circle cx="10" cy="10" r="0.8" fill="#2a4a6e"/><path d="M3.5 13 Q10 15.5 16.5 13" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/><path d="M3.5 7 Q10 4.5 16.5 7" fill="none" stroke="#4a8abe" stroke-width="0.5" opacity="0.6"/></svg>
               <span data-i18n="app.timeZone.name">Time Zone</span>
             </button>
-            <button class="start-menu-item" type="button" onclick="openWeather(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openWeather">
               <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sm-wesg" x1="73.5" x2="122.5" y1="55.6" y2="140.5" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f0b824"/><stop offset=".5" stop-color="#f0b824"/><stop offset="1" stop-color="#d49408"/></linearGradient></defs><symbol id="sm-wes" viewBox="0 0 196 196"><circle cx="98" cy="98" r="49" fill="url(#sm-wesg)" stroke="#e2a616" stroke-miterlimit="10" stroke-width="4"/><path fill="none" stroke="#f0b824" stroke-linecap="round" stroke-miterlimit="10" stroke-width="12" d="M98 24.3V6m0 184v-18.3M150.1 45.9l13-13M45.9 150.1l-13 13M45.9 45.9 33 33m130.1 130.1-13-13M6 98h18.3M190 98h-18.3"/></symbol><use href="#sm-wes" width="384" height="384" transform="translate(64 64)"/></svg>
               <span data-i18n="app.weather.name">Weather</span>
             </button>
-            <button class="start-menu-item" type="button" onclick="openDiskUsage(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openDiskUsage">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="du-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#e0dcd4"/><stop offset="30%" stop-color="#c8c4bc"/><stop offset="70%" stop-color="#a8a49c"/><stop offset="100%" stop-color="#8a8680"/></linearGradient><linearGradient id="du-platter" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient></defs><rect x="2" y="6" width="16" height="10" rx="1.5" fill="url(#du-body)" stroke="#6a6660" stroke-width="0.8"/><line x1="3" y1="7" x2="17" y2="7" stroke="white" stroke-width="0.5" opacity="0.4"/><rect x="4" y="8" width="8" height="5" rx="0.5" fill="url(#du-platter)" stroke="#4a4a4a" stroke-width="0.5"/><circle cx="8" cy="10.5" r="1.8" fill="none" stroke="#555" stroke-width="0.4"/><circle cx="8" cy="10.5" r="0.5" fill="#888"/><circle cx="15" cy="13" r="0.8" fill="#5aaa80" stroke="#2a7a52" stroke-width="0.3"/><ellipse cx="7" cy="8.5" rx="3" ry="1.5" fill="white" opacity="0.15"/></svg>
               <span data-i18n="app.diskUsage.name">Disk Usage</span>
             </button>
-            <button class="start-menu-item" type="button" onclick="openVisitorMap(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openVisitorMap">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="vm-globe" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="vm-clip"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#vm-globe)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#vm-clip)" opacity="0.35"><ellipse cx="6" cy="8" rx="4" ry="3" fill="#5aaa80"/><ellipse cx="14" cy="7" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="10" cy="14" rx="5" ry="2" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.6"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.6"/><path d="M3.5 6.5 Q10 5.5 16.5 6.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><path d="M3.5 13.5 Q10 14.5 16.5 13.5" fill="none" stroke="#1a4a6e" stroke-width="0.4"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/><circle cx="14" cy="6" r="2" fill="#ef5350" opacity="0.8"/><path d="M14 4 L14 6.5" stroke="#c62828" stroke-width="0.8" stroke-linecap="round"/><circle cx="14" cy="4" r="0.6" fill="#c62828"/></svg>
               <span data-i18n="app.visitorMap.name">Visitor Map</span>
             </button>
-            <button class="start-menu-item" type="button" onclick="openStopwatch(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openStopwatch">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sw-rim" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#c8d8e8"/><stop offset="50%" stop-color="#8aa8c8"/><stop offset="100%" stop-color="#4a6a8e"/></linearGradient><linearGradient id="sw-face" x1="0.3" y1="0.1" x2="0.7" y2="0.9"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="50%" stop-color="#d8e8f8"/><stop offset="100%" stop-color="#a0c0e0"/></linearGradient></defs><rect x="8.5" y="0.5" width="3" height="2.5" rx="0.5" fill="#8aa8c8" stroke="#4a6a8e" stroke-width="0.5"/><circle cx="10" cy="11" r="7.5" fill="url(#sw-rim)" stroke="#2a4a6e" stroke-width="0.8"/><circle cx="10" cy="11" r="6" fill="url(#sw-face)"/><ellipse cx="8.5" cy="8" rx="3.5" ry="2.5" fill="white" opacity="0.3"/><line x1="10" y1="5.5" x2="10" y2="6.5" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="15.5" y1="11" x2="14.5" y2="11" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="10" y1="16.5" x2="10" y2="15.5" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="4.5" y1="11" x2="5.5" y2="11" stroke="#2a4a6e" stroke-width="0.6" stroke-linecap="round"/><line x1="10" y1="11" x2="10" y2="6.8" stroke="#2a4a6e" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="11" x2="13.5" y2="11" stroke="#ef5350" stroke-width="0.6" stroke-linecap="round"/><circle cx="10" cy="11" r="0.7" fill="#2a4a6e"/></svg>
               <span data-i18n="app.stopwatch.name">Stopwatch</span>
             </button>
-            <button class="start-menu-item" type="button" onclick="openVoiceCommands(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openVoiceCommands">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7.5" y="2" width="5" height="9" rx="2.5" fill="#444"/><path d="M5.5 9v1.5a4.5 4.5 0 0 0 9 0V9" stroke="#444" stroke-width="1.2" fill="none"/><line x1="10" y1="15" x2="10" y2="18" stroke="#444" stroke-width="1.2"/><line x1="7.5" y1="18" x2="12.5" y2="18" stroke="#444" stroke-width="1.2"/></svg>
               <span data-i18n="app.voiceCommands.name">Voice Commands</span>
             </button>
-            <button class="start-menu-item" type="button" onclick="openCryptography(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openCryptography">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="cr-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="30%" stop-color="#d8d4cc"/><stop offset="70%" stop-color="#b0ac9c"/><stop offset="100%" stop-color="#908878"/></linearGradient></defs><rect x="3" y="5" width="14" height="12" rx="1.5" fill="url(#cr-body)" stroke="#6a6050" stroke-width="0.8"/><rect x="5" y="8" width="10" height="7" rx="1" fill="#f8f4e8" stroke="#8a8070" stroke-width="0.5"/><line x1="6" y1="10" x2="14" y2="10" stroke="#c0b8a0" stroke-width="0.5"/><line x1="6" y1="12" x2="12" y2="12" stroke="#c0b8a0" stroke-width="0.5"/><circle cx="10" cy="4" r="3" fill="none" stroke="#8a8070" stroke-width="1.5"/><rect x="9" y="4" width="2" height="4" rx="0.5" fill="#b0a890" stroke="#8a8070" stroke-width="0.5"/><circle cx="10" cy="6.5" r="0.8" fill="#6a6050"/></svg>
               <span data-i18n="app.cryptography.name">Cryptography</span>
             </button>
@@ -1097,7 +1092,7 @@
         </div>
 
         <!-- Help -->
-        <button class="start-menu-item" type="button" onclick="openHelp(); closeStartMenu();">
+        <button class="start-menu-item" type="button" data-action="openHelp">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="hp-book" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffc107"/><stop offset="70%" stop-color="#e8a010"/><stop offset="100%" stop-color="#c49000"/></linearGradient>
@@ -1130,15 +1125,15 @@
           <span data-i18n="ui.search">Search</span>
           <span class="arrow">&#9654;</span>
           <div class="start-submenu">
-            <button class="start-menu-item" type="button" onclick="openSearch(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openSearch">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="sr-ff-lens" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#f0f8ff"/><stop offset="30%" stop-color="#d8ecff"/><stop offset="60%" stop-color="#a8d0f0"/><stop offset="100%" stop-color="#78b0d8"/></radialGradient><linearGradient id="sr-ff-handle" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d0c8"/><stop offset="50%" stop-color="#a0a098"/><stop offset="100%" stop-color="#787870"/></linearGradient></defs><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="url(#sr-ff-handle)" stroke-width="3" stroke-linecap="round"/><circle cx="9" cy="9" r="6" fill="url(#sr-ff-lens)" stroke="#1a4a6e" stroke-width="1.2"/><ellipse cx="7" cy="7" rx="3.5" ry="2.5" fill="white" opacity="0.4"/></svg>
               <span data-i18n="startSearch.files">For Files or Folders...</span>
             </button>
-            <button class="start-menu-item" type="button" onclick="openHelp(); setTimeout(function(){helpSwitchTab('search');},200); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openHelp" data-after="helpSwitchTab:search">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sr-hp-book" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#fff3c4"/><stop offset="30%" stop-color="#ffc107"/><stop offset="70%" stop-color="#e8a010"/><stop offset="100%" stop-color="#c49000"/></linearGradient><linearGradient id="sr-hp-page" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#d8d8d8"/></linearGradient></defs><rect x="2" y="3" width="3" height="14" rx="0.5" fill="url(#sr-hp-book)" stroke="#c49000" stroke-width="0.6"/><rect x="5" y="4" width="11" height="12" rx="1" fill="url(#sr-hp-page)" stroke="#8a8680" stroke-width="0.6"/><line x1="6" y1="4.5" x2="15" y2="4.5" stroke="white" stroke-width="0.5" opacity="0.5"/><path d="M9.5 8 Q9.5 6.5 11 6.5 Q12.5 6.5 12.5 8 Q12.5 9 11 9.5 L11 10.5" fill="none" stroke="#4a8abe" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="12.5" r="0.7" fill="#4a8abe"/></svg>
               <span data-i18n="startSearch.help">For Help Topics...</span>
             </button>
-            <button class="start-menu-item" type="button" onclick="openBrowser(); closeStartMenu();">
+            <button class="start-menu-item" type="button" data-action="openBrowser">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="sr-globe" cx="0.35" cy="0.35" r="0.65"><stop offset="0%" stop-color="#e0f4ff"/><stop offset="25%" stop-color="#80c8f0"/><stop offset="55%" stop-color="#4a8abe"/><stop offset="100%" stop-color="#2a6898"/></radialGradient><clipPath id="sr-globe-clip"><circle cx="10" cy="10" r="7.5"/></clipPath></defs><circle cx="10" cy="10" r="8" fill="url(#sr-globe)" stroke="#1a4a6e" stroke-width="1"/><g clip-path="url(#sr-globe-clip)" opacity="0.35"><ellipse cx="8" cy="8" rx="3" ry="2.5" fill="#5aaa80"/><ellipse cx="13" cy="11" rx="2" ry="3" fill="#5aaa80"/></g><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="#1a4a6e" stroke-width="0.7"/><line x1="2" y1="10" x2="18" y2="10" stroke="#1a4a6e" stroke-width="0.7"/><ellipse cx="7.5" cy="7" rx="4" ry="3" fill="white" opacity="0.3"/></svg>
               <span data-i18n="startSearch.internet">On the Internet</span>
             </button>
@@ -1146,7 +1141,7 @@
         </div>
 
         <!-- Run -->
-        <button class="start-menu-item" type="button" onclick="openRun(); closeStartMenu();">
+        <button class="start-menu-item" type="button" data-action="openRun">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rt-body" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#484848"/><stop offset="30%" stop-color="#2a2a2a"/><stop offset="70%" stop-color="#141414"/><stop offset="100%" stop-color="#050505"/></linearGradient></defs><rect x="1" y="4" width="18" height="13" rx="1.5" fill="url(#rt-body)" stroke="#606060" stroke-width="0.8"/><line x1="2" y1="5" x2="18" y2="5" stroke="white" stroke-width="0.6" opacity="0.2"/><line x1="1.5" y1="5.5" x2="1.5" y2="15.5" stroke="white" stroke-width="0.4" opacity="0.1"/><path d="M4 8 L7.5 10.5 L4 13" stroke="#80c8a0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="9" y1="13" x2="14" y2="13" stroke="#80c8a0" stroke-width="1.5" stroke-linecap="round"/></svg>
           <span data-i18n="ui.run">Run...</span>
         </button>
@@ -1154,7 +1149,7 @@
         <div class="start-menu-separator"></div>
 
         <!-- Exit Site -->
-        <button class="start-menu-item" type="button" onclick="exitSite();">
+        <button class="start-menu-item" type="button" data-action="exitSite">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs><linearGradient id="ex-door" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#f0ece4"/><stop offset="30%" stop-color="#d8d4cc"/><stop offset="70%" stop-color="#b8b4ac"/><stop offset="100%" stop-color="#98948c"/></linearGradient></defs>
             <rect x="3" y="2" width="14" height="16" rx="1" fill="url(#ex-door)" stroke="#787470" stroke-width="0.8"/>

@@ -237,6 +237,20 @@ const setExplorerView = (view) => {
   renderExplorerContent();
 };
 
+/* ── Delegated listeners on explorer window ── */
+const explorerWin = document.getElementById('explorer');
+explorerWin.addEventListener('click', (e) => {
+  const f = e.target.closest('[data-folder]');
+  if (f) return navigateExplorer(f.dataset.folder);
+  const v = e.target.closest('[data-view]');
+  if (v) setExplorerView(v.dataset.view);
+});
+explorerWin.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const f = e.target.closest('[data-folder]');
+  if (f) navigateExplorer(f.dataset.folder);
+});
+
 /* ── Registration ── */
 window.mpRegisterActions({ openExplorer });
 window.mpRegisterWindows({ explorer: 'Files' });
@@ -252,8 +266,6 @@ window.FOLDER_ITEMS = FOLDER_ITEMS;
 window.FOLDER_NAMES = FOLDER_NAMES;
 window.openExplorer = openExplorer;
 window.openExplorerTo = openExplorerTo;
-window.navigateExplorer = navigateExplorer;
-window.setExplorerView = setExplorerView;
 window.explorerRefreshOnLangChange = explorerRefreshOnLangChange;
 
 })();

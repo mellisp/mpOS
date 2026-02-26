@@ -1150,6 +1150,12 @@
    *  Register with core + export to window
    * ════════════════════════════════════════════════════════════════════════ */
 
+  /* ── Delegated tab click listener ── */
+  document.getElementById('mycomputer').addEventListener('click', (e) => {
+    const tab = e.target.closest('[data-tab]');
+    if (tab) mcSwitchTab(tab.dataset.tab);
+  });
+
   window.mpRegisterActions({ openMyComputer });
   window.mpRegisterWindows({ mycomputer: 'System Properties' });
   window.mpRegisterCloseHandlers({ mycomputer: closeMyComputer });

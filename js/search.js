@@ -541,18 +541,33 @@
     }
   };
 
+  /* ── Delegated listeners ── */
+  // Help toolbar + tabs
+  document.getElementById('help').addEventListener('click', (e) => {
+    const act = e.target.closest('[data-action]');
+    if (act) {
+      const actions = { helpToggleNav, helpBack, helpForward, helpHome };
+      const fn = actions[act.dataset.action];
+      if (fn) fn();
+      return;
+    }
+    const tab = e.target.closest('[data-tab]');
+    if (tab) helpSwitchTab(tab.dataset.tab);
+  });
+
+  // Search button
+  document.getElementById('search').addEventListener('click', (e) => {
+    const act = e.target.closest('[data-action]');
+    if (act && act.dataset.action === 'searchNow') searchNow();
+  });
+
   /* ── Registration ── */
   window.mpRegisterActions({ openSearch, openHelp });
   window.mpRegisterWindows({ search: 'Search Results', help: 'Help' });
 
-  /* ── Exports to window (for inline onclick handlers and cross-module use) ── */
+  /* ── Exports ── */
   window.openSearch = openSearch;
-  window.searchNow = searchNow;
   window.openHelp = openHelp;
-  window.helpBack = helpBack;
-  window.helpForward = helpForward;
-  window.helpHome = helpHome;
-  window.helpToggleNav = helpToggleNav;
   window.helpSwitchTab = helpSwitchTab;
   window.helpRefreshOnLangChange = helpRefreshOnLangChange;
   window.searchRefreshOnLangChange = searchRefreshOnLangChange;

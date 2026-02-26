@@ -235,6 +235,20 @@
     tzTick();
   };
 
+  /* ── Delegated listeners ── */
+  document.getElementById('calendar').addEventListener('click', (e) => {
+    const act = e.target.closest('[data-action]');
+    if (!act) return;
+    const actions = { calendarPrev, calendarNext, calendarToday };
+    const fn = actions[act.dataset.action];
+    if (fn) fn();
+  });
+
+  document.getElementById('timezone').addEventListener('click', (e) => {
+    const act = e.target.closest('[data-action]');
+    if (act && act.dataset.action === 'tzToggleView') tzToggleView();
+  });
+
   /* ── Registration ── */
 
   window.mpRegisterActions({ openCalendar, openTimeZone });
@@ -247,15 +261,9 @@
     if (el && el.style.display !== 'none') calendarRender();
   };
 
-  /* ── Global exports (for inline onclick handlers) ── */
-
+  /* ── Exports ── */
   window.openCalendar = openCalendar;
-  window.calendarPrev = calendarPrev;
-  window.calendarNext = calendarNext;
-  window.calendarToday = calendarToday;
   window.openTimeZone = openTimeZone;
-  window.closeTimeZone = closeTimeZone;
-  window.tzToggleView = tzToggleView;
   window.calendarRefreshOnLangChange = calendarRefreshOnLangChange;
 
 })();

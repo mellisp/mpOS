@@ -385,11 +385,16 @@
     }
   };
 
+  /* ── Delegated listener for send button ── */
+  document.getElementById('chat')?.addEventListener('click', (e) => {
+    const act = e.target.closest('[data-action]');
+    if (act && act.dataset.action === 'sendChatMessage') sendMessage();
+  });
+
   /* ── Registration ── */
 
   window.openChat = openChat;
   window.closeChat = closeChat;
-  window.sendChatMessage = sendMessage;
   window.clearChatHistory = clearChat;
   window.chatRefreshOnLangChange = chatRefreshOnLangChange;
 

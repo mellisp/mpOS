@@ -1099,16 +1099,11 @@
            and preventDefault on mousedown can suppress dblclick in some browsers */
       });
 
-      /* Programmatic dblclick with late binding (backup for ondblclick attr) */
-      const attr = icon.getAttribute('ondblclick');
-      if (attr) {
-        const match = attr.match(/^(\w+)\(\)$/);
-        if (match) {
-          const fnName = match[1];
-          icon.addEventListener('dblclick', () => {
-            if (window[fnName]) window[fnName]();
-          });
-        }
+      /* dblclick + Enter key via data-action (late binding) */
+      const action = icon.dataset.action;
+      if (action) {
+        icon.addEventListener('dblclick', () => { window[action]?.(); });
+        icon.addEventListener('keydown', (e) => { if (e.key === 'Enter') window[action]?.(); });
       }
     });
 
@@ -1365,13 +1360,10 @@
    * Touch: single-tap desktop icons (instead of double-click)
    * ==================================================================== */
   if (window.matchMedia('(pointer: coarse)').matches) {
-    document.querySelectorAll('.desktop-icon[ondblclick]').forEach((icon) => {
-      const attr = icon.getAttribute('ondblclick');
-      const match = attr.match(/^(\w+)\(\)$/);
-      if (match && window[match[1]]) {
-        const fnName = match[1];
-        icon.addEventListener('click', () => { if (window[fnName]) window[fnName](); });
-        icon.removeAttribute('ondblclick');
+    document.querySelectorAll('.desktop-icon[data-action]').forEach((icon) => {
+      const action = icon.dataset.action;
+      if (action) {
+        icon.addEventListener('click', () => { window[action]?.(); });
       }
     });
   }

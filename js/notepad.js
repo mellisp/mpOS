@@ -498,6 +498,15 @@
     }
   });
 
+  /* ── Delegated listeners on notepad toolbar ── */
+  document.getElementById('notepad').addEventListener('click', (e) => {
+    const act = e.target.closest('[data-action]');
+    if (!act) return;
+    const actions = { notepadNew, notepadSave, notepadLoad: notepadLoad };
+    const fn = actions[act.dataset.action];
+    if (fn) fn();
+  });
+
   /* ── Registration ── */
   window.mpRegisterActions({ openNotepad });
   window.mpRegisterWindows({ notepad: 'Notepad' });
@@ -520,16 +529,8 @@
     if (el && el.style.display !== 'none') { notepadSetTitle(); updateNotepadStatus(); }
   };
 
-  /* ── Exports to window (for inline onclick handlers) ── */
+  /* ── Exports ── */
   window.openNotepad = openNotepad;
-  window.notepadNew = notepadNew;
-  window.notepadSave = notepadSave;
-  window.notepadLoad = notepadLoad;
-  window.closeNotepad = closeNotepad;
-  window.notepadSaveAs = notepadSaveAs;
-  window.notepadOpenFile = notepadOpenFile;
-  window.notepadDeleteFile = notepadDeleteFile;
-  window.notepadDismissDialog = notepadDismissDialog;
   window.notepadOpenWithContent = notepadOpenWithContent;
   window.notepadRefreshOnLangChange = notepadRefreshOnLangChange;
 })();

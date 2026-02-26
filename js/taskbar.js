@@ -389,6 +389,20 @@
 
   document.querySelectorAll('.window.resizable').forEach(makeResizable);
 
+  /* ── Delegated titlebar button listener ── */
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.titlebar-btn');
+    if (!btn) return;
+    const win = btn.closest('.window');
+    if (!win) return;
+    const label = btn.getAttribute('aria-label');
+    if (label === 'Minimize') minimizeWindow(win.id);
+    else if (label === 'Close') {
+      const fn = window.CLOSE_MAP?.[win.id];
+      if (fn) fn(); else closeWindow(win.id);
+    }
+  });
+
   window.mpTaskbar = {
     minimizeWindow,
     restoreWindow,

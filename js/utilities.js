@@ -1898,6 +1898,15 @@
     });
   }
 
+  // Delegated listeners — Stopwatch
+  document.getElementById('stopwatch').addEventListener('click', (e) => {
+    const act = e.target.closest('[data-action]');
+    if (!act) return;
+    const actions = { swStartStop, swLap, swReset };
+    const fn = actions[act.dataset.action];
+    if (fn) fn();
+  });
+
   // Register window display names
   if (window.WINDOW_NAMES) {
     Object.assign(window.WINDOW_NAMES, {
@@ -1914,15 +1923,11 @@
     window.CLOSE_MAP.slotmachine = closeSlotMachine;
   }
 
-  // Export to window (called from HTML onclick handlers)
+  // Export to window
   window.openStopwatch = openStopwatch;
-  window.swStartStop = swStartStop;
-  window.swLap = swLap;
-  window.swReset = swReset;
   window.openStickyNotes = openStickyNotes;
   window.reclampStickyNotes = reclampStickyNotes;
   window.openCryptography = openCryptography;
   window.openSlotMachine = openSlotMachine;
-  window.closeSlotMachine = closeSlotMachine;
   window.openDiskUsage = openDiskUsage;
 })();

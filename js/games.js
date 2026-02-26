@@ -155,15 +155,18 @@ window.mpRegisterCloseHandlers({
   fractal: closeFractal
 });
 
-/* ── Export HTML onclick handlers ── */
-window.openChickenFingers = openChickenFingers;
+/* ── Delegated listener for chickenError OK button ── */
+document.getElementById('chickenError')?.addEventListener('click', (e) => {
+  const act = e.target.closest('[data-action]');
+  if (act && act.dataset.action === 'closeChickenError') {
+    mpTaskbar.closeWindow('chickenError');
+  }
+});
+
+/* ── Exports ── */
 window.openAquarium = openAquarium;
-window.closeAquarium = closeAquarium;
 window.openOnTarget = openOnTarget;
-window.closeOnTarget = closeOnTarget;
 window.openBrickBreaker = openBrickBreaker;
-window.closeBrickBreaker = closeBrickBreaker;
 window.openFractal = openFractal;
-window.closeFractal = closeFractal;
 
 })();
