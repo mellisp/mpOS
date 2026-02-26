@@ -15,22 +15,22 @@
   --mono: "Consolas", "Courier New", monospace;
 
   /* UI Scale Tokens */
-  --ui-font:       13px;
-  --ui-font-sm:    12px;
-  --ui-font-xs:    11px;
-  --ui-font-lg:    14px;
-  --ui-font-title: 13px;
-  --ui-btn-size:   18px;
-  --ui-btn-font:   11px;
-  --ui-pad:        12px;
-  --ui-pad-sm:     8px;
-  --ui-gap:        4px;
-  --ui-icon-sm:    16px;
-  --ui-icon-md:    32px;
-  --ui-icon-lg:    48px;
-  --ui-desktop-icon-w: 80px;
-  --grid-col-w: 84px;
-  --grid-row-h: 88px;
+  --ui-font:       0.8125rem;  /* 13px */
+  --ui-font-sm:    0.75rem;    /* 12px */
+  --ui-font-xs:    0.6875rem;  /* 11px */
+  --ui-font-lg:    0.875rem;   /* 14px */
+  --ui-font-title: 0.8125rem;  /* 13px */
+  --ui-btn-size:   1.125rem;   /* 18px */
+  --ui-btn-font:   0.6875rem;  /* 11px */
+  --ui-pad:        0.75rem;    /* 12px */
+  --ui-pad-sm:     0.5rem;     /* 8px */
+  --ui-gap:        0.25rem;    /* 4px */
+  --ui-icon-sm:    1rem;       /* 16px */
+  --ui-icon-md:    2rem;       /* 32px */
+  --ui-icon-lg:    3rem;       /* 48px */
+  --ui-desktop-icon-w: 5rem;   /* 80px */
+  --grid-col-w: 5.25rem;      /* 84px */
+  --grid-row-h: 5.5rem;       /* 88px */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -71,7 +71,7 @@ body {
 
 .titlebar {
   font-size: var(--ui-font-title);
-  padding: 4px 6px;
+  padding: 0.25rem 0.375rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -114,9 +114,9 @@ body {
 .btn {
   font: inherit;
   color: #000;
-  padding: 4px 16px;
+  padding: 0.25rem 1rem;
   cursor: default;
-  min-width: 75px;
+  min-width: 4.6875rem;
   text-align: center;
   text-decoration: none;
   outline: none;
@@ -125,7 +125,7 @@ body {
 .btn:active {
   border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
   box-shadow: inset 1px 1px 0 var(--shadow);
-  padding: 5px 15px 3px 17px;
+  padding: 0.3125rem 0.9375rem 0.1875rem 1.0625rem;
 }
 
 /* Focus-visible styles */
@@ -159,7 +159,7 @@ body {
 /* Section Title */
 .section-title {
   font-weight: bold;
-  margin: 12px 0 6px 0;
+  margin: 0.75rem 0 0.375rem 0;
 }
 
 .section-title:first-child { margin-top: 0; }
@@ -168,14 +168,14 @@ body {
 .separator {
   border-top: 1px solid var(--shadow);
   border-bottom: 1px solid var(--white);
-  margin: 8px 0;
+  margin: 0.5rem 0;
 }
 
 /* Status Bar */
 .statusbar {
   background: var(--silver);
   border-top: 2px solid var(--shadow);
-  padding: 2px 3px;
+  padding: 0.125rem 0.1875rem;
   font-size: var(--ui-font-sm);
   display: flex;
   gap: var(--ui-gap);
@@ -188,47 +188,47 @@ body {
   flex: 1;
 }
 
-.statusbar-section { padding: 1px 8px; }
+.statusbar-section { padding: 1px 0.5rem; }
 
 /* Error Dialog Pattern */
 .error-row {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .alert-icon {
-  width: 32px;
-  height: 32px;
+  width: 2rem;
+  height: 2rem;
   flex-shrink: 0;
 }
 
 .error-text { line-height: 1.5; }
-.error-text h1, .error-text strong { font-size: 14px; font-weight: bold; margin-bottom: 6px; }
+.error-text h1, .error-text strong { font-size: var(--ui-font-lg); font-weight: bold; margin-bottom: 0.375rem; }
 .error-text strong { display: block; }
 
 .button-row {
   display: flex;
   justify-content: flex-end;
-  margin-top: 16px;
+  margin-top: 1rem;
 }
 
 /* HUD (mini-window for game overlays) */
 .hud-titlebar {
-  font-size: 12px;
-  padding: 3px 6px;
+  font-size: var(--ui-font-sm);
+  padding: 0.1875rem 0.375rem;
 }
 
-.hud-body { padding: 8px 12px; line-height: 1.6; }
+.hud-body { padding: 0.5rem 0.75rem; line-height: 1.6; }
 
 .hud-statusbar {
   border-top: 2px solid var(--shadow);
-  padding: 2px 6px;
-  font-size: 11px;
+  padding: 0.125rem 0.375rem;
+  font-size: var(--ui-font-xs);
   display: flex;
 }
 
-.hud-statusbar-section { padding: 1px 6px; }
+.hud-statusbar-section { padding: 1px 0.375rem; }
 
 /* Device-gate overlay (shown/hidden via media query per page) */
 .device-overlay {
@@ -239,7 +239,7 @@ body {
   z-index: 10000;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 1.5rem;
 }
 
 .device-dialog { max-width: 92vw; }
@@ -262,7 +262,7 @@ body {
   flex: 1;
   position: relative;
   overflow: hidden;
-  padding: 16px 16px 16px 20px;
+  padding: 1rem 1rem 1rem 1.25rem;
 }
 
 /* Desktop Icon */
@@ -272,7 +272,7 @@ body {
   align-items: center;
   width: var(--ui-desktop-icon-w);
   gap: var(--ui-gap);
-  padding: 4px 8px;
+  padding: 0.25rem 0.5rem;
   cursor: default;
   -webkit-user-select: none;
   user-select: none;
@@ -280,12 +280,12 @@ body {
   border-radius: 2px;
   position: absolute;
   z-index: 1;
-  left: 20px;
+  left: 1.25rem;
 }
 /* CSS fallback positions — JS overrides these once initDesktopIcons runs */
-.desktop-icon[data-icon="mycomputer"] { top: 16px; }
-.desktop-icon[data-icon="files"]      { top: 104px; }
-.desktop-icon[data-icon="wikibrowser"]{ top: 192px; }
+.desktop-icon[data-icon="mycomputer"] { top: 1rem; }
+.desktop-icon[data-icon="files"]      { top: 6.5rem; }
+.desktop-icon[data-icon="wikibrowser"]{ top: 12rem; }
 
 .desktop-icon.icon-ready {
   transition: left 0.15s ease, top 0.15s ease;
@@ -306,7 +306,7 @@ body {
   font-size: var(--ui-font-sm);
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   text-align: center;
-  max-width: 72px;
+  max-width: 4.5rem;
   overflow-wrap: break-word;
 }
 .desktop-icon.dragging { transition: none !important; z-index: 10; opacity: 0.85; }
@@ -321,24 +321,24 @@ body {
   background: var(--silver);
   border: 2px solid;
   border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-  padding: 2px; min-width: 160px;
+  padding: 2px; min-width: 10rem;
   font-size: var(--ui-font-sm);
   box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
-.desktop-context-item { padding: 4px 24px 4px 28px; cursor: default; white-space: nowrap; position: relative; }
+.desktop-context-item { padding: 0.25rem 1.5rem 0.25rem 1.75rem; cursor: default; white-space: nowrap; position: relative; }
 .desktop-context-item:hover { background: var(--highlight); color: var(--highlight-text); }
-.desktop-context-item .check { position: absolute; left: 10px; }
-.desktop-context-item.has-submenu::after { content: '\25B8'; position: absolute; right: 6px; }
+.desktop-context-item .check { position: absolute; left: 0.625rem; }
+.desktop-context-item.has-submenu::after { content: '\25B8'; position: absolute; right: 0.375rem; }
 .desktop-context-item.has-submenu:hover > .desktop-context-submenu { display: block; }
 .desktop-context-submenu {
   display: none; position: absolute; left: 100%; top: -2px;
   background: var(--silver); border: 2px solid;
   border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
-  padding: 2px; min-width: 140px; font-size: var(--ui-font-sm);
+  padding: 2px; min-width: 8.75rem; font-size: var(--ui-font-sm);
   box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 .desktop-context-submenu.flip-left { left: auto; right: 100%; }
-.desktop-context-sep { height: 1px; background: var(--shadow); margin: 2px 4px; }
+.desktop-context-sep { height: 1px; background: var(--shadow); margin: 0.125rem 0.25rem; }
 
 /* ── Sticky Notes ── */
 .sticky-note {
@@ -346,18 +346,18 @@ body {
   display: flex; flex-direction: column;
   border-radius: 2px;
   box-shadow: 2px 2px 8px rgba(0,0,0,0.25);
-  min-width: 140px; min-height: 100px;
+  min-width: 8.75rem; min-height: 6.25rem;
   font-family: var(--font);
 }
 .sticky-note.dragging { opacity: 0.85; z-index: 8; }
 .sticky-header {
-  display: flex; align-items: center; gap: 3px;
-  padding: 3px 4px; cursor: move;
+  display: flex; align-items: center; gap: 0.1875rem;
+  padding: 0.1875rem 0.25rem; cursor: move;
   border-radius: 2px 2px 0 0;
   user-select: none; -webkit-user-select: none;
 }
 .sticky-color-dot {
-  width: 12px; height: 12px; border-radius: 50%;
+  width: 0.75rem; height: 0.75rem; border-radius: 50%;
   border: 2px solid transparent; cursor: pointer;
   box-sizing: border-box; flex-shrink: 0;
 }
@@ -365,25 +365,25 @@ body {
 .sticky-color-dot.active { border-color: rgba(0,0,0,0.5); }
 .sticky-header-spacer { flex: 1; }
 .sticky-btn {
-  width: 18px; height: 18px; border: none; background: transparent;
-  cursor: pointer; font-size: 14px; line-height: 18px; text-align: center;
+  width: 1.125rem; height: 1.125rem; border: none; background: transparent;
+  cursor: pointer; font-size: 0.875rem; line-height: 1.125rem; text-align: center;
   padding: 0; color: rgba(0,0,0,0.5); font-family: var(--font); flex-shrink: 0;
 }
 .sticky-btn:hover { color: rgba(0,0,0,0.8); }
 .sticky-body { flex: 1; display: flex; }
 .sticky-textarea {
   width: 100%; height: 100%; border: none; background: transparent;
-  resize: none; outline: none; padding: 4px 6px;
-  font-family: var(--font); font-size: 12px; color: #333;
+  resize: none; outline: none; padding: 0.25rem 0.375rem;
+  font-family: var(--font); font-size: var(--ui-font-sm); color: #333;
   box-sizing: border-box;
 }
 .sticky-resize {
   position: absolute; bottom: 0; right: 0;
-  width: 14px; height: 14px; cursor: nwse-resize;
+  width: 0.875rem; height: 0.875rem; cursor: nwse-resize;
 }
 .sticky-resize::after {
   content: ''; position: absolute; bottom: 2px; right: 2px;
-  width: 8px; height: 8px;
+  width: 0.5rem; height: 0.5rem;
   border-right: 2px solid rgba(0,0,0,0.2);
   border-bottom: 2px solid rgba(0,0,0,0.2);
 }
@@ -411,13 +411,13 @@ body {
 .taskbar {
   background: var(--silver);
   border-top: 2px solid var(--white);
-  padding: 6px 20px 8px;
+  padding: 0.375rem 1.25rem 0.5rem;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0.25rem;
   flex-shrink: 0;
   font-family: var(--font);
-  font-size: 13px;
+  font-size: var(--ui-font);
   color: #000;
   cursor: default;
   user-select: none;
@@ -427,10 +427,10 @@ body {
 .start-btn {
   font: inherit;
   font-weight: bold;
-  padding: 2px 8px;
+  padding: 0.125rem 0.5rem;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0.25rem;
   white-space: nowrap;
 }
 
@@ -438,7 +438,7 @@ body {
 .start-btn.pressed {
   border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
   box-shadow: inset 1px 1px 0 var(--shadow);
-  padding: 3px 7px 1px 9px;
+  padding: 0.1875rem 0.4375rem 0.0625rem 0.5625rem;
 }
 
 .start-btn.pressed .smiley-closed { display: none; }
@@ -448,9 +448,9 @@ body {
 .start-menu {
   display: none;
   position: absolute;
-  bottom: 34px;
-  left: 4px;
-  min-width: 180px;
+  bottom: 2.125rem;
+  left: 0.25rem;
+  min-width: 11.25rem;
   z-index: 999;
 }
 
@@ -461,7 +461,7 @@ body {
   display: flex;
   align-items: center;
   gap: var(--ui-pad-sm);
-  padding: 6px 12px;
+  padding: 0.375rem 0.75rem;
   white-space: nowrap;
   text-decoration: none;
 }
@@ -479,14 +479,14 @@ button.start-menu-item {
   text-align: left;
 }
 
-.start-menu-item svg { width: 20px; height: 20px; flex-shrink: 0; }
-.start-menu-item .arrow { margin-left: auto; font-size: 10px; }
+.start-menu-item svg { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+.start-menu-item .arrow { margin-left: auto; font-size: 0.625rem; }
 
 /* Start Menu Separator */
 .start-menu-separator {
   border-top: 1px solid var(--shadow);
   border-bottom: 1px solid var(--white);
-  margin: 4px 2px;
+  margin: 0.25rem 0.125rem;
 }
 
 /* Submenus */
@@ -497,7 +497,7 @@ button.start-menu-item {
   position: absolute;
   left: 100%;
   bottom: 0;
-  min-width: 180px;
+  min-width: 11.25rem;
 }
 
 .start-menu-item.has-submenu:hover > .start-submenu { display: block; }
@@ -506,8 +506,8 @@ button.start-menu-item {
 
 /* Empty submenu placeholder */
 .start-menu-empty {
-  padding: 6px 12px;
-  font-size: 12px;
+  padding: 0.375rem 0.75rem;
+  font-size: var(--ui-font-sm);
   font-style: italic;
   color: var(--shadow);
   white-space: nowrap;
@@ -527,12 +527,12 @@ button.start-menu-item {
   border: 2px solid;
   border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
   box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
-  padding: 2px 8px;
-  min-width: 120px;
-  max-width: 180px;
+  padding: 0.125rem 0.5rem;
+  min-width: 7.5rem;
+  max-width: 11.25rem;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0.25rem;
 }
 
 .taskbar-icon { width: var(--ui-icon-sm); height: var(--ui-icon-sm); flex-shrink: 0; }
@@ -554,16 +554,16 @@ button.start-menu-item {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
   border: 1px solid;
   border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  padding: 2px 8px;
+  padding: 0.125rem 0.5rem;
   line-height: 1;
 }
 
 .tray-icon {
-  width: 16px;
-  height: 16px;
+  width: 1rem;
+  height: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -579,8 +579,8 @@ button.start-menu-item {
   font-weight: bold;
   padding: 0 2px;
   cursor: pointer;
-  line-height: 16px;
-  height: 16px;
+  line-height: 1rem;
+  height: 1rem;
   font-family: Tahoma, sans-serif;
   display: flex;
   align-items: center;
@@ -592,7 +592,7 @@ button.start-menu-item {
 
 .tray-clock {
   font-size: var(--ui-font-xs);
-  line-height: 16px;
+  line-height: 1rem;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -601,9 +601,9 @@ button.start-menu-item {
 .volume-popup {
   display: none;
   position: absolute;
-  bottom: 36px;
-  right: 4px;
-  padding: 12px;
+  bottom: 2.25rem;
+  right: 0.25rem;
+  padding: 0.75rem;
   z-index: 999;
   text-align: center;
 }
@@ -611,49 +611,49 @@ button.start-menu-item {
 .volume-popup.open { display: block; }
 
 .volume-title {
-  font-size: 12px;
+  font-size: var(--ui-font-sm);
   font-weight: bold;
 }
 
 .volume-slider {
   writing-mode: vertical-lr;
   direction: rtl;
-  height: 100px;
-  margin: 8px auto;
+  height: 6.25rem;
+  margin: 0.5rem auto;
   display: block;
 }
 
 .volume-popup label {
-  font-size: 12px;
+  font-size: var(--ui-font-sm);
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 8px;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
 }
 
 /* Network Popup */
 .net-popup {
   display: none;
   position: absolute;
-  bottom: 36px;
-  right: 4px;
-  padding: 12px;
+  bottom: 2.25rem;
+  right: 0.25rem;
+  padding: 0.75rem;
   z-index: 999;
-  min-width: 200px;
+  min-width: 12.5rem;
 }
 
 .net-popup.open { display: block; }
 
 .net-popup-title {
-  font-size: 12px;
+  font-size: var(--ui-font-sm);
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .net-popup-row {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: var(--ui-font-xs);
   padding: 2px 0;
 }
 
@@ -662,9 +662,9 @@ button.start-menu-item {
 }
 
 .net-popup-note {
-  font-size: 10px;
+  font-size: 0.625rem;
   color: var(--text-muted, #888);
-  margin-top: 8px;
+  margin-top: 0.5rem;
   line-height: 1.3;
 }
 
@@ -773,28 +773,28 @@ button.start-menu-item {
 .voice-indicator {
   display: none;
   position: absolute;
-  bottom: 40px;
-  right: 8px;
+  bottom: 2.5rem;
+  right: 0.5rem;
   z-index: 998;
   background: var(--silver);
   border: 2px solid;
   border-color: var(--white) var(--dk-shadow) var(--dk-shadow) var(--white);
   box-shadow: inset 1px 1px 0 var(--silver), inset -1px -1px 0 var(--shadow);
-  padding: 3px 10px;
+  padding: 0.1875rem 0.625rem;
   font-size: var(--ui-font-xs);
   font-family: var(--font);
   cursor: pointer;
   user-select: none;
-  max-width: 260px;
+  max-width: 16.25rem;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
 }
 .voice-indicator.visible { display: flex; }
 .voice-indicator-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .voice-indicator-dot {
-  width: 8px;
-  height: 8px;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -815,12 +815,12 @@ button.start-menu-item {
 /* "Did you mean?" clickable suggestion */
 .vc-suggestion {
   display: inline-block;
-  margin-top: 4px;
-  padding: 2px 6px;
+  margin-top: 0.25rem;
+  padding: 0.125rem 0.375rem;
   border: 1px solid var(--border, #ccc);
   background: var(--surface, #fff);
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--ui-font-xs);
   color: var(--link, #00c);
 }
 .vc-suggestion:hover {
@@ -838,27 +838,27 @@ button.start-menu-item {
 }
 
 /* ── Tablet breakpoint — touch-enhanced desktop ── */
-@media (max-width: 1024px) and (pointer: coarse) {
+@media (max-width: 64rem) and (pointer: coarse) {
   :root {
-    --ui-font:       14px;
-    --ui-font-sm:    13px;
-    --ui-font-xs:    12px;
-    --ui-font-lg:    15px;
-    --ui-font-title: 14px;
-    --ui-btn-size:   30px;
-    --ui-btn-font:   14px;
-    --ui-pad:        14px;
-    --ui-pad-sm:     10px;
-    --ui-gap:        6px;
-    --ui-icon-sm:    20px;
-    --ui-icon-md:    36px;
-    --ui-icon-lg:    56px;
-    --ui-desktop-icon-w: 90px;
-    --grid-col-w: 94px;
-    --grid-row-h: 96px;
+    --ui-font:       0.875rem;   /* 14px */
+    --ui-font-sm:    0.8125rem;  /* 13px */
+    --ui-font-xs:    0.75rem;    /* 12px */
+    --ui-font-lg:    0.9375rem;  /* 15px */
+    --ui-font-title: 0.875rem;   /* 14px */
+    --ui-btn-size:   1.875rem;   /* 30px */
+    --ui-btn-font:   0.875rem;   /* 14px */
+    --ui-pad:        0.875rem;   /* 14px */
+    --ui-pad-sm:     0.625rem;   /* 10px */
+    --ui-gap:        0.375rem;   /* 6px */
+    --ui-icon-sm:    1.25rem;    /* 20px */
+    --ui-icon-md:    2.25rem;    /* 36px */
+    --ui-icon-lg:    3.5rem;     /* 56px */
+    --ui-desktop-icon-w: 5.625rem; /* 90px */
+    --grid-col-w: 5.875rem;     /* 94px */
+    --grid-row-h: 6rem;         /* 96px */
   }
-  .desktop-icon[data-icon="files"]      { top: 112px; }
-  .desktop-icon[data-icon="wikibrowser"]{ top: 208px; }
+  .desktop-icon[data-icon="files"]      { top: 7rem; }
+  .desktop-icon[data-icon="wikibrowser"]{ top: 13rem; }
 }
 
 /* ── Win2000-style tooltip ── */
@@ -868,12 +868,12 @@ button.start-menu-item {
   z-index: 99999;
   background: #ffffe1;
   color: #000;
-  font-size: 11px;
+  font-size: var(--ui-font-xs);
   font-family: var(--font);
-  padding: 2px 6px;
+  padding: 0.125rem 0.375rem;
   border: 1px solid #000;
   pointer-events: none;
-  max-width: 280px;
+  max-width: 17.5rem;
   white-space: normal;
   overflow-wrap: break-word;
   line-height: 1.3;

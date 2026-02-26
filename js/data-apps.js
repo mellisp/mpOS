@@ -830,15 +830,15 @@ function tmBuildUI() {
   const endBtn = document.createElement('button');
   endBtn.className = 'btn';
   endBtn.textContent = t('tm.endTask');
-  endBtn.style.fontSize = '12px';
-  endBtn.style.padding = '2px 12px';
+  endBtn.style.fontSize = '0.75rem';
+  endBtn.style.padding = '2px 0.75rem';
   endBtn.onclick = () => { tmEndTask(); };
 
   const switchBtn = document.createElement('button');
   switchBtn.className = 'btn';
   switchBtn.textContent = t('tm.switchTo');
-  switchBtn.style.fontSize = '12px';
-  switchBtn.style.padding = '2px 12px';
+  switchBtn.style.fontSize = '0.75rem';
+  switchBtn.style.padding = '2px 0.75rem';
   switchBtn.onclick = () => { tmSwitchTo(); };
 
   btnRow.appendChild(endBtn);

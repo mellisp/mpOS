@@ -287,7 +287,7 @@
 
     // Degauss + Reset Defaults row
     const resetRow = document.createElement('div');
-    resetRow.style.cssText = 'margin-top: 12px; display: flex; justify-content: flex-end; gap: 8px;';
+    resetRow.style.cssText = 'margin-top: 0.75rem; display: flex; justify-content: flex-end; gap: 0.5rem;';
 
     const degaussBtn = document.createElement('button');
     degaussBtn.className = 'degauss-btn';
@@ -594,7 +594,7 @@
     // Clock format section
     const clockLabel = document.createElement('div');
     clockLabel.className = 'display-section-label';
-    clockLabel.style.marginTop = '12px';
+    clockLabel.style.marginTop = '0.75rem';
     clockLabel.textContent = t('mc.regional.clock');
     body.appendChild(clockLabel);
 
@@ -623,7 +623,7 @@
     // Date format section
     const dateLabel = document.createElement('div');
     dateLabel.className = 'display-section-label';
-    dateLabel.style.marginTop = '12px';
+    dateLabel.style.marginTop = '0.75rem';
     dateLabel.textContent = t('mc.regional.date');
     body.appendChild(dateLabel);
 
@@ -653,7 +653,7 @@
     // Temperature unit section
     const tempLabel = document.createElement('div');
     tempLabel.className = 'display-section-label';
-    tempLabel.style.marginTop = '12px';
+    tempLabel.style.marginTop = '0.75rem';
     tempLabel.textContent = t('mc.regional.temp');
     body.appendChild(tempLabel);
 

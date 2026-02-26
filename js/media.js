@@ -310,7 +310,7 @@
     // Body
     const body = document.createElement('div');
     body.className = 'window-body';
-    body.style.padding = '10px';
+    body.style.padding = '0.625rem';
     win.appendChild(body);
 
     // Statusbar
@@ -862,7 +862,7 @@
     toolbar.className = 'nm-toolbar';
     const presetLabel = document.createElement('span');
     presetLabel.textContent = 'Preset:';
-    presetLabel.style.fontSize = '11px';
+    presetLabel.style.fontSize = '0.6875rem';
     toolbar.appendChild(presetLabel);
 
     const presetSel = document.createElement('select');
@@ -884,12 +884,12 @@
     const jackSpacer = document.createElement('div');
     jackSpacer.style.display = 'flex';
     jackSpacer.style.alignItems = 'center';
-    jackSpacer.style.gap = '3px';
-    jackSpacer.style.marginLeft = '4px';
+    jackSpacer.style.gap = '0.1875rem';
+    jackSpacer.style.marginLeft = '0.25rem';
     const jackLbl = document.createElement('span');
     jackLbl.className = 'audio-jack-label';
     jackLbl.textContent = 'IN';
-    jackLbl.style.fontSize = '8px';
+    jackLbl.style.fontSize = '0.5rem';
     nmInputJackEl = document.createElement('div');
     jackSpacer.appendChild(jackLbl);
     jackSpacer.appendChild(nmInputJackEl);

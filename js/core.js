@@ -142,7 +142,7 @@ function mpConfirm(message) {
     const cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
     cancelBtn.className = 'btn';
-    cancelBtn.style.marginLeft = '6px';
+    cancelBtn.style.marginLeft = '0.375rem';
     cancelBtn.textContent = t('ui.cancel');
     btnRow.appendChild(okBtn);
     btnRow.appendChild(cancelBtn);

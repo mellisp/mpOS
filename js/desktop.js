@@ -43,7 +43,7 @@
         'margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;';
       const msg = document.createElement('div');
       msg.style.cssText =
-        'color:#e8a040;font-family:sans-serif;font-size:18px;text-align:center;line-height:1.6;';
+        'color:#e8a040;font-family:sans-serif;font-size:1.125rem;text-align:center;line-height:1.6;';
       msg.textContent = 'It is now safe to turn off your computer.';
       document.body.appendChild(msg);
     });
@@ -895,9 +895,15 @@
   const getGridDimensions = () => {
     if (cachedGrid) return cachedGrid;
     const style = getComputedStyle(document.documentElement);
+    const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const parseCSSPx = (val, fallback) => {
+      const s = (val || '').trim();
+      if (s.endsWith('rem')) return parseFloat(s) * rootFontSize || fallback;
+      return parseInt(s, 10) || fallback;
+    };
     cachedGrid = {
-      colW: parseInt(style.getPropertyValue('--grid-col-w'), 10) || 84,
-      rowH: parseInt(style.getPropertyValue('--grid-row-h'), 10) || 88
+      colW: parseCSSPx(style.getPropertyValue('--grid-col-w'), 84),
+      rowH: parseCSSPx(style.getPropertyValue('--grid-row-h'), 88)
     };
     return cachedGrid;
   };

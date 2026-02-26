@@ -24,10 +24,17 @@
     return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}.${cs < 10 ? '0' : ''}${cs}`;
   };
 
+  const swDisplayTime = (ms) => {
+    const str = swFmt(ms);
+    const colon = str.indexOf(':');
+    const dot = str.lastIndexOf('.');
+    return `${str.slice(0, colon)}<span class="sw-sep">:</span>${str.slice(colon + 1, dot)}<span class="sw-cs">.${str.slice(dot + 1)}</span>`;
+  };
+
   const swTick = () => {
     if (!swRunning) return;
     const total = swElapsed + (performance.now() - swStart);
-    document.getElementById('swDisplay').textContent = swFmt(total);
+    document.getElementById('swDisplay').innerHTML = swDisplayTime(total);
     swRafId = requestAnimationFrame(swTick);
   };
 
@@ -54,13 +61,14 @@
     swElapsed = 0;
     swLaps = [];
     if (swRafId) { cancelAnimationFrame(swRafId); swRafId = null; }
-    document.getElementById('swDisplay').textContent = '00:00.00';
+    document.getElementById('swDisplay').innerHTML = '00<span class="sw-sep">:</span>00<span class="sw-cs">.00</span>';
     const btn = document.getElementById('swStartBtn');
     btn.textContent = t('ui.start');
     btn.classList.remove('sw-running');
     const lapsEl = document.getElementById('swLaps');
     lapsEl.textContent = '';
     lapsEl.classList.remove('has-laps');
+    document.getElementById('swStatus').textContent = 'Laps: 0';
   };
 
   const swLap = () => {
@@ -69,11 +77,20 @@
     const prev = swLaps.length ? swLaps[swLaps.length - 1] : 0;
     swLaps.push(total);
     const lapsEl = document.getElementById('swLaps');
+    // Add column header on first lap
+    if (swLaps.length === 1) {
+      if (!lapsEl.querySelector('.sw-lap-header')) {
+        const hdr = document.createElement('div');
+        hdr.className = 'sw-lap-header';
+        hdr.innerHTML = '<span>Lap</span><span>Split</span><span>Time</span>';
+        lapsEl.appendChild(hdr);
+      }
+    }
     lapsEl.classList.add('has-laps');
     const row = document.createElement('div');
     row.className = 'sw-lap-row';
     const num = document.createElement('span');
-    num.textContent = `#${swLaps.length}`;
+    num.textContent = swLaps.length;
     const split = document.createElement('span');
     split.textContent = `+${swFmt(total - prev)}`;
     const abs = document.createElement('span');
@@ -81,8 +98,29 @@
     row.appendChild(num);
     row.appendChild(split);
     row.appendChild(abs);
-    lapsEl.insertBefore(row, lapsEl.firstChild);
+    const hdr = lapsEl.querySelector('.sw-lap-header');
+    lapsEl.insertBefore(row, hdr ? hdr.nextSibling : lapsEl.firstChild);
     lapsEl.scrollTop = 0;
+
+    // Update statusbar
+    document.getElementById('swStatus').textContent = `Laps: ${swLaps.length}`;
+
+    // Highlight fastest/slowest splits (need 3+ laps)
+    const rows = lapsEl.querySelectorAll('.sw-lap-row');
+    rows.forEach(r => r.classList.remove('sw-fastest', 'sw-slowest'));
+    if (swLaps.length >= 3) {
+      const splits = swLaps.map((t, i) => t - (i ? swLaps[i - 1] : 0));
+      let fastIdx = 0, slowIdx = 0;
+      for (let i = 1; i < splits.length; i++) {
+        if (splits[i] < splits[fastIdx]) fastIdx = i;
+        if (splits[i] > splits[slowIdx]) slowIdx = i;
+      }
+      if (fastIdx !== slowIdx) {
+        // Rows are in reverse DOM order (newest first)
+        rows[swLaps.length - 1 - fastIdx]?.classList.add('sw-fastest');
+        rows[swLaps.length - 1 - slowIdx]?.classList.add('sw-slowest');
+      }
+    }
   };
 
   /* ════════════════════════════════════════════════════════════════════════
@@ -777,7 +815,7 @@
     shiftSlider.type = 'range'; shiftSlider.min = '1'; shiftSlider.max = '25'; shiftSlider.value = '3';
     shiftSlider.id = 'cryShiftSlider'; shiftSlider.style.flex = '1';
     const shiftVal = document.createElement('span');
-    shiftVal.id = 'cryShiftVal'; shiftVal.style.fontSize = '12px'; shiftVal.style.fontFamily = 'var(--mono)'; shiftVal.style.minWidth = '20px';
+    shiftVal.id = 'cryShiftVal'; shiftVal.style.fontSize = '0.75rem'; shiftVal.style.fontFamily = 'var(--mono)'; shiftVal.style.minWidth = '1.25rem';
     shiftVal.textContent = '3';
     shiftRow.appendChild(shiftLabel);
     shiftRow.appendChild(shiftSlider);
@@ -807,7 +845,7 @@
 
     // Input
     const inLabel = document.createElement('div');
-    inLabel.className = 'cry-label'; inLabel.style.marginBottom = '4px';
+    inLabel.className = 'cry-label'; inLabel.style.marginBottom = '0.25rem';
     inLabel.textContent = t('crypto.input');
     inLabel.setAttribute('data-i18n', 'crypto.input');
     body.appendChild(inLabel);
@@ -832,7 +870,7 @@
 
     // Output
     const outLabel = document.createElement('div');
-    outLabel.className = 'cry-label'; outLabel.style.marginBottom = '4px';
+    outLabel.className = 'cry-label'; outLabel.style.marginBottom = '0.25rem';
     outLabel.textContent = t('crypto.output');
     outLabel.setAttribute('data-i18n', 'crypto.output');
     body.appendChild(outLabel);
@@ -894,7 +932,6 @@
   let smReelResults = [[0,0,0],[0,0,0],[0,0,0]]; // [reel][row] indices into SM_SYMBOLS
   let smAnimTimers = [];
   let smAudioCtx = null;
-  let smInsertCoinCooldown = 0;
   let smWinStreak = 0;
   let smBestStreak = 0;
   let smTotalSpins = 0;
@@ -1127,20 +1164,11 @@
     if (st) st.textContent = t('sm.nudgeOffered', { count: smNudgesLeft });
   };
 
-  const smOfferInsertCoin = async () => {
-    const now = Date.now();
-    if (now - smInsertCoinCooldown < 30000) {
-      const st = document.getElementById('smStatus');
-      if (st) st.textContent = t('sm.waitCooldown');
-      return;
-    }
-    const ok = await mpConfirm(t('sm.gameOver'));
-    if (ok) {
-      smInsertCoinCooldown = Date.now();
-      smCredits += 100;
-      smUpdateDisplays();
-      smSaveState();
-    }
+  const smGameOver = () => {
+    const st = document.getElementById('smStatus');
+    if (st) st.textContent = t('sm.gameOver');
+    smSaveState();
+    setTimeout(() => closeSlotMachine(), 1500);
   };
 
   const smCheckDailyBonus = () => {
@@ -1402,7 +1430,7 @@
     if (smCredits <= 0 && smFreeSpins <= 0) {
       setTimeout(() => {
         smSoundNoCredits();
-        smOfferInsertCoin();
+        smGameOver();
       }, 500);
     }
   };
@@ -1550,7 +1578,7 @@
       totalBet = 0;
     } else if (smCredits < totalBet) {
       smSoundNoCredits();
-      smOfferInsertCoin();
+      smGameOver();
       return;
     }
     smCredits -= totalBet;

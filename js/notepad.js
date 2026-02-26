@@ -359,7 +359,7 @@
 
     const findLabel = document.createElement('span');
     findLabel.textContent = t('notepad.find');
-    findLabel.style.fontSize = '12px';
+    findLabel.style.fontSize = '0.75rem';
     row1.appendChild(findLabel);
 
     const findInput = document.createElement('input');
@@ -431,7 +431,7 @@
 
       const repLabel = document.createElement('span');
       repLabel.textContent = t('notepad.replace');
-      repLabel.style.fontSize = '12px';
+      repLabel.style.fontSize = '0.75rem';
       row2.appendChild(repLabel);
 
       const repInput = document.createElement('input');

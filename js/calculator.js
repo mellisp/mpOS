@@ -12,7 +12,7 @@
   /* ── Display ── */
   const calcUpdateDisplay = () => {
     calcDisplay.textContent = calcCurrent;
-    calcDisplay.style.fontSize = calcCurrent.length > 12 ? '18px' : '';
+    calcDisplay.style.fontSize = calcCurrent.length > 12 ? '1.125rem' : '';
   };
 
   /* ── Core operations ── */
