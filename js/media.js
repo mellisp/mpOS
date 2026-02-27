@@ -168,10 +168,11 @@
     centsLbl.className = 'tf-label';
     const centsSlider = document.createElement('input');
     centsSlider.type = 'range';
-    centsSlider.className = 'tf-slider';
+    centsSlider.className = 'tf-slider audio-slider';
     centsSlider.min = '-50';
     centsSlider.max = '50';
     centsSlider.value = '0';
+    centsSlider.setAttribute('aria-label', t('tf.fine'));
     centsSlider.oninput = () => tfUpdateDisplay(inst);
     inst.elements.centsSlider = centsSlider;
     const centsValSpan = document.createElement('span');
@@ -219,10 +220,11 @@
     eqLbl.className = 'tf-label';
     const eqSlider = document.createElement('input');
     eqSlider.type = 'range';
-    eqSlider.className = 'tf-slider';
+    eqSlider.className = 'tf-slider audio-slider';
     eqSlider.min = '-12';
     eqSlider.max = '12';
     eqSlider.value = '0';
+    eqSlider.setAttribute('aria-label', t('tf.eq'));
     inst.elements.eqSlider = eqSlider;
     const eqValSpan = document.createElement('span');
     eqValSpan.className = 'tf-val';

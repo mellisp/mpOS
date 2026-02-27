@@ -384,11 +384,11 @@ const drawWaveform = (pcmData) => {
   const h = spCanvas.height;
   const ctx = spCanvasCtx;
 
-  ctx.fillStyle = '#1a1a2a';
+  ctx.fillStyle = '#0a0a0a';
   ctx.fillRect(0, 0, w, h);
 
   /* Grid lines */
-  ctx.strokeStyle = '#2a2a4a';
+  ctx.strokeStyle = '#1a2a1a';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2);
@@ -424,20 +424,18 @@ const buildUI = () => {
 
   /* Container */
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'padding:8px;display:flex;flex-direction:column;gap:8px;min-width:320px;';
+  wrap.className = 'sp-container';
 
   /* Row 1: Preset selector + buttons */
   const row1 = document.createElement('div');
-  row1.style.cssText = 'display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
+  row1.className = 'sp-controls';
 
   const label = document.createElement('label');
   label.textContent = t('sp.preset') + ':';
-  label.style.cssText = 'font-weight:bold;white-space:nowrap;';
   row1.appendChild(label);
 
   const select = document.createElement('select');
   select.id = 'spPresetSelect';
-  select.style.cssText = 'flex:1;min-width:100px;';
   for (const name of Object.keys(PRESETS)) {
     const opt = document.createElement('option');
     opt.value = name;
@@ -464,18 +462,18 @@ const buildUI = () => {
 
   /* Row 2: Sliders */
   const row2 = document.createElement('div');
-  row2.style.cssText = 'display:grid;grid-template-columns:auto 1fr auto;gap:4px 8px;align-items:center;';
+  row2.className = 'sp-slider-grid';
 
   const sliderDefs = [
-    { id: 'spDuration', label: t('sp.duration'), min: 0.01, max: 3.0, step: 0.01, unit: 's' },
-    { id: 'spGain', label: t('sp.gain'), min: 0, max: 1, step: 0.01, unit: '' },
-    { id: 'spFreq', label: t('sp.freq'), min: 20, max: 4000, step: 1, unit: 'Hz' }
+    { id: 'spDuration', label: t('sp.duration'), min: 0.01, max: 3.0, step: 0.01, unit: 's', aria: t('sp.duration') },
+    { id: 'spGain', label: t('sp.gain'), min: 0, max: 1, step: 0.01, unit: '', aria: t('sp.gain') },
+    { id: 'spFreq', label: t('sp.freq'), min: 20, max: 4000, step: 1, unit: 'Hz', aria: t('sp.freq') }
   ];
 
   for (const def of sliderDefs) {
     const lbl = document.createElement('span');
     lbl.textContent = def.label;
-    lbl.style.cssText = 'font-size:11px;white-space:nowrap;';
+    lbl.className = 'sp-slider-label';
     row2.appendChild(lbl);
 
     const slider = document.createElement('input');
@@ -484,12 +482,13 @@ const buildUI = () => {
     slider.min = def.min;
     slider.max = def.max;
     slider.step = def.step;
-    slider.style.cssText = 'width:100%;';
+    slider.className = 'sp-slider audio-slider';
+    slider.setAttribute('aria-label', def.aria);
     row2.appendChild(slider);
 
     const val = document.createElement('span');
     val.id = def.id + 'Val';
-    val.style.cssText = 'font-size:11px;min-width:50px;text-align:right;';
+    val.className = 'sp-slider-val';
     row2.appendChild(val);
 
     slider.addEventListener('input', () => {
@@ -501,21 +500,29 @@ const buildUI = () => {
 
   /* Row 3: Waveform display */
   const canvasWrap = document.createElement('div');
-  canvasWrap.style.cssText = 'border:2px inset;background:#1a1a2a;';
+  canvasWrap.className = 'sp-canvas-wrap';
   spCanvas = document.createElement('canvas');
   spCanvas.width = 400;
   spCanvas.height = 100;
-  spCanvas.style.cssText = 'width:100%;height:100px;display:block;';
+  spCanvas.className = 'sp-canvas';
   spCanvasCtx = spCanvas.getContext('2d');
   canvasWrap.appendChild(spCanvas);
   wrap.appendChild(canvasWrap);
 
+  /* ResizeObserver for canvas scaling */
+  const ro = new ResizeObserver(() => {
+    if (spCanvas && canvasWrap.offsetWidth > 0) {
+      spCanvas.width = canvasWrap.clientWidth;
+    }
+  });
+  ro.observe(canvasWrap);
+
   /* Row 4: Output jack */
   const jackRow = document.createElement('div');
-  jackRow.style.cssText = 'display:flex;align-items:center;gap:8px;';
+  jackRow.className = 'sp-jack-row';
   const jackLabel = document.createElement('span');
   jackLabel.textContent = t('sp.output') + ':';
-  jackLabel.style.cssText = 'font-size:11px;';
+  jackLabel.className = 'sp-jack-label';
   jackRow.appendChild(jackLabel);
 
   const jackEl = document.createElement('div');

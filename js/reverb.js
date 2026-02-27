@@ -255,10 +255,11 @@
     mixLbl.textContent = t('reverb.mix');
     const mixSlider = document.createElement('input');
     mixSlider.type = 'range';
-    mixSlider.className = 'rv-slider';
+    mixSlider.className = 'rv-slider audio-slider';
     mixSlider.min = '0';
     mixSlider.max = '100';
     mixSlider.value = String(Math.round(currentMix * 100));
+    mixSlider.setAttribute('aria-label', t('reverb.mix'));
     const mixVal = document.createElement('span');
     mixVal.className = 'rv-val';
     mixVal.textContent = `${Math.round(currentMix * 100)}%`;
@@ -285,10 +286,11 @@
     decayLbl.textContent = t('reverb.decay');
     const decaySlider = document.createElement('input');
     decaySlider.type = 'range';
-    decaySlider.className = 'rv-slider';
+    decaySlider.className = 'rv-slider audio-slider';
     decaySlider.min = '1';
     decaySlider.max = '80';
     decaySlider.value = String(Math.round(currentDecay * 10));
+    decaySlider.setAttribute('aria-label', t('reverb.decay'));
     const decayVal = document.createElement('span');
     decayVal.className = 'rv-val';
     decayVal.textContent = `${currentDecay.toFixed(1)}s`;
@@ -314,10 +316,11 @@
     toneLbl.textContent = t('reverb.tone');
     const toneSlider = document.createElement('input');
     toneSlider.type = 'range';
-    toneSlider.className = 'rv-slider';
+    toneSlider.className = 'rv-slider audio-slider';
     toneSlider.min = '0';
     toneSlider.max = '100';
     toneSlider.value = String(freqToSlider(currentTone));
+    toneSlider.setAttribute('aria-label', t('reverb.tone'));
     const toneVal = document.createElement('span');
     toneVal.className = 'rv-val';
     toneVal.textContent = formatFreq(currentTone);
