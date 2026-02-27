@@ -531,6 +531,7 @@
 
   /* ── Exports ── */
   window.openNotepad = openNotepad;
+  window.notepadNew = notepadNew;
   window.notepadOpenWithContent = notepadOpenWithContent;
   window.notepadRefreshOnLangChange = notepadRefreshOnLangChange;
 })();

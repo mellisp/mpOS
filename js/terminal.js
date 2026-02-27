@@ -1316,6 +1316,7 @@ termInput.addEventListener('keydown', (e) => {
    ═══════════════════════════════════════════════════════════ */
 
 mpRegisterCommands(COMMANDS);
+mpRegisterActions({ openRun });
 
 mpRegisterWindows({
   run: 'Run'

@@ -1395,7 +1395,7 @@
   window.ICON_POSITION_KEY = ICON_POSITION_KEY;
 
   /* Register with core.js registries */
-  mpRegisterActions({ openVoiceCommands });
+  mpRegisterActions({ openVoiceCommands, exitSite });
   mpRegisterWindows({ voicecommands: 'Voice Commands' });
   mpRegisterCloseHandlers({ voicecommands: closeVoiceCommands });
 

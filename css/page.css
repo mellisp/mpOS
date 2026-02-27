@@ -328,7 +328,7 @@
 
 /* Fish Finder window */
 #fishfinder { width: min(26.25rem, 92vw); left: min(6.25rem, 5vw); top: 3.125rem; }
-.finder-label { font-size: var(--ui-font-xs); font-weight: bold; color: var(--dk-shadow); text-transform: uppercase; letter-spacing: 0.0.3125rem; margin-bottom: 0.25rem; }
+.finder-label { font-size: var(--ui-font-xs); font-weight: bold; color: var(--dk-shadow); text-transform: uppercase; letter-spacing: 0.03125rem; margin-bottom: 0.25rem; }
 .finder-name { font-size: 0.9375rem; font-weight: bold; }
 .finder-location { font-size: var(--ui-font-sm); color: var(--text-muted); margin-top: 2px; }
 .finder-distance { font-size: var(--ui-font); margin-top: 0.25rem; }
@@ -1083,7 +1083,7 @@
 .tz-digital {
   font-size: 0.9375rem;
   font-family: var(--mono);
-  letter-spacing: 0.0.3125rem;
+  letter-spacing: 0.03125rem;
   display: none;
 }
 
@@ -2564,7 +2564,7 @@
 }
 .nm-channel-label {
   font-family: var(--mono); font-size: 0.5rem; color: #444;
-  text-transform: uppercase; letter-spacing: 0.0.1875rem; white-space: nowrap;
+  text-transform: uppercase; letter-spacing: 0.01875rem; white-space: nowrap;
 }
 .nm-fader-wrap { display: flex; align-items: center; justify-content: center; height: 6.25rem; }
 .nm-fader {
@@ -2795,7 +2795,7 @@
     font-size: var(--ui-font-sm);
     font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.0.3125rem;
+    letter-spacing: 0.03125rem;
     color: rgba(255,255,255,0.9);
     margin-bottom: 0.5rem;
     padding: 0 0.25rem 0.375rem;
@@ -2995,7 +2995,7 @@
   font-weight: bold;
   color: var(--text-muted, #888);
   text-transform: uppercase;
-  letter-spacing: 0.0.3125rem;
+  letter-spacing: 0.03125rem;
 }
 
 .jack-row {

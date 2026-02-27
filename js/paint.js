@@ -680,6 +680,7 @@ const paintRefreshOnLangChange = () => {
 
 /* ── Exports ── */
 window.openPaint = openPaint;
+window.paintNew = paintNew;
 window.paintRefreshOnLangChange = paintRefreshOnLangChange;
 
 })();

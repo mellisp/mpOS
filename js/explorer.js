@@ -252,7 +252,7 @@ explorerWin.addEventListener('keydown', (e) => {
 });
 
 /* ── Registration ── */
-window.mpRegisterActions({ openExplorer });
+window.mpRegisterActions({ openExplorer, openExplorerTo });
 window.mpRegisterWindows({ explorer: 'Files' });
 
 /* ── Language change refresh ── */

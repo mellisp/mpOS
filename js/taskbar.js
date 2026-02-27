@@ -224,7 +224,14 @@
     tuningfork: 'Tuning Fork',
     reverb: 'Reverb',
     neotracker: 'NEO Tracker',
-    fractal: 'Fractal Explorer'
+    fractal: 'Fractal Explorer',
+    slotmachine: 'Slot Machine',
+    stickynotes: 'Sticky Notes',
+    cryptography: 'Cryptography',
+    soundproducer: 'Sound Producer',
+    photobooth: 'Photo Booth',
+    chat: 'Chat',
+    archivebrowser: 'Archive Browser'
   };
 
   const minimizeWindow = (id) => {
