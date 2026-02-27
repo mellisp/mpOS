@@ -164,7 +164,9 @@ window._mpLangRegister('pt', {
   'chat.aiStatus.unavailable': 'Modo de pesquisa por palavras-chave',
   'sticky.deleteConfirm': 'Apagar esta nota?',
   'app.myComputer.name': 'O Meu Computador',
+  'app.myComputer.desc': 'Propriedades e defini\u00e7\u00f5es do sistema.',
   'app.files.name': 'Ficheiros',
+  'app.files.desc': 'Navegar e gerir ficheiros.',
 
   /* Explorer */
   'explorer.folderEmpty': 'Esta pasta est\u00e1 vazia.',
@@ -552,6 +554,8 @@ window._mpLangRegister('pt', {
   'win.reverb': 'Reverb',
   'win.soundproducer': 'Produtor de Som',
   'win.chat': 'Chat',
+  'win.stickynotes': 'Notas Adesivas',
+  'win.chickenError': 'Chicken Fingers',
 
   /* Sound Producer UI */
   'sp.preset': 'Predefini\u00e7\u00e3o',

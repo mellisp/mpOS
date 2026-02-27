@@ -173,7 +173,9 @@
     'chat.aiStatus.unavailable': 'Keyword search mode',
     'sticky.deleteConfirm': 'Delete this note?',
     'app.myComputer.name': 'My Computer',
+    'app.myComputer.desc': 'System properties and settings.',
     'app.files.name': 'Files',
+    'app.files.desc': 'Browse and manage files.',
 
     /* Explorer */
     'explorer.folderEmpty': 'This folder is empty.',
@@ -561,6 +563,8 @@
     'win.reverb': 'Reverb',
     'win.soundproducer': 'Sound Producer',
     'win.chat': 'Chat',
+    'win.stickynotes': 'Sticky Notes',
+    'win.chickenError': 'Chicken Fingers',
 
     /* Sound Producer UI */
     'sp.preset': 'Preset',

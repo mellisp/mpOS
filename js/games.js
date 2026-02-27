@@ -166,6 +166,7 @@ document.getElementById('chickenError')?.addEventListener('click', (e) => {
 /* ── Exports ── */
 window.openAquarium = openAquarium;
 window.openOnTarget = openOnTarget;
+window.closeOnTarget = closeOnTarget;
 window.openBrickBreaker = openBrickBreaker;
 window.openFractal = openFractal;
 

@@ -3270,7 +3270,7 @@
 .pb-filter-btn:active,
 .pb-filter-btn.active {
   border-color: var(--shadow) var(--white) var(--white) var(--shadow);
-  background: var(--face);
+  background: var(--silver);
 }
 
 .pb-strip {
@@ -3280,7 +3280,7 @@
   overflow-x: auto;
   min-height: 4.25rem;
   border-top: 1px solid var(--shadow);
-  background: var(--face);
+  background: var(--silver);
 }
 
 .pb-thumb {
