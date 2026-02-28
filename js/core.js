@@ -2,6 +2,14 @@
 (function () {
 'use strict';
 
+/* ── Global error safety net ── */
+window.onerror = function (msg, src, line, col) {
+  console.error('[mpOS]', msg, 'at', src + ':' + line + ':' + col);
+};
+window.onunhandledrejection = function (e) {
+  console.error('[mpOS] Unhandled promise:', e.reason);
+};
+
 const mobileQuery = window.matchMedia('(max-width: 767px)');
 
 /* ── Registration hooks — each app file calls these to self-register ── */
