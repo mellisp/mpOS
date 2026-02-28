@@ -36,7 +36,8 @@ const FOLDER_ITEMS = {
     { name: 'White Noise Mixer', _key: 'noiseMixer', desc: 'Mix colored noise for focus, sleep, or relaxation.', tag: 'HTML', action: 'openNoiseMixer' },
     { name: 'Tuning Fork', _key: 'tuningFork', desc: 'Pure tone generator for musical tuning.', tag: 'HTML', action: 'openTuningFork' },
     { name: 'Reverb', _key: 'reverb', desc: 'Audio reverb effect with patch cable routing.', tag: 'HTML', action: 'openReverb' },
-    { name: 'Sound Producer', _key: 'soundProducer', desc: 'Preview and export procedural UI sounds.', tag: 'HTML', action: 'openSoundProducer' }
+    { name: 'Sound Producer', _key: 'soundProducer', desc: 'Preview and export procedural UI sounds.', tag: 'HTML', action: 'openSoundProducer' },
+    { name: 'Synthesizer', _key: 'synth', desc: '4-voice polyphonic modular synthesizer.', tag: 'HTML', action: 'openSynth' }
   ],
   documents: [],
   utilities: [

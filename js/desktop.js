@@ -850,6 +850,7 @@
     if (window.tmRefreshOnLangChange) window.tmRefreshOnLangChange();
     if (window.searchRefreshOnLangChange) window.searchRefreshOnLangChange();
     if (window.soundProducerRefreshOnLangChange) window.soundProducerRefreshOnLangChange();
+    if (window.synthRefreshOnLangChange) window.synthRefreshOnLangChange();
     if (window.chatRefreshOnLangChange) window.chatRefreshOnLangChange();
     if (window.photoBoothRefreshOnLangChange) window.photoBoothRefreshOnLangChange();
     // Mobile launcher: rebuild
