@@ -1,4 +1,18 @@
 .DS_Store
 .claude/
-CLAUDE.md
 node_modules/
+
+.env
+
+# Local dev and secrets
+.env
+
+# RVF / RuVector local artifacts
+ruvector.db
+*.db
+.rvf/
+.ruvector/
+
+
+# Claude Code
+CLAUDE.md
