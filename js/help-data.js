@@ -16,8 +16,8 @@ var HELP_TREE = [
   { title: 'Getting Started', title_pt: 'Primeiros Passos',  children: ['welcome', 'desktop', 'startmenu', 'taskbar'] },
   { title: 'Games',           title_pt: 'Jogos',             children: ['ontarget', 'chickenfingers', 'brickbreaker', 'fractal', 'slotmachine'] },
   { title: 'Internet',        title_pt: 'Internet',          children: ['wikibrowser', 'archivebrowser', 'fishofday', 'fishfinder', 'aquarium', 'neotracker'] },
-  { title: 'Accessories',     title_pt: 'Acess\u00f3rios',   children: ['notepad', 'paint', 'stickynotes'] },
-  { title: 'Audio',           title_pt: '\u00c1udio',        children: ['noisemixer', 'tuningfork', 'reverb'] },
+  { title: 'Accessories',     title_pt: 'Acess\u00f3rios',   children: ['notepad', 'paint', 'stickynotes', 'photobooth'] },
+  { title: 'Audio',           title_pt: '\u00c1udio',        children: ['noisemixer', 'tuningfork', 'reverb', 'soundproducer', 'synth'] },
   { title: 'Utilities',       title_pt: 'Utilit\u00e1rios',  children: ['calculator', 'calendar', 'timezone', 'weather', 'stopwatch', 'cryptography', 'diskusage', 'visitormap', 'search', 'chat'] },
   { title: 'System',          title_pt: 'Sistema',           children: ['mycomputer', 'explorer', 'run', 'taskmanager', 'voicecommands'] }
 ];
@@ -1518,6 +1518,203 @@ var HELP_TOPICS = {
         'Clique em Copiar para copiar a sa\u00edda para a \u00e1rea de transfer\u00eancia.'
       ]},
       { sa: ['notepad', 'calculator'] }
+    ]
+  },
+
+  photobooth: {
+    title: 'Photo Booth',
+    title_pt: 'Photo Booth',
+    keywords: ['photo booth', 'camera', 'webcam', 'selfie', 'filter', 'photo', 'capture', 'picture', 'snapshot'],
+    keywords_pt: ['photo booth', 'c\u00e2mara', 'webcam', 'selfie', 'filtro', 'foto', 'captura', 'imagem', 'instant\u00e2neo'],
+    body: [
+      { p: 'Photo Booth captures photos using your webcam with 12 real-time visual filters.' },
+      { h: 'Filters' },
+      { ul: [
+        'Normal \u2014 no effect (direct camera feed).',
+        'CRT \u2014 retro cathode-ray-tube scanlines and vignette.',
+        'Underwater \u2014 blue-green tint with ripple distortion.',
+        'Fisheye \u2014 barrel lens distortion.',
+        'VHS \u2014 analog tracking errors and chromatic aberration.',
+        'Thermal \u2014 heat-map color palette based on brightness.',
+        'Deep Fried \u2014 extreme saturation and contrast (meme effect).',
+        'PixelSort \u2014 glitch art that sorts pixel columns by brightness.',
+        'ASCII \u2014 renders the image as text characters.',
+        'DataMosh \u2014 simulated video compression artifacts.',
+        'Kaleidoscope \u2014 six-way mirror symmetry.',
+        'TimeSlice \u2014 each column shows a different moment in time.'
+      ]},
+      { h: 'Controls' },
+      { ul: [
+        'Capture \u2014 starts a 3-second countdown, then takes a photo with a flash effect.',
+        'Mirror \u2014 flips the camera horizontally for selfies.',
+        'Save \u2014 downloads the current photo as a PNG file.',
+        'Click any thumbnail in the strip below the camera to view a captured photo full-size.'
+      ]},
+      { h: 'Opening Photo Booth' },
+      { ul: [
+        'Start menu \u2192 Utilities \u2192 Photo Booth.',
+        'Type PHOTOBOOTH in the Run terminal.'
+      ]},
+      { sa: ['paint', 'stickynotes'] }
+    ],
+    body_pt: [
+      { p: 'O Photo Booth captura fotos usando a sua webcam com 12 filtros visuais em tempo real.' },
+      { h: 'Filtros' },
+      { ul: [
+        'Normal \u2014 sem efeito (imagem direta da c\u00e2mara).',
+        'CRT \u2014 linhas de varrimento retro de tubo de raios cat\u00f3dicos e vinheta.',
+        'Subaqu\u00e1tico \u2014 tom azul-esverdeado com distor\u00e7\u00e3o de ondula\u00e7\u00e3o.',
+        'Olho de Peixe \u2014 distor\u00e7\u00e3o de lente barril.',
+        'VHS \u2014 erros de tracking anal\u00f3gico e aberra\u00e7\u00e3o crom\u00e1tica.',
+        'T\u00e9rmico \u2014 paleta de cores de mapa de calor baseada no brilho.',
+        'Deep Fried \u2014 satura\u00e7\u00e3o e contraste extremos (efeito meme).',
+        'PixelSort \u2014 arte glitch que ordena colunas de p\u00edxeis por brilho.',
+        'ASCII \u2014 renderiza a imagem como caracteres de texto.',
+        'DataMosh \u2014 artefactos simulados de compress\u00e3o de v\u00eddeo.',
+        'Caleidosc\u00f3pio \u2014 simetria de espelho de seis vias.',
+        'TimeSlice \u2014 cada coluna mostra um momento diferente no tempo.'
+      ]},
+      { h: 'Controlos' },
+      { ul: [
+        'Capturar \u2014 inicia uma contagem regressiva de 3 segundos e depois tira uma foto com efeito de flash.',
+        'Espelho \u2014 inverte a c\u00e2mara horizontalmente para selfies.',
+        'Guardar \u2014 descarrega a foto atual como ficheiro PNG.',
+        'Clique em qualquer miniatura na faixa abaixo da c\u00e2mara para ver uma foto capturada em tamanho real.'
+      ]},
+      { h: 'Abrir o Photo Booth' },
+      { ul: [
+        'Menu Iniciar \u2192 Utilit\u00e1rios \u2192 Photo Booth.',
+        'Escreva PHOTOBOOTH no terminal Executar.'
+      ]},
+      { sa: ['paint', 'stickynotes'] }
+    ]
+  },
+
+  soundproducer: {
+    title: 'Sound Producer',
+    title_pt: 'Produtor de Som',
+    keywords: ['sound producer', 'sound', 'audio', 'synthesizer', 'preset', 'waveform', 'export', 'wav', 'system sounds'],
+    keywords_pt: ['produtor de som', 'som', '\u00e1udio', 'sintetizador', 'preset', 'forma de onda', 'exportar', 'wav', 'sons do sistema'],
+    body: [
+      { p: 'Sound Producer is a sound design tool that creates and customizes the system sounds used throughout mpOS. It uses oscillator layers, noise, FM synthesis, and filters.' },
+      { h: '9 Preset Sounds' },
+      { ul: [
+        'Click \u2014 short percussive UI click.',
+        'Hover \u2014 subtle hover feedback tone.',
+        'Confirm \u2014 two-note confirmation chord.',
+        'Error \u2014 buzzer-style error alert.',
+        'Notification \u2014 FM synthesis swoosh.',
+        'Open \u2014 ascending pitch sweep for opening windows.',
+        'Close \u2014 descending tone for closing windows.',
+        'Exit \u2014 three-note descending arpeggio.',
+        'Boot \u2014 full startup sequence (E4\u2192G#4\u2192B4\u2192E5 arpeggio with pad).'
+      ]},
+      { h: 'Controls' },
+      { ul: [
+        'Preset \u2014 select which system sound to preview and customize.',
+        'Duration \u2014 adjust the sound length (0.01\u20133.0 seconds).',
+        'Gain \u2014 set the output volume.',
+        'Frequency \u2014 override the primary oscillator frequency.',
+        'Play \u2014 preview the sound with your adjustments.',
+        'Export \u2014 download the current sound as a WAV file.',
+        'The waveform display shows a real-time visualization of the rendered audio.'
+      ]},
+      { h: 'Audio Routing' },
+      { p: 'Sound Producer has an output jack that can connect via patch cable to the Noise Mixer or Synthesizer for modular audio routing.' },
+      { h: 'Opening Sound Producer' },
+      { ul: [
+        'Start menu \u2192 Utilities \u2192 Sound Producer.',
+        'Type SOUNDPRODUCER in the Run terminal.'
+      ]},
+      { sa: ['synth', 'noisemixer', 'reverb'] }
+    ],
+    body_pt: [
+      { p: 'O Produtor de Som \u00e9 uma ferramenta de design de som que cria e personaliza os sons do sistema usados em todo o mpOS. Utiliza camadas de oscilador, ru\u00eddo, s\u00edntese FM e filtros.' },
+      { h: '9 Sons Predefinidos' },
+      { ul: [
+        'Click \u2014 clique percussivo curto de interface.',
+        'Hover \u2014 tom subtil de feedback ao passar o rato.',
+        'Confirmar \u2014 acorde de confirma\u00e7\u00e3o de duas notas.',
+        'Erro \u2014 alerta de erro tipo buzina.',
+        'Notifica\u00e7\u00e3o \u2014 swoosh de s\u00edntese FM.',
+        'Abrir \u2014 varredura de tom ascendente para abrir janelas.',
+        'Fechar \u2014 tom descendente para fechar janelas.',
+        'Sair \u2014 arp\u00e9gio descendente de tr\u00eas notas.',
+        'Arranque \u2014 sequ\u00eancia completa de arranque (arp\u00e9gio E4\u2192G#4\u2192B4\u2192E5 com pad).'
+      ]},
+      { h: 'Controlos' },
+      { ul: [
+        'Preset \u2014 selecione qual som do sistema pr\u00e9-visualizar e personalizar.',
+        'Dura\u00e7\u00e3o \u2014 ajuste o comprimento do som (0,01\u20133,0 segundos).',
+        'Ganho \u2014 defina o volume de sa\u00edda.',
+        'Frequ\u00eancia \u2014 substitua a frequ\u00eancia do oscilador principal.',
+        'Reproduzir \u2014 pr\u00e9-visualize o som com os seus ajustes.',
+        'Exportar \u2014 descarregue o som atual como ficheiro WAV.',
+        'O visor de forma de onda mostra uma visualiza\u00e7\u00e3o em tempo real do \u00e1udio renderizado.'
+      ]},
+      { h: 'Encaminhamento de \u00c1udio' },
+      { p: 'O Produtor de Som tem uma sa\u00edda que pode ligar-se via cabo patch ao Misturador de Ru\u00eddo ou Sintetizador para encaminhamento de \u00e1udio modular.' },
+      { h: 'Abrir o Produtor de Som' },
+      { ul: [
+        'Menu Iniciar \u2192 Utilit\u00e1rios \u2192 Produtor de Som.',
+        'Escreva SOUNDPRODUCER no terminal Executar.'
+      ]},
+      { sa: ['synth', 'noisemixer', 'reverb'] }
+    ]
+  },
+
+  synth: {
+    title: 'Synthesizer',
+    title_pt: 'Sintetizador',
+    keywords: ['synthesizer', 'synth', 'keyboard', 'oscillator', 'filter', 'envelope', 'adsr', 'lfo', 'midi', 'polyphonic', 'music'],
+    keywords_pt: ['sintetizador', 'synth', 'teclado', 'oscilador', 'filtro', 'envelope', 'adsr', 'lfo', 'midi', 'polif\u00f3nico', 'm\u00fasica'],
+    body: [
+      { p: 'The Synthesizer is a 4-voice polyphonic modular synth inspired by hardware rack synthesizers. It features oscillator, filter, envelope, and LFO modules.' },
+      { h: 'Modules' },
+      { ul: [
+        'VCO (Oscillator) \u2014 waveform (sine, sawtooth, square, triangle), octave transpose (\u00b12), and fine detune (\u00b1100 cents).',
+        'VCF (Filter) \u2014 lowpass, highpass, or bandpass filter with cutoff frequency, resonance, and envelope amount controls.',
+        'ADSR (Envelope) \u2014 Attack, Decay, Sustain, and Release shape the volume of each note over time.',
+        'LFO (Low Frequency Oscillator) \u2014 modulates the filter cutoff or oscillator pitch. Adjustable shape, rate (0.1\u201320 Hz), and depth.',
+        'Output \u2014 master volume and an output jack for routing to other audio apps.'
+      ]},
+      { h: 'Playing Notes' },
+      { ul: [
+        'Click or drag on the 25-key on-screen piano keyboard (C3\u2013C5).',
+        'Use computer keyboard: A\u2013; keys map to notes. Z/X transpose octaves down/up.',
+        'Connect a MIDI controller \u2014 Note On/Off messages are received automatically.',
+        'Up to 4 notes can sound simultaneously. A 5th note steals the oldest voice.'
+      ]},
+      { h: 'Opening the Synthesizer' },
+      { ul: [
+        'Start menu \u2192 Utilities \u2192 Synthesizer.',
+        'Type SYNTH in the Run terminal.'
+      ]},
+      { sa: ['soundproducer', 'noisemixer', 'reverb'] }
+    ],
+    body_pt: [
+      { p: 'O Sintetizador \u00e9 um sintetizador modular polif\u00f3nico de 4 vozes inspirado em sintetizadores de rack de hardware. Inclui m\u00f3dulos de oscilador, filtro, envelope e LFO.' },
+      { h: 'M\u00f3dulos' },
+      { ul: [
+        'VCO (Oscilador) \u2014 forma de onda (seno, dente de serra, quadrada, tri\u00e2ngulo), transporte de oitava (\u00b12), e afina\u00e7\u00e3o fina (\u00b1100 cents).',
+        'VCF (Filtro) \u2014 filtro passa-baixo, passa-alto ou passa-banda com controlos de frequ\u00eancia de corte, resson\u00e2ncia e quantidade de envelope.',
+        'ADSR (Envelope) \u2014 Attack, Decay, Sustain e Release moldam o volume de cada nota ao longo do tempo.',
+        'LFO (Oscilador de Baixa Frequ\u00eancia) \u2014 modula a frequ\u00eancia de corte do filtro ou o tom do oscilador. Forma, taxa (0,1\u201320 Hz) e profundidade ajust\u00e1veis.',
+        'Sa\u00edda \u2014 volume principal e uma sa\u00edda para encaminhamento para outras aplica\u00e7\u00f5es de \u00e1udio.'
+      ]},
+      { h: 'Tocar Notas' },
+      { ul: [
+        'Clique ou arraste no teclado de piano de 25 teclas no ecr\u00e3 (C3\u2013C5).',
+        'Use o teclado do computador: as teclas A\u2013; mapeiam para notas. Z/X transp\u00f5em oitavas para baixo/cima.',
+        'Ligue um controlador MIDI \u2014 as mensagens Note On/Off s\u00e3o recebidas automaticamente.',
+        'At\u00e9 4 notas podem soar simultaneamente. Uma 5.\u00aa nota rouba a voz mais antiga.'
+      ]},
+      { h: 'Abrir o Sintetizador' },
+      { ul: [
+        'Menu Iniciar \u2192 Utilit\u00e1rios \u2192 Sintetizador.',
+        'Escreva SYNTH no terminal Executar.'
+      ]},
+      { sa: ['soundproducer', 'noisemixer', 'reverb'] }
     ]
   },
 

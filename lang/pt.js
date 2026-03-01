@@ -165,6 +165,7 @@ window._mpLangRegister('pt', {
   'chat.noResults': 'N\u00e3o encontrei nada sobre isso. Tente reformular a sua pergunta.',
   'chat.aiStatus.ready': 'Modo IA ativo',
   'chat.aiStatus.unavailable': 'Modo de pesquisa por palavras-chave',
+  'chat.aiStatus.streaming': 'A receber...',
   'sticky.deleteConfirm': 'Apagar esta nota?',
   'app.myComputer.name': 'O Meu Computador',
   'app.myComputer.desc': 'Propriedades e defini\u00e7\u00f5es do sistema.',

@@ -174,6 +174,7 @@
     'chat.noResults': 'I couldn\'t find anything about that. Try rephrasing your question.',
     'chat.aiStatus.ready': 'AI mode active',
     'chat.aiStatus.unavailable': 'Keyword search mode',
+    'chat.aiStatus.streaming': 'Receiving...',
     'sticky.deleteConfirm': 'Delete this note?',
     'app.myComputer.name': 'My Computer',
     'app.myComputer.desc': 'System properties and settings.',

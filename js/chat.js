@@ -1,6 +1,6 @@
 /* ================================================================
  * Chat — AI Help Assistant (IIFE)
- * Keyword search through HELP_TOPICS + optional LLM via Cloudflare Workers AI
+ * Keyword search through HELP_TOPICS + streaming LLM via Cloudflare Workers AI
  * ================================================================ */
 ;(() => {
   'use strict';
@@ -9,8 +9,8 @@
   const MAX_HISTORY = 10;
 
   /* ── State ── */
-  let messages = [];       // { role: 'user'|'assistant'|'system', content: string }
-  let aiAvailable = null;  // null = untested, true/false after first check
+  let messages = [];       // { role: 'user'|'assistant', content: string }
+  let aiAvailable = true;  // optimistic default; set false on first failure
   let helpLoaded = false;
   let sending = false;
   let visitorName = 'Guest';
@@ -26,7 +26,21 @@
     chatSendBtn    = document.getElementById('chatSendBtn');
   };
 
-  /* ── Help topic search ── */
+  /* ── IP fetch for screen name ── */
+
+  const fetchVisitorIP = async () => {
+    if (ipFetched) return;
+    ipFetched = true;
+    try {
+      const resp = await window.mpFetch(WORKER_URL + '/ip', { timeout: 5000 });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.ip) visitorName = data.ip;
+      }
+    } catch { /* keep Guest */ }
+  };
+
+  /* ── Help topic search (keyword fallback) ── */
 
   const tokenize = (text) =>
     text.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(Boolean);
@@ -54,7 +68,6 @@
       const title = isPt && topic.title_pt ? topic.title_pt : topic.title;
       const body = isPt && topic.body_pt ? topic.body_pt : topic.body;
 
-      // Score: keyword matches + title matches
       let score = 0;
       const kwLower = keywords.map((k) => k.toLowerCase());
       const titleLower = title.toLowerCase();
@@ -73,20 +86,6 @@
 
     scored.sort((a, b) => b.score - a.score);
     return scored.slice(0, 5);
-  };
-
-  /* ── IP fetch ── */
-
-  const fetchVisitorIP = async () => {
-    if (ipFetched) return;
-    ipFetched = true;
-    try {
-      const resp = await fetch(WORKER_URL + '/ip', { signal: AbortSignal.timeout(5000) });
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data.ip) visitorName = data.ip;
-      }
-    } catch { /* keep Guest */ }
   };
 
   /* ── Message rendering ── */
@@ -115,7 +114,6 @@
     const div = document.createElement('div');
     div.className = 'chat-msg';
 
-    // Header: screen name + timestamp
     const header = document.createElement('div');
     header.className = 'chat-msg-header';
     const nameSpan = document.createElement('span');
@@ -128,7 +126,6 @@
     header.appendChild(timeSpan);
     div.appendChild(header);
 
-    // Body
     const body = document.createElement('div');
     body.className = 'chat-msg-body';
     body.textContent = content;
@@ -136,6 +133,35 @@
 
     chatMessagesEl.appendChild(div);
     scrollToBottom();
+    return body;  // return body element for streaming updates
+  };
+
+  /** Create an empty assistant message shell for progressive rendering */
+  const createAssistantMessage = () => {
+    if (!chatMessagesEl) return null;
+
+    const div = document.createElement('div');
+    div.className = 'chat-msg';
+
+    const header = document.createElement('div');
+    header.className = 'chat-msg-header';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'chat-screen-name-bot';
+    nameSpan.textContent = BOT_NAME;
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'chat-timestamp';
+    timeSpan.textContent = ` (${timeStamp()}):`;
+    header.appendChild(nameSpan);
+    header.appendChild(timeSpan);
+    div.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'chat-msg-body';
+    div.appendChild(body);
+
+    chatMessagesEl.appendChild(div);
+    scrollToBottom();
+    return body;  // the element to update with streaming tokens
   };
 
   const renderTopicCards = (topics) => {
@@ -143,7 +169,6 @@
     const wrapper = document.createElement('div');
     wrapper.className = 'chat-msg';
 
-    // Header for topic card response
     const header = document.createElement('div');
     header.className = 'chat-msg-header';
     const nameSpan = document.createElement('span');
@@ -181,7 +206,6 @@
       });
       card.appendChild(h);
 
-      // Show first paragraph or two of body
       let shown = 0;
       for (const block of topic.body) {
         if (shown >= 2) break;
@@ -212,56 +236,61 @@
     scrollToBottom();
   };
 
-  /* ── AI check + query ── */
+  /* ── Streaming AI query ── */
 
-  const checkAI = async () => {
-    if (aiAvailable !== null) return aiAvailable;
-    try {
-      // OPTIONS preflight is enough to confirm the worker is reachable
-      const resp = await fetch(WORKER_URL + '/chat', {
-        method: 'OPTIONS',
-        signal: AbortSignal.timeout(5000)
-      });
-      aiAvailable = resp.ok || resp.status === 204;
-    } catch {
-      aiAvailable = false;
-    }
-    updateStatus();
-    return aiAvailable;
-  };
-
-  const queryAI = async (userText, topicContext) => {
-    // Build context from matched help topics
-    let contextBlock = '';
-    if (topicContext.length) {
-      contextBlock = '\n\nRelevant help topics:\n' +
-        topicContext.map((t) => `## ${t.title}\n${t.bodyText}`).join('\n\n');
-    }
-
-    // Build message history for multi-turn
-    const aiMessages = [];
-    // First user message gets the context injected
-    for (const msg of messages) {
-      aiMessages.push({ role: msg.role, content: msg.content });
-    }
-    // Inject context into the last user message
-    if (aiMessages.length && contextBlock) {
-      const last = aiMessages[aiMessages.length - 1];
-      if (last.role === 'user') {
-        last.content = last.content + contextBlock;
-      }
-    }
-
-    const resp = await fetch(WORKER_URL + '/chat', {
+  const queryAI = async (userText) => {
+    const resp = await window.mpFetch(WORKER_URL + '/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: aiMessages }),
-      signal: AbortSignal.timeout(15000)
+      headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
+      body: JSON.stringify({ messages: messages.slice(-MAX_HISTORY) }),
+      timeout: 30000
     });
 
     if (!resp.ok) throw new Error('AI request failed');
-    const data = await resp.json();
-    return data.response;
+
+    // Check if streaming response
+    const contentType = resp.headers.get('content-type') || '';
+    if (!contentType.includes('text/event-stream')) {
+      // Non-streaming fallback (in case Worker hasn't been updated yet)
+      const data = await resp.json();
+      return data.response;
+    }
+
+    // Stream SSE tokens progressively
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let fullResponse = '';
+    let buffer = '';
+    const msgEl = createAssistantMessage();
+
+    // Switch status to streaming
+    if (chatStatusEl) {
+      chatStatusEl.textContent = window.t?.('chat.aiStatus.streaming') || 'Receiving...';
+    }
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const payload = line.slice(6);
+        if (payload === '[DONE]') break;
+        try {
+          const parsed = JSON.parse(payload);
+          const token = parsed.response;
+          if (token) {
+            fullResponse += token;
+            if (msgEl) msgEl.textContent = fullResponse;
+            scrollToBottom();
+          }
+        } catch { /* skip malformed chunks */ }
+      }
+    }
+
+    return { text: fullResponse, streamed: !!msgEl };
   };
 
   /* ── Status bar ── */
@@ -272,10 +301,8 @@
       chatStatusEl.textContent = window.t?.('chat.thinking') || 'Thinking...';
     } else if (aiAvailable) {
       chatStatusEl.textContent = window.t?.('chat.aiStatus.ready') || 'AI mode active';
-    } else if (aiAvailable === false) {
-      chatStatusEl.textContent = window.t?.('chat.aiStatus.unavailable') || 'Keyword search mode';
     } else {
-      chatStatusEl.textContent = window.t?.('chat.ready') || 'Ready';
+      chatStatusEl.textContent = window.t?.('chat.aiStatus.unavailable') || 'Keyword search mode';
     }
   };
 
@@ -290,7 +317,6 @@
     messages.push({ role: 'user', content: text });
     renderMessage('user', text);
 
-    // Search help topics
     const topics = searchHelpTopics(text);
 
     sending = true;
@@ -299,15 +325,21 @@
 
     try {
       if (aiAvailable) {
-        const answer = await queryAI(text, topics);
-        messages.push({ role: 'assistant', content: answer });
-        renderMessage('assistant', answer);
+        const result = await queryAI(text);
+        if (typeof result === 'string') {
+          // Non-streaming response
+          messages.push({ role: 'assistant', content: result });
+          renderMessage('assistant', result);
+        } else {
+          // Streamed — message already rendered progressively
+          messages.push({ role: 'assistant', content: result.text });
+        }
       } else {
-        // Keyword search fallback
         renderTopicCards(topics);
       }
     } catch {
-      // On AI error, fall back to keyword search
+      // AI failed — mark unavailable and fall back to keyword search
+      aiAvailable = false;
       if (topics.length) {
         renderTopicCards(topics);
       } else {
@@ -319,7 +351,6 @@
       if (chatSendBtn) chatSendBtn.disabled = false;
     }
 
-    // Trim history
     if (messages.length > MAX_HISTORY) {
       messages = messages.slice(-MAX_HISTORY);
     }
@@ -344,7 +375,6 @@
   const openChat = () => {
     resolveDOM();
 
-    // Lazy-load help data
     if (!helpLoaded && !window.HELP_TOPICS) {
       window.loadDataScript?.('js/help-data.js');
       helpLoaded = true;
@@ -352,14 +382,11 @@
 
     window.openWindow('chat');
 
-    // First open: show welcome, check AI, fetch IP
     if (!chatMessagesEl?.children.length) {
       showWelcome();
-      checkAI();
       fetchVisitorIP();
     }
 
-    // Set up input handlers (idempotent)
     if (chatInputEl && !chatInputEl._chatBound) {
       chatInputEl._chatBound = true;
       chatInputEl.addEventListener('keydown', (e) => {
@@ -379,7 +406,6 @@
 
   const chatRefreshOnLangChange = () => {
     updateStatus();
-    // Update placeholder
     if (chatInputEl) {
       chatInputEl.placeholder = window.t?.('chat.placeholder') || 'Ask about mpOS...';
     }
