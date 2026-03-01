@@ -430,7 +430,7 @@
         const flatLat = lat.toFixed(2);
         const flatLon = lon.toFixed(2);
         try {
-          const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${flatLat}&longitude=${flatLon}&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true&timezone=auto&forecast_days=4`);
+          const r = await mpFetch(`https://api.open-meteo.com/v1/forecast?latitude=${flatLat}&longitude=${flatLon}&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true&timezone=auto&forecast_days=4`, { timeout: 10000, dedup: true });
           if (!r.ok) throw new Error('API error');
           const data = await r.json();
           weatherLoaded = true;

@@ -28,8 +28,8 @@
   let tfIdCounter = 0;
 
   const tfGetVolume = () => {
-    const raw = parseFloat(localStorage.getItem('mp-volume') || '0.1');
-    const muted = localStorage.getItem('mp-muted') === '1';
+    const raw = parseFloat(mpStorage.get(STORAGE_KEYS.volume, '0.1'));
+    const muted = mpStorage.get(STORAGE_KEYS.muted) === '1';
     return muted ? 0 : raw * 0.3;
   };
 
@@ -562,9 +562,9 @@
 
   const nmSyncVolume = () => {
     if (!nmMasterGain) return;
-    const saved = localStorage.getItem('mp-volume');
+    const saved = mpStorage.get(STORAGE_KEYS.volume);
     const vol = saved !== null ? parseFloat(saved) : 0.1;
-    const muted = localStorage.getItem('mp-muted') === '1';
+    const muted = mpStorage.get(STORAGE_KEYS.muted) === '1';
     nmMasterGain.gain.value = muted ? 0 : vol;
     const masterFader = document.getElementById('nmMasterFader');
     if (masterFader) masterFader.value = vol * 100;
@@ -747,14 +747,14 @@
     fader.min = '0';
     fader.max = '100';
     fader.value = idx === -1
-      ? String(Math.round((parseFloat(localStorage.getItem('mp-volume')) || 0.1) * 100))
+      ? String(Math.round((parseFloat(mpStorage.get(STORAGE_KEYS.volume, '0.1'))) * 100))
       : String(Math.round(ch.volume * 100));
 
     if (idx === -1) {
       fader.id = 'nmMasterFader';
       fader.oninput = () => {
         const v = parseInt(fader.value, 10) / 100;
-        localStorage.setItem('mp-volume', String(v));
+        mpStorage.set(STORAGE_KEYS.volume, String(v));
         const tbSlider = document.querySelector('.volume-slider');
         if (tbSlider) tbSlider.value = fader.value;
         if (window.mpAudioUpdateVolume) window.mpAudioUpdateVolume();

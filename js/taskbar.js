@@ -26,7 +26,7 @@
     const now = new Date();
     const h = now.getHours();
     const m = String(now.getMinutes()).padStart(2, '0');
-    if (localStorage.getItem('mp-clock') === '24') {
+    if (mpStorage.get(STORAGE_KEYS.clock) === '24') {
       clockEl.textContent = `${h}:${m}`;
     } else {
       clockEl.textContent = `${h % 12 || 12}:${m} ${h >= 12 ? 'PM' : 'AM'}`;
@@ -56,18 +56,18 @@
   }
 
   if (volumeSlider) {
-    const savedVol = localStorage.getItem('mp-volume');
+    const savedVol = mpStorage.get(STORAGE_KEYS.volume);
     volumeSlider.value = savedVol !== null ? parseFloat(savedVol) * 100 : 10;
     volumeSlider.addEventListener('input', () => {
-      localStorage.setItem('mp-volume', (volumeSlider.value / 100).toString());
+      mpStorage.set(STORAGE_KEYS.volume, (volumeSlider.value / 100).toString());
       window.mpAudioUpdateVolume?.();
     });
   }
 
   if (muteCheckbox) {
-    muteCheckbox.checked = localStorage.getItem('mp-muted') === '1';
+    muteCheckbox.checked = mpStorage.get(STORAGE_KEYS.muted) === '1';
     muteCheckbox.addEventListener('change', () => {
-      localStorage.setItem('mp-muted', muteCheckbox.checked ? '1' : '0');
+      mpStorage.set(STORAGE_KEYS.muted, muteCheckbox.checked ? '1' : '0');
       window.mpAudioUpdateVolume?.();
     });
   }
@@ -292,16 +292,29 @@
 
   const onDragMove = (clientX, clientY) => {
     if (!dragState) return;
-    const { win, ox, oy, winW, winH } = dragState;
+    const { win, ox, oy, winW, winH, startLeft, startTop } = dragState;
     const x = Math.max(0, Math.min(clientX - ox, window.innerWidth - winW));
     const y = Math.max(0, Math.min(clientY - oy, window.innerHeight - winH));
-    win.style.left = `${x}px`;
-    win.style.top = `${y}px`;
+    dragState.lastX = x;
+    dragState.lastY = y;
+    win.style.transform = `translate(${x - startLeft}px, ${y - startTop}px)`;
     win.dispatchEvent(new Event('windowmove', { bubbles: true }));
   };
 
+  const commitDrag = () => {
+    if (!dragState) return;
+    const { win, lastX, lastY } = dragState;
+    win.style.willChange = '';
+    win.style.transform = '';
+    if (lastX !== undefined) {
+      win.style.left = `${lastX}px`;
+      win.style.top = `${lastY}px`;
+    }
+    dragState = null;
+  };
+
   document.addEventListener('mousemove', (e) => { onDragMove(e.clientX, e.clientY); });
-  document.addEventListener('mouseup', () => { dragState = null; });
+  document.addEventListener('mouseup', commitDrag);
 
   document.addEventListener('touchmove', (e) => {
     if (!dragState) return;
@@ -310,21 +323,23 @@
     onDragMove(touch.clientX, touch.clientY);
   }, { passive: false });
 
-  document.addEventListener('touchend', () => { dragState = null; });
-  document.addEventListener('touchcancel', () => { dragState = null; });
+  document.addEventListener('touchend', commitDrag);
+  document.addEventListener('touchcancel', commitDrag);
 
   const makeDraggable = (win) => {
     const titlebar = win.querySelector('.titlebar');
     if (!titlebar) return;
     titlebar.addEventListener('mousedown', (e) => {
       if (e.target.classList.contains('titlebar-btn') || e.target.closest('.titlebar-buttons')) return;
-      dragState = { win, ox: e.clientX - win.offsetLeft, oy: e.clientY - win.offsetTop, winW: win.offsetWidth, winH: win.offsetHeight };
+      dragState = { win, ox: e.clientX - win.offsetLeft, oy: e.clientY - win.offsetTop, winW: win.offsetWidth, winH: win.offsetHeight, startLeft: win.offsetLeft, startTop: win.offsetTop };
+      win.style.willChange = 'transform';
       e.preventDefault();
     });
     titlebar.addEventListener('touchstart', (e) => {
       if (e.target.classList.contains('titlebar-btn') || e.target.closest('.titlebar-buttons')) return;
       const touch = e.touches[0];
-      dragState = { win, ox: touch.clientX - win.offsetLeft, oy: touch.clientY - win.offsetTop, winW: win.offsetWidth, winH: win.offsetHeight };
+      dragState = { win, ox: touch.clientX - win.offsetLeft, oy: touch.clientY - win.offsetTop, winW: win.offsetWidth, winH: win.offsetHeight, startLeft: win.offsetLeft, startTop: win.offsetTop };
+      win.style.willChange = 'transform';
     }, { passive: true });
   };
 

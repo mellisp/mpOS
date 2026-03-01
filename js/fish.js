@@ -94,7 +94,7 @@ function populateFish() {
 
   /* Check wiki page for clickable link to WikiBrowser */
   const fetchWikiLink = async (title) => {
-    const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`);
+    const r = await mpFetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`, { timeout: 8000 });
     if (!r.ok) throw 0;
     await r.json();
     localStorage.setItem(wikiLinkKey, title);

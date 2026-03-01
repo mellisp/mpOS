@@ -454,14 +454,12 @@ const paintClear = () => {
 };
 
 /* Paint file operations */
-const paintGetFiles = () => {
-  try { return JSON.parse(localStorage.getItem('mpOS-paint-files')) || {}; }
-  catch (_e) { return {}; }
-};
+const paintGetFiles = () => mpStorage.getJSON(STORAGE_KEYS.paintFiles, {});
 
 const paintPersist = (files) => {
-  try { localStorage.setItem('mpOS-paint-files', JSON.stringify(files)); }
-  catch (_e) { alert(t('paint.storageFull')); }
+  if (!mpStorage.setJSON(STORAGE_KEYS.paintFiles, files)) {
+    alert(t('paint.storageFull'));
+  }
 };
 
 const paintNew = async () => {

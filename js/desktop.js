@@ -337,9 +337,9 @@
 
     // Restore continuous checkbox from localStorage
     if (vcContinuousChk) {
-      vcContinuousChk.checked = localStorage.getItem('mp-voice-continuous') === '1';
+      vcContinuousChk.checked = mpStorage.get(STORAGE_KEYS.voiceContinuous) === '1';
       vcContinuousChk.addEventListener('change', () => {
-        localStorage.setItem('mp-voice-continuous', vcContinuousChk.checked ? '1' : '0');
+        mpStorage.set(STORAGE_KEYS.voiceContinuous, vcContinuousChk.checked ? '1' : '0');
       });
     }
 
@@ -371,8 +371,8 @@
 
     /* -- Audio feedback (Web Audio API) -- */
     const voiceBeep = (freq, duration) => {
-      if (localStorage.getItem('mp-muted') === '1') return;
-      const vol = parseFloat(localStorage.getItem('mp-volume') || '0.1');
+      if (mpStorage.get(STORAGE_KEYS.muted) === '1') return;
+      const vol = parseFloat(mpStorage.get(STORAGE_KEYS.volume, '0.1'));
       if (!voiceAudioCtx) {
         voiceAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
@@ -790,8 +790,8 @@
       voiceToggle();
 
       // First-use balloon tip: show once, then never again
-      if (!localStorage.getItem('mp-voice-seen')) {
-        localStorage.setItem('mp-voice-seen', '1');
+      if (!mpStorage.get(STORAGE_KEYS.voiceSeen)) {
+        mpStorage.set(STORAGE_KEYS.voiceSeen, '1');
         const balloon = document.createElement('div');
         balloon.className = 'tray-balloon';
         balloon.innerHTML = `<div class="tray-balloon-close" role="button" tabindex="0" aria-label="Close">&#x2715;</div>`
@@ -951,15 +951,10 @@
         top: parseInt(icon.style.top, 10) || 0
       };
     });
-    try { localStorage.setItem(ICON_POSITION_KEY, JSON.stringify(positions)); } catch (e) { /* ignore */ }
+    mpStorage.setJSON(STORAGE_KEYS.iconPositions, positions);
   };
 
-  const loadIconPositions = () => {
-    try {
-      const raw = localStorage.getItem(ICON_POSITION_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) { return null; }
-  };
+  const loadIconPositions = () => mpStorage.getJSON(STORAGE_KEYS.iconPositions, null);
 
   const applyIconPositions = (positions) => {
     const icons = document.querySelectorAll('.desktop-icon[data-icon]');

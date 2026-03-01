@@ -20,21 +20,18 @@
   let notepadFindMode = '';
 
   /* ── Persistence ── */
-  const notepadGetFiles = () => {
-    try { return JSON.parse(localStorage.getItem('mpOS-notepad-files')) || {}; }
-    catch { return {}; }
-  };
+  const notepadGetFiles = () => mpStorage.getJSON(STORAGE_KEYS.notepadFiles, {});
 
   const notepadPersist = (files) => {
-    localStorage.setItem('mpOS-notepad-files', JSON.stringify(files));
+    mpStorage.setJSON(STORAGE_KEYS.notepadFiles, files);
   };
 
   const notepadMigrateLegacy = () => {
-    if (localStorage.getItem('mpOS-notepad-files') !== null) return;
-    const legacy = localStorage.getItem('mpOS-notepad');
+    if (mpStorage.get(STORAGE_KEYS.notepadFiles) !== null) return;
+    const legacy = mpStorage.get('mpOS-notepad');
     if (legacy !== null) {
       notepadPersist({ 'untitled.txt': legacy });
-      localStorage.removeItem('mpOS-notepad');
+      mpStorage.remove('mpOS-notepad');
       notepadCurrentFile = 'untitled.txt';
       notepadEditor.value = legacy;
     }

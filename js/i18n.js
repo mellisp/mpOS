@@ -786,7 +786,7 @@
     'desktop.shutdownTitle': 'Shutdown'
   });
 
-  /* Restore saved language */
+  /* Restore saved language (mpStorage not yet loaded — i18n.js runs first) */
   try {
     const saved = localStorage.getItem('mp-lang');
     if (saved === 'pt') current = 'pt';
@@ -815,7 +815,8 @@
   const setLanguage = (lang) => {
     if (!LANGS[lang]) return;
     current = lang;
-    try { localStorage.setItem('mp-lang', lang); } catch (e) { /* private browsing */ }
+    if (window.mpStorage) mpStorage.set(window.STORAGE_KEYS.lang, lang);
+    else try { localStorage.setItem('mp-lang', lang); } catch (e) {}
     document.documentElement.lang = lang;
     /* Scan data-i18n elements */
     for (const el of document.querySelectorAll('[data-i18n]')) {

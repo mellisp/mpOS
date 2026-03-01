@@ -125,15 +125,7 @@ const termCountFiles = () => {
   return count;
 };
 
-const termLoadState = () => {
-  try {
-    const raw = localStorage.getItem(TERM_STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch (e) {
-    return null;
-  }
-};
+const termLoadState = () => mpStorage.getJSON(STORAGE_KEYS.terminal, null);
 
 const termSaveState = () => {
   try {
@@ -159,9 +151,9 @@ const termSaveState = () => {
       title: titleSpan.textContent !== 'Run' ? titleSpan.textContent : '',
       files
     };
-    localStorage.setItem(TERM_STORAGE_KEY, JSON.stringify(state));
+    mpStorage.setJSON(STORAGE_KEYS.terminal, state);
   } catch (e) {
-    /* localStorage full or unavailable */
+    /* save failed */
   }
 };
 

@@ -303,7 +303,7 @@
       displaySettings.wallpaper = 'none';
       applyDisplaySettings();
       mcSaveSettings();
-      localStorage.removeItem(window.ICON_POSITION_KEY);
+      mpStorage.remove(STORAGE_KEYS.iconPositions);
       if (window.initDesktopIcons) window.initDesktopIcons();
       mcSwitchTab('display');
     });
@@ -598,7 +598,7 @@
     clockLabel.textContent = t('mc.regional.clock');
     body.appendChild(clockLabel);
 
-    const curFmt = localStorage.getItem('mp-clock') || '12';
+    const curFmt = mpStorage.get(STORAGE_KEYS.clock, '12');
     const fmts = [
       { code: '12', label: t('mc.regional.12hr') },
       { code: '24', label: t('mc.regional.24hr') }
@@ -612,7 +612,7 @@
       radio.value = f.code;
       if (f.code === curFmt) radio.checked = true;
       radio.addEventListener('change', () => {
-        localStorage.setItem('mp-clock', f.code);
+        mpStorage.set(STORAGE_KEYS.clock, f.code);
         if (window.mpClockUpdate) window.mpClockUpdate();
       });
       opt.appendChild(radio);
@@ -627,7 +627,7 @@
     dateLabel.textContent = t('mc.regional.date');
     body.appendChild(dateLabel);
 
-    const curDate = localStorage.getItem('mp-datefmt') || 'mdy';
+    const curDate = mpStorage.get(STORAGE_KEYS.dateFmt, 'mdy');
     const dateFmts = [
       { code: 'mdy', label: t('mc.regional.mdy') },
       { code: 'dmy', label: t('mc.regional.dmy') },
@@ -642,7 +642,7 @@
       radio.value = d.code;
       if (d.code === curDate) radio.checked = true;
       radio.addEventListener('change', () => {
-        localStorage.setItem('mp-datefmt', d.code);
+        mpStorage.set(STORAGE_KEYS.dateFmt, d.code);
         window.mpRefreshFormatCache?.();
       });
       opt.appendChild(radio);
@@ -657,7 +657,7 @@
     tempLabel.textContent = t('mc.regional.temp');
     body.appendChild(tempLabel);
 
-    const curTemp = localStorage.getItem('mp-tempunit') || 'C';
+    const curTemp = mpStorage.get(STORAGE_KEYS.tempUnit, 'C');
     const tempUnits = [
       { code: 'C', label: t('mc.regional.celsius') },
       { code: 'F', label: t('mc.regional.fahrenheit') }
@@ -671,7 +671,7 @@
       radio.value = u.code;
       if (u.code === curTemp) radio.checked = true;
       radio.addEventListener('change', () => {
-        localStorage.setItem('mp-tempunit', u.code);
+        mpStorage.set(STORAGE_KEYS.tempUnit, u.code);
         window.mpRefreshFormatCache?.();
       });
       opt.appendChild(radio);
@@ -970,19 +970,16 @@
    * ════════════════════════════════════════════════════════════════════════ */
 
   const mcSaveSettings = () => {
-    try {
-      localStorage.setItem('mpOS-system-settings', JSON.stringify({
-        display: displaySettings,
-        screenSaver: ssSettings
-      }));
-    } catch (e) { /* quota exceeded — ignore */ }
+    mpStorage.setJSON(STORAGE_KEYS.systemSettings, {
+      display: displaySettings,
+      screenSaver: ssSettings
+    });
   };
 
   const mcLoadSettings = () => {
     try {
-      const raw = localStorage.getItem('mpOS-system-settings');
-      if (raw) {
-        const data = JSON.parse(raw);
+      const data = mpStorage.getJSON(STORAGE_KEYS.systemSettings);
+      if (data) {
         if (data.display) {
           if (data.display.backgroundColor) displaySettings.backgroundColor = data.display.backgroundColor;
           if (data.display.wallpaper) {
@@ -1009,8 +1006,8 @@
   let degaussActive = false;
 
   const degaussSynthSound = () => {
-    if (localStorage.getItem('mp-muted') === '1') return null;
-    const vol = parseFloat(localStorage.getItem('mp-volume') || '0.1');
+    if (mpStorage.get(STORAGE_KEYS.muted) === '1') return null;
+    const vol = parseFloat(mpStorage.get(STORAGE_KEYS.volume, '0.1'));
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (ctx.state === 'suspended') ctx.resume();
     const now = ctx.currentTime;

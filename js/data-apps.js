@@ -26,7 +26,7 @@ async function fetchNeoData(force) {
   const endStr = end.toISOString().slice(0, 10);
 
   try {
-    const r = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${startStr}&end_date=${endStr}&api_key=DEMO_KEY`);
+    const r = await mpFetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${startStr}&end_date=${endStr}&api_key=DEMO_KEY`, { timeout: 15000, dedup: true });
     if (!r.ok) throw new Error('API error');
     const data = await r.json();
     neoState.data = flattenNeoData(data);
@@ -87,7 +87,7 @@ function renderNeoData(body, allNeos) {
     return;
   }
 
-  const useMiles = localStorage.getItem('mp-tempunit') === 'F';
+  const useMiles = mpStorage.get(STORAGE_KEYS.tempUnit) === 'F';
   const KM_MI = 1.60934;
 
   const wrap = document.createElement('div');
@@ -543,7 +543,7 @@ async function fetchVisitorData() {
   const body = document.getElementById('visitorMapBody');
   try {
     const fetchCounts = async () => {
-      const r = await fetch(VM_WORKER + '/visit', { method: 'GET' });
+      const r = await mpFetch(VM_WORKER + '/visit', { timeout: 8000 });
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     };

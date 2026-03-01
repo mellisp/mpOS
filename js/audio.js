@@ -7,11 +7,11 @@
   const DEFAULT_VOLUME = 0.1;
 
   const getVolume = () => {
-    const saved = localStorage.getItem('mp-volume');
+    const saved = mpStorage.get(STORAGE_KEYS.volume);
     return saved !== null ? parseFloat(saved) : DEFAULT_VOLUME;
   };
 
-  const isMuted = () => localStorage.getItem('mp-muted') === '1';
+  const isMuted = () => mpStorage.get(STORAGE_KEYS.muted) === '1';
 
   const playSound = (name) => {
     if (isMuted()) return;

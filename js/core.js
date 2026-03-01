@@ -46,7 +46,7 @@ function getLocation(onSuccess, onError) {
   const fallbackToIP = async () => {
     if (done) return;
     try {
-      const r = await fetch('https://ipapi.co/json/');
+      const r = await mpFetch('https://ipapi.co/json/', { timeout: 8000 });
       if (!r.ok) throw new Error('IP lookup failed');
       const data = await r.json();
       if (data.latitude != null && data.longitude != null) {
@@ -289,11 +289,11 @@ function getItemIcon(name) {
 function padTwo(n) { return n < 10 ? '0' + n : String(n); }
 
 /* Cached format settings — refreshed via mpRefreshFormatCache() */
-let cachedDateFmt = localStorage.getItem('mp-datefmt') || 'mdy';
-let cachedTempUnit = localStorage.getItem('mp-tempunit') || 'C';
+let cachedDateFmt = mpStorage.get(STORAGE_KEYS.dateFmt, 'mdy');
+let cachedTempUnit = mpStorage.get(STORAGE_KEYS.tempUnit, 'C');
 function mpRefreshFormatCache() {
-  cachedDateFmt = localStorage.getItem('mp-datefmt') || 'mdy';
-  cachedTempUnit = localStorage.getItem('mp-tempunit') || 'C';
+  cachedDateFmt = mpStorage.get(STORAGE_KEYS.dateFmt, 'mdy');
+  cachedTempUnit = mpStorage.get(STORAGE_KEYS.tempUnit, 'C');
 }
 window.mpRefreshFormatCache = mpRefreshFormatCache;
 
@@ -361,8 +361,14 @@ let MPOS_VERSION = '2.4';
   try {
     const r = await fetch('version.json');
     const d = await r.json();
-    if (d?.version) MPOS_VERSION = d.version;
+    if (d?.version) {
+      MPOS_VERSION = d.version;
+      if (navigator.serviceWorker?.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: 'VERSION_CHECK', version: d.version });
+      }
+    }
   } catch { /* version.json unavailable */ }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 })();
 
 /* ── Start menu delegation ── */
@@ -422,6 +428,8 @@ document.body.appendChild(tipEl);
 
 let tipTarget = null;
 let tipTimer = null;
+let tipW = 0;
+let tipH = 0;
 
 document.addEventListener('mouseover', (e) => {
   const el = e.target.closest('[data-tip]');
@@ -433,19 +441,21 @@ document.addEventListener('mouseover', (e) => {
     if (!text) return;
     tipEl.textContent = text;
     tipEl.style.display = 'block';
-    const x = Math.min(e.clientX + 12, window.innerWidth - tipEl.offsetWidth - 4);
+    tipW = tipEl.offsetWidth;
+    tipH = tipEl.offsetHeight;
+    const x = Math.min(e.clientX + 12, window.innerWidth - tipW - 4);
     const y = e.clientY + 20;
     tipEl.style.left = x + 'px';
-    tipEl.style.top = (y + tipEl.offsetHeight > window.innerHeight ? e.clientY - tipEl.offsetHeight - 4 : y) + 'px';
+    tipEl.style.top = (y + tipH > window.innerHeight ? e.clientY - tipH - 4 : y) + 'px';
   }, 400);
 }, true);
 
 document.addEventListener('mousemove', (e) => {
   if (tipEl.style.display !== 'block') return;
-  const x = Math.min(e.clientX + 12, window.innerWidth - tipEl.offsetWidth - 4);
+  const x = Math.min(e.clientX + 12, window.innerWidth - tipW - 4);
   const y = e.clientY + 20;
   tipEl.style.left = x + 'px';
-  tipEl.style.top = (y + tipEl.offsetHeight > window.innerHeight ? e.clientY - tipEl.offsetHeight - 4 : y) + 'px';
+  tipEl.style.top = (y + tipH > window.innerHeight ? e.clientY - tipH - 4 : y) + 'px';
 }, true);
 
 document.addEventListener('mouseout', (e) => {

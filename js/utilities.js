@@ -138,12 +138,7 @@
   let stickyNextId = 1;
   let saveStickyTimeout = null;
 
-  const loadStickyNotes = () => {
-    try {
-      const raw = localStorage.getItem('mpOS-sticky-notes');
-      return raw ? JSON.parse(raw) : [];
-    } catch (e) { return []; }
-  };
+  const loadStickyNotes = () => mpStorage.getJSON(STORAGE_KEYS.stickyNotes, []);
 
   const saveStickyNotes = () => {
     const notes = document.querySelectorAll('.sticky-note');
@@ -160,7 +155,7 @@
         h: parseInt(n.style.height, 10)
       });
     }
-    localStorage.setItem('mpOS-sticky-notes', JSON.stringify(data));
+    mpStorage.setJSON(STORAGE_KEYS.stickyNotes, data);
   };
 
   const saveStickyNotesDebounced = () => {
@@ -460,7 +455,7 @@
     showLoadingMessage(body, t('du.scanning'));
 
     try {
-      const r = await fetch(`version.json?_=${Date.now()}`);
+      const r = await mpFetch(`version.json?_=${Date.now()}`, { timeout: 5000 });
       const manifest = await r.json();
 
       const du = manifest.diskUsage;
@@ -988,8 +983,8 @@
   let smNudgeBtns = []; // [reel][0=up, 1=down]
 
   const smGetVolume = () => {
-    const raw = parseFloat(localStorage.getItem('mp-volume') || '0.1');
-    const muted = localStorage.getItem('mp-muted') === '1';
+    const raw = parseFloat(mpStorage.get(STORAGE_KEYS.volume, '0.1'));
+    const muted = mpStorage.get(STORAGE_KEYS.muted) === '1';
     return muted ? 0 : raw * 0.15;
   };
 
@@ -1113,26 +1108,23 @@
   };
 
   const smSaveState = () => {
-    try {
-      localStorage.setItem('mpOS-slotmachine', JSON.stringify({
-        credits: smCredits,
-        freeSpins: smFreeSpins,
-        winStreak: smWinStreak,
-        bestStreak: smBestStreak,
-        totalSpins: smTotalSpins,
-        totalWon: smTotalWon,
-        biggestWin: smBiggestWin,
-        lastPlayDate: smLastPlayDate,
-        dailyBonusClaimed: smDailyBonusClaimed
-      }));
-    } catch (e) { /* ignore */ }
+    mpStorage.setJSON(STORAGE_KEYS.slotMachine, {
+      credits: smCredits,
+      freeSpins: smFreeSpins,
+      winStreak: smWinStreak,
+      bestStreak: smBestStreak,
+      totalSpins: smTotalSpins,
+      totalWon: smTotalWon,
+      biggestWin: smBiggestWin,
+      lastPlayDate: smLastPlayDate,
+      dailyBonusClaimed: smDailyBonusClaimed
+    });
   };
 
   const smLoadState = () => {
     try {
-      const raw = localStorage.getItem('mpOS-slotmachine');
-      if (!raw) return;
-      const state = JSON.parse(raw);
+      const state = mpStorage.getJSON(STORAGE_KEYS.slotMachine);
+      if (!state) return;
       if (typeof state.credits === 'number') smCredits = state.credits;
       if (typeof state.freeSpins === 'number') smFreeSpins = state.freeSpins;
       if (typeof state.winStreak === 'number') smWinStreak = state.winStreak;
