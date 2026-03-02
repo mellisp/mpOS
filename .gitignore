@@ -2,9 +2,7 @@
 .claude/
 node_modules/
 
-.env
-
-# Local dev and secrets
+# Local dev secrets
 .env
 
 # RVF / RuVector local artifacts
@@ -17,13 +15,9 @@ ruvector.db
 .claude-flow/
 .swarm/
 
-
 # Local dev pages
 icon-test.html
 icon-test-weather.html
 
-# Claude Code
+# Claude Code project instructions (local-only)
 CLAUDE.md
-
-# RuVector intelligence data
-.claude/statusline.sh
