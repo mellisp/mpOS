@@ -488,7 +488,7 @@
 
 /* Stopwatch window */
 #stopwatch { width: min(18.75rem, 92vw); left: min(11.25rem, 5vw); top: 5.625rem; }
-#stopwatch > .window-body { padding: 0; background: #fff; }
+#stopwatch > .window-body { padding: 0; background: #f4f3f1; }
 
 .sw-display {
   font-size: 2.75rem;
@@ -1263,7 +1263,7 @@
 #weather { width: min(26.25rem, 92vw); left: min(6.875rem, 5vw); top: 3.125rem; }
 #weather > .window-body {
   padding: 0;
-  background: #fff;
+  background: #f4f3f1;
 }
 
 .weather-current {

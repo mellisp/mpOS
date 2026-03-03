@@ -333,19 +333,14 @@
 
   // ── Condition Tinting ────────────────────────────────────────
   // ── Temperature Color ────────────────────────────────────────
-  // Derived from the illustration palette C, darkened for text
-  // contrast on white (all pass WCAG 3:1 for large bold text).
-  //   Freezing: C.rain[1] #4a90cc darkened (H:210, L:55→38)
-  //   Cold:     C.rain[1] #4a90cc direct
-  //   Mild:     C.snow[1] #6eb0ca darkened (H:197, L:61→44)
-  //   Warm:     C.sun[1]  #d49408 darkened (H:41,  L:43→34)
-  //   Hot:      C.bolt[1] #f59e0b hue-shifted to H:15, darkened
+  // Thermal gradient: blue → green → orange → red.
+  // All pass WCAG 3:1 on #f4f3f1 background.
   const tempColor = (celsius) => {
-    if (celsius <= 0)  return '#2c6a99';  // freezing — darkened rain blue
-    if (celsius <= 10) return '#4a90cc';  // cold — rain blue direct
-    if (celsius <= 20) return '#3d8a9e';  // mild — darkened snow blue
-    if (celsius <= 30) return '#a07208';  // warm — darkened sun gold
-    return '#b04210';                      // hot — bolt hue → red, darkened
+    if (celsius <= 0)  return '#2c6a99';  // freezing — deep blue
+    if (celsius <= 10) return '#3a7cb8';  // cold — medium blue
+    if (celsius <= 20) return '#2e8b57';  // mild — sea green
+    if (celsius <= 30) return '#c86400';  // warm — vibrant orange
+    return '#c03020';                      // hot — strong red
   };
 
   // ── Rendering ─────────────────────────────────────────────────
