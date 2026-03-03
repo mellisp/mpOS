@@ -783,6 +783,12 @@
     'cal.digital': 'Digital',
     'cal.analog': 'Analog',
 
+    /* Time Zone */
+    'tz.yourTime': 'Your Time',
+    'tz.tomorrow': 'Tomorrow',
+    'tz.yesterday': 'Yesterday',
+    'tz.cities': '{count} cities',
+
     /* Explorer */
     'explorer.folder': 'Folder',
 

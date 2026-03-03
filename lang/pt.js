@@ -774,6 +774,12 @@ window._mpLangRegister('pt', {
   'cal.digital': 'Digital',
   'cal.analog': 'Anal\u00f3gico',
 
+  /* Time Zone */
+  'tz.yourTime': 'Sua Hora',
+  'tz.tomorrow': 'Amanh\u00e3',
+  'tz.yesterday': 'Ontem',
+  'tz.cities': '{count} cidades',
+
   /* Explorer */
   'explorer.folder': 'Pasta',
 

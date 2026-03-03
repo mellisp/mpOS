@@ -78,26 +78,43 @@
   /* ── Time Zone ── */
 
   const TZ_CITIES = [
-    { city: 'London',      zone: 'Europe/London' },
-    { city: 'New York',    zone: 'America/New_York' },
-    { city: 'Los Angeles', zone: 'America/Los_Angeles' },
-    { city: 'Tokyo',       zone: 'Asia/Tokyo' },
-    { city: 'Sydney',      zone: 'Australia/Sydney' },
-    { city: 'Dubai',       zone: 'Asia/Dubai' },
-    { city: 'Paris',       zone: 'Europe/Paris' },
-    { city: 'Singapore',   zone: 'Asia/Singapore' }
+    { city: 'London',      short: 'LON', zone: 'Europe/London' },
+    { city: 'New York',    short: 'NYC', zone: 'America/New_York' },
+    { city: 'Los Angeles', short: 'LAX', zone: 'America/Los_Angeles' },
+    { city: 'Tokyo',       short: 'TYO', zone: 'Asia/Tokyo' },
+    { city: 'Sydney',      short: 'SYD', zone: 'Australia/Sydney' },
+    { city: 'Dubai',       short: 'DXB', zone: 'Asia/Dubai' },
+    { city: 'Paris',       short: 'PAR', zone: 'Europe/Paris' },
+    { city: 'Singapore',   short: 'SIN', zone: 'Asia/Singapore' }
   ];
+
+  const TZ_DOT_COLORS = {
+    day: '#c89830', night: '#6878a0'
+  };
 
   let tzGridEl = null;
   let tzAnalog = true;
   let tzTimer = null;
   let tzBuilt = false;
-  const tzRefs = { h: [], m: [], s: [], d: [], o: [] };
+  const tzRefs = { h: [], m: [], s: [], d: [], o: [], date: [], ind: [], tlDot: [] };
+  let tzLocalEl = null;
+  let tzTimelineEl = null;
+  let tzStatusEl = null;
+
+  const tzGetPhase = (hour) => {
+    if (hour >= 6 && hour <= 17) return 'day';
+    return 'night';
+  };
 
   const openTimeZone = () => {
     openWindow('timezone');
-    if (!tzGridEl) tzGridEl = document.getElementById('tzGrid');
-    if (!tzBuilt) { tzBuildGrid(); tzBuilt = true; }
+    if (!tzGridEl) {
+      tzGridEl = document.getElementById('tzGrid');
+      tzLocalEl = document.getElementById('tzLocal');
+      tzTimelineEl = document.getElementById('tzTimeline');
+      tzStatusEl = document.getElementById('tzStatus');
+    }
+    if (!tzBuilt) { tzBuildGrid(); tzBuildTimeline(); tzBuilt = true; }
     if (!tzTimer) tzTimer = setInterval(tzTick, 1000);
     tzTick();
   };
@@ -150,7 +167,7 @@
       const mHand = svgEl('line', { id: `tzM${i}`, x1: '32', y1: '32', x2: '32', y2: '10', stroke: 'var(--dk-shadow)', 'stroke-width': '1.2', 'stroke-linecap': 'round' });
       svg.appendChild(mHand);
       // Second hand
-      const sHand = svgEl('line', { id: `tzS${i}`, x1: '32', y1: '38', x2: '32', y2: '8', stroke: 'var(--error)', 'stroke-width': '0.7', 'stroke-linecap': 'round' });
+      const sHand = svgEl('line', { id: `tzS${i}`, x1: '32', y1: '38', x2: '32', y2: '8', stroke: '#c03020', 'stroke-width': '0.7', 'stroke-linecap': 'round' });
       svg.appendChild(sHand);
       // Center dot
       svg.appendChild(svgEl('circle', { cx: '32', cy: '32', r: '1.5', fill: 'var(--dk-shadow)' }));
@@ -163,9 +180,14 @@
       digital.id = `tzD${i}`;
       tile.appendChild(digital);
 
+      /* Day/night indicator dot (inline with city name) */
+      const indicator = document.createElement('span');
+      indicator.className = 'tz-indicator';
+
       const cityEl = document.createElement('div');
       cityEl.className = 'tz-city';
-      cityEl.textContent = c.city;
+      cityEl.appendChild(indicator);
+      cityEl.appendChild(document.createTextNode(c.city));
       tile.appendChild(cityEl);
 
       const offsetEl = document.createElement('div');
@@ -173,33 +195,76 @@
       offsetEl.id = `tzO${i}`;
       tile.appendChild(offsetEl);
 
+      const dateEl = document.createElement('div');
+      dateEl.className = 'tz-date';
+      tile.appendChild(dateEl);
+
       // Cache element refs for tzTick() hot path
       tzRefs.h[i] = hHand;
       tzRefs.m[i] = mHand;
       tzRefs.s[i] = sHand;
       tzRefs.d[i] = digital;
       tzRefs.o[i] = offsetEl;
+      tzRefs.date[i] = dateEl;
+      tzRefs.ind[i] = indicator;
 
       frag.appendChild(tile);
     }
 
     tzGridEl.textContent = '';
     tzGridEl.appendChild(frag);
+    tzStatusEl.textContent = t('tz.cities', { count: TZ_CITIES.length });
   };
 
+  const tzBuildTimeline = () => {
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < TZ_CITIES.length; i++) {
+      const marker = document.createElement('div');
+      marker.className = 'tz-tl-marker';
+
+      const dot = document.createElement('div');
+      dot.className = 'tz-tl-dot';
+      marker.appendChild(dot);
+
+      const label = document.createElement('div');
+      label.className = 'tz-tl-label';
+      label.textContent = TZ_CITIES[i].short;
+      marker.appendChild(label);
+
+      tzRefs.tlDot[i] = dot;
+      frag.appendChild(marker);
+    }
+    tzTimelineEl.appendChild(frag);
+  };
+
+  const tzLocalOpts = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZoneName: 'short' };
   const tzUtcOpts = { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', hour12: false };
   const tzCityOpts = TZ_CITIES.map((c) => ({
     timeZone: c.zone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
   }));
+  const tzDateOpts = TZ_CITIES.map((c) => ({
+    timeZone: c.zone, year: 'numeric', month: '2-digit', day: '2-digit'
+  }));
+  const tzLocalDateOpts = { year: 'numeric', month: '2-digit', day: '2-digit' };
 
   const tzTick = () => {
     const now = new Date();
+
+    // Update local time header
+    tzLocalEl.textContent = now.toLocaleString('en-GB', tzLocalOpts);
+
     // Compute UTC time once outside the loop
     const utcStr = now.toLocaleString('en-GB', tzUtcOpts);
     const utcParts = utcStr.split(':');
     const utcH = parseInt(utcParts[0], 10);
     const utcM = parseInt(utcParts[1], 10);
     const utcTotal = utcH * 60 + utcM;
+
+    // Local date for comparison
+    const localDateStr = now.toLocaleString('en-GB', tzLocalDateOpts);
+
+    // Track offsets for timeline positioning
+    const offsets = [];
 
     for (let i = 0; i < TZ_CITIES.length; i++) {
       const parts = now.toLocaleString('en-GB', tzCityOpts[i]).split(':');
@@ -223,7 +288,51 @@
       const absDiff = Math.abs(diff);
       const offH = Math.floor(absDiff / 60);
       const offM = absDiff % 60;
+      const offsetHours = diff / 60;
+      offsets.push(offsetHours);
       tzRefs.o[i].textContent = `UTC${sign}${offH}${offM ? `:${String(offM).padStart(2, '0')}` : ''}`;
+
+      // Day/night indicator dot
+      const phase = tzGetPhase(h);
+      tzRefs.ind[i].style.background = TZ_DOT_COLORS[phase];
+
+      // Timeline dot color
+      if (tzRefs.tlDot[i]) tzRefs.tlDot[i].style.background = TZ_DOT_COLORS[phase];
+
+      // Date comparison
+      const cityDateStr = now.toLocaleString('en-GB', tzDateOpts[i]);
+      const dateEl = tzRefs.date[i];
+      if (cityDateStr !== localDateStr) {
+        // Determine if tomorrow or yesterday by comparing date parts
+        const [ld, lm, ly] = localDateStr.split('/').map(Number);
+        const [cd, cm, cy] = cityDateStr.split('/').map(Number);
+        const localD = new Date(ly, lm - 1, ld);
+        const cityD = new Date(cy, cm - 1, cd);
+        if (cityD > localD) {
+          dateEl.textContent = t('tz.tomorrow');
+          dateEl.className = 'tz-date tz-date-tomorrow';
+        } else {
+          dateEl.textContent = t('tz.yesterday');
+          dateEl.className = 'tz-date tz-date-yesterday';
+        }
+      } else {
+        dateEl.textContent = '';
+        dateEl.className = 'tz-date';
+      }
+    }
+
+    // Position timeline markers
+    tzUpdateTimeline(offsets);
+  };
+
+  const tzUpdateTimeline = (offsets) => {
+    const markers = tzTimelineEl.querySelectorAll('.tz-tl-marker');
+    const minOff = Math.min(...offsets);
+    const maxOff = Math.max(...offsets);
+    const range = maxOff - minOff || 1;
+    for (let i = 0; i < offsets.length; i++) {
+      const pct = ((offsets[i] - minOff) / range) * 90 + 5; // 5-95% range
+      markers[i].style.left = `${pct}%`;
     }
   };
 
@@ -259,6 +368,12 @@
   const calendarRefreshOnLangChange = () => {
     const el = document.getElementById('calendar');
     if (el && el.style.display !== 'none') calendarRender();
+    const tzEl = document.getElementById('timezone');
+    if (tzEl && tzEl.style.display !== 'none') {
+      const btn = document.querySelector('.tz-toggle');
+      if (btn) btn.textContent = tzAnalog ? t('cal.digital') : t('cal.analog');
+      if (tzStatusEl) tzStatusEl.textContent = t('tz.cities', { count: TZ_CITIES.length });
+    }
   };
 
   /* ── Exports ── */

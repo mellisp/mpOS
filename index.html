@@ -625,11 +625,17 @@
           <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
         </div>
       </div>
-      <div class="window-body">
-        <div class="tz-toolbar">
-          <button type="button" class="calc-btn tz-toggle" data-action="tzToggleView" data-i18n="ui.digital">Digital</button>
+      <div class="window-body" id="tzBody">
+        <div class="tz-header">
+          <div class="tz-local">
+            <span class="tz-local-label" data-i18n="tz.yourTime">Your Time</span>
+            <span class="tz-local-time" id="tzLocal"></span>
+          </div>
+          <button type="button" class="calc-btn tz-toggle" data-action="tzToggleView" data-i18n="cal.digital">Digital</button>
         </div>
         <div class="tz-grid" id="tzGrid"></div>
+        <div class="tz-timeline" id="tzTimeline"></div>
+        <div class="statusbar"><div class="statusbar-section" id="tzStatus"></div></div>
       </div>
     </div>
 
