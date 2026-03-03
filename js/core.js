@@ -103,11 +103,15 @@ function mpConfirm(message) {
     const win = document.createElement('div');
     win.className = 'window';
     win.id = 'mpConfirmDialog';
+    win.setAttribute('role', 'alertdialog');
+    win.setAttribute('aria-modal', 'true');
+    win.setAttribute('aria-labelledby', 'mpConfirmDialog-title');
 
     /* Titlebar */
     const tb = document.createElement('div');
     tb.className = 'titlebar';
     const titleSpan = document.createElement('span');
+    titleSpan.id = 'mpConfirmDialog-title';
     titleSpan.textContent = t('ui.confirm');
     tb.appendChild(titleSpan);
     const tbBtns = document.createElement('div');
@@ -197,13 +201,17 @@ function openWindow(id) {
   win.style.opacity = '';
   if (win.style.display !== 'none') {
     if (window.mpTaskbar) window.mpTaskbar.bringToFront(win);
+    win.setAttribute('tabindex', '-1');
+    win.focus();
     return;
   }
   win.style.display = '';
   if (window.mpSoundProducer) window.mpSoundProducer.play('open');
   if (window.mpTaskbar) window.mpTaskbar.bringToFront(win);
   if (mobileQuery.matches) injectMobileBackButton(win);
+  win.setAttribute('tabindex', '-1');
   win.classList.add('restoring');
+  win.focus();
   win.addEventListener('animationend', function handler() {
     win.classList.remove('restoring');
     win.removeEventListener('animationend', handler);
@@ -386,6 +394,67 @@ document.querySelector('.start-menu')?.addEventListener('click', (e) => {
   if (item.dataset.after) {
     const [afterFn, afterArg] = item.dataset.after.split(':');
     setTimeout(() => window[afterFn]?.(afterArg), 200);
+  }
+});
+
+/* ── Start menu keyboard navigation (A11Y-3) ── */
+document.querySelector('.start-menu')?.addEventListener('keydown', (e) => {
+  const item = e.target.closest('.start-menu-item');
+  if (!item) return;
+  const menu = item.closest('.start-menu, .start-submenu');
+  const items = [...(menu?.querySelectorAll(':scope > .start-menu-item') || [])];
+  const idx = items.indexOf(item);
+
+  switch (e.key) {
+    case 'ArrowDown': {
+      e.preventDefault();
+      const next = items[idx + 1] || items[0];
+      next?.focus();
+      break;
+    }
+    case 'ArrowUp': {
+      e.preventDefault();
+      const prev = items[idx - 1] || items[items.length - 1];
+      prev?.focus();
+      break;
+    }
+    case 'ArrowRight': {
+      if (item.classList.contains('has-submenu')) {
+        e.preventDefault();
+        const sub = item.querySelector('.start-submenu');
+        if (sub) {
+          sub.style.display = 'block';
+          sub.querySelector('.start-menu-item')?.focus();
+        }
+      }
+      break;
+    }
+    case 'ArrowLeft':
+    case 'Escape': {
+      e.preventDefault();
+      const parentSub = item.closest('.start-submenu');
+      if (parentSub) {
+        parentSub.style.display = '';
+        parentSub.closest('.start-menu-item')?.focus();
+      } else {
+        closeStartMenu();
+        document.querySelector('.start-btn')?.focus();
+      }
+      break;
+    }
+    case 'Enter':
+    case ' ': {
+      if (item.classList.contains('has-submenu')) {
+        e.preventDefault();
+        const sub = item.querySelector('.start-submenu');
+        if (sub) {
+          sub.style.display = 'block';
+          sub.querySelector('.start-menu-item')?.focus();
+        }
+      }
+      // For buttons, let the default click/action happen
+      break;
+    }
   }
 });
 

@@ -502,6 +502,7 @@ button.start-menu-item {
 }
 
 .start-menu-item.has-submenu:hover > .start-submenu { display: block; }
+.start-submenu:focus-within { display: block; }
 .start-submenu .start-menu-item { color: #000; }
 .start-submenu .start-menu-item:hover { color: var(--highlight-text); }
 

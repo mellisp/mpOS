@@ -18,6 +18,11 @@ ruvector.db
 # Local dev pages
 icon-test.html
 icon-test-weather.html
+icon-test-alerts.html
 
 # Claude Code project instructions (local-only)
 CLAUDE.md
+
+# Test artifacts
+playwright-report/
+test-results/

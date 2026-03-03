@@ -278,10 +278,20 @@
   };
 
   const closeWindow = (id) => {
+    const prevFocus = document.activeElement;
     if (window.mpSoundProducer) window.mpSoundProducer.play('close');
     const win = document.getElementById(id);
     if (!win) return;
-    onAnimEnd(win, 'closing', () => { win.style.display = 'none'; });
+    onAnimEnd(win, 'closing', () => {
+      win.style.display = 'none';
+      if (win.contains(prevFocus)) {
+        const desktop = document.querySelector('.desktop-area');
+        if (desktop) {
+          desktop.setAttribute('tabindex', '-1');
+          desktop.focus();
+        }
+      }
+    });
     if (taskbarItems) {
       taskbarItems.querySelector(`[data-window-id="${id}"]`)?.remove();
     }
@@ -415,6 +425,22 @@
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.titlebar-btn');
     if (!btn) return;
+    const win = btn.closest('.window');
+    if (!win) return;
+    const label = btn.getAttribute('aria-label');
+    if (label === 'Minimize') minimizeWindow(win.id);
+    else if (label === 'Close') {
+      const fn = window.CLOSE_MAP?.[win.id];
+      if (fn) fn(); else closeWindow(win.id);
+    }
+  });
+
+  /* ── Keyboard activation for titlebar buttons (A11Y-2) ── */
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const btn = e.target.closest('.titlebar-btn');
+    if (!btn) return;
+    e.preventDefault();
     const win = btn.closest('.window');
     if (!win) return;
     const label = btn.getAttribute('aria-label');
