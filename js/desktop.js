@@ -284,9 +284,12 @@
     const vcContinuousChk = document.getElementById('vcContinuous');
     const floatingIndicator = document.getElementById('voiceIndicator');
     const floatingText = document.getElementById('voiceIndicatorText');
+    const vcCommandInput = document.getElementById('vcCommandInput');
     if (!micIcon) return;
 
     micIcon.style.display = '';
+
+    const escHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
     let recognition = null;
     let isListening = false;
@@ -331,6 +334,10 @@
       else if (state === 'heard') statusText = detail || '';
       else if (state === 'executing') statusText = detail || t('voice.launched');
       setStatus(statusText);
+      // Dynamic aria-label on mic button
+      if (vcMicBtn) {
+        vcMicBtn.setAttribute('aria-label', state === 'listening' ? t('voice.clickToStop') : t('voice.clickToSpeak'));
+      }
       // Floating indicator
       updateFloatingIndicator(state, statusText);
     };
@@ -515,9 +522,8 @@
       return null;
     };
 
-    const voiceFuzzyMatch = (text, wide) => {
-      let bestDist = Infinity;
-      let bestMatch = null;
+    const voiceFuzzyMatch = (text, wide, topN) => {
+      const candidates = [];
       for (let i = 0; i < allItems.length; i++) {
         const item = allItems[i];
         const fn = item.action && ACTION_MAP[item.action];
@@ -527,25 +533,25 @@
         const threshold = wide
           ? Math.max(3, Math.floor(name.length * 0.5))
           : Math.max(2, Math.floor(name.length * 0.35));
-        if (dist <= threshold && dist < bestDist) {
-          bestDist = dist;
-          bestMatch = { fn, label: itemName(item), item };
+        if (dist <= threshold) {
+          candidates.push({ fn, label: itemName(item), item, dist });
         }
       }
       if (!wide) {
         for (const key in APP_COMMANDS) {
           const dist = voiceLevenshtein(text, key);
           const threshold = Math.max(2, Math.floor(key.length * 0.35));
-          if (dist <= threshold && dist < bestDist) {
-            bestDist = dist;
+          if (dist <= threshold) {
             const label = COMMANDS[key]
               ? COMMANDS[key].desc.replace(/^(Launch |Open )/, '')
               : key;
-            bestMatch = { fn: APP_COMMANDS[key], label };
+            candidates.push({ fn: APP_COMMANDS[key], label, dist });
           }
         }
       }
-      return bestMatch;
+      candidates.sort((a, b) => a.dist - b.dist);
+      if (topN && topN > 1) return candidates.slice(0, topN);
+      return candidates[0] || null;
     };
 
     /* -- Process recognized speech -- */
@@ -586,9 +592,236 @@
         }
       }
 
-      // Check for close/minimize prefixes
+      // Check for search command
+      const searchPrefixes = ['search for ', 'find ', 'pesquisar ', 'procurar '];
+      for (let sp2 = 0; sp2 < searchPrefixes.length; sp2++) {
+        if (text.indexOf(searchPrefixes[sp2]) === 0) {
+          const term = text.slice(searchPrefixes[sp2].length).trim();
+          if (term) {
+            setVoiceState('executing', t('voice.searching'));
+            if (window.openSearch) window.openSearch();
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+              searchInput.value = term;
+              searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.searching')}: "${escHtml(term)}"</span>`;
+            voiceBeep(523.25, 0.1);
+            setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+            return;
+          }
+        }
+      }
+
+      // Check for help command
+      const helpPhrases = ['help', 'ajuda'];
+      for (let hp = 0; hp < helpPhrases.length; hp++) {
+        if (text === helpPhrases[hp]) {
+          setVoiceState('executing', t('voice.helpOpened'));
+          if (window.openHelp) window.openHelp();
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('app.help.name')}</span>`;
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          return;
+        }
+      }
+
+      // Check for volume command
+      const volMatch = text.match(/^(?:volume|som)\s+(.+)$/);
+      if (volMatch) {
+        const volArg = volMatch[1].trim();
+        const slider = document.querySelector('.volume-slider');
+        if (slider) {
+          let newPct = null;
+          const cur = parseFloat(slider.value);
+          if (volArg === 'up' || volArg === 'subir') newPct = Math.min(100, cur + 10);
+          else if (volArg === 'down' || volArg === 'descer') newPct = Math.max(0, cur - 10);
+          else if (volArg === 'mute' || volArg === 'mudo') newPct = 0;
+          else if (volArg === 'max' || volArg === 'máximo' || volArg === 'maximo') newPct = 100;
+          else {
+            const parsed = parseInt(volArg, 10);
+            if (!isNaN(parsed) && parsed >= 0 && parsed <= 10) newPct = parsed * 10;
+            else if (!isNaN(parsed) && parsed > 10 && parsed <= 100) newPct = parsed;
+          }
+          if (newPct !== null) {
+            slider.value = newPct;
+            slider.dispatchEvent(new Event('input', { bubbles: true }));
+            const label = Math.round(newPct) + '%';
+            setVoiceState('executing', t('voice.volumeSet', { level: label }));
+            if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.volumeSet', { level: label })}</span>`;
+            voiceBeep(523.25, 0.1);
+            setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+            return;
+          }
+        }
+      }
+
+      // Check for time command
+      const timePhrases = ['what time is it', 'time', 'que horas são', 'que horas sao', 'horas'];
+      for (let tp = 0; tp < timePhrases.length; tp++) {
+        if (text === timePhrases[tp]) {
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString(getLang() === 'pt' ? 'pt-PT' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+          setVoiceState('executing', timeStr);
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${timeStr}</span>`;
+          if (window.speechSynthesis) {
+            const utter = new SpeechSynthesisUtterance(timeStr);
+            utter.lang = getLang() === 'pt' ? 'pt-PT' : 'en-US';
+            window.speechSynthesis.speak(utter);
+          }
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          return;
+        }
+      }
+
+      // Check for mute/unmute
+      const mutePhrases = ['mute', 'silenciar'];
+      const unmutePhrases = ['unmute', 'ativar som'];
+      for (let mu = 0; mu < mutePhrases.length; mu++) {
+        if (text === mutePhrases[mu] || text === unmutePhrases[mu]) {
+          const shouldMute = text === mutePhrases[mu];
+          const muteChk = document.querySelector('.volume-mute');
+          if (muteChk) {
+            muteChk.checked = shouldMute;
+            muteChk.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          const label = shouldMute ? t('voice.muted') : t('voice.unmuted');
+          setVoiceState('executing', label);
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${label}</span>`;
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          return;
+        }
+      }
+
+      // Check for date query
+      const datePhrases = ['what day is it', 'date', "what's the date", 'whats the date', 'que dia é hoje', 'que dia e hoje', 'data'];
+      for (let dp2 = 0; dp2 < datePhrases.length; dp2++) {
+        if (text === datePhrases[dp2]) {
+          const now = new Date();
+          const dateStr = now.toLocaleDateString(getLang() === 'pt' ? 'pt-PT' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+          setVoiceState('executing', dateStr);
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${dateStr}</span>`;
+          if (window.speechSynthesis) {
+            const utter = new SpeechSynthesisUtterance(dateStr);
+            utter.lang = getLang() === 'pt' ? 'pt-PT' : 'en-US';
+            window.speechSynthesis.speak(utter);
+          }
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          return;
+        }
+      }
+
+      // Check for show desktop / minimize all
+      const desktopPhrases = ['show desktop', 'minimize all', 'mostrar área de trabalho', 'mostrar area de trabalho', 'minimizar tudo'];
+      for (let sd = 0; sd < desktopPhrases.length; sd++) {
+        if (text === desktopPhrases[sd]) {
+          for (const wid in WINDOW_NAMES) {
+            if (wid === 'voicecommands') continue;
+            const w = document.getElementById(wid);
+            if (w && w.style.display !== 'none') mpTaskbar.minimizeWindow(wid);
+          }
+          setVoiceState('executing', t('voice.showDesktop'));
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.showDesktop')}</span>`;
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          return;
+        }
+      }
+
+      // Check for close all windows
+      const closeAllPhrases = ['close all windows', 'close all', 'close everything', 'fechar todas as janelas', 'fechar tudo'];
+      for (let ca = 0; ca < closeAllPhrases.length; ca++) {
+        if (text === closeAllPhrases[ca]) {
+          for (const wid in WINDOW_NAMES) {
+            if (wid === 'voicecommands') continue;
+            const w = document.getElementById(wid);
+            if (w && w.style.display !== 'none') mpTaskbar.closeWindow(wid);
+          }
+          setVoiceState('executing', t('voice.closeAll'));
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.closeAll')}</span>`;
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          return;
+        }
+      }
+
+      // Check for weather query
+      const weatherPhrases = ["what's the weather", 'whats the weather', 'weather', 'como está o tempo', 'como esta o tempo', 'tempo', 'meteorologia'];
+      for (let wp = 0; wp < weatherPhrases.length; wp++) {
+        if (text === weatherPhrases[wp]) {
+          setVoiceState('executing', t('voice.weatherOpened'));
+          if (window.openWeather) window.openWeather();
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.weatherOpened')}</span>`;
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          return;
+        }
+      }
+
+      // Check for degauss
+      if (text === 'degauss' || text === 'desmagnetizar') {
+        setVoiceState('executing', t('voice.degaussed'));
+        if (window.degauss) window.degauss();
+        if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.degaussed')}</span>`;
+        voiceBeep(523.25, 0.1);
+        setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+        return;
+      }
+
+      // Check for new note
+      const newNotePhrases = ['new note', 'new document', 'nova nota', 'novo documento'];
+      for (let nn = 0; nn < newNotePhrases.length; nn++) {
+        if (text === newNotePhrases[nn]) {
+          setVoiceState('executing', t('voice.newNote'));
+          if (window.openNotepad) window.openNotepad();
+          if (window.notepadNew) setTimeout(() => window.notepadNew(), 100);
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.newNote')}</span>`;
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          return;
+        }
+      }
+
+      // Check for new painting
+      const newPaintPhrases = ['new painting', 'new drawing', 'nova pintura', 'novo desenho'];
+      for (let np2 = 0; np2 < newPaintPhrases.length; np2++) {
+        if (text === newPaintPhrases[np2]) {
+          setVoiceState('executing', t('voice.newPainting'));
+          if (window.openPaint) window.openPaint();
+          if (window.paintNew) setTimeout(() => window.paintNew(), 100);
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.newPainting')}</span>`;
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          return;
+        }
+      }
+
+      // Check for flip a coin
+      const coinPhrases = ['flip a coin', 'coin flip', 'heads or tails', 'lançar moeda', 'lancar moeda', 'cara ou coroa'];
+      for (let cf = 0; cf < coinPhrases.length; cf++) {
+        if (text === coinPhrases[cf]) {
+          const isHeads = Math.random() < 0.5;
+          const result = isHeads ? t('voice.coinHeads') : t('voice.coinTails');
+          setVoiceState('executing', t('voice.coinFlip'));
+          if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${result}</span>`;
+          if (window.speechSynthesis) {
+            const utter = new SpeechSynthesisUtterance(result);
+            utter.lang = getLang() === 'pt' ? 'pt-PT' : 'en-US';
+            window.speechSynthesis.speak(utter);
+          }
+          voiceBeep(523.25, 0.1);
+          setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+          return;
+        }
+      }
+
+      // Check for close/minimize/restore prefixes
       const closePrefixes = ['close ', 'fechar '];
       const minPrefixes = ['minimize ', 'minimizar '];
+      const restorePrefixes = ['restore ', 'maximize ', 'restaurar ', 'maximizar '];
       for (let cp = 0; cp < closePrefixes.length; cp++) {
         if (text.indexOf(closePrefixes[cp]) === 0) {
           action = 'close';
@@ -601,6 +834,15 @@
           if (text.indexOf(minPrefixes[mp]) === 0) {
             action = 'minimize';
             text = text.slice(minPrefixes[mp].length).trim();
+            break;
+          }
+        }
+      }
+      if (action === 'open') {
+        for (let rp = 0; rp < restorePrefixes.length; rp++) {
+          if (text.indexOf(restorePrefixes[rp]) === 0) {
+            action = 'restore';
+            text = text.slice(restorePrefixes[rp].length).trim();
             break;
           }
         }
@@ -624,7 +866,7 @@
       if (!match && results.length > 1) {
         for (let a = 1; a < results.length; a++) {
           let altText = results[a].transcript.toLowerCase().trim();
-          const allPrefixes = closePrefixes.concat(minPrefixes, ['open ', 'launch ', 'start ', 'abrir ', 'iniciar ']);
+          const allPrefixes = closePrefixes.concat(minPrefixes, restorePrefixes, ['open ', 'launch ', 'start ', 'abrir ', 'iniciar ']);
           for (let ap = 0; ap < allPrefixes.length; ap++) {
             if (altText.indexOf(allPrefixes[ap]) === 0) {
               altText = altText.slice(allPrefixes[ap].length).trim();
@@ -642,11 +884,31 @@
       }
 
       if (match) {
-        if (action === 'close' || action === 'minimize') {
+        if (action === 'close' || action === 'minimize' || action === 'restore') {
           const winId = match.item ? voiceGetWinId(match.item) : null;
           const win = winId && document.getElementById(winId);
           const winOpen = win && (win.style.display !== 'none' || document.querySelector(`.taskbar-item[data-window-id="${winId}"]`));
-          if (winOpen) {
+          if (action === 'restore') {
+            const isMinimized = winId && document.querySelector(`.taskbar-item[data-window-id="${winId}"]`);
+            if (isMinimized) {
+              mpTaskbar.restoreWindow(winId);
+              setVoiceState('executing', `${t('voice.restore')} ${match.label}`);
+              if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.restore')} ${match.label}</span>`;
+              voiceBeep(523.25, 0.1);
+              setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+            } else if (win && win.style.display !== 'none') {
+              mpTaskbar.bringToFront(win);
+              setVoiceState('executing', `${t('voice.restore')} ${match.label}`);
+              if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.restore')} ${match.label}</span>`;
+              voiceBeep(523.25, 0.1);
+              setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+            } else {
+              setStatus(t('voice.noWindow'));
+              if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-error">"${escHtml(transcript)}"</span>`;
+              voiceBeep(659.25, 0.12);
+              setTimeout(() => { voiceBeep(523.25, 0.12); }, 120);
+            }
+          } else if (winOpen) {
             if (action === 'close') {
               mpTaskbar.closeWindow(winId);
               setVoiceState('executing', `${t('voice.close')} ${match.label}`);
@@ -673,50 +935,59 @@
           setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
         }
       } else {
-        // No match -- try wider fuzzy for "Did you mean?"
-        const suggestion = voiceFuzzyMatch(text, true);
-        if (suggestion) {
-          setStatus(t('voice.didYouMean', { app: suggestion.label }));
+        // No match -- try wider fuzzy for "Did you mean?" (top 3)
+        const suggestions = voiceFuzzyMatch(text, true, 3);
+        if (suggestions.length) {
+          setStatus(t('voice.didYouMean', { app: suggestions[0].label }));
           if (vcTranscript) {
             vcTranscript.innerHTML = '';
-            const btn = document.createElement('button');
-            btn.className = 'vc-suggestion';
-            btn.textContent = suggestion.label;
-            btn.onclick = () => {
-              if (action === 'close' || action === 'minimize') {
-                const sWinId = suggestion.item ? voiceGetWinId(suggestion.item) : null;
-                const sWin = sWinId && document.getElementById(sWinId);
-                const sWinOpen = sWin && (sWin.style.display !== 'none' || document.querySelector(`.taskbar-item[data-window-id="${sWinId}"]`));
-                if (sWinOpen) {
-                  if (action === 'close') {
-                    mpTaskbar.closeWindow(sWinId);
-                    setStatus(t('voice.closed'));
-                    vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.close')} ${suggestion.label}</span>`;
+            for (let si = 0; si < suggestions.length; si++) {
+              const sug = suggestions[si];
+              const btn = document.createElement('button');
+              btn.className = 'vc-suggestion';
+              btn.textContent = sug.label;
+              btn.onclick = () => {
+                if (action === 'close' || action === 'minimize' || action === 'restore') {
+                  const sWinId = sug.item ? voiceGetWinId(sug.item) : null;
+                  const sWin = sWinId && document.getElementById(sWinId);
+                  const sWinOpen = sWin && (sWin.style.display !== 'none' || document.querySelector(`.taskbar-item[data-window-id="${sWinId}"]`));
+                  if (action === 'restore' && sWinId) {
+                    const sMinimized = document.querySelector(`.taskbar-item[data-window-id="${sWinId}"]`);
+                    if (sMinimized) mpTaskbar.restoreWindow(sWinId);
+                    else if (sWin && sWin.style.display !== 'none') mpTaskbar.bringToFront(sWin);
+                    setStatus(t('voice.restore') + ' ' + sug.label);
+                    vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.restore')} ${sug.label}</span>`;
+                  } else if (sWinOpen) {
+                    if (action === 'close') {
+                      mpTaskbar.closeWindow(sWinId);
+                      setStatus(t('voice.closed'));
+                      vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.close')} ${sug.label}</span>`;
+                    } else {
+                      mpTaskbar.minimizeWindow(sWinId);
+                      setStatus(t('voice.minimized'));
+                      vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.minimize')} ${sug.label}</span>`;
+                    }
                   } else {
-                    mpTaskbar.minimizeWindow(sWinId);
-                    setStatus(t('voice.minimized'));
-                    vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.minimize')} ${suggestion.label}</span>`;
+                    setStatus(t('voice.noWindow'));
+                    vcTranscript.innerHTML = '';
                   }
                 } else {
-                  setStatus(t('voice.noWindow'));
-                  vcTranscript.innerHTML = '';
+                  sug.fn();
+                  setStatus(t('voice.launched'));
+                  vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${sug.label}</span>`;
                 }
-              } else {
-                suggestion.fn();
-                setStatus(t('voice.launched'));
-                vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${suggestion.label}</span>`;
-              }
-              voiceBeep(523.25, 0.1);
-              setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
-            };
-            vcTranscript.appendChild(btn);
+                voiceBeep(523.25, 0.1);
+                setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
+              };
+              vcTranscript.appendChild(btn);
+            }
           }
           voiceBeep(587.33, 0.1); // D5 -- questioning tone
         } else {
           setStatus(t('voice.notRecognized'));
           if (vcTranscript) {
             vcTranscript.innerHTML =
-              `<span class="vc-result vc-error">"${transcript}"</span><br>` +
+              `<span class="vc-result vc-error">"${escHtml(transcript)}"</span><br>` +
               `<span class="vc-error">${t('voice.tryAgain')}</span>`;
           }
           voiceBeep(659.25, 0.12);
@@ -741,31 +1012,59 @@
       else voiceStart();
     };
 
-    /* -- Help list ("What can I say?") -- */
+    /* -- Help list ("What can I say?") with collapsible categories -- */
+    const buildHelpCategory = (title, items, parentEl, startOpen) => {
+      const dt = document.createElement('dt');
+      dt.className = 'vc-help-cat';
+      dt.textContent = (startOpen ? '\u25BE ' : '\u25B8 ') + title;
+      dt.setAttribute('role', 'button');
+      dt.setAttribute('tabindex', '0');
+      const dds = [];
+      for (let i = 0; i < items.length; i++) {
+        const dd = document.createElement('dd');
+        dd.className = 'vc-help-cat-item';
+        dd.textContent = items[i];
+        if (!startOpen) dd.style.display = 'none';
+        dds.push(dd);
+      }
+      const toggle = () => {
+        const open = dds[0] && dds[0].style.display !== 'none';
+        for (let i = 0; i < dds.length; i++) dds[i].style.display = open ? 'none' : '';
+        dt.textContent = (open ? '\u25B8 ' : '\u25BE ') + title;
+      };
+      dt.addEventListener('click', toggle);
+      dt.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+      parentEl.appendChild(dt);
+      for (let i = 0; i < dds.length; i++) parentEl.appendChild(dds[i]);
+    };
+
     const buildHelpList = () => {
       if (!vcHelpList) return;
       vcHelpList.innerHTML = '';
 
-      // Open apps
-      const dtOpen = document.createElement('dt');
-      dtOpen.textContent = t('voice.helpOpen').replace(/"/g, '');
-      vcHelpList.appendChild(dtOpen);
-      for (let i = 0; i < allItems.length; i++) {
-        const dd = document.createElement('dd');
-        dd.textContent = itemName(allItems[i]);
-        vcHelpList.appendChild(dd);
-      }
+      // Actions — window management + utility commands
+      const actions = [
+        t('voice.helpClose'), t('voice.helpMinimize'), t('voice.helpRestore'),
+        t('voice.helpSearch'), t('voice.helpHelp'),
+        t('voice.helpDesktop'), t('voice.helpCloseAll')
+      ];
+      buildHelpCategory(t('desktop.actions'), actions, vcHelpList, true);
 
-      // Actions
-      const dtAct = document.createElement('dt');
-      dtAct.textContent = t('desktop.actions');
-      vcHelpList.appendChild(dtAct);
-      const actions = [t('voice.helpClose'), t('voice.helpMinimize'), t('voice.helpLang'), t('voice.helpStop')];
-      for (let j = 0; j < actions.length; j++) {
-        const ddA = document.createElement('dd');
-        ddA.textContent = actions[j];
-        vcHelpList.appendChild(ddA);
-      }
+      // System — volume, time, date, mute, weather, degauss, etc.
+      const system = [
+        t('voice.helpVolume'), t('voice.helpMute'),
+        t('voice.helpTime'), t('voice.helpDate'),
+        t('voice.helpWeather'), t('voice.helpDegauss'),
+        t('voice.helpNewNote'), t('voice.helpNewPainting'),
+        t('voice.helpCoin'),
+        t('voice.helpLang'), t('voice.helpStop')
+      ];
+      buildHelpCategory(t('launcher.system'), system, vcHelpList, false);
+
+      // Open apps
+      const appNames = [];
+      for (let i = 0; i < allItems.length; i++) appNames.push(itemName(allItems[i]));
+      buildHelpCategory(t('voice.helpOpen').replace(/"/g, ''), appNames, vcHelpList, false);
 
       helpBuilt = true;
     };
@@ -821,6 +1120,21 @@
     if (vcMicBtn) {
       vcMicBtn.addEventListener('click', () => {
         voiceToggle();
+      });
+    }
+
+    // Text input: type commands as alternative to speaking
+    if (vcCommandInput) {
+      vcCommandInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const val = vcCommandInput.value.trim();
+          if (!val) return;
+          if (isListening) voiceStop();
+          vcCommandInput.value = '';
+          if (vcTranscript) { vcTranscript.textContent = val; }
+          setVoiceState('heard', val);
+          voiceProcessCommand(val, []);
+        }
       });
     }
 
