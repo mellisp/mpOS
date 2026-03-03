@@ -500,7 +500,7 @@
 }
 .sw-display.sw-active { color: #2c6a99; }
 .sw-display.sw-active .sw-sep,
-.sw-display.sw-active .sw-cs { color: #74a9c8; }
+.sw-display.sw-active .sw-cs { color: #3a7cb8; }
 .sw-display .sw-sep { color: var(--text-muted); }
 .sw-display .sw-cs {
   font-size: 1.5rem;
@@ -530,7 +530,7 @@
   box-shadow: inset 1px 1px 0 var(--shadow);
 }
 .sw-btn.sw-running {
-  background: var(--desktop);
+  background: #2c6a99;
   color: #fff;
   border-color: var(--dk-shadow) var(--white) var(--white) var(--dk-shadow);
   box-shadow: inset 1px 1px 0 var(--shadow);
