@@ -24,7 +24,6 @@
 .paint-file-list,
 .help-index-input,
 .help-search-input,
-.du-bar,
 .vm-map-wrap {
   border: 2px solid;
   border-color: var(--shadow) var(--white) var(--white) var(--shadow);
@@ -1591,9 +1590,10 @@
 
 /* Disk Usage window */
 #diskusage { width: min(21.25rem, 92vw); left: min(9.375rem, 5vw); top: 3.75rem; }
+#diskusage > .window-body { padding: 0; background: #f4f3f1; }
 
 .du-header {
-  padding: 0.75rem 0.75rem 0;
+  padding: 1.25rem 1.25rem 0;
   font-size: var(--ui-font-sm);
 }
 
@@ -1616,7 +1616,7 @@
 .du-pie-wrap svg { display: block; }
 
 .du-legend {
-  padding: 0 0.75rem;
+  padding: 0 1.25rem;
   font-size: var(--ui-font-sm);
 }
 
@@ -1624,7 +1624,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 2px 0;
+  padding: 0.1875rem 0;
 }
 
 .du-chip {
@@ -1641,16 +1641,17 @@
 .du-legend-pct { width: 2.25rem; text-align: right; color: var(--text-muted); }
 
 .du-bar {
-  margin: 0.75rem;
+  margin: 0.75rem 1.25rem;
   height: 1rem;
   display: flex;
   overflow: hidden;
+  border-radius: 2px;
 }
 
 .du-bar-seg { height: 100%; }
 
 .du-total {
-  padding: 0 0.75rem 0.75rem;
+  padding: 0 1.25rem 1rem;
   font-size: var(--ui-font-sm);
   color: var(--text-muted);
 }
