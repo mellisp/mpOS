@@ -1004,11 +1004,15 @@
    * ════════════════════════════════════════════════════════════════════════ */
 
   let degaussActive = false;
+  let degaussCtx = null;
 
   const degaussSynthSound = () => {
     if (mpStorage.get(STORAGE_KEYS.muted) === '1') return null;
     const vol = parseFloat(mpStorage.get(STORAGE_KEYS.volume, '0.1'));
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!degaussCtx || degaussCtx.state === 'closed') {
+      degaussCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = degaussCtx;
     if (ctx.state === 'suspended') ctx.resume();
     const now = ctx.currentTime;
 
@@ -1053,7 +1057,6 @@
     buzzOsc.start(now + 0.1);
     buzzOsc.stop(now + 3.4);
 
-    return ctx;
   };
 
   const degauss = () => {
@@ -1073,8 +1076,8 @@
     overlay.className = 'degauss-overlay';
     document.body.appendChild(overlay);
 
-    // Start sound
-    const audioCtx = degaussSynthSound();
+    // Start sound (uses reusable singleton AudioContext internally)
+    degaussSynthSound();
 
     const TOTAL = 3500;
     const start = performance.now();
@@ -1091,7 +1094,7 @@
         body.style.filter = '';
         overlay.remove();
         if (btn) btn.classList.remove('active');
-        if (audioCtx) audioCtx.close();
+        /* AudioContext is a reusable singleton (degaussCtx) — don't close it */
         // Cooldown — real CRT coils need time to cool
         setTimeout(() => { degaussActive = false; }, 15000);
         return;

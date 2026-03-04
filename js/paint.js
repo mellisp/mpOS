@@ -79,6 +79,7 @@ const paintSetup = () => {
 
   // Build color swatches
   const swatchContainer = document.getElementById('paintSwatches');
+  swatchContainer.innerHTML = '';
   for (let i = 0; i < PAINT_COLORS.length; i++) {
     const swatch = document.createElement('div');
     swatch.className = 'paint-swatch';

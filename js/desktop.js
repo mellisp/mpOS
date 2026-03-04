@@ -922,7 +922,7 @@
             setTimeout(() => { voiceBeep(659.25, 0.1); }, 100);
           } else {
             setStatus(t('voice.noWindow'));
-            if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-error">"${transcript}"</span>`;
+            if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-error">"${escHtml(transcript)}"</span>`;
             voiceBeep(659.25, 0.12);
             setTimeout(() => { voiceBeep(523.25, 0.12); }, 120);
           }

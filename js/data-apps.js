@@ -136,7 +136,7 @@ function renderNeoData(body, allNeos) {
   const statClosest = document.createElement('div');
   statClosest.className = 'neo-stat-box sunken';
   statClosest.setAttribute('data-tip', t('neo.tip.lunar'));
-  statClosest.innerHTML = `<div class="neo-stat-val">${closestLunar.toFixed(1)} LD</div><div class="neo-stat-lbl">${t('neo.closestApproach')}: ${closestName}</div>`;
+  statClosest.innerHTML = `<div class="neo-stat-val">${closestLunar.toFixed(1)} LD</div><div class="neo-stat-lbl">${t('neo.closestApproach')}: ${escHtml(closestName)}</div>`;
   statsRow.appendChild(statClosest);
 
   wrap.appendChild(statsRow);
