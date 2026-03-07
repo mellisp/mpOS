@@ -292,6 +292,7 @@
     'notepad.untitled': 'Untitled',
     'notepad.titleSuffix': '- Notepad',
     'notepad.saved': 'Saved',
+    'notepad.charCount': '{count} characters',
     'notepad.charCount.one': '{count} character',
     'notepad.charCount.other': '{count} characters',
     'notepad.discardChanges': 'You have unsaved changes. Discard them?',
@@ -826,7 +827,34 @@
     'explorer.folder': 'Folder',
 
     /* Desktop (shutdown) */
-    'desktop.shutdownTitle': 'Shutdown'
+    'desktop.shutdownTitle': 'Shutdown',
+
+    /* Feature pack additions */
+    'calc.memory': 'Memory',
+    'calc.deg': 'DEG',
+    'calc.rad': 'RAD',
+    'calc.memIndicator': 'M',
+    'mc.general.version': 'Version',
+    'notepad.words': '{count} words',
+    'notepad.lines': '{count} lines',
+    'notepad.download': 'Download',
+    'paint.tool.spray': 'Spray Can',
+    'paint.tool.eyedropper': 'Eyedropper',
+    'paint.tool.text': 'Text',
+    'paint.download': 'Download',
+    'paint.fillToggle': 'Fill',
+    'ui.about': 'About mpOS',
+    'title.about': 'About mpOS',
+    'about.copyright': '\u00a9 2026 Matthew Pritchard',
+    'about.version': 'Version {ver}',
+    'win.about': 'About mpOS',
+    'app.about.name': 'About mpOS',
+    'app.about.desc': 'About this operating system.',
+    'taskbar.cascade': 'Cascade Windows',
+    'taskbar.tile': 'Tile Windows',
+    'taskbar.minimizeAll': 'Minimize All',
+    'cal.clickToNote': 'Click a date to open in Notepad',
+    'altTab.switchTo': 'Switch To'
   });
 
   /* Restore saved language (mpStorage not yet loaded — i18n.js runs first) */

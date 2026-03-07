@@ -58,8 +58,11 @@
   };
 
   const updateNotepadStatus = () => {
-    const len = notepadEditor.value.length;
-    notepadStatus.textContent = tPlural('notepad.charCount', len);
+    const val = notepadEditor.value;
+    const chars = val.length;
+    const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+    const lines = val.split('\n').length;
+    notepadStatus.textContent = `${tPlural('notepad.charCount', chars)} | ${t('notepad.words', {count: words})} | ${t('notepad.lines', {count: lines})}`;
   };
 
   /* ── Dialogs ── */
@@ -493,13 +496,33 @@
       else if (e.key === 'h') { e.preventDefault(); notepadShowFindBar('replace'); }
       else if (e.key === 's') { e.preventDefault(); notepadSave(); }
     }
+    // F5: insert timestamp
+    if (e.key === 'F5') {
+      e.preventDefault();
+      const ts = new Date().toLocaleString();
+      const start = notepadEditor.selectionStart;
+      notepadEditor.setRangeText(ts, start, notepadEditor.selectionEnd, 'end');
+      notepadMarkDirty();
+      updateNotepadStatus();
+    }
   });
+
+  /* ── Download as .txt ── */
+  const notepadDownload = () => {
+    const blob = new Blob([notepadEditor.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (notepadCurrentFile || 'untitled') + (notepadCurrentFile && notepadCurrentFile.includes('.') ? '' : '.txt');
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   /* ── Delegated listeners on notepad toolbar ── */
   document.getElementById('notepad').addEventListener('click', (e) => {
     const act = e.target.closest('[data-action]');
     if (!act) return;
-    const actions = { notepadNew, notepadSave, notepadLoad: notepadLoad };
+    const actions = { notepadNew, notepadSave, notepadLoad: notepadLoad, notepadDownload };
     const fn = actions[act.dataset.action];
     if (fn) fn();
   });

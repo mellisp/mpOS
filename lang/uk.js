@@ -821,5 +821,32 @@ window._mpLangRegister('uk', {
   'explorer.folder': 'Папка',
 
   /* Desktop (shutdown) */
-  'desktop.shutdownTitle': 'Завершення роботи'
+  'desktop.shutdownTitle': '\u0417\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u043d\u044f \u0440\u043e\u0431\u043e\u0442\u0438',
+
+  /* Feature pack additions */
+  'calc.memory': '\u041f\u0430\u043c\u02bc\u044f\u0442\u044c',
+  'calc.deg': '\u0413\u0420\u0410\u0414',
+  'calc.rad': '\u0420\u0410\u0414',
+  'calc.memIndicator': 'M',
+  'mc.general.version': '\u0412\u0435\u0440\u0441\u0456\u044f',
+  'notepad.words': '{count} \u0441\u043b\u0456\u0432',
+  'notepad.lines': '{count} \u0440\u044f\u0434\u043a\u0456\u0432',
+  'notepad.download': '\u0417\u0430\u0432\u0430\u043d\u0442\u0430\u0436\u0438\u0442\u0438',
+  'paint.tool.spray': '\u0411\u0430\u043b\u043e\u043d\u0447\u0438\u043a',
+  'paint.tool.eyedropper': '\u041f\u0456\u043f\u0435\u0442\u043a\u0430',
+  'paint.tool.text': '\u0422\u0435\u043a\u0441\u0442',
+  'paint.download': '\u0417\u0430\u0432\u0430\u043d\u0442\u0430\u0436\u0438\u0442\u0438',
+  'paint.fillToggle': '\u0417\u0430\u043b\u0438\u0432\u043a\u0430',
+  'ui.about': '\u041f\u0440\u043e mpOS',
+  'title.about': '\u041f\u0440\u043e mpOS',
+  'about.copyright': '\u00a9 2026 Matthew Pritchard',
+  'about.version': '\u0412\u0435\u0440\u0441\u0456\u044f {ver}',
+  'win.about': '\u041f\u0440\u043e mpOS',
+  'app.about.name': '\u041f\u0440\u043e mpOS',
+  'app.about.desc': '\u041f\u0440\u043e \u0446\u044e \u043e\u043f\u0435\u0440\u0430\u0446\u0456\u0439\u043d\u0443 \u0441\u0438\u0441\u0442\u0435\u043c\u0443.',
+  'taskbar.cascade': '\u041a\u0430\u0441\u043a\u0430\u0434\u043e\u043c',
+  'taskbar.tile': '\u041c\u043e\u0437\u0430\u0457\u043a\u043e\u044e',
+  'taskbar.minimizeAll': '\u0417\u0433\u043e\u0440\u043d\u0443\u0442\u0438 \u0432\u0441\u0435',
+  'cal.clickToNote': '\u041d\u0430\u0442\u0438\u0441\u043d\u0456\u0442\u044c \u043d\u0430 \u0434\u0430\u0442\u0443, \u0449\u043e\u0431 \u0432\u0456\u0434\u043a\u0440\u0438\u0442\u0438 \u0432 \u0411\u043b\u043e\u043a\u043d\u043e\u0442\u0456',
+  'altTab.switchTo': '\u041f\u0435\u0440\u0435\u0439\u0442\u0438 \u0434\u043e'
 });

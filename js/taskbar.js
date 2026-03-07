@@ -66,8 +66,10 @@
 
   if (muteCheckbox) {
     muteCheckbox.checked = mpStorage.get(STORAGE_KEYS.muted) === '1';
+    volumeIcon?.classList.toggle('muted', muteCheckbox.checked);
     muteCheckbox.addEventListener('change', () => {
       mpStorage.set(STORAGE_KEYS.muted, muteCheckbox.checked ? '1' : '0');
+      volumeIcon?.classList.toggle('muted', muteCheckbox.checked);
       window.mpAudioUpdateVolume?.();
     });
   }
@@ -451,12 +453,93 @@
     }
   });
 
+  /* ── Minimize All ── */
+  const minimizeAll = () => {
+    const wins = document.querySelectorAll('.window');
+    for (const w of wins) {
+      if (w.style.display !== 'none' && w.id) minimizeWindow(w.id);
+    }
+  };
+
+  /* ── Taskbar right-click context menu ── */
+  const taskbar = document.querySelector('.taskbar');
+  let tbCtxMenu = null;
+
+  const dismissTbCtxMenu = () => {
+    if (tbCtxMenu) { tbCtxMenu.remove(); tbCtxMenu = null; }
+  };
+
+  const getVisibleWindows = () =>
+    [...document.querySelectorAll('.window')].filter(w => w.style.display !== 'none' && w.id);
+
+  const cascadeWindows = () => {
+    const wins = getVisibleWindows();
+    wins.forEach((w, i) => {
+      w.style.left = `${60 + i * 30}px`;
+      w.style.top = `${40 + i * 30}px`;
+      bringToFront(w);
+    });
+  };
+
+  const tileWindows = () => {
+    const wins = getVisibleWindows();
+    if (!wins.length) return;
+    const cols = Math.ceil(Math.sqrt(wins.length));
+    const rows = Math.ceil(wins.length / cols);
+    const vw = window.innerWidth;
+    const vh = window.innerHeight - 40;
+    const tw = Math.floor(vw / cols);
+    const th = Math.floor(vh / rows);
+    wins.forEach((w, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      w.style.left = `${col * tw}px`;
+      w.style.top = `${row * th}px`;
+      w.style.width = `${tw}px`;
+      w.style.height = `${th}px`;
+      bringToFront(w);
+    });
+  };
+
+  if (taskbar) {
+    taskbar.addEventListener('contextmenu', (e) => {
+      if (e.target.closest('.start-btn, .start-menu, .taskbar-item, .system-tray')) return;
+      e.preventDefault();
+      dismissTbCtxMenu();
+      const menu = document.createElement('div');
+      menu.className = 'context-menu';
+      menu.style.cssText = `position:fixed;left:${e.clientX}px;bottom:${window.innerHeight - e.clientY}px;z-index:99999;`;
+      const items = [
+        { label: window.t('taskbar.cascade'), fn: cascadeWindows },
+        { label: window.t('taskbar.tile'), fn: tileWindows },
+        { label: window.t('taskbar.minimizeAll'), fn: minimizeAll }
+      ];
+      for (const item of items) {
+        const btn = document.createElement('button');
+        btn.className = 'context-menu-item';
+        btn.textContent = item.label;
+        btn.addEventListener('click', () => { dismissTbCtxMenu(); item.fn(); });
+        menu.appendChild(btn);
+      }
+      document.body.appendChild(menu);
+      tbCtxMenu = menu;
+    });
+
+    document.addEventListener('mousedown', (e) => {
+      if (tbCtxMenu && !tbCtxMenu.contains(e.target)) dismissTbCtxMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && tbCtxMenu) dismissTbCtxMenu();
+    });
+  }
+
   window.mpTaskbar = {
     minimizeWindow,
     restoreWindow,
     closeWindow,
     makeDraggable,
     makeResizable,
-    bringToFront
+    bringToFront,
+    minimizeAll
   };
 })();

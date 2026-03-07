@@ -8,6 +8,8 @@
   let calcOperation = null;
   let calcReset = false;
   let calcScientific = false;
+  let calcMemory = 0;
+  let calcDegrees = true;
 
   /* ── Display ── */
   const calcUpdateDisplay = () => {
@@ -81,6 +83,28 @@
     calcUpdateDisplay();
   };
 
+  /* ── Memory ── */
+  const calcMemIndicator = document.getElementById('calcMemIndicator');
+  const calcUpdateMemIndicator = () => {
+    if (calcMemIndicator) calcMemIndicator.style.visibility = calcMemory !== 0 ? 'visible' : 'hidden';
+  };
+
+  const calcMem = (action) => {
+    const val = parseFloat(calcCurrent) || 0;
+    if (action === 'ms') calcMemory = val;
+    else if (action === 'mr') { calcCurrent = String(calcMemory); calcReset = true; calcUpdateDisplay(); }
+    else if (action === 'mplus') calcMemory += val;
+    else if (action === 'mc') calcMemory = 0;
+    calcUpdateMemIndicator();
+  };
+
+  /* ── Deg/Rad Toggle ── */
+  const calcToggleDegRad = () => {
+    calcDegrees = !calcDegrees;
+    const btn = document.getElementById('calcDegRadBtn');
+    if (btn) btn.textContent = calcDegrees ? t('calc.deg') : t('calc.rad');
+  };
+
   /* ── Scientific Mode ── */
   const calcToggleScientific = () => {
     const toggle = document.getElementById('calcSciToggle');
@@ -103,12 +127,13 @@
   const calcSciFn = (fn) => {
     const val = parseFloat(calcCurrent);
     let result;
+    const toRad = calcDegrees ? val * Math.PI / 180 : val;
     switch (fn) {
-      case 'sin': result = Math.sin(val * Math.PI / 180); break;
-      case 'cos': result = Math.cos(val * Math.PI / 180); break;
+      case 'sin': result = Math.sin(toRad); break;
+      case 'cos': result = Math.cos(toRad); break;
       case 'tan':
-        if (Math.abs(val % 180) === 90) { result = Infinity; }
-        else { result = Math.tan(val * Math.PI / 180); }
+        if (calcDegrees && Math.abs(val % 180) === 90) { result = Infinity; }
+        else { result = Math.tan(toRad); }
         break;
       case 'sqrt':
         if (val < 0) { result = NaN; }
@@ -156,6 +181,8 @@
     else if (type === 'bs') calcBackspace();
     else if (type === 'decimal') calcDecimal();
     else if (type === 'eq') calcEquals();
+    else if (type === 'mem') calcMem(val);
+    else if (type === 'degrad') calcToggleDegRad();
   });
 
   /* ── Scientific toggle listener ── */

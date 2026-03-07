@@ -48,6 +48,10 @@
         if (d.getMonth() !== calMonth) cell.className += ' other-month';
         if (`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}` === todayStr) cell.className += ' today';
         cell.textContent = d.getDate();
+        cell.dataset.date = d.toISOString().slice(0, 10);
+        cell.tabIndex = 0;
+        cell.setAttribute('role', 'gridcell');
+        cell.style.cursor = 'pointer';
         frag.appendChild(cell);
       }
     }
@@ -344,13 +348,43 @@
     tzTick();
   };
 
+  /* ── Click date to open Notepad ── */
+  const calClickDate = (cell) => {
+    const dateStr = cell.dataset.date;
+    if (!dateStr || !window.notepadOpenWithContent) return;
+    window.notepadOpenWithContent(dateStr, '');
+  };
+
   /* ── Delegated listeners ── */
   document.getElementById('calendar').addEventListener('click', (e) => {
     const act = e.target.closest('[data-action]');
-    if (!act) return;
-    const actions = { calendarPrev, calendarNext, calendarToday };
-    const fn = actions[act.dataset.action];
-    if (fn) fn();
+    if (act) {
+      const actions = { calendarPrev, calendarNext, calendarToday };
+      const fn = actions[act.dataset.action];
+      if (fn) fn();
+      return;
+    }
+    const dayCell = e.target.closest('.cal-day');
+    if (dayCell) calClickDate(dayCell);
+  });
+
+  /* ── Keyboard navigation ── */
+  document.getElementById('calendar').addEventListener('keydown', (e) => {
+    const cells = calGridEl ? [...calGridEl.querySelectorAll('.cal-day')] : [];
+    if (!cells.length) return;
+    const idx = cells.indexOf(document.activeElement);
+    if (idx === -1) return;
+    let next = -1;
+    if (e.key === 'ArrowRight') next = idx + 1;
+    else if (e.key === 'ArrowLeft') next = idx - 1;
+    else if (e.key === 'ArrowDown') next = idx + 7;
+    else if (e.key === 'ArrowUp') next = idx - 7;
+    else if (e.key === 'Enter') { calClickDate(cells[idx]); e.preventDefault(); return; }
+    else return;
+    e.preventDefault();
+    if (next >= 0 && next < cells.length) cells[next].focus();
+    else if (next < 0) { calendarPrev(); setTimeout(() => { const c = [...calGridEl.querySelectorAll('.cal-day')]; if (c.length) c[c.length - 1].focus(); }, 50); }
+    else { calendarNext(); setTimeout(() => { const c = [...calGridEl.querySelectorAll('.cal-day')]; if (c.length) c[0].focus(); }, 50); }
   });
 
   document.getElementById('timezone').addEventListener('click', (e) => {

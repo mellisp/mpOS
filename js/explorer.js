@@ -96,6 +96,7 @@ const renderExplorerContent = () => {
       if (currentView === 'icon') {
         tile = document.createElement('div');
         tile.className = 'folder-icon-tile';
+        tile.tabIndex = 0;
         tile.addEventListener('dblclick', () => navigateExplorer(key));
         const icon = document.createElement('span');
         icon.className = 'folder-tile-icon';
@@ -108,6 +109,7 @@ const renderExplorerContent = () => {
       } else {
         tile = document.createElement('div');
         tile.className = 'folder-list-item';
+        tile.tabIndex = 0;
         tile.addEventListener('dblclick', () => navigateExplorer(key));
         const icon = document.createElement('span');
         icon.className = 'folder-tile-icon';
@@ -158,6 +160,7 @@ const renderExplorerContent = () => {
     items.forEach((item) => {
       const tile = document.createElement('div');
       tile.className = 'folder-icon-tile';
+      tile.tabIndex = 0;
       tile.addEventListener('dblclick', () => explorerItemAction(item));
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.setAttribute('viewBox', '0 0 20 20');
@@ -178,6 +181,7 @@ const renderExplorerContent = () => {
     items.forEach((item) => {
       const row = document.createElement('div');
       row.className = 'folder-list-item';
+      row.tabIndex = 0;
       row.addEventListener('dblclick', () => explorerItemAction(item));
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.setAttribute('viewBox', '0 0 20 20');
@@ -246,10 +250,33 @@ explorerWin.addEventListener('click', (e) => {
   const v = e.target.closest('[data-view]');
   if (v) setExplorerView(v.dataset.view);
 });
+
+/* ── Explorer keyboard navigation ── */
+const explorerBody = document.getElementById('explorerBody');
 explorerWin.addEventListener('keydown', (e) => {
-  if (e.key !== 'Enter') return;
-  const f = e.target.closest('[data-folder]');
-  if (f) navigateExplorer(f.dataset.folder);
+  if (e.key === 'Enter') {
+    const f = e.target.closest('[data-folder]');
+    if (f) { navigateExplorer(f.dataset.folder); return; }
+    // Trigger dblclick on focused item
+    const item = e.target.closest('.folder-icon-tile, .folder-list-item');
+    if (item) { item.dispatchEvent(new Event('dblclick', { bubbles: true })); return; }
+  }
+  if (!explorerBody) return;
+  const items = [...explorerBody.querySelectorAll('.folder-icon-tile, .folder-list-item')];
+  if (!items.length) return;
+  const idx = items.indexOf(document.activeElement);
+  let next = -1;
+  if (e.key === 'ArrowRight') next = idx + 1;
+  else if (e.key === 'ArrowLeft') next = idx - 1;
+  else if (e.key === 'ArrowDown') {
+    const cols = currentView === 'icon' ? Math.max(1, Math.floor(explorerBody.clientWidth / 90)) : 1;
+    next = idx + cols;
+  } else if (e.key === 'ArrowUp') {
+    const cols = currentView === 'icon' ? Math.max(1, Math.floor(explorerBody.clientWidth / 90)) : 1;
+    next = idx - cols;
+  } else return;
+  e.preventDefault();
+  if (next >= 0 && next < items.length) items[next].focus();
 });
 
 /* ── Registration ── */

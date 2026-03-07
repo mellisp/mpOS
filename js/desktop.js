@@ -242,6 +242,31 @@
       e.preventDefault();
       if (window._mpVoiceToggle) window._mpVoiceToggle();
     }
+    // Alt+F4: close frontmost window
+    if (e.altKey && e.key === 'F4') {
+      e.preventDefault();
+      const wins = [...document.querySelectorAll('.window')].filter(w => w.style.display !== 'none' && w.id);
+      if (wins.length) {
+        wins.sort((a, b) => (parseInt(b.style.zIndex) || 0) - (parseInt(a.style.zIndex) || 0));
+        const top = wins[0].id;
+        if (window.CLOSE_MAP?.[top]) window.CLOSE_MAP[top](); else mpTaskbar.closeWindow(top);
+      }
+    }
+    // F1: open Help
+    if (e.key === 'F1' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+      e.preventDefault();
+      if (window.openHelp) window.openHelp();
+    }
+    // Win/Cmd+D: show desktop (minimize all)
+    if (e.metaKey && e.key === 'd' && !e.ctrlKey && !e.altKey) {
+      e.preventDefault();
+      mpTaskbar.minimizeAll?.();
+    }
+    // Alt+Tab: window switcher
+    if (e.altKey && e.key === 'Tab') {
+      e.preventDefault();
+      altTabShow();
+    }
   });
 
   /* ====================================================================
@@ -720,11 +745,7 @@
       const desktopPhrases = ['show desktop', 'minimize all', 'mostrar área de trabalho', 'mostrar area de trabalho', 'minimizar tudo'];
       for (let sd = 0; sd < desktopPhrases.length; sd++) {
         if (text === desktopPhrases[sd]) {
-          for (const wid in WINDOW_NAMES) {
-            if (wid === 'voicecommands') continue;
-            const w = document.getElementById(wid);
-            if (w && w.style.display !== 'none') mpTaskbar.minimizeWindow(wid);
-          }
+          mpTaskbar.minimizeAll();
           setVoiceState('executing', t('voice.showDesktop'));
           if (vcTranscript) vcTranscript.innerHTML = `<span class="vc-result vc-action">\u2192 ${t('voice.showDesktop')}</span>`;
           voiceBeep(523.25, 0.1);
@@ -1728,6 +1749,99 @@
   }
 
   /* ====================================================================
+   * About mpOS dialog
+   * ==================================================================== */
+  const openAbout = () => {
+    openWindow('about');
+    const verEl = document.getElementById('aboutVersion');
+    if (verEl) verEl.textContent = t('about.version', { ver: window.MPOS_VERSION || '—' });
+  };
+
+  const closeAbout = () => { mpTaskbar.closeWindow('about'); };
+
+  /* ====================================================================
+   * Alt+Tab window switcher
+   * ==================================================================== */
+  const altTabOverlay = document.getElementById('altTabOverlay');
+  const altTabGrid = document.getElementById('altTabGrid');
+  let altTabItems = [];
+  let altTabIndex = 0;
+  let altTabActive = false;
+
+  const altTabShow = () => {
+    const wins = [...document.querySelectorAll('.window')].filter(w => w.style.display !== 'none' && w.id);
+    if (wins.length < 2) return;
+    wins.sort((a, b) => (parseInt(b.style.zIndex) || 0) - (parseInt(a.style.zIndex) || 0));
+    altTabItems = wins.map(w => w.id);
+    altTabIndex = 1; // start on the second window (Alt+Tab switches away from current)
+    altTabActive = true;
+    altTabGrid.textContent = '';
+    altTabItems.forEach((id, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'alt-tab-item' + (i === altTabIndex ? ' selected' : '');
+      const icon = document.createElement('div');
+      icon.className = 'alt-tab-icon';
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 20 20');
+      svg.setAttribute('fill', 'none');
+      const name = window.WINDOW_NAMES?.[id] || id;
+      svg.innerHTML = window.getItemIcon?.(name) || '';
+      icon.appendChild(svg);
+      cell.appendChild(icon);
+      const label = document.createElement('div');
+      label.className = 'alt-tab-label';
+      label.textContent = name;
+      cell.appendChild(label);
+      altTabGrid.appendChild(cell);
+    });
+    altTabOverlay.style.display = 'flex';
+  };
+
+  const altTabCycle = () => {
+    if (!altTabActive) return;
+    const cells = altTabGrid.children;
+    if (cells[altTabIndex]) cells[altTabIndex].classList.remove('selected');
+    altTabIndex = (altTabIndex + 1) % altTabItems.length;
+    if (cells[altTabIndex]) cells[altTabIndex].classList.add('selected');
+  };
+
+  const altTabCommit = () => {
+    if (!altTabActive) return;
+    const id = altTabItems[altTabIndex];
+    altTabOverlay.style.display = 'none';
+    altTabActive = false;
+    if (id) {
+      const win = document.getElementById(id);
+      if (win) {
+        mpTaskbar.restoreWindow(id);
+        mpTaskbar.bringToFront(win);
+      }
+    }
+  };
+
+  const altTabCancel = () => {
+    altTabOverlay.style.display = 'none';
+    altTabActive = false;
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (altTabActive && e.altKey && e.key === 'Tab') {
+      e.preventDefault();
+      altTabCycle();
+    }
+    if (altTabActive && e.key === 'Escape') {
+      e.preventDefault();
+      altTabCancel();
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (altTabActive && e.key === 'Alt') {
+      altTabCommit();
+    }
+  });
+
+  /* ====================================================================
    * Exports
    * ==================================================================== */
   window.exitSite = exitSite;
@@ -1735,11 +1849,12 @@
   window.reclampDesktopIcons = reclampDesktopIcons;
   window.openVoiceCommands = openVoiceCommands;
   window.closeVoiceCommands = closeVoiceCommands;
+  window.openAbout = openAbout;
   window.ICON_POSITION_KEY = ICON_POSITION_KEY;
 
   /* Register with core.js registries */
-  mpRegisterActions({ openVoiceCommands, exitSite });
-  mpRegisterWindows({ voicecommands: 'Voice Commands' });
-  mpRegisterCloseHandlers({ voicecommands: closeVoiceCommands });
+  mpRegisterActions({ openVoiceCommands, exitSite, openAbout, closeAbout });
+  mpRegisterWindows({ voicecommands: 'Voice Commands', about: t('title.about') });
+  mpRegisterCloseHandlers({ voicecommands: closeVoiceCommands, about: closeAbout });
 
 })();

@@ -158,6 +158,7 @@
     container.appendChild(sep);
 
     const sysSection = makeSection(t('mc.general.system'), [
+      [t('mc.general.version'), window.MPOS_VERSION || '\u2014'],
       [t('mc.general.cpuCores'), nav.hardwareConcurrency ? t('mc.general.logicalProcessors', { count: nav.hardwareConcurrency }) : null],
       [t('mc.general.language'), nav.language || null]
     ]);

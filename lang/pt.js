@@ -283,6 +283,7 @@ window._mpLangRegister('pt', {
   'notepad.untitled': 'Sem t\u00edtulo',
   'notepad.titleSuffix': '- Bloco de Notas',
   'notepad.saved': 'Guardado',
+  'notepad.charCount': '{count} caracteres',
   'notepad.charCount.one': '{count} car\u00e1cter',
   'notepad.charCount.other': '{count} caracteres',
   'notepad.discardChanges': 'Tem altera\u00e7\u00f5es por guardar. Descartar?',
@@ -817,5 +818,32 @@ window._mpLangRegister('pt', {
   'explorer.folder': 'Pasta',
 
   /* Desktop (shutdown) */
-  'desktop.shutdownTitle': 'Encerrar'
+  'desktop.shutdownTitle': 'Encerrar',
+
+  /* Feature pack additions */
+  'calc.memory': 'Mem\u00f3ria',
+  'calc.deg': 'GRAU',
+  'calc.rad': 'RAD',
+  'calc.memIndicator': 'M',
+  'mc.general.version': 'Vers\u00e3o',
+  'notepad.words': '{count} palavras',
+  'notepad.lines': '{count} linhas',
+  'notepad.download': 'Transferir',
+  'paint.tool.spray': 'Spray',
+  'paint.tool.eyedropper': 'Conta-gotas',
+  'paint.tool.text': 'Texto',
+  'paint.download': 'Transferir',
+  'paint.fillToggle': 'Preenchimento',
+  'ui.about': 'Sobre mpOS',
+  'title.about': 'Sobre mpOS',
+  'about.copyright': '\u00a9 2026 Matthew Pritchard',
+  'about.version': 'Vers\u00e3o {ver}',
+  'win.about': 'Sobre mpOS',
+  'app.about.name': 'Sobre mpOS',
+  'app.about.desc': 'Sobre este sistema operativo.',
+  'taskbar.cascade': 'Cascata',
+  'taskbar.tile': 'Mosaico',
+  'taskbar.minimizeAll': 'Minimizar Tudo',
+  'cal.clickToNote': 'Clique numa data para abrir no Bloco de Notas',
+  'altTab.switchTo': 'Mudar Para'
 });

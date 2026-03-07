@@ -438,6 +438,7 @@
           <button type="button" class="btn" data-action="notepadNew" data-i18n="ui.new">New</button>
           <button type="button" class="btn" data-action="notepadSave" data-i18n="ui.save">Save</button>
           <button type="button" class="btn" data-action="notepadLoad" data-i18n="ui.open">Open</button>
+          <button type="button" class="btn" data-action="notepadDownload" data-i18n="notepad.download">Download</button>
         </div>
         <textarea class="notepad-editor" id="notepadEditor" spellcheck="false" placeholder="Type here..." data-i18n="notepad.placeholder" data-i18n-attr="placeholder"></textarea>
       </div>
@@ -462,6 +463,14 @@
             <input type="checkbox" id="calcSciToggle">
             <span data-i18n="ui.scientific">Scientific</span>
           </label>
+          <button type="button" class="calc-deg-rad" id="calcDegRadBtn" data-calc="degrad" data-i18n="calc.deg">DEG</button>
+        </div>
+        <div class="calc-mem-buttons">
+          <span class="calc-mem-indicator" id="calcMemIndicator" style="visibility:hidden" data-i18n="calc.memIndicator">M</span>
+          <button type="button" class="calc-btn calc-mem" data-calc="mem" data-val="mc">MC</button>
+          <button type="button" class="calc-btn calc-mem" data-calc="mem" data-val="mr">MR</button>
+          <button type="button" class="calc-btn calc-mem" data-calc="mem" data-val="mplus">M+</button>
+          <button type="button" class="calc-btn calc-mem" data-calc="mem" data-val="ms">MS</button>
         </div>
         <div class="calc-sci-buttons" id="calcSciButtons" style="display:none;">
           <button type="button" class="calc-btn calc-sci" data-calc="sci" data-val="sin">sin</button>
@@ -762,6 +771,10 @@
           <span class="paint-tb-sep"></span>
           <button type="button" class="btn" data-action="paintClear" data-i18n="ui.clear">Clear</button>
           <span class="paint-tb-sep"></span>
+          <button type="button" class="btn" data-action="paintFillToggle" id="paintFillToggleBtn" data-i18n="paint.fillToggle">Fill</button>
+          <span class="paint-tb-sep"></span>
+          <button type="button" class="btn" data-action="paintDownload" data-i18n="paint.download">Download</button>
+          <span class="paint-tb-sep"></span>
           <label class="paint-size-label"><span data-i18n="paint.sizeLabel">Size:</span>
             <input type="range" id="paintSize" min="1" max="50" value="3">
             <span id="paintSizeVal">3</span>px
@@ -789,6 +802,15 @@
             </button>
             <button type="button" class="paint-tool" data-tool="fill" title="Fill" data-i18n="paint.tool.fill" data-i18n-attr="title">
               <svg viewBox="0 0 16 16" fill="none"><path d="M4 12 L4 6 L8 2 L12 6 L12 8" stroke="#444" stroke-width="1.2" fill="none" stroke-linejoin="round"/><path d="M12 8 Q14 10 12 12 Q10 14 8 12" fill="#4a8abe" stroke="#2a6898" stroke-width="0.8"/></svg>
+            </button>
+            <button type="button" class="paint-tool" data-tool="spray" title="Spray Can" data-i18n="paint.tool.spray" data-i18n-attr="title">
+              <svg viewBox="0 0 16 16" fill="none"><rect x="5" y="6" width="6" height="8" rx="1" fill="none" stroke="#444" stroke-width="1.2"/><line x1="8" y1="6" x2="8" y2="4" stroke="#444" stroke-width="1"/><circle cx="11" cy="3" r="0.6" fill="#444"/><circle cx="13" cy="2" r="0.6" fill="#444"/><circle cx="12" cy="4" r="0.6" fill="#444"/><circle cx="13" cy="5" r="0.6" fill="#444"/></svg>
+            </button>
+            <button type="button" class="paint-tool" data-tool="eyedropper" title="Eyedropper" data-i18n="paint.tool.eyedropper" data-i18n-attr="title">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 14 L6 12 L10 8 L12 6 L13 3 L10 6 L8 8 L4 12Z" stroke="#444" stroke-width="1.2" fill="none" stroke-linejoin="round"/><circle cx="13" cy="3" r="1.5" fill="none" stroke="#444" stroke-width="1"/></svg>
+            </button>
+            <button type="button" class="paint-tool" data-tool="text" title="Text" data-i18n="paint.tool.text" data-i18n-attr="title">
+              <svg viewBox="0 0 16 16" fill="none"><text x="4" y="13" font-size="12" font-family="serif" fill="#444">A</text></svg>
             </button>
           </div>
           <div class="paint-canvas-wrap">
@@ -960,6 +982,38 @@
       </div>
       <div class="statusbar">
         <div class="statusbar-section" id="neotrackerStatus"></div>
+      </div>
+    </div>
+
+    <!-- About mpOS Window (hidden initially) -->
+    <div class="window draggable" id="about" role="dialog" aria-modal="true" aria-labelledby="about-title" style="display:none;">
+      <div class="titlebar">
+        <span id="about-title" data-i18n="title.about">About mpOS</span>
+        <div class="titlebar-buttons">
+          <div class="titlebar-btn" role="button" tabindex="0" aria-label="Close">X</div>
+        </div>
+      </div>
+      <div class="window-body about-body">
+        <svg class="about-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="4" width="56" height="56" rx="8" fill="#2c6a99" stroke="#1a4a6e" stroke-width="2"/>
+          <text x="32" y="42" text-anchor="middle" font-size="24" font-weight="bold" fill="white" font-family="Tahoma, sans-serif">mpOS</text>
+        </svg>
+        <div class="about-info">
+          <div class="about-title-text">mpOS</div>
+          <div class="about-version" id="aboutVersion"></div>
+          <div class="about-copyright" data-i18n="about.copyright">&copy; 2026 Matthew Pritchard</div>
+        </div>
+        <div class="button-row">
+          <button type="button" class="btn" data-action="closeAbout" data-i18n="ui.ok">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alt+Tab Overlay (hidden) -->
+    <div class="alt-tab-overlay" id="altTabOverlay" style="display:none;">
+      <div class="alt-tab-box">
+        <div class="alt-tab-title" data-i18n="altTab.switchTo">Switch To</div>
+        <div class="alt-tab-grid" id="altTabGrid"></div>
       </div>
     </div>
 
@@ -1234,6 +1288,15 @@
             </button>
           </div>
         </div>
+
+        <!-- About -->
+        <button class="start-menu-item" type="button" role="menuitem" data-action="openAbout">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="10" cy="10" r="8" fill="#2c6a99" stroke="#1a4a6e" stroke-width="1"/>
+            <text x="10" y="14.5" text-anchor="middle" font-size="12" font-weight="bold" fill="white" font-family="Tahoma, sans-serif">i</text>
+          </svg>
+          <span data-i18n="ui.about">About mpOS</span>
+        </button>
 
         <!-- Run -->
         <button class="start-menu-item" type="button" role="menuitem" data-action="openRun">

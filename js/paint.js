@@ -21,16 +21,19 @@ let paintSizeValEl = null;
 let paintTitleEl = null;
 let paintBuilt = false;
 let paintTool = 'pencil';
+let paintPrevTool = 'pencil';
 let paintFg = '#000000';
 let paintBgColor = '#ffffff';
 let paintSize = 3;
 let paintDrawing = false;
+let paintFilled = false;
 let paintPoints = [];
 let paintUndoStack = [];
 let paintRedoStack = [];
 let paintDirty = false;
 let paintCurrentFile = null;
 let paintStartPos = null;
+let paintFgEl = null;
 const paintW = 640;
 const paintH = 400;
 
@@ -98,7 +101,8 @@ const paintSetup = () => {
   }
 
   // Set initial FG/BG display
-  document.getElementById('paintFg').style.background = paintFg;
+  paintFgEl = document.getElementById('paintFg');
+  paintFgEl.style.background = paintFg;
   document.getElementById('paintBg').style.background = paintBgColor;
 
   // FG/BG double-click to pick custom color
@@ -206,7 +210,50 @@ const paintOnDown = (e) => {
     return;
   }
 
-  if (paintTool === 'pencil' || paintTool === 'brush' || paintTool === 'eraser') {
+  if (paintTool === 'eyedropper') {
+    const dpr = window.devicePixelRatio || 1;
+    const px = Math.round(pos.x * dpr);
+    const py = Math.round(pos.y * dpr);
+    const pixel = paintCtx.getImageData(px, py, 1, 1).data;
+    paintFg = '#' + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1);
+    if (paintFgEl) paintFgEl.style.background = paintFg;
+    paintDrawing = false;
+    paintSetTool(paintPrevTool);
+    return;
+  }
+
+  if (paintTool === 'text') {
+    paintDrawing = false;
+    paintSaveState();
+    const wrap = document.querySelector('.paint-canvas-wrap');
+    const rect = paintCanvas.getBoundingClientRect();
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'paint-text-input';
+    inp.style.cssText = `position:absolute;left:${e.clientX - rect.left}px;top:${e.clientY - rect.top}px;font-size:${Math.max(12, paintSize * 3)}px;color:${paintFg};`;
+    wrap.appendChild(inp);
+    inp.focus();
+    const commit = () => {
+      if (inp.value) {
+        paintCtx.fillStyle = paintFg;
+        paintCtx.font = `${Math.max(12, paintSize * 3)}px sans-serif`;
+        paintCtx.fillText(inp.value, pos.x, pos.y);
+        paintDirty = true;
+        paintSetTitle();
+        paintSaveState();
+      }
+      inp.remove();
+    };
+    inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') commit(); if (ev.key === 'Escape') inp.remove(); });
+    inp.addEventListener('blur', commit);
+    return;
+  }
+
+  if (paintTool === 'spray') {
+    paintSaveState();
+    paintPoints = [pos];
+    paintSprayAt(pos.x, pos.y);
+  } else if (paintTool === 'pencil' || paintTool === 'brush' || paintTool === 'eraser') {
     paintSaveState();
     paintPoints = [pos];
     paintCtx.beginPath();
@@ -225,7 +272,9 @@ const paintOnMove = (e) => {
 
   if (!paintDrawing) return;
 
-  if (paintTool === 'pencil' || paintTool === 'brush' || paintTool === 'eraser') {
+  if (paintTool === 'spray') {
+    paintSprayAt(pos.x, pos.y);
+  } else if (paintTool === 'pencil' || paintTool === 'brush' || paintTool === 'eraser') {
     paintPoints.push(pos);
     paintDrawIncremental(paintCtx, paintPoints);
   } else if (paintTool === 'line' || paintTool === 'rect' || paintTool === 'ellipse') {
@@ -242,7 +291,9 @@ const paintOnUp = (e) => {
   if (!paintDrawing) return;
   paintDrawing = false;
 
-  if (paintTool === 'pencil' || paintTool === 'brush' || paintTool === 'eraser') {
+  if (paintTool === 'spray') {
+    // spray is handled in move; just mark dirty
+  } else if (paintTool === 'pencil' || paintTool === 'brush' || paintTool === 'eraser') {
     // Single-click dot: if only one point, draw a dot
     if (paintPoints.length === 1) {
       paintConfigStroke(paintCtx);
@@ -325,6 +376,16 @@ const paintDrawIncremental = (ctx, pts) => {
   ctx.stroke();
 };
 
+const paintSprayAt = (x, y) => {
+  const radius = paintSize * 3;
+  paintCtx.fillStyle = paintFg;
+  for (let i = 0; i < 20; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const r = Math.random() * radius;
+    paintCtx.fillRect(x + r * Math.cos(angle), y + r * Math.sin(angle), 1, 1);
+  }
+};
+
 const paintDrawShape = (ctx, start, end) => {
   ctx.beginPath();
   if (paintTool === 'line') {
@@ -332,6 +393,10 @@ const paintDrawShape = (ctx, start, end) => {
     ctx.lineTo(end.x, end.y);
     ctx.stroke();
   } else if (paintTool === 'rect') {
+    if (paintFilled) {
+      ctx.fillStyle = paintFg;
+      ctx.fillRect(start.x, start.y, end.x - start.x, end.y - start.y);
+    }
     ctx.strokeRect(start.x, start.y, end.x - start.x, end.y - start.y);
   } else if (paintTool === 'ellipse') {
     const cx = (start.x + end.x) / 2;
@@ -339,6 +404,7 @@ const paintDrawShape = (ctx, start, end) => {
     const rx = Math.abs(end.x - start.x) / 2;
     const ry = Math.abs(end.y - start.y) / 2;
     ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    if (paintFilled) { ctx.fillStyle = paintFg; ctx.fill(); }
     ctx.stroke();
   }
 };
@@ -420,6 +486,7 @@ const paintFloodFill = (startX, startY, fillColor) => {
 };
 
 const paintSetTool = (tool) => {
+  if (paintTool !== 'eyedropper') paintPrevTool = paintTool;
   paintTool = tool;
   const btns = document.querySelectorAll('.paint-tool');
   for (let i = 0; i < btns.length; i++) {
@@ -651,6 +718,21 @@ const paintDismissDialog = () => {
   if (d) d.remove();
 };
 
+/* ── Fill Toggle ── */
+const paintFillToggle = () => {
+  paintFilled = !paintFilled;
+  const btn = document.querySelector('[data-action="paintFillToggle"]');
+  if (btn) btn.classList.toggle('active', paintFilled);
+};
+
+/* ── Download PNG ── */
+const paintDownload = () => {
+  const a = document.createElement('a');
+  a.href = paintCanvas.toDataURL('image/png');
+  a.download = (paintCurrentFile || 'untitled') + (paintCurrentFile && paintCurrentFile.includes('.') ? '' : '.png');
+  a.click();
+};
+
 /* ── Delegated listeners on paint window ── */
 const paintWin = document.getElementById('paint');
 paintWin.addEventListener('click', (e) => {
@@ -658,7 +740,7 @@ paintWin.addEventListener('click', (e) => {
   if (tool && tool.dataset.tool) { paintSetTool(tool.dataset.tool); return; }
   const act = e.target.closest('[data-action]');
   if (!act) return;
-  const actions = { paintNew, paintSave, paintLoad: paintLoad, paintUndo, paintRedo, paintClear };
+  const actions = { paintNew, paintSave, paintLoad: paintLoad, paintUndo, paintRedo, paintClear, paintFillToggle, paintDownload };
   const fn = actions[act.dataset.action];
   if (fn) fn();
 });
