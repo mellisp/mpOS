@@ -825,6 +825,7 @@ window._mpLangRegister('uk', {
 
   /* Feature pack additions */
   'calc.error': '\u041f\u043e\u043c\u0438\u043b\u043a\u0430',
+  'neo.earth': '\u0417\u0435\u043c\u043b\u044f',
   'calc.memory': '\u041f\u0430\u043c\u02bc\u044f\u0442\u044c',
   'calc.deg': '\u0413\u0420\u0410\u0414',
   'calc.rad': '\u0420\u0410\u0414',

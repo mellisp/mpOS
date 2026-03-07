@@ -402,6 +402,7 @@
     'neo.detailYes': 'Yes',
     'neo.detailNo': 'No',
     'neo.detailJpl': 'View on NASA JPL',
+    'neo.earth': 'Earth',
     'neo.gaugeTitle': 'Miss Distance (Lunar Distances)',
     'neo.tip.distance': 'How close the object will pass to Earth',
     'neo.tip.velocity': 'Speed relative to Earth at closest approach',

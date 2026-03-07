@@ -822,6 +822,7 @@ window._mpLangRegister('pt', {
 
   /* Feature pack additions */
   'calc.error': 'Erro',
+  'neo.earth': 'Terra',
   'calc.memory': 'Mem\u00f3ria',
   'calc.deg': 'GRAU',
   'calc.rad': 'RAD',

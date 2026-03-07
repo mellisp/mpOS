@@ -151,7 +151,7 @@ function renderNeoData(body, allNeos) {
   gaugeTitle.setAttribute('data-tip', t('neo.tip.gauge'));
   gaugeWrap.appendChild(gaugeTitle);
 
-  const gW = 700, gH = 80;
+  const gW = 700, gH = 110;
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('viewBox', `0 0 ${gW} ${gH}`);
   svg.setAttribute('width', '100%');
@@ -166,15 +166,20 @@ function renderNeoData(body, allNeos) {
   svg.appendChild(axis);
 
   // Earth marker
-  const earth = document.createElementNS(SVG_NS, 'circle');
-  earth.setAttribute('cx', 30); earth.setAttribute('cy', gH / 2);
-  earth.setAttribute('r', 8); earth.setAttribute('fill', '#2196f3');
-  svg.appendChild(earth);
+  const earthOuter = document.createElementNS(SVG_NS, 'circle');
+  earthOuter.setAttribute('cx', 30); earthOuter.setAttribute('cy', gH / 2);
+  earthOuter.setAttribute('r', 10); earthOuter.setAttribute('fill', '#1565c0');
+  earthOuter.setAttribute('stroke', '#0d47a1'); earthOuter.setAttribute('stroke-width', '1');
+  svg.appendChild(earthOuter);
+  const earthInner = document.createElementNS(SVG_NS, 'circle');
+  earthInner.setAttribute('cx', 31); earthInner.setAttribute('cy', gH / 2 - 1);
+  earthInner.setAttribute('r', 4); earthInner.setAttribute('fill', '#4caf50'); earthInner.setAttribute('fill-opacity', '0.6');
+  svg.appendChild(earthInner);
   const earthLbl = document.createElementNS(SVG_NS, 'text');
-  earthLbl.setAttribute('x', 30); earthLbl.setAttribute('y', gH / 2 + 4);
+  earthLbl.setAttribute('x', 30); earthLbl.setAttribute('y', gH / 2 + 24);
   earthLbl.setAttribute('text-anchor', 'middle');
-  earthLbl.setAttribute('font-size', '9'); earthLbl.setAttribute('fill', '#fff');
-  earthLbl.textContent = '\u{1F30D}';
+  earthLbl.setAttribute('font-size', '8'); earthLbl.setAttribute('fill', '#606060');
+  earthLbl.textContent = t('neo.earth');
   svg.appendChild(earthLbl);
 
   // Log scale ticks: 0.1, 1, 10, 100 LD
@@ -214,7 +219,7 @@ function renderNeoData(body, allNeos) {
   for (let di = 0; di < allNeos.length; di++) {
     const lunarDist = parseFloat(allNeos[di].approach.miss_distance.lunar) || 0;
     const dx = ldToX(lunarDist);
-    const jitter = ((di * 7 + 3) % 11 - 5) * 2.5;
+    const jitter = ((di * 7 + 3) % 15 - 7) * 3;
     const dy = gH / 2 + jitter;
     const isPha = allNeos[di].neo.is_potentially_hazardous_asteroid;
 
@@ -239,7 +244,8 @@ function renderNeoData(body, allNeos) {
       return;
     }
     const idx = parseInt(target.getAttribute('data-idx'));
-    neoTooltip.textContent = allNeos[idx].neo.name;
+    const ld = parseFloat(allNeos[idx].approach.miss_distance.lunar) || 0;
+    neoTooltip.textContent = allNeos[idx].neo.name + ' \u2014 ' + ld.toFixed(1) + ' LD';
     neoTooltip.style.display = 'block';
     const rect = gaugeWrap.getBoundingClientRect();
     neoTooltip.style.left = (e.clientX - rect.left + 10) + 'px';
@@ -444,7 +450,7 @@ function showNeoDetail(wrap, allNeos, idx, useMiles, KM_MI) {
 
   // Title row
   const titleRow = document.createElement('div');
-  titleRow.className = 'neo-detail-title';
+  titleRow.className = 'neo-detail-title' + (isPha ? ' neo-detail-title-pha' : '');
   let titleText = neo.name || '\u2014';
   if (isPha) titleText = '\u26A0 ' + titleText;
   titleRow.textContent = titleText;
