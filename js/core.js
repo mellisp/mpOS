@@ -380,7 +380,7 @@ let MPOS_VERSION = '2.4';
       }
     }
   } catch { /* version.json unavailable */ }
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  if ('serviceWorker' in navigator && location.hostname === 'www.matthewpritchard.com') navigator.serviceWorker.register('sw.js');
 })();
 
 /* ── Start menu delegation ── */

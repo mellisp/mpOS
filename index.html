@@ -994,17 +994,13 @@
         </div>
       </div>
       <div class="window-body about-body">
-        <svg class="about-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="4" y="4" width="56" height="56" rx="8" fill="#2c6a99" stroke="#1a4a6e" stroke-width="2"/>
-          <text x="32" y="42" text-anchor="middle" font-size="24" font-weight="bold" fill="white" font-family="Tahoma, sans-serif">mpOS</text>
-        </svg>
-        <div class="about-info">
-          <div class="about-title-text">mpOS</div>
-          <div class="about-version" id="aboutVersion"></div>
-          <div class="about-copyright" data-i18n="about.copyright">&copy; 2026 Matthew Pritchard</div>
+        <div class="about-banner">
+          <span class="about-banner-name">mpOS</span>
         </div>
-        <div class="button-row">
-          <button type="button" class="btn" data-action="closeAbout" data-i18n="ui.ok">OK</button>
+        <div class="about-details">
+          <p class="about-version" id="aboutVersion"></p>
+          <p class="about-copyright" data-i18n="about.copyright">&copy; 2026 Matthew Pritchard</p>
+          <p class="about-url">www.matthewpritchard.com</p>
         </div>
       </div>
     </div>
@@ -1292,8 +1288,10 @@
         <!-- About -->
         <button class="start-menu-item" type="button" role="menuitem" data-action="openAbout">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="10" cy="10" r="8" fill="#2c6a99" stroke="#1a4a6e" stroke-width="1"/>
-            <text x="10" y="14.5" text-anchor="middle" font-size="12" font-weight="bold" fill="white" font-family="Tahoma, sans-serif">i</text>
+            <defs><linearGradient id="ei-ib" x1="5.7" x2="14.3" y1="2.5" y2="17.5" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4a90cc"/><stop offset=".5" stop-color="#4a90cc"/><stop offset="1" stop-color="#2c6a99"/></linearGradient><linearGradient id="ei-im" x1="7.5" x2="12.5" y1="5.7" y2="14.3" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f3f7fe"/><stop offset=".5" stop-color="#f3f7fe"/><stop offset="1" stop-color="#deeafb"/></linearGradient></defs>
+            <circle cx="10" cy="10" r="7.5" fill="url(#ei-ib)" stroke="#3a7cb8" stroke-width="0.8"/>
+            <circle cx="10" cy="6.8" r="1" fill="url(#ei-im)" stroke="#e6effc" stroke-width="0.4"/>
+            <rect x="9" y="8.2" width="2" height="6" rx="1" fill="url(#ei-im)" stroke="#e6effc" stroke-width="0.4"/>
           </svg>
           <span data-i18n="ui.about">About mpOS</span>
         </button>

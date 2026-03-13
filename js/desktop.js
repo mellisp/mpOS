@@ -1850,6 +1850,7 @@
   window.openVoiceCommands = openVoiceCommands;
   window.closeVoiceCommands = closeVoiceCommands;
   window.openAbout = openAbout;
+  window.closeAbout = closeAbout;
   window.ICON_POSITION_KEY = ICON_POSITION_KEY;
 
   /* Register with core.js registries */
